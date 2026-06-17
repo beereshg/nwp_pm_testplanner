@@ -42,8 +42,29 @@
 </tr>
 {% endfor %}
 </table>
+{% endif %}
 
-{# Notes — with "Notes" header, matching HTML report format #}
+<br/>
+
+{# Pass / Fail Criteria #}
+{% if tc.passfail %}
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Pass / Fail Criteria</div>
+<br/>
+{% if tc.passfail.pass %}
+<div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
+  <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
+  <p style="margin:0;font-size:0.9em;">{{ tc.passfail.pass }}</p>
+</div>
+{% endif %}
+{% if tc.passfail.fail %}
+<div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
+  <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
+  <p style="margin:0;font-size:0.9em;">{{ tc.passfail.fail }}</p>
+</div>
+{% endif %}
+{% endif %}
+
+{# Notes #}
 {% if tc.notes %}
 <h3>NOTEs</h3>
 <div style="font-size:0.85em;color:#555;margin-left:12px;padding:10px;background:#f8f9fa;border-left:3px solid #999;border-radius:3px;">
@@ -53,6 +74,7 @@
 </div>
 {% endif %}
 
+{# OPENs #}
 {% if tc.opens %}
 <h3>OPENs</h3>
 <div style="font-size:0.85em;color:#c62828;margin-left:12px;padding:10px;background:#fff3f3;border-left:3px solid #c62828;border-radius:3px;">
@@ -62,7 +84,6 @@
 {% endfor %}
 </ul>
 </div>
-{% endif %}
 {% endif %}
 
 <br/>

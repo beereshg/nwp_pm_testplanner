@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: C1 Residency Counter</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: C1 Residency Counter</h1>
+      <p>Segment: PSS | Source: HSD_22021970048_c1_residency_counter.inference.md | Generated: 2026-06-17 21:57:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: C1 Residency Counter</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>[22021970048](https://hsdes.intel.com/appstore/article/#/22021970048)</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>C1 Residency Counter</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-06-17</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>PSS</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Core C-States</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>C1 / CBB Die</td>
+</tr>
+<tr>
+<td>**Val Environment**</td>
+<td>emulation.hsle, XOS</td>
+</tr>
+<tr>
+<td>**Framework**</td>
+<td>perspec_maestro</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>aprakas2</td>
+</tr>
+<tr>
+<td>**Tags**</td>
+<td>PCODE, UCODE, INT_VAL, primecode_val_gap_coverage</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+<tr>
+<td>**Status**</td>
+<td>open</td>
+</tr>
+</tbody></table>
+<h2>HSD Hierarchy</h2>
+<ul>
+<li>Test Case Definition: [22021969891 — Core C-State Residency Counter Checks](https://hsdes.intel.com/appstore/article/#/22021969891)</li>
+<li>Test Case: [22021970048 — C1 Residency Counter](https://hsdes.intel.com/appstore/article/#/22021970048)</li>
+</ul>
+<h2>KB References</h2>
+<ul>
+<li>KB Article: [KB/pm_features/core_c_states/c1.md](../../../pm_features/core_c_states/c1.md)</li>
+<li>KB Article: [KB/pm_features/core_c_states/core_c_states_main.md](../../../pm_features/core_c_states/core_c_states_main.md)</li>
+</ul>
+<h2>Version History</h2>
+<ul>
+<li>v1 (2026-06-17): Initial LLM enrichment from TC description + c1.md KB + NWP architecture constants</li>
+</ul>
+<p>---</p>
+<h2>Test Case Intent</h2>
+<p>Verify the per-core C1 residency counter (MSR 0x778 / MSR 0x3FD) increments when cores enter C1 state on NWP silicon/emulation via MWAIT using Intel Idle Driver or Solar tool. Validate ACPI C-state enumeration is correct and CXL VTC domain cross-product coverage is enabled.</p>
+<h3>Pre-Conditions</h3>
+<table class="md-table"><thead><tr>
+<th>Item</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>BIOS</td>
+<td>C-states enabled; default BIOS knobs per TC configuration</td>
+</tr>
+<tr>
+<td>IMH Fuses</td>
+<td>punit/PCODE_CORE_C_STATE = 0x3; punit/PCODE_PKG_C_STATE = 0x8</td>
+</tr>
+<tr>
+<td>IMH Fuses</td>
+<td>PMSRVR_PTPCFSMS_PKG_C_STATE_LIMIT_REQ_FUSED_C_STATE_MAX_LIMIT_FUSE = 0x2</td>
+</tr>
+<tr>
+<td>IMH Fuses</td>
+<td>PMSRVR_PTPCFSMS_PKG_C_STATE_LIMIT_REQ_FUSED_FUSED_PKGC_STATE_MAX_LIMIT_FUSE = 0x2</td>
+</tr>
+<tr>
+<td>CBB Fuses</td>
+<td>fw_fuses_CORE_C_STATE; fw_fuses_PKG_C_STATE_LIMIT_REQ_C_STATE_MAX_LIMIT; fw_fuses_PKG_C_STATE_LIMIT_REQ_FUSED_PKGC_STATE_MAX_LIMIT</td>
+</tr>
+<tr>
+<td>Kernel Config</td>
+<td>idle=poll, idle=halt, idle=nomwait must NOT be in boot parameters</td>
+</tr>
+<tr>
+<td>Tool</td>
+<td>Intel Idle Driver or Solar tool available</td>
+</tr>
+<tr>
+<td>Model</td>
+<td>XOS; HSLE with Aunit Fmod and CorePMA</td>
+</tr>
+</tbody></table>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Read baseline per-core C1 residency counter: MSR 0x778 (CC1) and MSR 0x3FD (CC6) on all 96 cores (NWP: 2 CBBs × 48 cores)</td>
+<td>Baseline values captured without error</td>
+<td>Read failure / access error</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Inject MWaits via Intel Idle Driver or Solar tool to drive cores into C1 idle state</td>
+<td>Cores enter C1 halt; OS reflects idle</td>
+<td>Cores remain active; no idle state entered</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify BIOS ACPI enumeration</td>
+<td>ACPI _CST enumerates C1 descriptor per logical processor</td>
+<td>Missing or incorrect _CST object</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Wait defined dwell period (~2 seconds)</td>
+<td>System remains stable in idle</td>
+<td>Unexpected wakeup or errors</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Re-read MSR 0x778 (CC1) on all 96 cores</td>
+<td>Positive delta on every core</td>
+<td>Any core shows zero increment</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify MSR 0x3FD (CC6) did not inflate significantly</td>
+<td>CC6 counter remains near baseline (cores stayed in C1)</td>
+<td>CC6 unexpectedly incremented</td>
+</tr>
+</tbody></table>
+<h3>Pass/Fail Criteria</h3>
+<ul>
+<li>**PASS**: MSR 0x778 increments on all 96 cores (2 CBBs × 48) after C1 dwell; MSR 0x3FD stays minimal during C1-only dwell</li>
+<li>**FAIL**: Any core shows CC1 residency counter delta = 0 after sustained idle; or CC6 inflates during C1-only dwell</li>
+</ul>
+<p>---</p>
+<h2>Section A: NWP Delta</h2>
+<p>**Disposition: Runnable_On_N-1 — Trivial adaptation (topology loop bounds only)**</p>
+<p>C1/C1E is fully supported on NWP with the same PantherCove (PNC) core as DMR. The same MWAIT mechanism, residency MSR interface, BIOS ACPI _CST enumeration, and FW agents (uCode, Acode, PCode) apply without functional change.</p>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Test Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>Core uarch</td>
+<td>PantherCove</td>
+<td>**PantherCove**</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>Total cores</td>
+<td>up to 256</td>
+<td>**96**</td>
+<td>Loop: 96 cores, smaller sample</td>
+</tr>
+<tr>
+<td>CBB count</td>
+<td>up to 4</td>
+<td>**2**</td>
+<td>`range(4)` → `range(2)`</td>
+</tr>
+<tr>
+<td>Cores per CBB</td>
+<td>64</td>
+<td>**48**</td>
+<td>`range(64)` → `range(48)`</td>
+</tr>
+<tr>
+<td>C1 support</td>
+<td>Yes</td>
+<td>**Yes**</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>MSR 0x778 CC1</td>
+<td>Per-core RO</td>
+<td>**Per-core RO**</td>
+<td>Same access path</td>
+</tr>
+<tr>
+<td>MSR 0x3FD CC6</td>
+<td>Per-core RO</td>
+<td>**Per-core RO**</td>
+<td>Same access path</td>
+</tr>
+<tr>
+<td>PkgC6</td>
+<td>Supported</td>
+<td>**ZBB (fused off)**</td>
+<td>No interference with C1 test</td>
+</tr>
+<tr>
+<td>IMH topology</td>
+<td>2 IMH</td>
+<td>**1 NIO**</td>
+<td>Path prefix only: `nio.punit.*` replaces `imh0.punit.*` — register names and fields are identical</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section B: Interactions</h2>
+<h3>Swimlane Data</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Actor</th>
+<th>Action</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Host OS</td>
+<td>Issue MWAIT (EAX=0, sub-state=0) or Intel Idle / Solar stimulus</td>
+<td>[HW instruction]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>uCode (PantherCove)</td>
+<td>TC1 entry: CPL check → Monitor check → freeze APIC → inhibit events → clock-gate</td>
+<td>[Internal]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>ACP / PMA (CBB)</td>
+<td>CC1 entry: assert core_active deassert; start CTC-based residency counter</td>
+<td>[HW wire]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>CTC Crystal Clock</td>
+<td>Increment MSR 0x778 (CC1 residency counter) every crystal cycle while in CC1</td>
+<td>[HW wire]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>PythonSV / Test</td>
+<td>Read MSR 0x778 per-core via SVOS on all 96 NWP cores</td>
+<td>[CSR]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Test</td>
+<td>Delta check: after &gt; before on all cores</td>
+<td>[Test logic]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>uCode</td>
+<td>Break event received → TC1 exit: deassert clock-gate, resume thread execution</td>
+<td>[Internal]</td>
+</tr>
+</tbody></table>
+<h3>Sequence Data</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>From</th>
+<th>To</th>
+<th>Message</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>OS/Intel Idle Driver</td>
+<td>uCode</td>
+<td>MWAIT (EAX=0x00) — request C1 idle</td>
+<td>[HW instruction]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>uCode</td>
+<td>ACP/PMA</td>
+<td>TC1 entry signal; inhibit interrupts; freeze APIC counter</td>
+<td>[Internal]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>ACP/PMA</td>
+<td>CTC</td>
+<td>Assert CC1 active; enable crystal-cycle residency count</td>
+<td>[HW wire]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>CTC</td>
+<td>MSR 0x778</td>
+<td>Increment CC1 residency counter each crystal cycle</td>
+<td>[HW wire]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Test/PythonSV</td>
+<td>MSR 0x778</td>
+<td>Read per-core CC1 residency (via SVOS `read_msr`)</td>
+<td>[CSR]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Break event</td>
+<td>uCode</td>
+<td>External interrupt / Solar wakeup</td>
+<td>[HW wire]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>uCode</td>
+<td>ACP/PMA</td>
+<td>TC1 exit: deassert clock-gate; resume core</td>
+<td>[Internal]</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section C: Coverage</h2>
+<table class="md-table"><thead><tr>
+<th>Coverage Area</th>
+<th>DMR Coverage</th>
+<th>NWP Gap</th>
+<th>Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>C1 residency counter increment (MSR 0x778)</td>
+<td>Covered</td>
+<td>**None**</td>
+<td>Run as-is, update loop bounds</td>
+</tr>
+<tr>
+<td>CC6 counter isolation during C1 dwell</td>
+<td>Covered</td>
+<td>**None**</td>
+<td>Same check</td>
+</tr>
+<tr>
+<td>ACPI _CST C1 descriptor enumeration</td>
+<td>Covered</td>
+<td>**None**</td>
+<td>Same BIOS/ACPI flow</td>
+</tr>
+<tr>
+<td>Cross-product: CXL VTC domain</td>
+<td>Covered (SLE has only CXL Xtor)</td>
+<td>**None**</td>
+<td>Same requirement</td>
+</tr>
+<tr>
+<td>MWAIT sub-state 0 (C1) and sub-state 1 (C1E)</td>
+<td>Covered</td>
+<td>**None**</td>
+<td>Both sub-states required</td>
+</tr>
+<tr>
+<td>All cores covered (96 NWP vs up to 256 DMR)</td>
+<td>Covered</td>
+<td>**Scope reduced**</td>
+<td>Verify all 96 NWP cores</td>
+</tr>
+<tr>
+<td>IMH register path</td>
+<td>`imh0.punit.*`</td>
+<td>→ `nio.punit.*`</td>
+<td>**Path prefix swap only** — register names and field definitions are identical to DMR</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Spec Refs &amp; Validation Points</h2>
+<table class="md-table"><thead><tr>
+<th>Category</th>
+<th>Register</th>
+<th>Field/Offset</th>
+<th>Expected</th>
+<th>Verify On</th>
+</tr></thead><tbody>
+<tr>
+<td>C1 Residency</td>
+<td>MSR 0x778 (CC1_RESIDENCY)</td>
+<td>64-bit monotonic</td>
+<td>Positive delta after C1 dwell</td>
+<td>Per-core, all 96 NWP cores</td>
+</tr>
+<tr>
+<td>C1E Enable</td>
+<td>MSR 0x1FC (POWER_CTL)</td>
+<td>bit[0] C1E_ENABLE</td>
+<td>1 for C1E sub-test</td>
+<td>Package level</td>
+</tr>
+<tr>
+<td>C1 Demotion</td>
+<td>MSR 0xE2 (CLOCK_CST_CONFIG)</td>
+<td>bit[26] C1_DEMOTION_ENABLE</td>
+<td>Configurable</td>
+<td>Per-package</td>
+</tr>
+<tr>
+<td>CC6 Residency</td>
+<td>MSR 0x3FD (CC6_RESIDENCY)</td>
+<td>64-bit</td>
+<td>Minimal during C1-only dwell</td>
+<td>Per-core</td>
+</tr>
+<tr>
+<td>IMH Fuse (NWP)</td>
+<td>nio.punit.PCODE_CORE_C_STATE</td>
+<td>[2:0]</td>
+<td>0x3 (C1/C1E enabled)</td>
+<td>NWP NIO</td>
+</tr>
+<tr>
+<td>CBB Fuse</td>
+<td>cbb[0-1].punit_fuses.fw_fuses_CORE_C_STATE</td>
+<td>[2:0]</td>
+<td>0x3</td>
+<td>Both CBBs</td>
+</tr>
+</tbody></table>
+<h3>PythonSV Validation Commands (NWP)</h3>
+<pre><code>
+import time
+
+# NWP: 2 CBBs x 48 cores = 96 total
+before = {}
+for cbb_idx in range(2):
+    for core_idx in range(48):
+        cbb = sv.socket0.getbypath(f&quot;cbb{cbb_idx}&quot;)
+        before[(cbb_idx, core_idx)] = cbb.core[core_idx].read_msr(0x778)
+
+# Inject C1 idle stimulus (Intel Idle driver / Solar workload)
+time.sleep(2)
+
+fails = []
+for cbb_idx in range(2):
+    for core_idx in range(48):
+        cbb = sv.socket0.getbypath(f&quot;cbb{cbb_idx}&quot;)
+        after = cbb.core[core_idx].read_msr(0x778)
+        delta = after - before[(cbb_idx, core_idx)]
+        if delta == 0:
+            fails.append(f&quot;CBB{cbb_idx} Core{core_idx}: CC1 did not increment&quot;)
+
+# Also verify CC6 did not inflate (cores stayed in C1 not C6)
+for cbb_idx in range(2):
+    cc6 = sv.socket0.getbypath(f&quot;cbb{cbb_idx}&quot;).core[0].read_msr(0x3FD)
+    print(f&quot;CBB{cbb_idx} CC6={hex(cc6)}&quot;)
+
+print(f&quot;RESULT: {&#x27;PASS&#x27; if not fails else &#x27;FAIL&#x27;} — {len(fails)}/96 cores failed&quot;)
+for f in fails:
+    print(f&quot;  FAIL: {f}&quot;)
+</code></pre>
+<p>**References:**</p>
+<ul>
+<li>PNC PM HAS §8.3: CC1 residency counter (MSR 0x778, crystal cycles)</li>
+<li>PNC PM HAS §8.9: C1/TC1 entry/exit flow</li>
+<li>PNC PM HAS §8.10: C1E (Slow C1E) flow</li>
+<li>DMR CBB PM HAS: Core C1 residency architecture</li>
+<li>CCP 2.0: https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/CCP%202.0/CCP_2_0.html#cstate-entry-flow</li>
+</ul>
+<p>---</p>
+<h2>Section E: Risk Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk / Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**Background load** — active cores prevent C1 dwell</td>
+<td>Medium</td>
+<td>Minimize OS activity; use dedicated idle injection tool</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**C1 vs C1E separation** — MSR 0x778 counts both C1 and C1E combined</td>
+<td>Low</td>
+<td>Run with C1E enabled and disabled separately</td>
+</tr>
+<tr>
+<td>3</td>
+<td>**NWP register path** — scripts using `imh0.punit.*` need update to `nio.punit.*`</td>
+<td>Low</td>
+<td>Path prefix swap only; register names and field definitions are identical to DMR</td>
+</tr>
+<tr>
+<td>4</td>
+<td>**CXL VTC cross-product** — NWP HSLE has only CXL Xtor, not full CXL</td>
+<td>Low</td>
+<td>Aligned with original TC note; same limitation applies</td>
+</tr>
+<tr>
+<td>5</td>
+<td>**HSLE Fmod requirement** — CorePMA + Aunit Fmod needed for emulation</td>
+<td>Low</td>
+<td>Already captured in pre-conditions; ensure correct HSLE configuration</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendations</h2>
+<p>**Recommendation: ADOPT — Trivial adaptation needed (register path and loop bounds).**</p>
+<p>C1 residency counter test is directly applicable on NWP with two low-risk changes:</p>
+<p>1. **Update CBB loop bounds**: `range(4)` → `range(2)` (CBBs); `range(64)` → `range(48)` (cores/CBB)</p>
+<p>2. **Update IMH register path prefix only**: `imh0.punit.*` / `imh1.punit.*` → `sv.socket0.nio.punit.*` — register names and field definitions are identical, no semantic change</p>
+<p>3. **Retain HSLE + CorePMA + Aunit Fmod** pre-conditions exactly as in DMR TC</p>
+<p>4. **Run both C1E sub-states** (sub-state 0 and 1) to confirm C1E behavior on PNC NWP cores</p>
+<p>5. **Document NWP scope**: All 96 cores expected to show CC1 residency increment; CC6 must stay low</p>
+    </div>
+  </div>
+</body>
+</html>

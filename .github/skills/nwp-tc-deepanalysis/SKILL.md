@@ -165,7 +165,7 @@ This repo is primarily used for three kinds of work. Optimize agent behavior aro
 ### Register Path Convention
 | DMR Path | NWP Path |
 |----------|----------|
-| `sv.socket0.imh0.punit.*` | `sv.socket0.nio.punit.*` |
+| `sv.socket0.imh0.punit.*` | `sv.socket0.nio.punit.*` — register names and fields identical to DMR; path prefix swap only |
 | `sv.socket0.imh1.*` | N/A (single NIO) |
 | `sv.socket0.cbb[0-3].*` | `sv.socket0.cbb[0-1].*` |
 

@@ -26,7 +26,7 @@
   <div class="wrap">
     <div class="meta">
       <h1>Deep Analysis: PCT - Default HP Core Selection</h1>
-      <p>Segment: FV | Source: HSD_22022422105_pct_default_hp_core_selection.inference.md | Generated: 2026-06-17 21:14:31</p>
+      <p>Segment: FV | Source: HSD_22022422105_pct_default_hp_core_selection.inference.md | Generated: 2026-06-17 22:06:19</p>
     </div>
     <div class="content">
       <h1>Deep Analysis: PCT - Default HP Core Selection</h1>
@@ -44,11 +44,11 @@
 </tr>
 <tr>
 <td>**Date**</td>
-<td>2026-05-29</td>
+<td>2026-06-17</td>
 </tr>
 <tr>
 <td>**Version**</td>
-<td>v2 (full pipeline re-enrichment)</td>
+<td>v3 (owner fix, segment/framework added, NWP register paths + test code from live HSD)</td>
 </tr>
 <tr>
 <td>**Target Program**</td>
@@ -57,6 +57,10 @@
 <tr>
 <td>**Source Program**</td>
 <td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
 </tr>
 <tr>
 <td>**Feature**</td>
@@ -72,7 +76,7 @@
 </tr>
 <tr>
 <td>**Owner**</td>
-<td>mmaltese</td>
+<td>mps</td>
 </tr>
 <tr>
 <td>**Status**</td>
@@ -81,6 +85,10 @@
 <tr>
 <td>**Val Environment**</td>
 <td>virtual_platform</td>
+</tr>
+<tr>
+<td>**Framework**</td>
+<td>os-svos</td>
 </tr>
 <tr>
 <td>**Automation**</td>
@@ -541,6 +549,98 @@
 </tbody></table>
 <p>---</p>
 <h2>Section D: NWP Specification References</h2>
+<h3>Key NWP Namednodes Register Paths (from TC description)</h3>
+<table class="md-table"><thead><tr>
+<th>Register</th>
+<th>NWP Namednodes Path</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td>CAPID4.bit29</td>
+<td>`sv.socket0.nio.punit.ptpcioregs.ptpcioregs.capid4.capid4_29`</td>
+<td>Fuse: PCT capability enable (must be 1)</td>
+</tr>
+<tr>
+<td>PctHpModuleCount</td>
+<td>`nvram.PctHpModuleCount.getValue()`</td>
+<td>BIOS: HP module count (multiples of 4)</td>
+</tr>
+<tr>
+<td>SST_CLOS_ASSOC_0.clos_id_module{N}</td>
+<td>`sv.socket0.cbb{X}.base.tpmi.sst_clos_assoc_0.clos_id_moduleN`</td>
+<td>Module CLOS assignment (0/1=HP, 2/3=LP)</td>
+</tr>
+<tr>
+<td>SST_CP_CONTROL.sst_cp_enable</td>
+<td>`sv.socket0.cbb{X}.base.tpmi.sst_cp_control.sst_cp_enable`</td>
+<td>PCT globally enabled (1=on)</td>
+</tr>
+<tr>
+<td>SST_CP_CONTROL.sst_cp_priority_type</td>
+<td>`sv.socket0.cbb{X}.base.tpmi.sst_cp_control.sst_cp_priority_type`</td>
+<td>Throttling mode (1=Ordered)</td>
+</tr>
+<tr>
+<td>SST_TF_INFO_1.num_core_0</td>
+<td>`sv.socket0.cbb{X}.base.tpmi.sst_tf_info_1.num_core_0`</td>
+<td>Max HP modules supported by silicon</td>
+</tr>
+<tr>
+<td>MSR 0x774 IA32_HWP_REQUEST</td>
+<td>`pd.debug.access_to_msr(0x774, core=core)`</td>
+<td>HWP desired ratio (HP cores: request P0)</td>
+</tr>
+<tr>
+<td>MSR 0x198 IA32_PERF_STATUS</td>
+<td>`pd.debug.access_to_msr(0x198, core=core)`</td>
+<td>Current operating ratio</td>
+</tr>
+<tr>
+<td>MSR 0x199 IA32_PERF_CTL</td>
+<td>`pd.debug.access_to_msr(0x199, core=core)`</td>
+<td>Legacy P-state request (if HWP off)</td>
+</tr>
+</tbody></table>
+<p>&gt; Note: `nio.punit.*` register names and field definitions are identical to DMR `imh0.punit.*`; path prefix swap only.</p>
+<h3>Test Implementation (from TC description)</h3>
+<pre><code>
+from pysvtools.xmlcli import nvram
+import diamondrapids.pm.Active_PM.SST.pct.pct_focus as pctd  # adapt to NWP equivalent
+
+ram = nvram.getNVRAM(); ram.pull()
+hp_mod_count = ram.PctHpModuleCount.getValue()
+print(f&#x27;BIOS PctHpModuleCount = {hp_mod_count}&#x27;)
+
+# Generate HP/LP list from TPMI
+pctd.generate_core_list()
+
+# Verify first core is HP (BSP requirement)
+first_core = sv.socket0.cbb0.computes[0].modules[0].cores[0]
+assert first_core in pctd.HP_CORES, &#x27;First core must be HP!&#x27;
+
+# Verify HP count matches BIOS knob
+actual_hp_mods = len(pctd.HP_CORES) // pctd.COUNT
+assert actual_hp_mods == hp_mod_count, f&#x27;Mismatch: BIOS={hp_mod_count}, TPMI={actual_hp_mods}&#x27;
+
+# Dump full CLOS assignment table (NWP: 2 CBBs)
+for cbb in sv.sockets.cbbs:  # cbb0, cbb1
+    print(f&#x27;\n--- CBB{cbb.instance} ---&#x27;)
+    for compute in cbb.computes:
+        for mod in compute.modules:
+            n = mod.instance % 0x20
+            grp = 0 if compute.instance in [0, 1] else 1
+            clos = cbb.base.tpmi.getbypath(f&#x27;sst_clos_assoc_{grp}.clos_id_module{n}&#x27;).get_value()
+            print(f&#x27;  Compute{compute.instance} Module{n}: CLOS={clos} ({&quot;HP&quot; if clos in [0,1] else &quot;LP&quot;})&#x27;)
+</code></pre>
+<p>**HP Selection Rule (PctHpModuleCount):**</p>
+<ul>
+<li>CBB0 compute0: modules 0..(PctHpModuleCount/2 - 1) → CLOS[0] (HP)</li>
+<li>CBB0 compute1: modules 0..(PctHpModuleCount/2 - 1) → CLOS[1] (HP)</li>
+<li>Remaining modules → CLOS[2] or CLOS[3] (LP)</li>
+<li>`PctHpModuleCount` must be a multiple of 4 (2 computes × 2 modules minimum)</li>
+<li>**BSP rule**: First core of socket (CBB0, compute0, module0, core0) must always be HP</li>
+</ul>
+<h3>Reference Documents</h3>
 <table class="md-table"><thead><tr>
 <th>Document</th>
 <th>Link</th>
@@ -683,6 +783,11 @@ print(f&quot;Expected {len(hp_cores)} HP cores: {hp_cores}&quot;)
 <td>v2</td>
 <td>2026-05-29</td>
 <td>Full pipeline re-enrichment: fresh HSD metadata, Co-Design MCP query, expanded sections A-F, swimlane/sequence diagrams, risk assessment, 8 HP cores per CCB 14026595435</td>
+</tr>
+<tr>
+<td>v3</td>
+<td>2026-06-17</td>
+<td>Owner corrected (mmaltese→mps); Segment/Framework added; NWP namednodes register paths + pctd test code injected from live HSD TC description</td>
 </tr>
 </tbody></table>
 <h2>User Notes</h2>

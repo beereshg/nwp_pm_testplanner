@@ -19,7 +19,7 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-CACHE_ROOT = REPO_ROOT / "nwp_pm_cache"
+CACHE_ROOT = REPO_ROOT / "KB" / "pm_tc_kb"
 UNIFIED_OUTPUT_DIR = REPO_ROOT / "KB" / "pm_tc_deepanalysis"
 OUTPUT_ROOTS = {
     "fv": UNIFIED_OUTPUT_DIR,
@@ -190,12 +190,10 @@ def html_template(title: str, segment: str, source_file: str, body: str) -> str:
 
 
 def get_cache_files(segment: str, hsd_id: str | None) -> list[Path]:
-    root = CACHE_ROOT / segment
-    if not root.exists():
-        return []
-    files = sorted(root.glob("*.inference.md"))
+    # Recurse all subdirectories under KB/pm_tc_kb for the given segment
+    files = sorted(CACHE_ROOT.rglob(f"**/{segment}/*.inference.md"))
     if hsd_id:
-        token = f"HSD_{hsd_id}_"
+        token = str(hsd_id)
         files = [f for f in files if token in f.name]
     return files
 
@@ -233,7 +231,7 @@ def status() -> int:
     unified_html_count = len(list(UNIFIED_OUTPUT_DIR.glob("*.html")))
     print(f"ALL html : {unified_html_count:4d} | path: {UNIFIED_OUTPUT_DIR}")
     for segment in ("fv", "pss"):
-        cache_count = len(list((CACHE_ROOT / segment).glob("*.inference.md")))
+        cache_count = len(list(CACHE_ROOT.rglob(f"**/{segment}/*.inference.md")))
         print(f"{segment.upper():>3} cache: {cache_count:4d}")
     return 0
 

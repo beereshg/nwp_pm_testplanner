@@ -81,7 +81,7 @@ C1/C1E is fully supported on NWP with the same PantherCove (PNC) core as DMR. Th
 | MSR 0x778 CC1 | Per-core RO | **Per-core RO** | Same access path |
 | MSR 0x3FD CC6 | Per-core RO | **Per-core RO** | Same access path |
 | PkgC6 | Supported | **ZBB (fused off)** | No interference with C1 test |
-| IMH topology | 2 IMH | **1 NIO** | Register path: `nio.punit.*` not `imh0.*` |
+| IMH topology | 2 IMH | **1 NIO** | Path prefix only: `nio.punit.*` replaces `imh0.punit.*` — register names and fields are identical |
 
 ---
 
@@ -123,7 +123,7 @@ C1/C1E is fully supported on NWP with the same PantherCove (PNC) core as DMR. Th
 | Cross-product: CXL VTC domain | Covered (SLE has only CXL Xtor) | **None** | Same requirement |
 | MWAIT sub-state 0 (C1) and sub-state 1 (C1E) | Covered | **None** | Both sub-states required |
 | All cores covered (96 NWP vs up to 256 DMR) | Covered | **Scope reduced** | Verify all 96 NWP cores |
-| IMH register path | `imh0.punit.*` | → `nio.punit.*` | Path update required in scripts |
+| IMH register path | `imh0.punit.*` | → `nio.punit.*` | **Path prefix swap only** — register names and field definitions are identical to DMR |
 
 ---
 
@@ -187,7 +187,7 @@ for f in fails:
 |---|-----------------|----------|-------|
 | 1 | **Background load** — active cores prevent C1 dwell | Medium | Minimize OS activity; use dedicated idle injection tool |
 | 2 | **C1 vs C1E separation** — MSR 0x778 counts both C1 and C1E combined | Low | Run with C1E enabled and disabled separately |
-| 3 | **NWP register path** — scripts using `imh0.punit.*` need update to `nio.punit.*` | Medium | All IMH register path references must be updated |
+| 3 | **NWP register path** — scripts using `imh0.punit.*` need update to `nio.punit.*` | Low | Path prefix swap only; register names and field definitions are identical to DMR |
 | 4 | **CXL VTC cross-product** — NWP HSLE has only CXL Xtor, not full CXL | Low | Aligned with original TC note; same limitation applies |
 | 5 | **HSLE Fmod requirement** — CorePMA + Aunit Fmod needed for emulation | Low | Already captured in pre-conditions; ensure correct HSLE configuration |
 
@@ -200,7 +200,7 @@ for f in fails:
 C1 residency counter test is directly applicable on NWP with two low-risk changes:
 
 1. **Update CBB loop bounds**: `range(4)` → `range(2)` (CBBs); `range(64)` → `range(48)` (cores/CBB)
-2. **Update IMH register path**: `imh0.punit.*` / `imh1.punit.*` → `sv.socket0.nio.punit.*`
+2. **Update IMH register path prefix only**: `imh0.punit.*` / `imh1.punit.*` → `sv.socket0.nio.punit.*` — register names and field definitions are identical, no semantic change
 3. **Retain HSLE + CorePMA + Aunit Fmod** pre-conditions exactly as in DMR TC
 4. **Run both C1E sub-states** (sub-state 0 and 1) to confirm C1E behavior on PNC NWP cores
 5. **Document NWP scope**: All 96 cores expected to show CC1 residency increment; CC6 must stay low
