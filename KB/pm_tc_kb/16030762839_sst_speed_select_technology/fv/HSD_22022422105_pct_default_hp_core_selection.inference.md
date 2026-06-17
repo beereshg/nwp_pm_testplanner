@@ -274,3 +274,38 @@ print(f"Expected {len(hp_cores)} HP cores: {hp_cores}")
 ## User Notes
 
 _(none)_
+
+
+## Section G: PSS Grading
+
+### Grading Table
+
+| Sl No | Dimension | Value | Rationale |
+|-------|-----------|-------|----------|
+| 1 | NWP Delta | Yes | DMR has 4 CBBs; NWP has 2. PCT module-count math changes (96 cores / 4 partitions = 24 cores/partition vs 128/4=32 on DMR). MADT ordering differs (NIO + 2 CBBs vs 2 IMH + 4 CBBs). Register path: imh0.punit → nio.punit (prefix swap only, fields identical). |
+| 2 | Applicable NWP | Yes | PCT (Priority Core Turbo) is one of 2 SST features supported on NWP; SST-TF CLOS infrastructure is active. CAPID4.bit29 = 1 confirmed. SST-BF/PP/CP/HGS remain ZBB but are irrelevant to this TC. |
+| 3 | PSS Environment | VP_CONTENT | SST_CLOS_ASSOC and SST_CP_CONTROL are TPMI MMIO registers — read/write verification runs in VP. Requires BIOS knob override (PctHpModuleCount) and fuse config → VP_CONTENT. CLOS assignment effect on actual frequency differentiation requires HSLE or silicon. |
+| 4 | Silicon Only | Partial | Structural: CLOS assignment verification and HP/LP count match → VP_CONTENT. Frequency differentiation (HP cores at elevated TRL, LP at LP_CLIP): requires silicon for quantitative accuracy. |
+| 5 | Test Content | DMR_M | DMR script (runPmx.py -x dmr.xml -p pct) requires medium adaptation: config swap dmr.xml → nwp.xml; HP core count update (4 → 8 per CCB 14026595435); partition math 128→96 cores; check both CBBs only (loop 0–1). |
+| 6 | OS | sv-os | TC uses perspec_maestro / os-svos framework. TPMI register access via PythonSV namednodes under SVOS. runPmx.py is SV-OS based. No Linux driver path required. |
+
+### Verdict
+
+**VP_CONTENT + Silicon (Partial)** — PCT default HP core selection is structurally verifiable in VP with BIOS knob override; frequency differentiation accuracy requires silicon. Adopt DMR test with medium adaptation: nwp.xml config, 96-core partition math, 2 CBBs only.
+
+### Environment Coverage
+
+| Environment | Coverage | Notes |
+|-------------|----------|-------|
+| Simics VP | Partial | CLOS assignment read/write; HP/LP count match; CAPID4 fuse check. Needs PctHpModuleCount BIOS override → VP_CONTENT config. |
+| HSLE | Partial | Can observe CLOS-based frequency limiting behavior with CorePMA model. Not required for structural validation. |
+| Post-Silicon | Yes | Full: frequency differentiation, HP TRL accuracy, LP clip ratio enforcement under real workload. |
+
+### Key Notes
+
+| Area | Detail |
+|------|--------|
+| Reuse Level | Medium — DMR_M |
+| Main Adaptation | Swap dmr.xml → nwp.xml; update HP core count 4 → 8; CBB loop range 0–1; partition math 96/4=24 |
+| Limitation | VP cannot verify actual HP/LP frequency differentiation; only structural CLOS assignment |
+| Validation Strategy | VP_CONTENT for structure; silicon for frequency KPI and TRL accuracy |

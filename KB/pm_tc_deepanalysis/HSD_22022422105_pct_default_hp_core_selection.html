@@ -3,33 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
   <title>Deep Analysis: PCT - Default HP Core Selection</title>
   <style>
-    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
-    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
-    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
-    .meta h1 { margin:0; font-size:20px; }
-    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
-    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
-    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
-    p { margin:8px 0; }
-    ul { margin:8px 0 8px 20px; }
-    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
-    code { font-family: Consolas, monospace; }
-    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
-    .md-table th { background:#e8eef7; }
-    .md-pre { white-space:pre-wrap; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="meta">
-      <h1>Deep Analysis: PCT - Default HP Core Selection</h1>
-      <p>Segment: FV | Source: HSD_22022422105_pct_default_hp_core_selection.inference.md | Generated: 2026-06-17 22:06:19</p>
-    </div>
-    <div class="content">
-      <h1>Deep Analysis: PCT - Default HP Core Selection</h1>
+  <div class="header">
+    <h1>Deep Analysis: PCT - Default HP Core Selection</h1>
+    <p>Segment: FV | Source: HSD_22022422105_pct_default_hp_core_selection.inference.md | Generated: 2026-06-17 22:27:59</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+    <button class="tab" data-tab="tab1">A: NWP Architecture Delta</button>
+    <button class="tab" data-tab="tab2">B: Interactions — Swimlane &amp; Sequence</button>
+    <button class="tab" data-tab="tab3">C: Interface Coverage Assessment</button>
+    <button class="tab" data-tab="tab4">D: NWP Specification References</button>
+    <button class="tab" data-tab="tab5">E: NWP Risk Assessment</button>
+    <button class="tab" data-tab="tab6">F: Recommendations</button>
+    <button class="tab" data-tab="tab7">G: PSS Grading</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>Deep Analysis: PCT - Default HP Core Selection</h1>
 <table class="md-table"><thead><tr>
 <th>Field</th>
 <th>Value</th>
@@ -164,9 +187,8 @@
 <li>**PASS**: Correct number of HP cores selected per partition; CLOS assignments match HP/LP segmentation; HP cores report elevated TRL</li>
 <li>**FAIL**: Wrong HP core count, incorrect CLOS mapping, or LP cores not clipped</li>
 </ul>
-<p>---</p>
-<h2>Section A: NWP Architecture Delta</h2>
-<p>**Disposition: Runnable_On_N-1**</p>
+<p>---</p></div>
+  <div id="tab1" class="panel"><p>**Disposition: Runnable_On_N-1**</p>
 <p>PCT is one of only 2 SST features supported on NWP (SST-TF and PCT). All other SST features (SST-BF, SST-PP, SST-CP, HGS) are ZBB&#x27;d. The PCT flow uses SST-TF CLOS infrastructure which is fully functional on NWP.</p>
 <h3>DMR → NWP Delta Table</h3>
 <table class="md-table"><thead><tr>
@@ -268,9 +290,8 @@
 <td>2</td>
 </tr>
 </tbody></table>
-<p>---</p>
-<h2>Section B: Interactions — Swimlane &amp; Sequence</h2>
-<h3>Swimlane Data</h3>
+<p>---</p></div>
+  <div id="tab2" class="panel"><h3>Swimlane Data</h3>
 <table class="md-table"><thead><tr>
 <th>Step</th>
 <th>Actor</th>
@@ -460,9 +481,8 @@
 <td>[MSR]</td>
 </tr>
 </tbody></table>
-<p>---</p>
-<h2>Section C: Interface Coverage Assessment</h2>
-<table class="md-table"><thead><tr>
+<p>---</p></div>
+  <div id="tab3" class="panel"><table class="md-table"><thead><tr>
 <th>Interface</th>
 <th>Type</th>
 <th>Register / Address</th>
@@ -547,9 +567,8 @@
 <td>Default N=4 is the test target</td>
 </tr>
 </tbody></table>
-<p>---</p>
-<h2>Section D: NWP Specification References</h2>
-<h3>Key NWP Namednodes Register Paths (from TC description)</h3>
+<p>---</p></div>
+  <div id="tab4" class="panel"><h3>Key NWP Namednodes Register Paths (from TC description)</h3>
 <table class="md-table"><thead><tr>
 <th>Register</th>
 <th>NWP Namednodes Path</th>
@@ -687,9 +706,8 @@ for cbb in sv.sockets.cbbs:  # cbb0, cbb1
 <td>PCode: CLOS-based frequency enforcement</td>
 </tr>
 </tbody></table>
-<p>---</p>
-<h2>Section E: NWP Risk Assessment</h2>
-<table class="md-table"><thead><tr>
+<p>---</p></div>
+  <div id="tab5" class="panel"><table class="md-table"><thead><tr>
 <th>#</th>
 <th>Risk</th>
 <th>Likelihood</th>
@@ -739,9 +757,8 @@ for cbb in sv.sockets.cbbs:  # cbb0, cbb1
 <td>Verify test does not multiply core count by 2 for thread-level CLOS assignment</td>
 </tr>
 </tbody></table>
-<p>---</p>
-<h2>Section F: Recommendations</h2>
-<p>1. **ADOPT with adaptation** — Change config from `dmr.xml` → `nwp.xml`; update expected HP core count from 4 to 8 (2 per partition per CCB 14026595435)</p>
+<p>---</p></div>
+  <div id="tab6" class="panel"><p>1. **ADOPT with adaptation** — Change config from `dmr.xml` → `nwp.xml`; update expected HP core count from 4 to 8 (2 per partition per CCB 14026595435)</p>
 <p>2. **Update expected partition math** — NWP: 96 cores ÷ 4 partitions = 24 cores/partition, with 2 HP cores per partition (indices depend on MADT ordering)</p>
 <p>3. **Add DLCP check** — Read SST_TF_INFO_10 to determine if DLCP is active; if so, HP core positions come from PCT_Module_Mask fuse, not partition algorithm</p>
 <p>4. **Add MSR verification** — Read MSR 0x1AD (TRL) and MSR 0x771 (HWP_CAPABILITIES) on HP vs LP cores to confirm frequency differentiation</p>
@@ -791,8 +808,109 @@ print(f&quot;Expected {len(hp_cores)} HP cores: {hp_cores}&quot;)
 </tr>
 </tbody></table>
 <h2>User Notes</h2>
-<p>_(none)_</p>
-    </div>
+<p>_(none)_</p></div>
+  <div id="tab7" class="panel"><h3>Grading Table</h3>
+<table class="md-table"><thead><tr>
+<th>Sl No</th>
+<th>Dimension</th>
+<th>Value</th>
+<th>Rationale</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>NWP Delta</td>
+<td>Yes</td>
+<td>DMR has 4 CBBs; NWP has 2. PCT module-count math changes (96 cores / 4 partitions = 24 cores/partition vs 128/4=32 on DMR). MADT ordering differs (NIO + 2 CBBs vs 2 IMH + 4 CBBs). Register path: imh0.punit → nio.punit (prefix swap only, fields identical).</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Applicable NWP</td>
+<td>Yes</td>
+<td>PCT (Priority Core Turbo) is one of 2 SST features supported on NWP; SST-TF CLOS infrastructure is active. CAPID4.bit29 = 1 confirmed. SST-BF/PP/CP/HGS remain ZBB but are irrelevant to this TC.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PSS Environment</td>
+<td>VP_CONTENT</td>
+<td>SST_CLOS_ASSOC and SST_CP_CONTROL are TPMI MMIO registers — read/write verification runs in VP. Requires BIOS knob override (PctHpModuleCount) and fuse config → VP_CONTENT. CLOS assignment effect on actual frequency differentiation requires HSLE or silicon.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Silicon Only</td>
+<td>Partial</td>
+<td>Structural: CLOS assignment verification and HP/LP count match → VP_CONTENT. Frequency differentiation (HP cores at elevated TRL, LP at LP_CLIP): requires silicon for quantitative accuracy.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Test Content</td>
+<td>DMR_M</td>
+<td>DMR script (runPmx.py -x dmr.xml -p pct) requires medium adaptation: config swap dmr.xml → nwp.xml; HP core count update (4 → 8 per CCB 14026595435); partition math 128→96 cores; check both CBBs only (loop 0–1).</td>
+</tr>
+<tr>
+<td>6</td>
+<td>OS</td>
+<td>sv-os</td>
+<td>TC uses perspec_maestro / os-svos framework. TPMI register access via PythonSV namednodes under SVOS. runPmx.py is SV-OS based. No Linux driver path required.</td>
+</tr>
+</tbody></table>
+<h3>Verdict</h3>
+<p>**VP_CONTENT + Silicon (Partial)** — PCT default HP core selection is structurally verifiable in VP with BIOS knob override; frequency differentiation accuracy requires silicon. Adopt DMR test with medium adaptation: nwp.xml config, 96-core partition math, 2 CBBs only.</p>
+<h3>Environment Coverage</h3>
+<table class="md-table"><thead><tr>
+<th>Environment</th>
+<th>Coverage</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>Simics VP</td>
+<td>Partial</td>
+<td>CLOS assignment read/write; HP/LP count match; CAPID4 fuse check. Needs PctHpModuleCount BIOS override → VP_CONTENT config.</td>
+</tr>
+<tr>
+<td>HSLE</td>
+<td>Partial</td>
+<td>Can observe CLOS-based frequency limiting behavior with CorePMA model. Not required for structural validation.</td>
+</tr>
+<tr>
+<td>Post-Silicon</td>
+<td>Yes</td>
+<td>Full: frequency differentiation, HP TRL accuracy, LP clip ratio enforcement under real workload.</td>
+</tr>
+</tbody></table>
+<h3>Key Notes</h3>
+<table class="md-table"><thead><tr>
+<th>Area</th>
+<th>Detail</th>
+</tr></thead><tbody>
+<tr>
+<td>Reuse Level</td>
+<td>Medium — DMR_M</td>
+</tr>
+<tr>
+<td>Main Adaptation</td>
+<td>Swap dmr.xml → nwp.xml; update HP core count 4 → 8; CBB loop range 0–1; partition math 96/4=24</td>
+</tr>
+<tr>
+<td>Limitation</td>
+<td>VP cannot verify actual HP/LP frequency differentiation; only structural CLOS assignment</td>
+</tr>
+<tr>
+<td>Validation Strategy</td>
+<td>VP_CONTENT for structure; silicon for frequency KPI and TRL accuracy</td>
+</tr>
+</tbody></table></div>
   </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
 </body>
 </html>

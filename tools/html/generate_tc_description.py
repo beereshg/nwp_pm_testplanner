@@ -30,7 +30,7 @@ except ImportError:
 
 TEMPLATE_DIR = REPO_ROOT / "KB" / "templates"
 CACHE_ROOT   = REPO_ROOT / "KB" / "pm_tc_kb"
-OUTPUT_DIR   = REPO_ROOT / "KB" / "pm_tc_deepanalysis"
+OUTPUT_DIR   = REPO_ROOT / "tc_description_output"
 
 
 # ─── Markdown parser helpers ──────────────────────────────────────────────────
@@ -385,20 +385,128 @@ def generate(hsd_id: str, force: bool = False) -> int:
     if _JINJA:
         env = Environment(loader=FileSystemLoader(str(TEMPLATE_DIR)), autoescape=False)
         tmpl = env.get_template("tc_hsd_description.html.j2")
-        html = tmpl.render(tc=tc, config=config)
+        tc_desc_html = tmpl.render(tc=tc, config=config)
     else:
-        html = render_fallback(tc, config, title)
+        tc_desc_html = render_fallback(tc, config, title)
 
-    # Wrap in a standalone HTML page
+    # Extract per-section panels from the inference.md for deep-analysis tabs
+    def _md_section_html(sec_heading: str) -> str:
+        """Render a single ## section from the inference.md as HTML."""
+        lines = _section_lines(text, sec_heading)
+        if not lines:
+            return "<p><em>Not available.</em></p>"
+        from tools.html.generate_unified_html import render_markdown_to_html
+        return render_markdown_to_html("\n".join(lines))
+
+    # Extract HSD metadata fields for the header bar
+    hsd_id_val  = hsd_id
+    feature_m   = re.search(r"\|\s*\*\*Feature\*\*\s*\|\s*(.+?)\s*\|", text)
+    subfeat_m   = re.search(r"\|\s*\*\*Sub-Feature\*\*\s*\|\s*(.+?)\s*\|", text)
+    disp_m      = re.search(r"\|\s*\*\*NWP Disposition\*\*\s*\|\s*(.+?)\s*\|", text)
+    env_m       = re.search(r"\|\s*\*\*Val Environment\*\*\s*\|\s*(.+?)\s*\|", text)
+    feature     = re.sub(r"\*", "", feature_m.group(1)).strip()  if feature_m  else ""
+    sub_feature = re.sub(r"\*", "", subfeat_m.group(1)).strip()  if subfeat_m  else ""
+    disposition = re.sub(r"\*", "", disp_m.group(1)).strip()     if disp_m     else ""
+    val_env     = re.sub(r"\*", "", env_m.group(1)).strip()      if env_m      else ""
+
+    import html as _html
+    hsd_url   = f"https://hsdes.intel.com/appstore/article-one/#/{hsd_id_val}"
+
+    # Build each analysis tab panel
+    sec_a = _md_section_html("## Section A: NWP Delta")
+    sec_b = _md_section_html("## Section B: Interactions")
+    sec_c = _md_section_html("## Section C: Coverage")
+    sec_d = _md_section_html("## Section D: Spec Refs")
+    sec_e = _md_section_html("## Section E: Risk Assessment")
+    sec_f = _md_section_html("## Section F: Recommendations")
+
     wrapper = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>TC Description: {title}</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
+  <title>TC: {_html.escape(title)}</title>
+  <style>
+    *{{box-sizing:border-box;margin:0;padding:0}}
+    body{{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}}
+    .header{{background:#0f4c81;color:#fff;padding:14px 24px;}}
+    .header h1{{font-size:18px;font-weight:600;margin-bottom:4px;}}
+    .header .chips{{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}}
+    .chip{{background:rgba(255,255,255,.18);border-radius:12px;padding:2px 10px;font-size:11px;}}
+    .chip.disp{{background:#1565c0;font-weight:bold;}}
+    a.hsd-link{{color:#90caf9;font-size:11px;margin-left:8px;}}
+    .tab-bar{{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}}
+    .tab-bar button{{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 18px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}}
+    .tab-bar button:hover{{color:#fff;background:rgba(255,255,255,.08);}}
+    .tab-bar button.active{{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}}
+    .panels{{max-width:1200px;margin:20px auto;padding:0 16px 40px;}}
+    .panel{{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}}
+    .panel.active{{display:block;}}
+    .panel h2{{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}}
+    .panel h3{{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}}
+    .panel h4{{color:#555;font-size:12px;margin:10px 0 4px;}}
+    .panel p{{margin:6px 0;}}
+    .panel ul{{margin:6px 0 6px 18px;}}
+    .panel pre{{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}}
+    .panel code{{font-family:Consolas,monospace;}}
+    table.md-table{{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}}
+    table.md-table th,table.md-table td{{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}}
+    table.md-table th{{background:#e8eef7;font-weight:600;}}
+    table.md-table tr:nth-child(even){{background:#f8fafc;}}
+    .tc-content{{font-size:12.5px;}}
+    .tc-content h3{{color:#004a80;font-size:13px;margin:14px 0 4px;
+        background:#cce4f7;padding:8px 14px;border-left:4px solid #0071c5;border-radius:0 4px 4px 0;font-weight:bold;}}
+  </style>
 </head>
 <body>
-{html}
+<div class="header">
+  <h1>{_html.escape(title)}
+    <a class="hsd-link" href="{hsd_url}" target="_blank" rel="noopener">HSD {hsd_id_val} ↗</a>
+  </h1>
+  <div class="chips">
+    <span class="chip">{_html.escape(feature)} › {_html.escape(sub_feature)}</span>
+    <span class="chip disp">{_html.escape(disposition)}</span>
+    <span class="chip">Env: {_html.escape(val_env)}</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="active" data-tab="tc">Test Case</button>
+  <button data-tab="sec-a">A: NWP Delta</button>
+  <button data-tab="sec-b">B: Interactions</button>
+  <button data-tab="sec-c">C: Coverage</button>
+  <button data-tab="sec-d">D: Spec Refs</button>
+  <button data-tab="sec-e">E: Risks</button>
+  <button data-tab="sec-f">F: Recommendations</button>
+</div>
+
+<div class="panels">
+  <div id="tc" class="panel active tc-content">
+{tc_desc_html}
+  </div>
+  <div id="sec-a" class="panel">{sec_a}</div>
+  <div id="sec-b" class="panel">{sec_b}</div>
+  <div id="sec-c" class="panel">{sec_c}</div>
+  <div id="sec-d" class="panel">{sec_d}</div>
+  <div id="sec-e" class="panel">{sec_e}</div>
+  <div id="sec-f" class="panel">{sec_f}</div>
+</div>
+
+<script>
+const btns  = Array.from(document.querySelectorAll('.tab-bar button'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+btns.forEach(btn => btn.addEventListener('click', () => {{
+  btns.forEach(b => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const p = document.getElementById(btn.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({{top:0,behavior:'smooth'}});
+}}));
+</script>
 </body>
 </html>"""
     out_path.write_text(wrapper, encoding="utf-8")

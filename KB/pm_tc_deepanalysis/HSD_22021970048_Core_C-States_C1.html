@@ -3,33 +3,55 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
   <title>NWP PSS Analysis</title>
   <style>
-    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
-    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
-    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
-    .meta h1 { margin:0; font-size:20px; }
-    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
-    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
-    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
-    p { margin:8px 0; }
-    ul { margin:8px 0 8px 20px; }
-    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
-    code { font-family: Consolas, monospace; }
-    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
-    .md-table th { background:#e8eef7; }
-    .md-pre { white-space:pre-wrap; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="meta">
-      <h1>NWP PSS Analysis</h1>
-      <p>Segment: PSS | Source: HSD_22021970048_Core_C-States_C1.inference.md | Generated: 2026-06-17 21:57:30</p>
-    </div>
-    <div class="content">
-      <h1>NWP PSS Analysis</h1>
+  <div class="header">
+    <h1>NWP PSS Analysis</h1>
+    <p>Segment: PSS | Source: HSD_22021970048_Core_C-States_C1.inference.md | Generated: 2026-06-17 22:22:06</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+    <button class="tab" data-tab="tab1">A: Critical Execution Path</button>
+    <button class="tab" data-tab="tab2">B: Component Interaction Diagram</button>
+    <button class="tab" data-tab="tab3">C: Interface Coverage Assessment</button>
+    <button class="tab" data-tab="tab4">D: NWP Specification References</button>
+    <button class="tab" data-tab="tab5">E: NWP Risk Assessment</button>
+    <button class="tab" data-tab="tab6">F: Recommendations</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>NWP PSS Analysis</h1>
 <h2>Metadata</h2>
 <ul>
 <li>HSD ID: 22021970048</li>
@@ -88,13 +110,11 @@
 <p>**Feature Status:** Expected to work</p>
 <p>**Test Purpose:** Verify C1 residency counter (MSR 0x3FD) increments when cores enter C1 state via MWAIT using Intel Idle driver or Solar tool. This flow enables cross-product coverage with CXL VTC domain.</p>
 <p>**Negative Test Aspect:** None</p>
-<p>**NWP Delta:** Topology differences from DMR (2 CBB + 1 NIO); same Core C-States behavior expected</p>
-<h2>Section A: Critical Execution Path</h2>
-<p>1. Step 1 — Inject MWaits:</p>
+<p>**NWP Delta:** Topology differences from DMR (2 CBB + 1 NIO); same Core C-States behavior expected</p></div>
+  <div id="tab1" class="panel"><p>1. Step 1 — Inject MWaits:</p>
 <p>2. Step 2 — Verify BIOS ACPI enumeration:</p>
-<p>3. Step 3 — Verify C1 residency counter:</p>
-<h2>Section B: Component Interaction Diagram</h2>
-<pre><code>
+<p>3. Step 3 — Verify C1 residency counter:</p></div>
+  <div id="tab2" class="panel"><pre><code>
 sequenceDiagram
     participant OS as Host OS
     participant FW as PCode/OCode
@@ -104,9 +124,8 @@ sequenceDiagram
     FW-&gt;&gt;HW: Configure registers
     HW--&gt;&gt;FW: Acknowledge
     FW--&gt;&gt;OS: Return status
-</code></pre>
-<h2>Section C: Interface Coverage Assessment</h2>
-<table class="md-table"><thead><tr>
+</code></pre></div>
+  <div id="tab3" class="panel"><table class="md-table"><thead><tr>
 <th>Interface</th>
 <th>Covered</th>
 <th>Notes</th>
@@ -141,18 +160,16 @@ sequenceDiagram
 <td>Yes</td>
 <td>Register access</td>
 </tr>
-</tbody></table>
-<h2>Section D: NWP Specification References</h2>
-<ul>
+</tbody></table></div>
+  <div id="tab4" class="panel"><ul>
 <li>**NWP PM HAS**: [NWP HAS - PM Features](https://docs.intel.com/documents/custom-xeon/newport-docs/has/Overview/NWP_HAS.html#pm-features)</li>
 <li>**NWP PM MAS**: [NWP IMH SoC PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)</li>
 <li>**DMR PM HAS**: [DMR SoC PM HAS](https://docs.intel.com/documents/pm_doc/src/server/DMR/SOC_PM_HAS/DMR_SOC_PM_HAS.html)</li>
 <li>**Feature HAS**: [PNC PM HAS §8 - Core C-States](https://docs.intel.com/documents/pm_doc/src/server/GNR/Features/LNC/GNR_LNC_Core.html#core-c-states)</li>
 <li>**DMR CBB HAS**: [DMR CBB CCP HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCP%20HAS/cbb_cpp_has.html)</li>
 <li>**Intel® 64 and IA-32 SDM**: MSR definitions, CPUID enumeration</li>
-</ul>
-<h2>Section E: NWP Risk Assessment</h2>
-<table class="md-table"><thead><tr>
+</ul></div>
+  <div id="tab5" class="panel"><table class="md-table"><thead><tr>
 <th>Risk</th>
 <th>Likelihood</th>
 <th>Impact</th>
@@ -176,16 +193,26 @@ sequenceDiagram
 <td>Medium</td>
 <td>Allow tolerance margins</td>
 </tr>
-</tbody></table>
-<h2>Section F: Recommendations</h2>
-<p>1. Verify test works on NWP multi-die topology</p>
+</tbody></table></div>
+  <div id="tab6" class="panel"><p>1. Verify test works on NWP multi-die topology</p>
 <p>2. Check for any interface changes from DMR</p>
 <p>3. Update HAS references to NWP specifications</p>
 <p>4. Add negative test coverage if missing</p>
 <p>5. Consider additional stress test variants</p>
 <p>---</p>
-<p>*Generated from metadata on 2026-05-28 23:20:51*</p>
-    </div>
+<p>*Generated from metadata on 2026-05-28 23:20:51*</p></div>
   </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
 </body>
 </html>

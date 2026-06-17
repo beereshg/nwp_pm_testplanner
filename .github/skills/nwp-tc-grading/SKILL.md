@@ -235,112 +235,74 @@ Then provide a **Summary** (2–4 sentences) covering: what the TC does, key NWP
 
 ---
 
-## Step 6 — Post Grading Result as HSD Comment
+## Step 6 — Write Grading Result to Section G of inference.md
 
-After producing the grading table, **always post it as a comment on the TC** — no email sent.
+Do **not** post to HSD. Write the grading output into the TC's inference.md cache file as
+`## Section G: PSS Grading`. This makes it visible as a tab in the deep-analysis HTML.
 
-### Comment HTML Template
+### Section G format (append to inference.md)
 
-Use this exact structure (mirrors the format in HSD 22022421190, comment 1667574803):
+```markdown
+## Section G: PSS Grading
 
-```html
-<div style="font-family:'Segoe UI';line-height:20px;">
+### Grading Table
 
-<h3><strong>TC Grading — HSD {TC_ID} ({TC_TITLE})</strong></h3>
+| Sl No | Dimension | Value | Rationale |
+|-------|-----------|-------|----------|
+| 1 | NWP Delta | Yes / No | <evidence from TC> |
+| 2 | Applicable NWP | Yes / No | <ZBB check or feature presence> |
+| 3 | PSS Environment | VP / VP+HSLE / HSLE / VP_CONTENT | <register path reasoning> |
+| 4 | Silicon Only | Yes / Partial | <timing/analog dependency assessment> |
+| 5 | Test Content | DMR_L / DMR_M / NWP_N | <adaptation level> |
+| 6 | OS | sv-os / linux-os | <execution stack> |
 
-<table>
-<thead><tr>
-  <th style="border-color:rgb(230,230,230);background-color:rgb(245,245,245);">Sl No</th>
-  <th style="border-color:rgb(230,230,230);background-color:rgb(245,245,245);">Category</th>
-  <th style="border-color:rgb(230,230,230);background-color:rgb(245,245,245);">Value</th>
-  <th style="border-color:rgb(230,230,230);background-color:rgb(245,245,245);">Summary</th>
-</tr></thead>
-<tbody>
-<tr><td style="border-color:rgb(230,230,230);">1</td>
-    <td style="border-color:rgb(230,230,230);"><strong>NWP Delta</strong></td>
-    <td style="border-color:rgb(230,230,230);">{DIM1_VALUE}</td>
-    <td style="border-color:rgb(230,230,230);">{DIM1_RATIONALE}</td></tr>
-<tr><td style="border-color:rgb(230,230,230);">2</td>
-    <td style="border-color:rgb(230,230,230);"><strong>Applicable NWP</strong></td>
-    <td style="border-color:rgb(230,230,230);">{DIM2_VALUE}</td>
-    <td style="border-color:rgb(230,230,230);">{DIM2_RATIONALE}</td></tr>
-<tr><td style="border-color:rgb(230,230,230);">3</td>
-    <td style="border-color:rgb(230,230,230);"><strong>PSS Environment</strong></td>
-    <td style="border-color:rgb(230,230,230);">{DIM3_VALUE}</td>
-    <td style="border-color:rgb(230,230,230);">{DIM3_RATIONALE}</td></tr>
-<tr><td style="border-color:rgb(230,230,230);">4</td>
-    <td style="border-color:rgb(230,230,230);"><strong>Silicon Only</strong></td>
-    <td style="border-color:rgb(230,230,230);">{DIM4_VALUE}</td>
-    <td style="border-color:rgb(230,230,230);">{DIM4_RATIONALE}</td></tr>
-<tr><td style="border-color:rgb(230,230,230);">5</td>
-    <td style="border-color:rgb(230,230,230);"><strong>Test Content</strong></td>
-    <td style="border-color:rgb(230,230,230);">{DIM5_VALUE}</td>
-    <td style="border-color:rgb(230,230,230);">{DIM5_RATIONALE}</td></tr>
-<tr><td style="border-color:rgb(230,230,230);">6</td>
-    <td style="border-color:rgb(230,230,230);"><strong>OS</strong></td>
-    <td style="border-color:rgb(230,230,230);">{DIM6_VALUE}</td>
-    <td style="border-color:rgb(230,230,230);">{DIM6_RATIONALE}</td></tr>
-</tbody></table>
+### Verdict
 
-<hr />
+**{VERDICT_LABEL}** — {2-sentence summary: what the TC does, key NWP constraint, recommended action.}
 
-<h3><strong>Key Notes (Condensed)</strong></h3>
-<table>
-<thead><tr>
-  <th style="border-color:rgb(230,230,230);background-color:rgb(245,245,245);">Area</th>
-  <th style="border-color:rgb(230,230,230);background-color:rgb(245,245,245);">Detail</th>
-</tr></thead>
-<tbody>
-<tr><td style="border-color:rgb(230,230,230);">Reuse Level</td>   <td style="border-color:rgb(230,230,230);">{REUSE_LEVEL}</td></tr>
-<tr><td style="border-color:rgb(230,230,230);">Main Adaptation</td><td style="border-color:rgb(230,230,230);">{ADAPTATION}</td></tr>
-<tr><td style="border-color:rgb(230,230,230);">Limitation</td>    <td style="border-color:rgb(230,230,230);">{LIMITATION}</td></tr>
-<tr><td style="border-color:rgb(230,230,230);">Validation Strategy</td><td style="border-color:rgb(230,230,230);">{STRATEGY}</td></tr>
-</tbody></table>
+### Environment Coverage
 
-<hr /><p><br /></p>
-</div>
+| Environment | Coverage | Notes |
+|-------------|----------|-------|
+| Simics VP | Yes/Partial/No | {what can be validated} |
+| HSLE | Yes/Partial/No | {what requires emulation} |
+| Post-Silicon | Yes/Partial/No | {silicon-only aspects} |
+
+### Key Notes
+
+| Area | Detail |
+|------|--------|
+| Reuse Level | High / Medium / Low |
+| Main Adaptation | {1-line change required} |
+| Limitation | {key pre-Si gap} |
+| Validation Strategy | {which env covers which sub-test} |
 ```
 
-### HSD Comment POST (Python — no email)
+### File location
+
+Find the inference.md for the TC and append/replace Section G:
 
 ```python
-import requests, urllib3
-from requests_kerberos import HTTPKerberosAuth, OPTIONAL
-urllib3.disable_warnings()
-s = requests.Session()
-s.auth = HTTPKerberosAuth(mutual_authentication=OPTIONAL)
-s.verify = False
+from pathlib import Path, re
 
-TC_ID = "{TC_HSD_ID}"
-COMMENT_HTML = """<div style="font-family:'Segoe UI';line-height:20px;">
-... (filled template from above) ...
-</div>"""
-
-r = s.post("https://hsdes-api.intel.com/rest/article/", json={
-    "tenant": "server",
-    "subject": "comments",
-    "fieldValues": [
-        {"description": COMMENT_HTML},
-        {"parent_id": TC_ID}
-    ]
-}, timeout=30)
-print(r.status_code, "OK" if r.status_code == 200 else r.text[:200])
+KB_ROOT = Path('KB/pm_tc_kb')
+matches = list(KB_ROOT.rglob(f'**/*{TC_ID}*.inference.md'))
+if matches:
+    inf = matches[0]
+    text = inf.read_text(encoding='utf-8')
+    if '## Section G:' not in text:
+        text += '\n\n' + SECTION_G_MARKDOWN
+    else:
+        text = re.sub(r'## Section G:.*', SECTION_G_MARKDOWN, text, flags=re.DOTALL)
+    inf.write_text(text, encoding='utf-8')
+    print(f'Written: {inf}')
 ```
 
-**Rules:**
-- Use `subject="comments"` (plural) for POST — never PUT or child endpoint
-- Omit `send_mail` from payload — no email notification
-- Always verify `r.status_code == 200` before reporting success
-- After posting, report the new comment ID from `r.json().get("new_id")`
+After writing, regenerate HTML — Section G tab appears automatically:
 
-### Key Notes table — fill these 4 fields from grading analysis
-
-| Field | Guidance |
-|-------|---------|
-| `Reuse Level` | High / Medium / Low — based on Test Content dimension |
-| `Main Adaptation` | 1-line change summary (e.g. "Update CBB iteration 4→2") |
-| `Limitation` | Key gap in pre-Si or Simics environment |
-| `Validation Strategy` | Which environment covers which sub-test |
+```powershell
+python tools/html/generate_unified_html.py --segment fv --hsd <ID> --force
+```
 
 ---
 

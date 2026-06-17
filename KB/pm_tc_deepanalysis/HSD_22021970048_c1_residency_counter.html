@@ -3,33 +3,55 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
   <title>Deep Analysis: C1 Residency Counter</title>
   <style>
-    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
-    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
-    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
-    .meta h1 { margin:0; font-size:20px; }
-    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
-    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
-    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
-    p { margin:8px 0; }
-    ul { margin:8px 0 8px 20px; }
-    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
-    code { font-family: Consolas, monospace; }
-    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
-    .md-table th { background:#e8eef7; }
-    .md-pre { white-space:pre-wrap; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="meta">
-      <h1>Deep Analysis: C1 Residency Counter</h1>
-      <p>Segment: PSS | Source: HSD_22021970048_c1_residency_counter.inference.md | Generated: 2026-06-17 21:57:30</p>
-    </div>
-    <div class="content">
-      <h1>Deep Analysis: C1 Residency Counter</h1>
+  <div class="header">
+    <h1>Deep Analysis: C1 Residency Counter</h1>
+    <p>Segment: PSS | Source: HSD_22021970048_c1_residency_counter.inference.md | Generated: 2026-06-17 22:22:06</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+    <button class="tab" data-tab="tab1">A: NWP Delta</button>
+    <button class="tab" data-tab="tab2">B: Interactions</button>
+    <button class="tab" data-tab="tab3">C: Coverage</button>
+    <button class="tab" data-tab="tab4">D: Spec Refs &amp; Validation Points</button>
+    <button class="tab" data-tab="tab5">E: Risk Assessment</button>
+    <button class="tab" data-tab="tab6">F: Recommendations</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>Deep Analysis: C1 Residency Counter</h1>
 <table class="md-table"><thead><tr>
 <th>Field</th>
 <th>Value</th>
@@ -195,9 +217,8 @@
 <li>**PASS**: MSR 0x778 increments on all 96 cores (2 CBBs × 48) after C1 dwell; MSR 0x3FD stays minimal during C1-only dwell</li>
 <li>**FAIL**: Any core shows CC1 residency counter delta = 0 after sustained idle; or CC6 inflates during C1-only dwell</li>
 </ul>
-<p>---</p>
-<h2>Section A: NWP Delta</h2>
-<p>**Disposition: Runnable_On_N-1 — Trivial adaptation (topology loop bounds only)**</p>
+<p>---</p></div>
+  <div id="tab1" class="panel"><p>**Disposition: Runnable_On_N-1 — Trivial adaptation (topology loop bounds only)**</p>
 <p>C1/C1E is fully supported on NWP with the same PantherCove (PNC) core as DMR. The same MWAIT mechanism, residency MSR interface, BIOS ACPI _CST enumeration, and FW agents (uCode, Acode, PCode) apply without functional change.</p>
 <table class="md-table"><thead><tr>
 <th>Aspect</th>
@@ -260,9 +281,8 @@
 <td>Path prefix only: `nio.punit.*` replaces `imh0.punit.*` — register names and fields are identical</td>
 </tr>
 </tbody></table>
-<p>---</p>
-<h2>Section B: Interactions</h2>
-<h3>Swimlane Data</h3>
+<p>---</p></div>
+  <div id="tab2" class="panel"><h3>Swimlane Data</h3>
 <table class="md-table"><thead><tr>
 <th>Step</th>
 <th>Actor</th>
@@ -370,9 +390,8 @@
 <td>[Internal]</td>
 </tr>
 </tbody></table>
-<p>---</p>
-<h2>Section C: Coverage</h2>
-<table class="md-table"><thead><tr>
+<p>---</p></div>
+  <div id="tab3" class="panel"><table class="md-table"><thead><tr>
 <th>Coverage Area</th>
 <th>DMR Coverage</th>
 <th>NWP Gap</th>
@@ -421,9 +440,8 @@
 <td>**Path prefix swap only** — register names and field definitions are identical to DMR</td>
 </tr>
 </tbody></table>
-<p>---</p>
-<h2>Section D: Spec Refs &amp; Validation Points</h2>
-<table class="md-table"><thead><tr>
+<p>---</p></div>
+  <div id="tab4" class="panel"><table class="md-table"><thead><tr>
 <th>Category</th>
 <th>Register</th>
 <th>Field/Offset</th>
@@ -513,9 +531,8 @@ for f in fails:
 <li>DMR CBB PM HAS: Core C1 residency architecture</li>
 <li>CCP 2.0: https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/CCP%202.0/CCP_2_0.html#cstate-entry-flow</li>
 </ul>
-<p>---</p>
-<h2>Section E: Risk Assessment</h2>
-<table class="md-table"><thead><tr>
+<p>---</p></div>
+  <div id="tab5" class="panel"><table class="md-table"><thead><tr>
 <th>#</th>
 <th>Risk / Open Item</th>
 <th>Severity</th>
@@ -552,16 +569,26 @@ for f in fails:
 <td>Already captured in pre-conditions; ensure correct HSLE configuration</td>
 </tr>
 </tbody></table>
-<p>---</p>
-<h2>Section F: Recommendations</h2>
-<p>**Recommendation: ADOPT — Trivial adaptation needed (register path and loop bounds).**</p>
+<p>---</p></div>
+  <div id="tab6" class="panel"><p>**Recommendation: ADOPT — Trivial adaptation needed (register path and loop bounds).**</p>
 <p>C1 residency counter test is directly applicable on NWP with two low-risk changes:</p>
 <p>1. **Update CBB loop bounds**: `range(4)` → `range(2)` (CBBs); `range(64)` → `range(48)` (cores/CBB)</p>
 <p>2. **Update IMH register path prefix only**: `imh0.punit.*` / `imh1.punit.*` → `sv.socket0.nio.punit.*` — register names and field definitions are identical, no semantic change</p>
 <p>3. **Retain HSLE + CorePMA + Aunit Fmod** pre-conditions exactly as in DMR TC</p>
 <p>4. **Run both C1E sub-states** (sub-state 0 and 1) to confirm C1E behavior on PNC NWP cores</p>
-<p>5. **Document NWP scope**: All 96 cores expected to show CC1 residency increment; CC6 must stay low</p>
-    </div>
+<p>5. **Document NWP scope**: All 96 cores expected to show CC1 residency increment; CC6 must stay low</p></div>
   </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
 </body>
 </html>
