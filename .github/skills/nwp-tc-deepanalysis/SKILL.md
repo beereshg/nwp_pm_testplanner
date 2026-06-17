@@ -1,16 +1,19 @@
 ---
-name: nwp-pm
+name: nwp-tc-deepanalysis
 description: >
-  Unified NWP PM skill — covers the full TC/TCD/TPF enrichment pipeline, HSD REST API
-  patterns, KB article enrichment, and NWP architecture constants. Use for any NWP PM
-  test plan work: HSD hierarchy reads/writes, FV/PSS pipeline orchestration, KB article
-  restructuring, and HTML report generation.
+  Unified NWP TC deep-analysis skill — generates LLM-backed KB markdown files by
+  reading TC descriptions, KB feature content, and Co-Design MCP/spec inputs.
+  Primary output is markdown under KB/pm_tc_kb for FV/PSS deep-analysis workflows.
 ---
 
-# NWP PM — Unified Skill
+# NWP TC Deepanalysis Skill
 
 > Orchestrating agent: `@nwp_pm_testplanner`
 > Repo root: `c:/github/nwp_testplan/`
+
+Core output contract:
+- Generate or update LLM-backed markdown files in `KB/pm_tc_kb/**/HSD_{id}_{slug}.inference.md`
+- Build content using TC description + relevant KB article(s) + Co-Design MCP/spec data
 
 ---
 

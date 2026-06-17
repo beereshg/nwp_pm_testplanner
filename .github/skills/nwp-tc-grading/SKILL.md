@@ -12,7 +12,7 @@ description: >
 
 > Orchestrating agent: `@nwp_pm_testplanner`
 > Repo root: `c:/github/nwp_testplan/`
-> Depends on: `nwp-pm` skill (architecture constants, ZBB table)
+> Depends on: `nwp-tc-deepanalysis` skill (architecture constants, ZBB table)
 
 ---
 
@@ -26,9 +26,9 @@ description: >
 
 ## When NOT to Use
 
-- Full TC enrichment (use `nwp-pm` + pipeline skill instead)
+- Full TC enrichment (use `nwp-tc-deepanalysis` skill instead)
 - Rejection decisions — grading informs but does not replace human judgment
-- PSS TR grading (use `nwp-pm` PSS pipeline)
+- PSS TR grading (use `nwp-tc-deepanalysis` PSS pipeline)
 
 ---
 
@@ -163,7 +163,7 @@ The 6-dimension grading table is the standard NWP PM readiness scorecard:
 
 ### Step 0 — Load NWP constants
 
-Read `nwp-pm` skill for: ZBB feature table, register path mapping, topology constants, KB articles.
+Read `nwp-tc-deepanalysis` skill for: ZBB feature table, register path mapping, topology constants, KB articles.
 
 ### Step 1 — Fetch TC/TCD content
 
@@ -209,7 +209,7 @@ For **each** dimension, cite specific evidence from the TC content:
 
 ### Step 4 — Apply ZBB table (mandatory check before grading Applicable NWP)
 
-From `nwp-pm` skill ZBB table:
+From `nwp-tc-deepanalysis` skill ZBB table:
 - If TC tests PkgC6 → **Applicable NWP = No (ZBB)**
 - If TC tests RACL / dual-VCCIN → **Applicable NWP = No**
 - If TC tests IO Fabric DVFS / Memory Fabric DVFS → **Applicable NWP = No (ZBB)**
