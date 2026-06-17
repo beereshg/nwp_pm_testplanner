@@ -314,6 +314,23 @@ def fresh_req(method, url, retries=5, **kwargs):
 
 **Rate-limit rule**: `time.sleep(0.1)` between GETs; `time.sleep(1)` after creates/PUTs.
 
+## HSD Hierarchy
+[](https://github.com/intel-sandbox/PRISM-feature-validation-plan-suite/blob/master/skill/SKILL.md#hsd-hierarchy)
+
+```
+Test Plan (TP)                        ← fvps tp create
+  └── Test Plan Feature (TPF)         ← fvps tpf create / fvps tpf create-batch
+    └── Test Case Definition (TCD) ← fvps tcd publish
+      └── Test Case (TC)       ← fvps tc publish
+```
+
+All use `server.test_plan` / `server.test_case_definition` / `server.test_case`:
+
+- **TP**: `server.test_plan` with `nodetype = "plan"` — top-level container
+- **TPF**: `server.test_plan` with `nodetype = "feature"` — feature node under TP
+- **TCD**: `server.test_case_definition` — test case detail under TPF
+- **TC**: `server.test_case` — individual test case under TCD
+
 ### Hierarchy and Subject Names
 
 ```
@@ -578,6 +595,31 @@ codesign-ask-specs-and-wikis: "What changes for {FEATURE} on Newport vs DMR?
 ---
 
 ## Part 7 — Cache File Format
+
+### Template Usage Contract (mandatory)
+
+Use templates with strict separation of scope:
+
+1. `KB/tc_hsd_description.html.j2`
+  - Use this template only to generate or refresh the **TC description section** content.
+  - This is the template for HSD-facing description shaping.
+
+2. `KB/templates/deep_analysis.html.j2`
+  - Keep using this template for the **overall deep-analysis rendering**.
+  - Do not replace this with the TC description template.
+
+Before rendering either template, ensure all required data fields are present in `KB/**/*.md` sources (especially `KB/pm_tc_kb/**/*.inference.md`).
+
+Required data completeness checks for KB markdown:
+
+- Metadata present: HSD ID, title, feature, sub-feature, date/version
+- Intent section present: purpose and scope of the TC
+- Steps section present: pre-conditions, execution steps, pass/fail criteria
+- Deep-analysis sections present: Section A through Section F (Section E when applicable)
+- Interaction tables present for Section B: Swimlane Data and Sequence Data headings/tables
+- References present: valid KB/HSD/spec citations used by the generated content
+
+If required fields are missing, enrich `KB/**/*.md` first, then render templates.
 
 ### Cache Files Are Canonical Generation Inputs
 

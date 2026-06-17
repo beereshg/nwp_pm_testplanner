@@ -26,29 +26,31 @@
 {# ── Tabs ── #}
 <div class="main">
   <div class="tabs">
+    <button class="tab active" data-tab="tc">Test Case</button>
     {% for tab in tabs %}
-    {% if tab.id == 'response' and hsd_script_content %}
-    <button class="tab{% if loop.first %} active{% endif %}" data-tab="{{ tab.id }}">Script Source</button>
+    {% if tab.id == 'tc' %}
+    {% elif tab.id == 'response' and hsd_script_content %}
+    <button class="tab" data-tab="{{ tab.id }}">Script Source</button>
     {% else %}
-    <button class="tab{% if loop.first %} active{% endif %}" data-tab="{{ tab.id }}">{{ tab.label }}</button>
+    <button class="tab" data-tab="{{ tab.id }}">{{ tab.label }}</button>
     {% endif %}
     {% endfor %}
   </div>
 
   {# ── Test Case Panel ── #}
   <section id="tc" class="panel active">
-    <h2>Test Case Overview</h2>
-    <div class="meta-grid">
-      {% for item in meta_items %}
-      {% if item.label in ['NWP Scope', 'Test Cycle', 'Script', 'HSD Script'] %}
-      <div class="meta-item">
-        <span class="meta-label">{{ item.label }}</span>
-        <span class="meta-value">{{ item.value }}</span>
-      </div>
-      {% endif %}
-      {% endfor %}
-    </div>
+    <h2>Test Case</h2>
 
+    {# Prefer pre-rendered HTML when provided by caller #}
+    {% if tc_hsd_description_html %}
+    {{ tc_hsd_description_html }}
+
+    {# Otherwise render inline using the dedicated TC description template #}
+    {% elif tc %}
+    {% include 'tc_hsd_description.html.j2' %}
+
+    {# Fallback to legacy sections when structured tc data is unavailable #}
+    {% else %}
     <h3>Refined Intent</h3>
     <div class="intent-box tc-legacy-intent">{{ refined_intent_html }}</div>
 
@@ -74,6 +76,7 @@
 
     <h3>Source File</h3>
     <pre>{{ source_file }}</pre>
+    {% endif %}
   </section>
 
   {# ── Analysis Sections A–F ── #}

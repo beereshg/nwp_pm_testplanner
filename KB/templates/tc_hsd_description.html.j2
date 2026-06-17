@@ -1,0 +1,121 @@
+{# TC HSD Description Template — inline-styled HTML for HSDES rendering (v9 format) #}
+{# HSDES strips <style> blocks, so all styles must be inline #}
+{# No section numbering in HSD (unlike HTML report) #}
+
+<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+
+{# Validation Scope #}
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
+<br/><p style="margin:10px 0 16px 0;">{{ tc.scope }}</p>
+
+<br/>
+
+{# Preconditions #}
+{% if tc.preconditions %}
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Preconditions</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+{% for pre in tc.preconditions %}
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">{{ pre.item }}</td><td style="text-align:left;padding:8px;">{{ pre.requirement }}</td></tr>
+{% endfor %}
+</table>
+{% endif %}
+
+<br/>
+
+{# Test Steps #}
+{% if tc.steps %}
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Test Steps</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 8px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">#</th>
+  <th style="text-align:left;padding:8px;">Action</th>
+  <th style="text-align:left;padding:8px;">Expected Result (PASS)</th>
+  <th style="text-align:left;padding:8px;">Failure Indication</th>
+</tr>
+{% for step in tc.steps %}
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">{{ loop.index }}</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">{{ step.action }}</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">{{ step.expected }}</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">{{ step.failure }}</td>
+</tr>
+{% endfor %}
+</table>
+
+{# Notes — with "Notes" header, matching HTML report format #}
+{% if tc.notes %}
+<h3>NOTEs</h3>
+<div style="font-size:0.85em;color:#555;margin-left:12px;padding:10px;background:#f8f9fa;border-left:3px solid #999;border-radius:3px;">
+{% for note in tc.notes %}
+<p style="margin:6px 0;">{{ note }}</p>
+{% endfor %}
+</div>
+{% endif %}
+
+{% if tc.opens %}
+<h3>OPENs</h3>
+<div style="font-size:0.85em;color:#c62828;margin-left:12px;padding:10px;background:#fff3f3;border-left:3px solid #c62828;border-radius:3px;">
+<ul style="margin:4px 0;padding-left:20px;">
+{% for item in tc.opens %}
+<li style="margin:4px 0;">{{ item }}</li>
+{% endfor %}
+</ul>
+</div>
+{% endif %}
+{% endif %}
+
+<br/>
+
+{# Health Check #}
+{% if tc.health_checks %}
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Health Check — Registers &amp; Logs to Collect</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">Register / Log</th>
+  <th style="text-align:left;padding:8px;">Access</th>
+  <th style="text-align:left;padding:8px;">Pass/Fail Criteria</th>
+</tr>
+{% for hc in tc.health_checks %}
+{% if hc.name == "TODO" %}
+<tr><td style="text-align:left;padding:8px;" colspan="3"><b>TODO:</b> {{ hc.criteria }}</td></tr>
+{% else %}
+<tr>
+  <td style="text-align:left;padding:8px;">{{ hc.name }}</td>
+  <td style="text-align:left;padding:8px;">{{ hc.access }}</td>
+  <td style="text-align:left;padding:8px;">{{ hc.criteria }}</td>
+</tr>
+{% endif %}
+{% endfor %}
+</table>
+{% endif %}
+
+<br/>
+
+{# Post-Process #}
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
+<br/><p style="margin:10px 0;">{{ tc.post_process }}</p>
+
+<br/>
+
+{# References #}
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">References</div>
+<br/>
+{% if config.fr_hsd or config.specs %}
+<ul>
+{% if config.fr_hsd %}
+{% for fr in config.fr_hsd %}
+<li><a href="https://hsdes.intel.com/appstore/article-one/#/{{ fr.id }}">HSD {{ fr.id }}</a> — {{ fr.title }}</li>
+{% endfor %}
+{% endif %}
+{% if config.specs %}
+{% for key, spec in config.specs.items() %}
+<li><a href="{{ spec.url }}">{{ spec.name }}</a></li>
+{% endfor %}
+{% endif %}
+</ul>
+{% else %}
+<p>N/A</p>
+{% endif %}
+
+</div>
