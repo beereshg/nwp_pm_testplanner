@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: pmx Security x Socket RAPL</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: pmx Security x Socket RAPL</h1>
+      <p>Segment: FV | Source: HSD_22022421700_pmx_security_x_socket_rapl.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: pmx Security x Socket RAPL</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421700</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>pmx Security x Socket RAPL</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>RAPL cross-product with SGX + TDX security features enabled</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **Socket RAPL energy reporting is functional while SGX and TDX are enabled** via BIOS knobs. The RAPL cross-product validates that security feature enablement does not break RAPL energy accounting.</p>
+<p>Test approach:</p>
+<p>1. Enable SGX + TDX via BIOS knobs (`EnableTdx`, `EnableSgx`, etc.)</p>
+<p>2. Verify SGX/TDX active via MSR and CPUID</p>
+<p>3. Run RAPL cross-product PMx (`cpu_rapl_cross`, `core_power`)</p>
+<p>4. Verify RAPL energy reporting correct with security enabled</p>
+<p>Tags: `PMSS_NWP_READINESS_CHECK` — NWP candidacy confirmed</p>
+<p>**NWP Note on SGX/TDX availability**: If SGX or TDX is not available on NWP silicon (feature-disabled or not implemented), the BIOS knob configuration step adapts — test the RAPL portion with security features available on NWP (or with at least one of SGX/TDX if only partial support). RAPL energy accounting must be correct regardless of security feature state.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>BIOS Knob Configuration (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Knob</th>
+<th>Value</th>
+<th>Note</th>
+</tr></thead><tbody>
+<tr>
+<td>`EnableTdxSeamldr`</td>
+<td>0x1</td>
+<td>If TDX supported on NWP</td>
+</tr>
+<tr>
+<td>`DfxEnableTdxModule`</td>
+<td>0x1</td>
+<td>If TDX supported on NWP</td>
+</tr>
+<tr>
+<td>`EnableTdx`</td>
+<td>0x1</td>
+<td>If TDX supported on NWP</td>
+</tr>
+<tr>
+<td>`EnableSgx`</td>
+<td>0x1</td>
+<td>If SGX supported on NWP</td>
+</tr>
+<tr>
+<td>`DfxPoisonEn`</td>
+<td>0x1</td>
+<td>Poison enable</td>
+</tr>
+<tr>
+<td>`ControlIommu`</td>
+<td>0x0</td>
+<td>IOMMU passthrough</td>
+</tr>
+<tr>
+<td>`MemCeFloodPolicy`</td>
+<td>0x0</td>
+<td>CE flood policy</td>
+</tr>
+<tr>
+<td>`EccModeSel`</td>
+<td>0x1</td>
+<td>ECC mode</td>
+</tr>
+</tbody></table>
+<h3>Adapted PMx Command</h3>
+<pre><code>
+python runPmx.py -x nwp.xml -p cpu_rapl_cross -p core_power -tM 60 -M 60
+</code></pre>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Configure BIOS knobs for security features available on NWP</td>
+<td>Skip knobs for features not on NWP silicon</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Verify security feature active</td>
+<td>`msr -r -o 1401` (TDX bits 10-11); `cpuid 0x12` (SGX bits 0-1)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Run RAPL cross-product with core power</td>
+<td>`python runPmx.py -x nwp.xml -p cpu_rapl_cross -p core_power -tM 60 -M 60`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify RAPL energy reporting correct with security enabled</td>
+<td>Energy status MSRs update; limits enforced</td>
+</tr>
+</tbody></table>
+<h3>NWP: 2 CBBs</h3>
+<ul>
+<li>NWP: 2 CBBs × 48 cores; single `imh0`</li>
+<li>RAPL domain covers both CBBs</li>
+<li>`runPmx.py -x nwp.xml` (not `dmr.xml`)</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>RAPL energy status updates correctly while security features enabled</li>
+<li>RAPL power limits enforced during security feature active state</li>
+<li>No RAPL energy freeze or hang under SGX/TDX workload</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; verify SGX/TDX availability on NWP; adapt BIOS knobs accordingly**</p>
+<p>1. `python runPmx.py -x nwp.xml -p cpu_rapl_cross -p core_power -tM 60 -M 60`</p>
+<p>2. If NWP lacks SGX or TDX: skip corresponding BIOS knob; test RAPL with available security features</p>
+<p>3. NWP: 2 CBBs, single `imh0`; RAPL domain covers full socket</p>
+<p>**Priority**: Medium — security × RAPL interaction validation; verify NWP security feature availability before execution</p>
+    </div>
+  </div>
+</body>
+</html>

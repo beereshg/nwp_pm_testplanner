@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: Consistent Throttling Silicon I3C</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: Consistent Throttling Silicon I3C</h1>
+      <p>Segment: FV | Source: HSD_22022422343_consistent_throttling_silicon_i3c.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: Consistent Throttling Silicon I3C</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422343</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>Consistent throttling_silicon_I3C</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Quality</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PEM (Power Event Monitor) — consistent 1-minute throttle, measured via I3C interface</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>PEM (Power Event Monitor) tracks throttling events via telemetry. This test verifies that 1 minute of continuous throttle is accurately captured by PEM counters via the **I3C interface** (BMC ↔ CPU I3C bus). PEM is functional on NWP.</p>
+<p>Test formula: `Total time = LPF ramp + PEM counter captured time ≈ 1 minute`</p>
+<p>Tags: `Ready_for_testing`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Adapted Command (NWP)</h3>
+<pre><code>
+python telemetryAPIs.py  # PEM telemetry via I3C interface
+</code></pre>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Enable PEM through TPMI</td>
+<td>`pem_control` via TPMI</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Enforce continuous throttle for 1 minute</td>
+<td>PROCHOT inject or RAPL PL1 low</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify no gaps in throttle</td>
+<td>Continuous 60-second throttle event</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read PEM counters via **I3C interface**</td>
+<td>BMC → I3C → CPU telemetry</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify: `LPF ramp + PEM counter ≈ 1 min`</td>
+<td>±10% tolerance</td>
+</tr>
+<tr>
+<td>6</td>
+<td>BMC setup required</td>
+<td>LPF ramp calculation from thermal team</td>
+</tr>
+</tbody></table>
+<h3>NWP Notes</h3>
+<ul>
+<li>I3C interface to BMC: same on NWP (single-socket)</li>
+<li>PEM via `sv.socket0.imh0.*` TPMI</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>Total time (LPF ramp + PEM counter) ≈ 60 seconds (±10%)</li>
+<li>No throttle gaps detected in 1-minute window</li>
+<li>I3C telemetry path functional for PEM data</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `telemetryAPIs.py` NWP configuration; I3C interface same; BMC setup required; PEM functional on NWP**</p>
+<p>**Priority**: High — `Ready_for_testing`; PEM accuracy is a Quality gate for throttling telemetry correctness</p>
+    </div>
+  </div>
+</body>
+</html>

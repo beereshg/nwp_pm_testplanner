@@ -1,0 +1,16 @@
+#!/usr/intel/bin/tcsh
+setenv PATH /p/hdk/cad/zapo_crt/latest/bin:${PATH}
+setenv NB_WASH_ENABLED
+setenv NB_WASH_GROUPS intelall,soc,soc73,shdk73,hdk7nm,adl_rtl,adl,gnr74,gnr76,cicg,c2dgusers,dmrips,dmrprj,cbbb_c2dg_ex,dmrmcp
+
+
+#/nfs/site/disks/xpg_dmrmcp_0152/users/adgronqu/DMR/TOOLS/emurun/1.14.2-perfAmit-Setupupdate/bin/emurun -ver /nfs/site/disks/xpg_dmrmcp_0152/users/adgronqu/DMR/MODELS/DMR-MCP-2S_ICI_ICI-V14-24.03-tb_clone_Perf/output/dmrpkgucc1/emu/zebu_zebu/clone_2s_2403_rev01_clonePerf2/ZSE5_DMR_MCP_2S_ICI_FULLSTACK -nbqslot /prj/server/dmr/ucc/showstopper -idi_tracker_en -jem_port_registration_by_sw_side -stop_default 7200 -fullstack_en -b2b_fullstack_xtors -jem_tlm_port_enable_init_state 1 -jem_no_dpi_enabling -jem_no_disable_at_init -enable_pcode_loading -enable_s3m_loading -enable_fuse_loading -enable_preloader -cbb1_ucie_disable -cbb2_ucie_disable -cbb3_ucie_disable -netbatch_opts '--log-file-dir /tmp/netbatch' -c 1600000000 -test_name SEQ_49_2S_8T_C8M4_18TB_0.1X -test /nfs/site/disks/xpg_dmrmcp_0152/users/adgronqu/DMR/TESTS/MAX/2S_8T_C8M4_DCM0_31/SEQ_49_2S_8T_C8M4_18TB_0.1X/max_base_template.32.obj -local_model_params -override_input_dir /nfs/site/disks/xpg_dmrmcp_0152/users/adgronqu/DMR/override_input_dir/MCP-2S_ICI_ICI-V14_rebase8-fixPcieforcesBraces_rdiShim_preloader25ww25_imh9SVIDon_ESE_YY_DIE_ID_optCXLflitTrk_spreadCellPCIextorFinal_fixPCIeForces_noMCAmonSwitch_noMMIOinjects_pcodeMMIOfix_ialCredit/ -enable_2s -enable_2s_rtl -tardis_debug_disable -execlimit 25200 -netbatch_opts '--exec-limits "6h:7h"' -minibios /nfs/site/disks/xpg_dmrhub_0600/DMR/0p5/testrun/022_D61_1p0/mcp/2S/bmod_primecode_non_pcie/fast/2s_link_22d61/dmr_dup.4/ubios/ubios_annotated_0400000924931757F.obj -no_mca_monitors -plugin /nfs/site/disks/xpg_dmrmcp_0152/users/adgronqu/DMR/PLUGINS/DoorKeeper-2S-2minTO/Doorkeeper.pm -fuse.fuse_string_file_imh8 /nfs/site/disks/ive_dmr_prednv_009/nkudliba/training/fuse_overrides/imh8_ovrd.txt -fuse.fuse_string_file_imh8_s1 /nfs/site/disks/ive_dmr_prednv_009/nkudliba/training/fuse_overrides/imh8_s1_ovrd.txt -fuse.fuse_string_file_imh9 /nfs/site/disks/ive_dmr_prednv_009/nkudliba/training/fuse_overrides/imh9_ovrd.txt -fuse.fuse_string_file_imh9_s1 /nfs/site/disks/ive_dmr_prednv_009/nkudliba/training/fuse_overrides/imh9_s1_ovrd.txt -fuse.fuse_string_file_cbb0 /nfs/site/disks/ive_dmr_prednv_009/nkudliba/training/fuse_overrides/cbb0_ovrd.txt -fuse.fuse_string_file_cbb0_s1 /nfs/site/disks/ive_dmr_prednv_009/nkudliba/training/fuse_overrides/cbb0_s1_ovrd.txt -norun
+crt -rid 40584 -bf mcp_ici_hsle_svos \
+    -io IFWI=/nfs/site/disks/ive_dmr_prednv_009/nkudliba/training/bios_knob_new -- \
+    --er \
+    -nbqslot /prj/sv/dmr/sysval/standard \
+    -c 4000000000 \
+    -fuse.fuse_string_file_imh8 /nfs/site/disks/ive_dmr_prednv_009/nkudliba/training/fuse_overrides/imh8_ovrd.txt \
+    -fuse.fuse_string_file_imh9 /nfs/site/disks/ive_dmr_prednv_009/nkudliba/training/fuse_overrides/imh9_ovrd.txt \
+    -fuse.fuse_string_file_cbb /nfs/site/disks/ive_dmr_prednv_009/nkudliba/training/fuse_overrides/cbb0_ovrd.txt \
+    -norun --

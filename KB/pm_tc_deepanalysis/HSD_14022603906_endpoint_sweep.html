@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: EndPoint Sweep</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: EndPoint Sweep</h1>
+      <p>Segment: FV | Source: HSD_14022603906_endpoint_sweep.inference.md | Generated: 2026-06-17 21:14:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: EndPoint Sweep</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>14022603906</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>EndPoint Sweep</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>(blank)</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Sideband endpoint sweep — PMSB and GPSB traffic harassers on all CBB and IMH endpoints</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test runs sideband traffic harassers on all PMSB (PMC Sideband) and GPSB (General Purpose Sideband) endpoints in CBB and IMH dies. PythonSv-based content to trigger sideband access patterns.</p>
+<p>**NWP topology**: 2 CBBs + 1 IMH (vs DMR: 4 CBBs + 2 IMHs). Endpoint count reduced accordingly.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP Endpoint Topology</h3>
+<pre><code>
+# NWP: 2 CBBs, 1 IMH → reduced endpoint count vs DMR
+# CBB endpoints: sv.socket0.cbb[0:2].punit.* PMSB/GPSB endpoints
+# IMH endpoints: sv.socket0.imh0.punit.* PMSB/GPSB endpoints
+for cbb_idx in range(2):  # NWP: 2 CBBs (not 4)
+    cbb = sv.socket0.cbb[cbb_idx]
+    # trigger PMSB/GPSB sideband traffic on this CBB
+
+# IMH (single on NWP)
+imh = sv.socket0.imh0
+# trigger PMSB/GPSB sideband traffic on IMH
+</code></pre>
+<h3>Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Enumerate all PMSB endpoints per CBB</td>
+<td>2 CBBs</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Enumerate all GPSB endpoints per CBB</td>
+<td>2 CBBs</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Run sideband harasser on each endpoint</td>
+<td>PythonSv stress</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Repeat for IMH0</td>
+<td>Single IMH</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify no endpoint errors</td>
+<td>No timeout, no MCA</td>
+</tr>
+</tbody></table>
+<h3>Pass Criteria</h3>
+<ul>
+<li>All PMSB/GPSB endpoints respond without timeout</li>
+<li>No sideband errors across all 3 dies (2 CBBs + 1 IMH)</li>
+<li>System stable after sweep</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — NWP topology: 2 CBBs + 1 IMH (reduced from DMR&#x27;s 4+2); adapt endpoint enumeration; PythonSv sideband harasser same**</p>
+<p>**Priority**: Medium — Critical for sideband infrastructure health check on NWP</p>
+    </div>
+  </div>
+</body>
+</html>

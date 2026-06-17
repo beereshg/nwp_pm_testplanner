@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMR PM Sighting Delta Analysis</title>
+<style>
+:root { --bg: #0d1117; --card: #161b22; --border: #30363d; --text: #e6edf3; --text2: #8b949e;
+  --blue: #58a6ff; --green: #3fb950; --red: #f85149; --orange: #d29922; --purple: #bc8cff; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.5; padding: 20px; }
+.container { max-width: 1400px; margin: 0 auto; }
+h1 { font-size: 28px; margin-bottom: 8px; }
+h2 { font-size: 22px; margin: 30px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+h3 { font-size: 17px; margin: 20px 0 10px; color: var(--blue); }
+.subtitle { color: var(--text2); font-size: 14px; margin-bottom: 24px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 16px 0; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; }
+.card .num { font-size: 32px; font-weight: 700; }
+.card .label { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+.card.open .num { color: var(--red); }
+.card.rc .num { color: var(--orange); }
+.card.closed .num { color: var(--green); }
+.card.rejected .num { color: var(--text2); }
+.card.total .num { color: var(--blue); }
+table { width: 100%; border-collapse: collapse; margin: 12px 0 24px; font-size: 13px; }
+th { background: var(--card); color: var(--text2); font-weight: 600; text-transform: uppercase;
+  font-size: 11px; letter-spacing: 0.5px; padding: 10px 12px; text-align: left;
+  border-bottom: 2px solid var(--border); position: sticky; top: 0; }
+td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:hover td { background: rgba(88,166,255,0.04); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+.badge-open { background: rgba(248,81,73,0.15); color: var(--red); }
+.badge-rc { background: rgba(210,153,34,0.15); color: var(--orange); }
+.badge-closed { background: rgba(63,185,80,0.15); color: var(--green); }
+.badge-rejected { background: rgba(139,148,158,0.15); color: var(--text2); }
+.badge-high { background: rgba(248,81,73,0.2); color: var(--red); }
+.badge-medium-high { background: rgba(210,153,34,0.2); color: var(--orange); }
+.badge-medium { background: rgba(88,166,255,0.2); color: var(--blue); }
+.badge-low { background: rgba(63,185,80,0.2); color: var(--green); }
+.badge-new { background: rgba(188,140,255,0.2); color: var(--purple); }
+.badge-enhanced { background: rgba(88,166,255,0.15); color: var(--blue); }
+.badge-removed { background: rgba(139,148,158,0.2); color: var(--text2); }
+.hsd-link { color: var(--blue); text-decoration: none; }
+.hsd-link:hover { text-decoration: underline; }
+.bar-chart { margin: 16px 0; }
+.bar-row { display: flex; align-items: center; margin: 4px 0; }
+.bar-label { width: 140px; font-size: 13px; text-align: right; padding-right: 12px; flex-shrink: 0; }
+.bar-track { flex: 1; height: 22px; display: flex; border-radius: 4px; overflow: hidden; }
+.bar-seg { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; min-width: 20px; }
+.bar-seg.open { background: var(--red); }
+.bar-seg.rc { background: var(--orange); }
+.bar-seg.closed { background: var(--green); }
+.bar-seg.rejected { background: rgba(139,148,158,0.4); color: var(--text2); }
+.bar-count { width: 40px; text-align: right; font-size: 13px; padding-left: 8px; color: var(--text2); flex-shrink: 0; }
+.legend { display: flex; gap: 16px; margin: 8px 0 16px; font-size: 12px; }
+.legend-item { display: flex; align-items: center; gap: 4px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+.section { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin: 16px 0; }
+.warning { background: rgba(210,153,34,0.1); border: 1px solid rgba(210,153,34,0.3); border-radius: 8px;
+  padding: 14px 18px; margin: 16px 0; font-size: 14px; }
+.warning::before { content: "\26A0\FE0F "; }
+.die-badge { font-size: 11px; padding: 1px 6px; border-radius: 4px; }
+.die-ioe { background: rgba(188,140,255,0.15); color: var(--purple); }
+.die-base { background: rgba(88,166,255,0.15); color: var(--blue); }
+.die-compute { background: rgba(63,185,80,0.15); color: var(--green); }
+.die-soc { background: rgba(210,153,34,0.15); color: var(--orange); }
+details { margin: 8px 0; }
+summary { cursor: pointer; font-weight: 600; font-size: 14px; padding: 6px 0; color: var(--blue); }
+summary:hover { text-decoration: underline; }
+.timestamp { color: var(--text2); font-size: 12px; float: right; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>DMR PM Post-Silicon Sighting Delta Analysis</h1>
+<p class="subtitle">Source: HSD Saved Query <a class="hsd-link" href="https://hsdes.intel.com/appstore/generalapps/#/pages/community/22021115888?queryId=22021126766">22021126766</a>
+&nbsp;&bull;&nbsp; Generated: May 21, 2026 <span class="timestamp">sub_forum: vt.pm &bull; tenant: sighting_central</span></p>
+
+<div class="warning">All 188 sightings are from <strong>A0 / X1 stepping, IMH1 (DMR-AP)</strong> only.
+Zero IMH2-specific sightings and zero B0/C0 sighting coverage exist in this query.</div>
+<div class="cards">
+<div class="card total"><div class="num">188</div><div class="label">Total Sightings</div></div>
+<div class="card open"><div class="num">14</div><div class="label">Open</div></div>
+<div class="card rc"><div class="num">22</div><div class="label">Root Caused</div></div>
+<div class="card closed"><div class="num">70</div><div class="label">Closed</div></div>
+<div class="card rejected"><div class="num">82</div><div class="label">Rejected</div></div>
+</div><h3>By Defect Die</h3>
+<div class="cards">
+<div class="card"><div class="num" style="color:var(--purple)">93</div><div class="label">IOE (IMH)</div></div>
+<div class="card"><div class="num" style="color:var(--blue)">52</div><div class="label">Base (CBB)</div></div>
+<div class="card"><div class="num" style="color:var(--green)">33</div><div class="label">Compute (CBB)</div></div>
+<div class="card"><div class="num" style="color:var(--orange)">10</div><div class="label">SoC</div></div>
+</div><h2>Sightings by PM Feature</h2>
+<div class="legend">
+<div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Open</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>Root Caused</div>
+<div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Closed</div>
+<div class="legend-item"><div class="legend-dot" style="background:rgba(139,148,158,0.4)"></div>Rejected</div>
+</div>
+<div class="bar-chart"><div class="bar-row"><div class="bar-label">PKGC/C-State</div><div class="bar-track"><div class="bar-seg open" style="width:76.92307692307692px">5</div><div class="bar-seg rc" style="width:92.3076923076923px">6</div><div class="bar-seg closed" style="width:138.46153846153845px">9</div><div class="bar-seg rejected" style="width:292.3076923076923px">19</div></div><div class="bar-count">39</div></div>
+<div class="bar-row"><div class="bar-label">RAPL</div><div class="bar-track"><div class="bar-seg open" style="width:30.76923076923077px">2</div><div class="bar-seg rc" style="width:61.53846153846154px">4</div><div class="bar-seg closed" style="width:215.3846153846154px">14</div><div class="bar-seg rejected" style="width:215.3846153846154px">14</div></div><div class="bar-count">34</div></div>
+<div class="bar-row"><div class="bar-label">TPMI</div><div class="bar-track"><div class="bar-seg open" style="width:30.76923076923077px">2</div><div class="bar-seg rc" style="width:46.15384615384615px">3</div><div class="bar-seg closed" style="width:200.0px">13</div><div class="bar-seg rejected" style="width:200.0px">13</div></div><div class="bar-count">31</div></div>
+<div class="bar-row"><div class="bar-label">RACL/PLR/PEM</div><div class="bar-track"><div class="bar-seg rc" style="width:30.76923076923077px">2</div><div class="bar-seg closed" style="width:215.3846153846154px">14</div><div class="bar-seg rejected" style="width:169.23076923076923px">11</div></div><div class="bar-count">27</div></div>
+<div class="bar-row"><div class="bar-label">Reset/Boot</div><div class="bar-track"><div class="bar-seg open" style="width:18px">1</div><div class="bar-seg rc" style="width:30.76923076923077px">2</div><div class="bar-seg closed" style="width:153.84615384615384px">10</div><div class="bar-seg rejected" style="width:184.6153846153846px">12</div></div><div class="bar-count">25</div></div>
+<div class="bar-row"><div class="bar-label">Thermal</div><div class="bar-track"><div class="bar-seg open" style="width:30.76923076923077px">2</div><div class="bar-seg rc" style="width:46.15384615384615px">3</div><div class="bar-seg closed" style="width:153.84615384615384px">10</div><div class="bar-seg rejected" style="width:123.07692307692308px">8</div></div><div class="bar-count">23</div></div>
+<div class="bar-row"><div class="bar-label">DVFS/UFS</div><div class="bar-track"><div class="bar-seg open" style="width:18px">1</div><div class="bar-seg rc" style="width:18px">1</div><div class="bar-seg closed" style="width:153.84615384615384px">10</div><div class="bar-seg rejected" style="width:107.6923076923077px">7</div></div><div class="bar-count">19</div></div>
+<div class="bar-row"><div class="bar-label">Other</div><div class="bar-track"><div class="bar-seg open" style="width:18px">1</div><div class="bar-seg closed" style="width:123.07692307692308px">8</div><div class="bar-seg rejected" style="width:107.6923076923077px">7</div></div><div class="bar-count">16</div></div>
+<div class="bar-row"><div class="bar-label">SST</div><div class="bar-track"><div class="bar-seg open" style="width:18px">1</div><div class="bar-seg rc" style="width:18px">1</div><div class="bar-seg closed" style="width:138.46153846153845px">9</div><div class="bar-seg rejected" style="width:61.53846153846154px">4</div></div><div class="bar-count">15</div></div>
+<div class="bar-row"><div class="bar-label">D2D</div><div class="bar-track"><div class="bar-seg open" style="width:30.76923076923077px">2</div><div class="bar-seg rc" style="width:30.76923076923077px">2</div><div class="bar-seg closed" style="width:76.92307692307692px">5</div><div class="bar-seg rejected" style="width:61.53846153846154px">4</div></div><div class="bar-count">13</div></div>
+<div class="bar-row"><div class="bar-label">PMAX</div><div class="bar-track"><div class="bar-seg open" style="width:18px">1</div><div class="bar-seg rc" style="width:18px">1</div><div class="bar-seg closed" style="width:76.92307692307692px">5</div><div class="bar-seg rejected" style="width:76.92307692307692px">5</div></div><div class="bar-count">12</div></div>
+<div class="bar-row"><div class="bar-label">MIO/IO</div><div class="bar-track"><div class="bar-seg open" style="width:18px">1</div><div class="bar-seg rc" style="width:18px">1</div><div class="bar-seg closed" style="width:46.15384615384615px">3</div><div class="bar-seg rejected" style="width:76.92307692307692px">5</div></div><div class="bar-count">10</div></div>
+<div class="bar-row"><div class="bar-label">Telemetry/PMT</div><div class="bar-track"><div class="bar-seg rc" style="width:30.76923076923077px">2</div><div class="bar-seg closed" style="width:76.92307692307692px">5</div><div class="bar-seg rejected" style="width:46.15384615384615px">3</div></div><div class="bar-count">10</div></div>
+<div class="bar-row"><div class="bar-label">SVID/FIVR/Voltage</div><div class="bar-track"><div class="bar-seg open" style="width:18px">1</div><div class="bar-seg closed" style="width:46.15384615384615px">3</div><div class="bar-seg rejected" style="width:76.92307692307692px">5</div></div><div class="bar-count">9</div></div>
+<div class="bar-row"><div class="bar-label">SB/GPSB</div><div class="bar-track"><div class="bar-seg closed" style="width:46.15384615384615px">3</div><div class="bar-seg rejected" style="width:76.92307692307692px">5</div></div><div class="bar-count">8</div></div>
+<div class="bar-row"><div class="bar-label">SIMPL/DFC</div><div class="bar-track"><div class="bar-seg open" style="width:18px">1</div><div class="bar-seg rc" style="width:46.15384615384615px">3</div><div class="bar-seg closed" style="width:18px">1</div><div class="bar-seg rejected" style="width:18px">1</div></div><div class="bar-count">6</div></div>
+<div class="bar-row"><div class="bar-label">PEGA</div><div class="bar-track"><div class="bar-seg closed" style="width:18px">1</div><div class="bar-seg rejected" style="width:61.53846153846154px">4</div></div><div class="bar-count">5</div></div>
+<div class="bar-row"><div class="bar-label">HWP</div><div class="bar-track"><div class="bar-seg closed" style="width:18px">1</div><div class="bar-seg rejected" style="width:46.15384615384615px">3</div></div><div class="bar-count">4</div></div>
+<div class="bar-row"><div class="bar-label">Prochot</div><div class="bar-track"><div class="bar-seg closed" style="width:18px">1</div><div class="bar-seg rejected" style="width:46.15384615384615px">3</div></div><div class="bar-count">4</div></div>
+</div><h2>1. IMH1 &rarr; IMH2: PM Feature Deltas</h2>
+<div class="section">
+<p style="margin-bottom:12px;color:var(--text2)">Based on DMR HAS (Primecode Feature HAS, DMR_SOC, DMR_CBB specs).
+IMH2 introduces significant new PM capabilities. All existing sightings are IMH1-only.</p>
+<table>
+<tr><th>PM Feature</th><th>IMH2 Change</th><th>Description</th><th>Risk</th><th>Rationale</th></tr><tr><td><strong>SIMPL/DFC</strong></td><td><span class="badge badge-new">NEW in IMH2</span></td><td>SoC IccMax Proactive Licensing Control</td><td><span class="badge badge-high">HIGH</span></td><td style="font-size:12px;color:var(--text2)">3 root-caused fw.arch gaps on IMH1; entirely new on IMH2</td></tr>
+<tr><td><strong>RAPL</strong></td><td><span class="badge badge-enhanced">Enhanced</span></td><td>Socket/Platform/DRAM/FastRAPL; simplified interfaces</td><td><span class="badge badge-high">HIGH</span></td><td style="font-size:12px;color:var(--text2)">34 A0 sightings, 6 active; DRAM RAPL tuning open</td></tr>
+<tr><td><strong>DVFS/UFS</strong></td><td><span class="badge badge-new">Enhanced + NEW algo</span></td><td>Dedicated UFS algorithm; enhanced telemetry</td><td><span class="badge badge-medium-high">MEDIUM-HIGH</span></td><td style="font-size:12px;color:var(--text2)">UFS algorithm is new on IMH2</td></tr>
+<tr><td><strong>PMAX</strong></td><td><span class="badge badge-new">NEW MT PMAX</span></td><td>Multi-Threshold PMAX; Health Indicator in PMT</td><td><span class="badge badge-medium">MEDIUM</span></td><td style="font-size:12px;color:var(--text2)">MT PMAX is new feature</td></tr>
+<tr><td><strong>PKGC/C-State</strong></td><td><span class="badge badge-enhanced">Improved</span></td><td>Improved PkgC flows; DDRPHY PLL off in PKGC6</td><td><span class="badge badge-high">HIGH</span></td><td style="font-size:12px;color:var(--text2)">Most active category; 11 active sightings</td></tr>
+<tr><td><strong>Thermal</strong></td><td><span class="badge badge-enhanced">Enhanced</span></td><td>MR4-based CLTT/memhot/memtrip for DDR5/MCR; HW assist</td><td><span class="badge badge-medium-high">MEDIUM-HIGH</span></td><td style="font-size:12px;color:var(--text2)">Die thermal MCAs still open</td></tr>
+<tr><td><strong>Telemetry/PMT</strong></td><td><span class="badge badge-enhanced">Expanded</span></td><td>Per-RMID energy, PMAX health, DVFS, UFS telemetry</td><td><span class="badge badge-medium">MEDIUM</span></td><td style="font-size:12px;color:var(--text2)">New telemetry surfaces to validate</td></tr>
+<tr><td><strong>PSMI</strong></td><td><span class="badge badge-removed">REMOVED</span></td><td>Removed from DMR PrimeCode in IMH2</td><td><span class="badge badge-low">LOW</span></td><td style="font-size:12px;color:var(--text2)">Removal simplifies</td></tr>
+<tr><td><strong>MIO/IO</strong></td><td><span class="badge badge-enhanced">Enhanced</span></td><td>MIO Power Gating; Trunk Clock Gating</td><td><span class="badge badge-medium">MEDIUM</span></td><td style="font-size:12px;color:var(--text2)">Trunk clock gating QActive issue root-caused</td></tr>
+<tr><td><strong>DRC 2.0</strong></td><td><span class="badge badge-new">NEW</span></td><td>Dynamic Resource Controller</td><td><span class="badge badge-medium">MEDIUM</span></td><td style="font-size:12px;color:var(--text2)">New feature needs validation</td></tr>
+</table>
+<h3>IMH2 Features with Zero Sighting Coverage</h3>
+<table>
+<tr><th>Feature</th><th>Status</th><th>Validation Gap</th></tr>
+<tr><td>SIMPL</td><td><span class="badge badge-new">NEW</span></td><td>Fully new on IMH2 IOE; 3 fw.arch gaps already found on IMH1</td></tr>
+<tr><td>UFS Algorithm</td><td><span class="badge badge-new">NEW</span></td><td>New dedicated algorithm, no validation data</td></tr>
+<tr><td>MT PMAX</td><td><span class="badge badge-new">NEW</span></td><td>Multi-threshold PMAX, no sighting coverage</td></tr>
+<tr><td>Per-RMID Energy Telemetry</td><td><span class="badge badge-new">NEW</span></td><td>New telemetry surface, untested</td></tr>
+<tr><td>DRC 2.0</td><td><span class="badge badge-new">NEW</span></td><td>Dynamic Resource Controller, new feature</td></tr>
+</table>
+</div><h2>2. CBB A0 &rarr; B0 &rarr; C0: HW Bugs Requiring Stepping Fixes</h2>
+<div class="section">
+<p style="margin-bottom:12px;color:var(--text2)">HW bugs (conclusion = hw.bug) found on A0 that may require silicon fixes in B0/C0 steppings.</p>
+<table>
+<tr><th>HSD</th><th>Die</th><th>Conclusion</th><th>PM Feature</th><th>Description</th></tr><tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14025874051">14025874051</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>hw.bug</td><td>PKGC</td><td>PKGC6 Watchdog Timeout + Fabric Disable</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14025928519">14025928519</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>hw.bug</td><td>RAPL/FIVR</td><td>Non_vccin_pl4_power fuse = 0</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14025931026">14025931026</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>hw.bug</td><td>SIMPL/DVFS</td><td>CFCIO_MAX_FREQ and CFCMEM_MAX incorrect</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14025976840">14025976840</a></td><td><span class="die-badge die-base">base</span></td><td>hw.bug</td><td>SST</td><td>LAVA SSTTF_CFG0_CDYN4_LP_CLIP_FREQ wrong</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14026142775">14026142775</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>hw.bug</td><td>PMAX</td><td>Pmax Trigger IO not at dedicated pin</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14026619509">14026619509</a></td><td><span class="die-badge die-base">base</span></td><td>hw.bug</td><td>SST/Thermal</td><td>highest_tj_max fuse = 0 on all CBBs</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14026822627">14026822627</a></td><td><span class="die-badge die-soc">soc</span></td><td>hw.bug</td><td>PKGC/D2D</td><td>D2D Stack MCAs during PC6</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/15018935585">15018935585</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>hw.bug</td><td>PMT</td><td>Sampler IBWatcher not clearing one-shot</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/15019298749">15019298749</a></td><td><span class="die-badge die-compute">compute</span></td><td>hw.bug</td><td>C-State</td><td>MLC bitfix filter not restored on C6 exit</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/18044235100">18044235100</a></td><td><span class="die-badge die-compute">compute</span></td><td>hw.bug</td><td>SST</td><td>CLOS_ASSOC_0.CLOS_ID_MODULE3 mapped to 2 modules</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/22022456572">22022456572</a></td><td><span class="die-badge die-compute">compute</span></td><td>hw.bug</td><td>Thermal</td><td>Die thermal MCA from harassers</td></tr>
+</table>
+
+<h3>CBB PM Feature Changes per HAS</h3>
+<table>
+<tr><th>Feature</th><th>A0 &rarr; B0</th><th>B0 &rarr; C0</th></tr>
+<tr><td>PCode</td><td>AIPM init, ADR, patch protocol, reset flows</td><td>Ongoing fixes, telemetry improvements</td></tr>
+<tr><td>DVFS</td><td>Enhanced telemetry, UFS algorithm</td><td>Further tuning</td></tr>
+<tr><td>RAPL</td><td>Socket/Platform/DRAM/FastRAPL, interface simplification</td><td>More telemetry, optimizations</td></tr>
+<tr><td>PKGC</td><td>Improved flows, DDRPHY PLL off in PKGC6</td><td>Further optimizations</td></tr>
+<tr><td>FIVR</td><td>Phase shedding support</td><td>Efficiency improvements</td></tr>
+<tr><td>RIT/DRC</td><td>DRC2.0 added</td><td>Further enhancements</td></tr>
+<tr><td>PMAX</td><td>MT PMAX, health indicator in telemetry</td><td>More telemetry</td></tr>
+<tr><td>SST</td><td>Improved init/integration</td><td>Ongoing improvements</td></tr>
+<tr><td>Thermal</td><td>SoC flows, DDR5/MCR, HW assist, early reporting</td><td>More HW assist, reporting</td></tr>
+<tr><td>EMTTM</td><td>Atom/core EMTTM, cross-throttling</td><td>Further tuning</td></tr>
+<tr><td>Other</td><td>SIMPL, MIO PG, trunk CG, per-RMID telemetry, PSMI removed</td><td>Finer-grained power measurement</td></tr>
+</table>
+</div><h2>3. Open Sightings (14) &mdash; Requires B0/C0 Validation</h2>
+<table>
+<tr><th>HSD</th><th>Die</th><th>PM Feature</th><th>Title</th></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14027538694">14027538694</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>PKGC/C-State, SVID/FIVR/Voltage</td><td>[X4] RC FIVR WorkPoint change Timeout with PC6 enabled</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14027689587">14027689587</a></td><td><span class="die-badge die-compute">compute</span></td><td>PKGC/C-State</td><td>[DMR][A0] [X4] [PnP] 3uS C1E Latency KPI being violated by several uS</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14027711047">14027711047</a></td><td><span class="die-badge die-base">base</span></td><td>SIMPL/DFC</td><td>[DMR][SIMPL/DFC] DFC mode 0 shouldn't be allowed if SIMPL_CBB_DFC_EN fuse is set to 1</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14027742612">14027742612</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>D2D, PKGC/C-State</td><td>[DMR][A0][2S] PkgC6 Residency is extremely low at 33% on a 2S system with D2D L1 disabled</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14027786667">14027786667</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>Reset/Boot, TPMI</td><td>[DMR AP][A0][SCIV][TPMI] Unable to disable In Band reads/writes via IB</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14027804531">14027804531</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>DVFS/UFS, MIO/IO</td><td>[DMR][X4 A0 VV][LOM]{UFS} Memory and IO Frequency throttling while running xz and hitting TDP with LOM Enabled and Disabled</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14027824962">14027824962</a></td><td><span class="die-badge die-base">base</span></td><td>SST, TPMI</td><td>[DMR] [A0][X1][PM][SST] SST-CP proportional throttling drops priority core 0 to 400 MHz under power injection instead of holding max frequency</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14027887106">14027887106</a></td><td><span class="die-badge die-compute">compute</span></td><td>RAPL</td><td>[DMR][RAPL] ICC_HARD_LIMIT is not changing to 1 when deep throttling (throttling below Pm) state is triggered with RAPL</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/16030141410">16030141410</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>RAPL</td><td>[DMR][X4 A0 VV][Fast RAPL] Consumed Power violation in fast rapl/PL2 power limit</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/16030595022">16030595022</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>Other</td><td>[OKS][DMR][MIV][NM] 0W MemorySubsystem power policy has no effect — power limiting non-functional on D2 domain</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/16030620540">16030620540</a></td><td><span class="die-badge die-compute">compute</span></td><td>PKGC/C-State</td><td>MC6 Residency for Module0 is going 0% when running WL on other Modules</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/18044248015">18044248015</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>Thermal</td><td>Refresh, CA, ECC harassers fail hit IMH Punit MCA_RECOVERABLE_DIE_THERMAL_TOO_HOT - IMH DTS</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/22022439190">22022439190</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>D2D, PKGC/C-State</td><td>[DMR][PkgC6][D2D L1] D2D MCA ULA Run_Entry_Timeout hit during OS idle with PC6 enabled</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/22022496313">22022496313</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>PMAX, Thermal</td><td>[DMR][X4 A0 VV][PMAX] Pmax PKG log bits not asserted with IMH1 Pmax events using DAC code or global_pmax_inject</td></tr>
+</table>
+<h2>4. Root-Caused Sightings (22) &mdash; Pending Fix</h2>
+<table>
+<tr><th>HSD</th><th>Die</th><th>Conclusion</th><th>PM Feature</th><th>Title</th></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14026142775">14026142775</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>hw.bug</td><td>PMAX</td><td>Pmax Trigger IO not happening at dedicated board pin</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14026152660">14026152660</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>hw.arch</td><td>D2D, MIO/IO</td><td>[X1 A0] MIO Trunk Clock gating - QActive is not deasserting for MIOs with unpopulated ports</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14026805774">14026805774</a></td><td><span class="die-badge die-compute">compute</span></td><td>hw.tuning</td><td>PKGC/C-State</td><td>[X1 A0 VV] Not seeing C6 autodemotion to C1</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14026822627">14026822627</a></td><td><span class="die-badge die-soc">soc</span></td><td>hw.bug</td><td>D2D, PKGC/C-State</td><td>[X4][PC6] D2D Stack MCAs during PC6</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14027346203">14027346203</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>fw.arch</td><td>SIMPL/DFC, Telemetry/PMT</td><td>[X4][SIMPL] iMH PrimeCode telemetry implementation is missing</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14027346271">14027346271</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>fw.arch</td><td>SIMPL/DFC, TPMI</td><td>[X4][SIMPL] PFM IMH TPMI registers and their implementation on Primecode are missing</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14027355929">14027355929</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>hw.arch</td><td>PKGC/C-State</td><td>[DMR][X0 A0 VV][X4] PC6 residency is showing below 20%</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14027378956">14027378956</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>hw.arch</td><td>RAPL</td><td>[DMR][PM] Request to update dram_rapl pid_max_limit value for DMR</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14027605514">14027605514</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>fw.bug</td><td>SIMPL/DFC, TPMI</td><td>[DMR X4 A0 VV][SIMPL] SIMPL NUM_SIMPL_POLICIES fuse missing on IMH</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/14027859270">14027859270</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>hw.arch</td><td>RAPL, Reset/Boot</td><td>Request to update dfault DRAM RAPL tau window value to 1024ms.</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/15019223042">15019223042</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>fw.arch</td><td>PKGC/C-State</td><td>[DMR X1][DM][BugNinja] System can not enter into PkgC6 state with cap failover</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/15019298749">15019298749</a></td><td><span class="die-badge die-compute">compute</span></td><td>hw.bug</td><td>PKGC/C-State</td><td>[OKS][DMR-AP][RAS] MLC bitfix filter does not get restored on C6 exit</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/16028621306">16028621306</a></td><td><span class="die-badge die-base">base</span></td><td>hw.arch</td><td>RAPL, TPMI</td><td>[X1 A0 PO] [RAPL] CBB Punit ARCH GAP to Support TPMI access for 8/32bit</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/16029995259">16029995259</a></td><td><span class="die-badge die-compute">compute</span></td><td>fw.bug</td><td>PKGC/C-State</td><td>[DMR] Seeing very high value in MC6 Residency.</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/16030251124">16030251124</a></td><td><span class="die-badge die-base">base</span></td><td>fw.arch</td><td>DVFS/UFS</td><td>Uncore frequency not reaching maximum for CBB fabric when LoM is enabled</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/18044235100">18044235100</a></td><td><span class="die-badge die-compute">compute</span></td><td>hw.bug</td><td>SST</td><td>[DMR][X4] SST_CLOS_ASSOC_0.CLOS_ID_MODULE3 mapped to 2 modules</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/18044365227">18044365227</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>hw.arch</td><td>Telemetry/PMT</td><td>[DMR X1][PMT][BMC][OOBMSM] Inconsistent Memory Channels in PMT metrics</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/21044390244">21044390244</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>fw.arch</td><td>Reset/Boot, Thermal</td><td>[Bytedance][DMR AP][Beidou V5] BMC PLDM DIMM TEMP sensor data is 0 during host DC on</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/22021682591">22021682591</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>hw.arch</td><td>Thermal</td><td>Package THERMTRIP# Bi-Directional Design introduce the external noise to internal, result in False THERMTRIP - THERMTRIP# as Output Only</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/22022067937">22022067937</a></td><td><span class="die-badge die-ioe">ioe</span></td><td>fw.bug</td><td>RACL/PLR/PEM, RAPL</td><td>[DMR][X4][RAPL] Significant Core frequency throttling when running heavy cdyn workloads on high core counts</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/22022354136">22022354136</a></td><td><span class="die-badge die-base">base</span></td><td>fw.arch</td><td>RACL/PLR/PEM</td><td>[DMR][ES2][Tune]:CDYN_RATIO scalars to be updated to pcode for ES2</td></tr>
+<tr><td><a class="hsd-link" href="https://hsdes.intel.com/appstore/article/#/22022456572">22022456572</a></td><td><span class="die-badge die-compute">compute</span></td><td>hw.bug</td><td>Thermal</td><td>Refresh, CA, ECC harassers fail hit IMH Punit MCA_RECOVERABLE_DIE_THERMAL_TOO_HOT - CBB DTS</td></tr>
+</table>
+<h2>5. Priority Validation Areas for B0/C0</h2>
+<div class="section">
+<table>
+<tr><th>Priority</th><th>Area</th><th>Active Sightings</th><th>Key Concern</th></tr>
+<tr><td><span class="badge badge-high">HIGHEST</span></td><td>PKGC / C-State</td><td>11</td><td>D2D L1 + PC6 issues; MLC bitfix C6 exit HW bug</td></tr>
+<tr><td><span class="badge badge-high">HIGHEST</span></td><td>RAPL / FastRAPL</td><td>6</td><td>DRAM RAPL tuning pending; TPMI access arch gap</td></tr>
+<tr><td><span class="badge badge-high">HIGHEST</span></td><td>SIMPL / DFC</td><td>4</td><td>Completely new on IMH2; fuse issues on CBB</td></tr>
+<tr><td><span class="badge badge-high">HIGH</span></td><td>Thermal</td><td>5</td><td>Die thermal MCAs; THERMTRIP noise issue</td></tr>
+<tr><td><span class="badge badge-medium-high">MEDIUM-HIGH</span></td><td>DVFS / UFS</td><td>2</td><td>New UFS algorithm on IMH2; LoM issue</td></tr>
+<tr><td><span class="badge badge-medium">MEDIUM</span></td><td>SST</td><td>2</td><td>CLOS_ASSOC mapping HW bug; SST-CP throttling</td></tr>
+<tr><td><span class="badge badge-medium">MEDIUM</span></td><td>PMAX</td><td>2</td><td>MT PMAX new on IMH2; board pin trigger issue</td></tr>
+<tr><td><span class="badge badge-medium">MEDIUM</span></td><td>Telemetry / PMT</td><td>2</td><td>New IMH2 telemetry surfaces</td></tr>
+<tr><td><span class="badge badge-medium">MEDIUM</span></td><td>D2D</td><td>2</td><td>PC6 + D2D L1 interaction MCAs</td></tr>
+</table>
+</div>
+<div style="margin-top:40px; padding-top:16px; border-top:1px solid var(--border); color:var(--text2); font-size:12px">
+<p>Data source: HSD saved query <a class="hsd-link" href="https://hsdes.intel.com/appstore/generalapps/#/pages/community/22021115888?queryId=22021126766">22021126766</a>
+(community page 22021115888) &bull; Tenant: sighting_central &bull; Sub-forum: vt.pm</p>
+<p>HAS references: Primecode Feature HAS (docs.intel.com/documents/primecode/fhas/), DMR_SOC, DMR_CBB spec projects</p>
+<p>Generated by GitHub Copilot &bull; May 21, 2026</p>
+</div>
+</div>
+</body>
+</html>

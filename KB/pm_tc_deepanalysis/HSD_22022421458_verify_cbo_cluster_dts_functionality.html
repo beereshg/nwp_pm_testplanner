@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [CBB DTS &amp; Telemetry] Verify CBO Cluster DTS Functionality</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [CBB DTS &amp; Telemetry] Verify CBO Cluster DTS Functionality</h1>
+      <p>Segment: FV | Source: HSD_22022421458_verify_cbo_cluster_dts_functionality.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [CBB DTS &amp; Telemetry] Verify CBO Cluster DTS Functionality</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421458</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[CBB DTS &amp; Telemetry] Verify CBO Cluster DTS Functionality</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>DTS — CBO Cluster die thermal sensor (2 DTS instances per CBO PMA)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **CBO Cluster DTS** functionality. From the test steps:</p>
+<ul>
+<li>CBO Cluster DTS: **2 DTS instances**, 1 per CBO PMA</li>
+<li>**12 diodes** total (6 diodes per DTS)</li>
+<li>Thermal Telemetry Managed by: **SA Thermal Puller (Punit)**</li>
+<li>Reporting Method: **min, max**</li>
+</ul>
+<p>Flow:</p>
+<p>1. Read DTS temperature in CBO Clusters</p>
+<p>2. Read temperature in PUNIT telemetry</p>
+<p>3. Compare — values should match</p>
+<p>4. Increase/Decrease temperature and repeat</p>
+<p>Tags: `New_content`, `DMR_PO`, `plc.feature.p1`, `PMSS_NWP_READINESS_CHECK`</p>
+<p>NWP has CBO clusters per CBB (2 CBBs, each with CBO PMAs). Adapt register paths accordingly.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>CBO Cluster DTS Architecture (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Parameter</th>
+<th>DMR</th>
+<th>NWP</th>
+</tr></thead><tbody>
+<tr>
+<td>CBBs</td>
+<td>4</td>
+<td>2</td>
+</tr>
+<tr>
+<td>DTS instances</td>
+<td>2 per CBO PMA</td>
+<td>2 per CBO PMA</td>
+</tr>
+<tr>
+<td>Diodes per DTS</td>
+<td>6</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Telemetry manager</td>
+<td>SA Thermal Puller (Punit)</td>
+<td>SA Thermal Puller (imh0 Punit)</td>
+</tr>
+<tr>
+<td>Reporting</td>
+<td>min, max</td>
+<td>min, max</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Read CBO Cluster DTS (min/max per PMA)</td>
+<td>`sv.socket0.cbb[0-1].base.cbo.&lt;cluster&gt;.&lt;dts_reg&gt;.temperature`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read PUNIT telemetry for CBO Cluster</td>
+<td>`sv.socket0.imh0.punit.&lt;cbo_telem_reg&gt;.read()`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Compare min and max DTS readings vs telemetry</td>
+<td>Both should match within tolerance</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Change die temperature (stress workload or cooling)</td>
+<td>Verify DTS and telemetry track together</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Repeat for each CBO PMA on cbb0 and cbb1</td>
+<td>Full coverage</td>
+</tr>
+</tbody></table>
+<h3>PMx Command</h3>
+<pre><code>
+python runPmx.py -x nwp.xml -p dts_telemetry -tM 60 --retry_count 2
+</code></pre>
+<h3>NWP: 2 CBBs</h3>
+<ul>
+<li>NWP has 2 CBBs (not 4 as in DMR)</li>
+<li>Each CBB has CBO PMAs with 2 DTS instances</li>
+<li>Loop: `for cbb_idx in range(2):`</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>CBO Cluster DTS min/max readings match PUNIT telemetry</li>
+<li>Telemetry updates as temperature changes (tracks DTS)</li>
+<li>All CBO PMAs on both cbb0 and cbb1 report correctly</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; 2 CBBs; verify all CBO PMAs on both dies**</p>
+<p>1. `python runPmx.py -x nwp.xml -p dts_telemetry -tM 60 --retry_count 2`</p>
+<p>2. NWP: 2 CBBs (not 4) — iterate over cbb0 and cbb1</p>
+<p>3. Verify both min and max DTS reporting from each CBO PMA</p>
+<p>4. SA Thermal Puller (imh0 Punit) aggregates from both CBBs</p>
+<p>**Priority**: Medium — `plc.feature.p1`; CBO cluster DTS is key thermal monitoring for cache thermal management</p>
+    </div>
+  </div>
+</body>
+</html>

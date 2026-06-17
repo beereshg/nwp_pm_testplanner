@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [VR Hot] Verify CBB VR Hot Actions</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [VR Hot] Verify CBB VR Hot Actions</h1>
+      <p>Segment: FV | Source: HSD_22022421673_verify_cbb_vr_hot_actions.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [VR Hot] Verify CBB VR Hot Actions</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421673</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[VR Hot] Verify CBB VR Hot Actions</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>VR Hot — CBB MBVR SVID Therm Alert detection and throttle response</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies CBB **VR Hot** detection and response:</p>
+<p>1. IMH Primecode polls CBB MBVR stack via `SVID_VR_STATUS` for SVID ALERTs in the Slow Loop</p>
+<p>2. When VR temperature exceeds TEMP_MAX, the MBVR asserts VR Hot via `SVID_STATUS.THERM_ALERT` bit</p>
+<p>3. Pcode action: throttle CBB Core and Ring to P1; update perf limit reasons; send HPM message</p>
+<p>On NWP:</p>
+<ul>
+<li>2 CBBs (cbb0, cbb1) each have a MBVR stack</li>
+<li>Single `imh0` polls both CBB MBVR stacks</li>
+<li>SVID register polling path: `sv.socket0.imh0.punit.svid_vr_status.*`</li>
+<li>Tags: `Ready_for_testing`, `NGA_MAIN`, `plc.feature.p1`, `PMSS_NWP_READINESS_CHECK`</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>VR Hot Detection Path (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Component</th>
+<th>Register</th>
+<th>Path</th>
+</tr></thead><tbody>
+<tr>
+<td>CBB MBVR VR Hot</td>
+<td>`SVID_VR_STATUS.THERM_ALERT`</td>
+<td>Polled by imh0 Pcode Slowloop</td>
+</tr>
+<tr>
+<td>Pcode throttle action</td>
+<td>Core and Ring → P1</td>
+<td>HPM message from imh0 to cbb0/cbb1</td>
+</tr>
+<tr>
+<td>Perf limit reason</td>
+<td>VR Hot bit</td>
+<td>`sv.socket0.cbb[0-1].punit.perf_limit_reasons.*`</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run prochot_thermal PMx (VR Hot flow)</td>
+<td>`python runPmx.py -x nwp.xml -p prochot_thermal -tM 20 -M 5`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Inject VR Hot condition on cbb0 MBVR</td>
+<td>Assert `SVID_STATUS.THERM_ALERT` bit for cbb0 VR stack</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify Pcode detects SVID alert in Slowloop</td>
+<td>Check telemetry / Punit state</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify cbb0 Core + Ring throttled to P1</td>
+<td>`sv.socket0.cbb0.punit.ufs_status.current_ratio`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify HPM message sent, perf limit reason updated</td>
+<td>VR Hot reason in `perf_limit_reasons`</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Remove VR Hot; verify cbb0 recovery</td>
+<td>Ratio returns to normal</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Repeat steps 2–6 for cbb1</td>
+<td>Verify both CBB MBVR stacks detected</td>
+</tr>
+</tbody></table>
+<h3>NWP Key Notes</h3>
+<ul>
+<li>NWP: single `imh0` polls SVID for both cbb0 and cbb1 MBVR stacks</li>
+<li>Pcode Slowloop frequency determines detection latency</li>
+<li>Core and Ring throttle to P1 (P1 = max non-turbo on NWP)</li>
+<li>HPM message path: imh0 → cbb0/cbb1 DNS_EVENT_DELIVERY [VR_THERM_ALERT]</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>VR Hot detected in Pcode Slowloop for each CBB MBVR</li>
+<li>Core and Ring ratio drops to P1 on VR Hot</li>
+<li>Perf limit reason reflects VR Hot</li>
+<li>Recovery to normal frequency after VR Hot cleared</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; test both CBB MBVR stacks (cbb0, cbb1)**</p>
+<p>1. `python runPmx.py -x nwp.xml -p prochot_thermal -tM 20 -M 5`</p>
+<p>2. Inject VR Hot on cbb0 MBVR, then cbb1 MBVR, verify each detected and throttled</p>
+<p>3. NWP: single `imh0` Slowloop polls both CBB SVID stacks</p>
+<p>4. Verify HPM message and perf_limit_reasons for each CBB</p>
+<p>**Priority**: High — `plc.feature.p1`; VR Hot protection is critical thermal/VR safety coverage</p>
+    </div>
+  </div>
+</body>
+</html>

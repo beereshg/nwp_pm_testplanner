@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NWP PM Test Plan — Feature Coverage Map</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #f5f7fa; color: #222; }
+  header { background: #003a70; color: #fff; padding: 18px 28px; }
+  header h1 { font-size: 1.35em; font-weight: 600; }
+  header p { margin-top: 5px; font-size: 0.85em; color: #9ec6e8; }
+  .meta { display: flex; gap: 10px; flex-wrap: wrap; padding: 14px 28px; background: #e8eef5; border-bottom: 1px solid #cfd8e3; }
+  .meta-card { background: #fff; border: 1px solid #cfd8e3; border-radius: 6px; padding: 10px 18px; min-width: 130px; text-align: center; }
+  .meta-card .num { font-size: 1.8em; font-weight: 700; }
+  .meta-card .lbl { font-size: 0.75em; color: #666; margin-top: 2px; }
+  .num-covered { color: #1a7f37; }
+  .num-partial  { color: #b55f00; }
+  .num-gap      { color: #b91c1c; }
+  .num-total    { color: #003a70; }
+  .num-mig      { color: #0071c5; }
+  main { padding: 18px 28px; }
+  h2 { font-size: 1.05em; color: #003a70; margin: 18px 0 8px; border-left: 4px solid #0071c5; padding-left: 10px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #dde3eb; border-radius: 8px; overflow: hidden; margin-bottom: 24px; }
+  th { background: #003a70; color: #fff; padding: 9px 12px; text-align: left; font-size: 0.8em; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  td { padding: 8px 12px; border-bottom: 1px solid #eaeef3; vertical-align: top; font-size: 0.82em; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f0f5fb; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 0.75em; font-weight: 700; white-space: nowrap; }
+  .covered { background: #d1fae5; color: #065f46; }
+  .partial  { background: #fef3c7; color: #92400e; }
+  .gap      { background: #fee2e2; color: #991b1b; }
+  .migrated { background: #dbeafe; color: #1e40af; }
+  .not-mig  { background: #f3f4f6; color: #374151; }
+  .tpf-list { margin: 0; padding: 0; list-style: none; }
+  .tpf-list li { margin-bottom: 5px; }
+  .tpf-id { font-family: monospace; font-size: 0.78em; color: #555; }
+  .tpf-name { font-weight: 600; color: #1a2c45; }
+  .tcd-list { margin: 4px 0 0 10px; padding: 0; list-style: none; }
+  .tcd-list li { color: #555; font-size: 0.77em; line-height: 1.5; }
+  .tcd-list li::before { content: '↳ '; color: #0071c5; }
+  .gap-note { margin-top: 4px; font-size: 0.77em; color: #b91c1c; font-style: italic; }
+  .sub-req { color: #555; font-size: 0.77em; margin-top: 2px; }
+  .section-stats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .section-stats span { font-size: 0.78em; padding: 3px 10px; border-radius: 10px; }
+  a { color: #0071c5; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .mig-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 8px; margin-bottom: 20px; }
+  .mig-card { border: 1px solid #cfd8e3; border-radius: 6px; padding: 10px 14px; background: #fff; }
+  .mig-card .id { font-family: monospace; font-size: 0.78em; color: #666; }
+  .mig-card .name { font-weight: 600; font-size: 0.88em; margin-top: 2px; }
+  footer { padding: 14px 28px; background: #e8eef5; border-top: 1px solid #cfd8e3; font-size: 0.75em; color: #666; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>NWP PM Test Plan — Feature Coverage Map</h1>
+  <p>
+    TP: <a href="https://hsdes.intel.com/appstore/article-one/#/16030686481" style="color:#9ec6e8">16030686481 — NWP PM Test Plan</a>
+    &nbsp;|&nbsp; Generated: 2026-06-04 &nbsp;|&nbsp; 24 TPFs discovered &nbsp;|&nbsp; 34 features mapped
+  </p>
+</header>
+
+<div class="meta">
+  <div class="meta-card"><div class="num num-total">34</div><div class="lbl">Features in Matrix</div></div>
+  <div class="meta-card"><div class="num num-covered">24</div><div class="lbl">Covered</div></div>
+  <div class="meta-card"><div class="num num-partial">5</div><div class="lbl">Partial</div></div>
+  <div class="meta-card"><div class="num num-gap">5</div><div class="lbl">Gaps</div></div>
+  <div class="meta-card"><div class="num num-total">24</div><div class="lbl">Total TPFs</div></div>
+  <div class="meta-card"><div class="num num-mig">6</div><div class="lbl">TPFs Migrated</div></div>
+  <div class="meta-card"><div class="num num-partial">18</div><div class="lbl">TPFs Pending Migration</div></div>
+</div>
+
+<main>
+
+<h2>Feature → TPF/TCD Mapping</h2>
+
+<table>
+<thead>
+<tr>
+  <th style="width:3%">#</th>
+  <th style="width:19%">Feature</th>
+  <th style="width:8%">Status</th>
+  <th style="width:40%">TPF(s) &amp; TCDs</th>
+  <th style="width:30%">Sub-requirements / Notes</th>
+</tr>
+</thead>
+<tbody>
+
+<tr>
+<td>01</td>
+<td class="tpf-name">PkgC</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/16030703128">Package C-States (PKGC)</a></span>
+      <span class="tpf-id"> [16030703128]</span>
+      <ul class="tcd-list">
+        <li>22022421039: Clock Actions</li>
+        <li>22022421044: Link/Fabric/Mem State</li>
+        <li>22022421048: Voltage Actions</li>
+        <li>22022421051: Bios Programming</li>
+        <li>22022421054: Fuse Checkout</li>
+        <li>22022421058: HW/SW configs</li>
+        <li>22022421066: PMX</li>
+        <li>22022421137: Solar</li>
+        <li>22022421143: PkgC debug requirements</li>
+        <li>22022421145: Primecode Initialization</li>
+        <li>22022421147: Primecode actions in idle entry flow</li>
+        <li>22022421151: Clock Actions (C10)</li>
+        <li>22022421154: Link/Fabric/Mem State (C10)</li>
+        <li>22022421157: Other actions</li>
+        <li>22022421159: Voltage Actions (C10)</li>
+        <li>22022421163: Wake Events</li>
+        <li>22022561858: PKGC Cross Products</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">Clock/Voltage actions, BIOS, Fuses, PMX, Solar, Primecode init/entry, Wake events, Cross products</span></td>
+</tr>
+
+<tr>
+<td>02</td>
+<td class="tpf-name">Fabric DVFS<br><small>(incl. IMH 400MHz IO Mesh)</small></td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420435">Fabric DVFS</a></span>
+      <span class="tpf-id"> [22022420435]</span>
+      <ul class="tcd-list">
+        <li>22022420830: Fabric DVFS RAPL/RACL Limits and ELC Mode</li>
+        <li>22022420838: Fabric DVFS cross products</li>
+        <li>22022420842: IO Fabric DVFS</li>
+        <li>22022420849: Memory Fabric DVFS</li>
+        <li>22022420853: Solar DVFS</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">RAPL/RACL Limits, ELC Mode, IO Mesh, Mem Fabric, Solar DVFS, cross products</span></td>
+</tr>
+
+<tr>
+<td>03</td>
+<td class="tpf-name">Memory PM</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420417">Memory Thermal Management</a></span>
+      <span class="tpf-id"> [22022420417]</span>
+      <ul class="tcd-list">
+        <li>22022420548: CLTT MR4 based</li>
+        <li>22022420554: CLTT PECI based</li>
+        <li>22022420563: CLTT TSOD based</li>
+        <li>22022420567: DDRIO Temp Comp</li>
+        <li>22022420570: Memhot</li>
+        <li>22022420575: Memtrip</li>
+      </ul>
+    </li>
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022562533">Autonomous Idle PM (AIPM)</a></span>
+      <span class="tpf-id"> [22022562533]</span>
+      <ul class="tcd-list">
+        <li>22022421220–22022421244: MC Shallow SR + MIO Trunk CG (9 TCDs)</li>
+      </ul>
+    </li>
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420495">IMH PM Telemetry</a></span>
+      <span class="tpf-id"> [22022420495]</span>
+      <ul class="tcd-list">
+        <li>22022421033: Memory east RC</li>
+        <li>22022421035: Memory west RC</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">CLTT (MR4/PECI/TSOD), DDRIO Temp Comp, Memhot, Memtrip, Shallow SR, MIO Trunk CG, IMH RC telemetry</span></td>
+</tr>
+
+<tr>
+<td>04</td>
+<td class="tpf-name">Link Power States<br><small>(PCIe/CXL/UXI L0s/L0p/L1)</small></td>
+<td><span class="badge partial">PARTIAL</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/16030703128">Package C-States (PKGC)</a></span>
+      <span class="tpf-id"> [16030703128]</span>
+      <ul class="tcd-list">
+        <li>22022421044: Link/Fabric/Mem State</li>
+        <li>22022421154: Link/Fabric/Mem State (C10)</li>
+      </ul>
+    </li>
+  </ul>
+  <div class="gap-note">GAP: No dedicated TPF for standalone PCIe/CXL/UXI link PM; embedded in PKGC entry/exit only</div>
+</td>
+<td><span class="sub-req">PCIe L0s/L1, CXL link PM, UXI/UPI link states</span></td>
+</tr>
+
+<tr>
+<td>05</td>
+<td class="tpf-name">SOC Thermal<br><small>(Prochot/VRHot/Thermtrip/ITD/HPM/CBB &amp; IMH EMTTM)</small></td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022564382">SoC Thermal Protection</a></span>
+      <span class="tpf-id"> [22022564382]</span>
+      <ul class="tcd-list">
+        <li>22022420589: GPIO Interface</li>
+        <li>22022420603: ITD</li>
+        <li>22022420609: Prochot Flow</li>
+        <li>22022420625: Thermtrip</li>
+        <li>22022420628: VR Hot</li>
+      </ul>
+    </li>
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022562330">SoC Thermal Management (IMH)</a></span>
+      <span class="tpf-id"> [22022562330]</span>
+      <ul class="tcd-list">
+        <li>22022420593: IMH DTS &amp; Telemetry</li>
+        <li>22022420596: IMH Thermal Management</li>
+        <li>22022420606: MCAs</li>
+        <li>22022420612: TPMI/PMT</li>
+        <li>22022420616: Thermal Interrupts</li>
+        <li>22022420619: Thermal Reporting</li>
+      </ul>
+    </li>
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022564381">SoC Thermal Management - CBB</a></span>
+      <span class="tpf-id"> [22022564381]</span>
+      <ul class="tcd-list">
+        <li>22022420579: ACP</li>
+        <li>22022420582: CBB DTS &amp; Telemetry</li>
+        <li>22022420585: CBB Thermal Management</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td></td>
+</tr>
+
+<tr>
+<td>06</td>
+<td class="tpf-name">MemCLOS DRC</td>
+<td><span class="badge gap">GAP</span></td>
+<td><div class="gap-note">No TPF found in TP 16030686481</div></td>
+<td></td>
+</tr>
+
+<tr>
+<td>07</td>
+<td class="tpf-name">Socket RAPL</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022562316">Power: RAPL &amp; Power Limiting</a></span>
+      <span class="tpf-id"> [22022562316]</span> <span class="badge migrated">MIGRATED</span>
+      <ul class="tcd-list">
+        <li>22022420798: Socket RAPL Algorithm &amp; Functionality</li>
+        <li>22022420806: Socket RAPL Cross-products</li>
+        <li>22022420813: Socket RAPL Fuse and Bios knobs</li>
+        <li>22022420817: Socket RAPL HPM Verification</li>
+        <li>22022420821: Socket RAPL Registers (CSR &amp; TPMI)</li>
+        <li>22022420826: Socket RAPL SVID Reporting</li>
+        <li>22022420784: BEAT learnings</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">Algorithm, Fuses, BIOS knobs, HPM, CSR/TPMI registers, SVID reporting, cross products</span></td>
+</tr>
+
+<tr>
+<td>08</td>
+<td class="tpf-name">DRAM RAPL</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022564794">Power: DRAM RAPL</a></span>
+      <span class="tpf-id"> [22022564794]</span>
+      <ul class="tcd-list">
+        <li>22022420639: DRAM RAPL Algorithm Scenarios</li>
+        <li>22022420649: DRAM RAPL Bios Knob Verification</li>
+        <li>22022420652: DRAM RAPL Cross Products</li>
+        <li>22022420658: DRAM RAPL Fuse Verification</li>
+        <li>22022420668: DRAM RAPL HPM Message Verification</li>
+        <li>22022420673: DRAM RAPL Registers Verification</li>
+        <li>22022420680: DRAM RAPL SVID Reporting</li>
+        <li>22022420684: DRAM RAPL Telemetry</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">Algorithm, BIOS knobs, cross products, fuses, HPM, registers, SVID, telemetry</span></td>
+</tr>
+
+<tr>
+<td>09</td>
+<td class="tpf-name">Psys/Platform RAPL</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022562316">Power: RAPL &amp; Power Limiting</a></span>
+      <span class="tpf-id"> [22022562316]</span> <span class="badge migrated">MIGRATED</span>
+      <ul class="tcd-list">
+        <li>22022420714: Psys RAPL Algorithm &amp; Functionality</li>
+        <li>22022420718: Psys RAPL Cross-products</li>
+        <li>22022420723: Psys RAPL Fuse and Bios knobs</li>
+        <li>22022420727: Psys RAPL HPM</li>
+        <li>22022420730: Psys SVID Reporting Verification</li>
+        <li>22022420734: Psys RAPL Registers (CSR &amp; TPMI)</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">Algorithm, fuses, BIOS knobs, HPM, SVID, CSR/TPMI registers, cross products</span></td>
+</tr>
+
+<tr>
+<td>10</td>
+<td class="tpf-name">RACL</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022564393">Power &amp; Current Protection</a></span>
+      <span class="tpf-id"> [22022564393]</span> <span class="badge migrated">MIGRATED</span>
+      <ul class="tcd-list">
+        <li>22022420737: RACL Counters Verification</li>
+        <li>22022420741: RACL Cross Product</li>
+        <li>22022420746: RACL Fuses Verification</li>
+        <li>22022420749: RACL HPM Verification</li>
+        <li>22022420753: RACL Security</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">Counters, cross product, fuses, HPM, security</span></td>
+</tr>
+
+<tr>
+<td>11</td>
+<td class="tpf-name">MT PMAX</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022564393">Power &amp; Current Protection</a></span>
+      <span class="tpf-id"> [22022564393]</span> <span class="badge migrated">MIGRATED</span>
+      <ul class="tcd-list">
+        <li>22022420688: MT Pmax Verification</li>
+        <li>22022420691: PL4 Verification</li>
+        <li>22022420695: PMAX Bios Knobs Verification</li>
+        <li>22022420701: PMAX Cross Products</li>
+        <li>22022420704: PMAX DFX Injection Verification</li>
+        <li>22022420708: PMAX fuses Verification</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">PL4, BIOS knobs, cross products, DFX injection, fuses</span></td>
+</tr>
+
+<tr>
+<td>12</td>
+<td class="tpf-name">FASTRAPL</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022562316">Power: RAPL &amp; Power Limiting</a></span>
+      <span class="tpf-id"> [22022562316]</span> <span class="badge migrated">MIGRATED</span>
+      <ul class="tcd-list">
+        <li>22022420794: Fast RAPL</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td></td>
+</tr>
+
+<tr>
+<td>13</td>
+<td class="tpf-name">SIMPL</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022564393">Power &amp; Current Protection</a></span>
+      <span class="tpf-id"> [22022564393]</span> <span class="badge migrated">MIGRATED</span>
+      <ul class="tcd-list">
+        <li>22022420756: SIMPL Cross Products</li>
+        <li>22022420759: SIMPL Fuse Verification</li>
+        <li>22022420763: SIMPL Policy Verification</li>
+        <li>22022420767: SIMPL Telemetry Verification</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">Cross products, fuse, policy, telemetry</span></td>
+</tr>
+
+<tr>
+<td>14</td>
+<td class="tpf-name">ADR</td>
+<td><span class="badge gap">GAP</span></td>
+<td><div class="gap-note">No dedicated TPF found in TP 16030686481</div></td>
+<td></td>
+</tr>
+
+<tr>
+<td>15</td>
+<td class="tpf-name">PEM</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420484">Pstate-PEM</a></span>
+      <span class="tpf-id"> [22022420484]</span>
+      <ul class="tcd-list">
+        <li>22022421010: Consistent Throttling</li>
+        <li>22022421012: Corelating timings</li>
+        <li>22022421014: Inconsistent Throttling</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">Consistent/Inconsistent Throttling, timing correlation</span></td>
+</tr>
+
+<tr>
+<td>16</td>
+<td class="tpf-name">SAPM-DLL</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420477">Pstate-EPB, SAPM-DLL and EET</a></span>
+      <span class="tpf-id"> [22022420477]</span>
+      <ul class="tcd-list">
+        <li>22022420986: EPB and SAPM-DLL</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">EPB and SAPM-DLL</span></td>
+</tr>
+
+<tr>
+<td>17</td>
+<td class="tpf-name">PEGA</td>
+<td><span class="badge gap">GAP</span></td>
+<td><div class="gap-note">No dedicated TPF found in TP 16030686481</div></td>
+<td></td>
+</tr>
+
+<tr>
+<td>18</td>
+<td class="tpf-name">Telemetry<br><small>(IMH PM / TPMI-PMT)</small></td>
+<td><span class="badge partial">PARTIAL</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420495">IMH PM Telemetry</a></span>
+      <span class="tpf-id"> [22022420495]</span>
+      <ul class="tcd-list">
+        <li>22022421033: Memory east RC</li>
+        <li>22022421035: Memory west RC</li>
+      </ul>
+    </li>
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022562330">SoC Thermal Mgmt (TPMI/PMT)</a></span>
+      <span class="tpf-id"> [22022562330]</span>
+      <ul class="tcd-list">
+        <li>22022420612: TPMI/PMT</li>
+      </ul>
+    </li>
+  </ul>
+  <div class="gap-note">NOTE: Converged Telemetry, PM Error Reporting, Fine Grained Energy Reporting — no dedicated TPF</div>
+</td>
+<td><span class="sub-req">Memory RC telemetry, DRAM RAPL telemetry, TPMI/PMT, SVID telemetry</span></td>
+</tr>
+
+<tr>
+<td>19</td>
+<td class="tpf-name">TPMI</td>
+<td><span class="badge partial">PARTIAL</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022562316">Power: RAPL &amp; Power Limiting</a></span>
+      <span class="tpf-id"> [22022562316]</span> <span class="badge migrated">MIGRATED</span>
+      <ul class="tcd-list">
+        <li>22022420821: Socket RAPL Registers (CSR &amp; TPMI)</li>
+        <li>22022420734: Psys RAPL Registers (CSR &amp; TPMI)</li>
+      </ul>
+    </li>
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022562330">SoC Thermal Management</a></span>
+      <span class="tpf-id"> [22022562330]</span>
+      <ul class="tcd-list">
+        <li>22022420612: TPMI/PMT</li>
+      </ul>
+    </li>
+  </ul>
+  <div class="gap-note">NOTE: No standalone TPMI TPF; coverage spread across feature-level register TCDs</div>
+</td>
+<td><span class="sub-req">TPMI registers, interface coverage across features</span></td>
+</tr>
+
+<tr>
+<td>20</td>
+<td class="tpf-name">Core Cstate<br><small>(CC1/CC6/Fast C1E)</small></td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/16030703129">C-States</a></span>
+      <span class="tpf-id"> [16030703129]</span>
+      <ul class="tcd-list">
+        <li>22022421247: CState C6 basic functionality</li>
+        <li>22022421250: CState Entry Actions</li>
+        <li>22022421253: CState Exit Actions</li>
+        <li>22022421257: CStates C1 residency counter</li>
+        <li>22022421260: CStates MC6 residency counter</li>
+        <li>22022421266: C6/C1 Demotion/Undemotion Config</li>
+        <li>22022421269: BEAT learnings</li>
+        <li>22022421276: Fast C1E: autopromotion</li>
+        <li>22022421282: Fast C1E: basic functionality</li>
+        <li>22022421287: Fast C1E: start/end flow</li>
+        <li>22022421289: AshTree PRT</li>
+        <li>22022421293: PMX</li>
+        <li>22022421307: Solar</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">C6 basic, Entry/Exit, C1 residency, MC6 residency, Demotion/Undemotion, Fast C1E, AshTree PRT, PMX, Solar</span></td>
+</tr>
+
+<tr>
+<td>21</td>
+<td class="tpf-name">Core GV/Pstate</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420461">Pstate Legacy</a></span>
+      <span class="tpf-id"> [22022420461]</span>
+      <ul class="tcd-list">
+        <li>22022420938: Legacy Pstate Bios configurations</li>
+        <li>22022420943: Fast GV configuration</li>
+        <li>22022420947: Interfaces</li>
+        <li>22022420959: Scenarios</li>
+        <li>22022420961: Solar</li>
+        <li>22022420968: TSC accuracy, PCNT, ACNT, MCNT</li>
+      </ul>
+    </li>
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420483">Pstate-HWP</a></span>
+      <span class="tpf-id"> [22022420483]</span>
+      <ul class="tcd-list">
+        <li>22022421004: HWP Native mode</li>
+        <li>22022421006: HWP OOB Mode</li>
+      </ul>
+    </li>
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/16030732015">P-State Operating Range &amp; Freq Config</a></span>
+      <span class="tpf-id"> [16030732015]</span>
+      <ul class="tcd-list">
+        <li>22022421001: Guaranteed Ratio resolving</li>
+        <li>22022421019: 1CPM Turbo Mode</li>
+        <li>22022421022: Turbo functionality</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">BIOS config, Fast GV, Interfaces, Scenarios, Solar, TSC/PCNT, HWP Native/OOB, Turbo, Guaranteed Ratio</span></td>
+</tr>
+
+<tr>
+<td>22</td>
+<td class="tpf-name">Core ICCP</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420466">Pstate-Core ICCP</a></span>
+      <span class="tpf-id"> [22022420466]</span>
+      <ul class="tcd-list">
+        <li>22022420976: ICCP: License request and grant flow</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">License request and grant flow</span></td>
+</tr>
+
+<tr>
+<td>23</td>
+<td class="tpf-name">SST<br><small>(PP/BF/TF/CP)</small></td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022562315">SST (Intel Speed Select Technology)</a></span>
+      <span class="tpf-id"> [22022562315]</span> <span class="badge migrated">MIGRATED</span>
+      <ul class="tcd-list">
+        <li>SST-BF: Enabling/Functionality/Fusing (×3)</li>
+        <li>SST-CP: Enabling/Functionality/Fusing (×3)</li>
+        <li>SST-PP: Dynamic (boot/fuse/ctrl/func) + Static (×5)</li>
+        <li>HGS: Enabling &amp; Functionality (×2)</li>
+      </ul>
+    </li>
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022564395">SST-TF &amp; PCT</a></span>
+      <span class="tpf-id"> [22022564395]</span> <span class="badge migrated">MIGRATED</span>
+      <ul class="tcd-list">
+        <li>PCT: Enabling/Functionality/Fuse (×3)</li>
+        <li>SST-TF: Enabling/Functionality/Fusing (×3)</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">BF/CP Enabling/Functionality/Fusing, PP Dynamic/Static, HGS, TF, PCT</span></td>
+</tr>
+
+<tr>
+<td>24</td>
+<td class="tpf-name">REARM</td>
+<td><span class="badge gap">GAP</span></td>
+<td><div class="gap-note">No dedicated TPF found in TP 16030686481</div></td>
+<td></td>
+</tr>
+
+<tr>
+<td>25</td>
+<td class="tpf-name">HWP</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420483">Pstate-HWP</a></span>
+      <span class="tpf-id"> [22022420483]</span>
+      <ul class="tcd-list">
+        <li>22022421004: HWP Native mode</li>
+        <li>22022421006: HWP OOB Mode</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">Native mode, OOB Mode</span></td>
+</tr>
+
+<tr>
+<td>26</td>
+<td class="tpf-name">HGS</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022562315">SST (Intel Speed Select Technology)</a></span>
+      <span class="tpf-id"> [22022562315]</span> <span class="badge migrated">MIGRATED</span>
+      <ul class="tcd-list">
+        <li>22022420917: HGS Enabling and Discovery</li>
+        <li>22022420920: HGS Functionality</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">Enabling &amp; Discovery, Functionality</span></td>
+</tr>
+
+<tr>
+<td>27</td>
+<td class="tpf-name">EET/PAlpha</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420477">Pstate-EPB, SAPM-DLL and EET</a></span>
+      <span class="tpf-id"> [22022420477]</span>
+      <ul class="tcd-list">
+        <li>16030733964: Pstate-EET</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">EET Pstate</span></td>
+</tr>
+
+<tr>
+<td>28</td>
+<td class="tpf-name">TRL<br><small>(Turbo Ratio Limit)</small></td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/16030732015">P-State Operating Range &amp; Freq Config</a></span>
+      <span class="tpf-id"> [16030732015]</span>
+      <ul class="tcd-list">
+        <li>22022421019: 1CPM - Pstate Turbo Mode</li>
+        <li>22022421022: Turbo functionality</li>
+        <li>22022421001: Guaranteed Ratio resolving</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">1CPM Turbo Mode, Turbo functionality, Guaranteed Ratio</span></td>
+</tr>
+
+<tr>
+<td>29</td>
+<td class="tpf-name">NearTDP</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/16030732015">P-State Operating Range &amp; Freq Config</a></span>
+      <span class="tpf-id"> [16030732015]</span>
+      <ul class="tcd-list">
+        <li>22022421024: Near TDP</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td></td>
+</tr>
+
+<tr>
+<td>30</td>
+<td class="tpf-name">Flex Ratio</td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/16030732015">P-State Operating Range &amp; Freq Config</a></span>
+      <span class="tpf-id"> [16030732015]</span>
+      <ul class="tcd-list">
+        <li>22022420993: Flex ratio configuration and functionality</li>
+        <li>22022421029: VF curve fuses</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td><span class="sub-req">Flex ratio configuration, VF curve fuses</span></td>
+</tr>
+
+<tr>
+<td>31</td>
+<td class="tpf-name">Mechanisms/Reporting<br><small>(PLR/PM Perfmons/Converged Tel/PM Error/Fine Grained Energy)</small></td>
+<td><span class="badge partial">PARTIAL</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420485">Pstate-PLR</a></span>
+      <span class="tpf-id"> [22022420485]</span>
+      <ul class="tcd-list">
+        <li>22022421017: Platform Limit Reason</li>
+      </ul>
+    </li>
+  </ul>
+  <div class="gap-note">GAP: PM Perfmons, Converged Telemetry, PM Error Reporting, Fine Grained Energy Reporting — no dedicated TPF</div>
+</td>
+<td></td>
+</tr>
+
+<tr>
+<td>32</td>
+<td class="tpf-name">Phase Shedding<br><small>(IMH CFCMEM/CFCIO/CBB core/CBB ring)</small></td>
+<td><span class="badge gap">GAP</span></td>
+<td><div class="gap-note">No dedicated TPF found in TP 16030686481</div></td>
+<td></td>
+</tr>
+
+<tr>
+<td>33</td>
+<td class="tpf-name">Negative Val<br><small>(HPM opcodes/TPMI/mailbox/MSRs)</small></td>
+<td><span class="badge partial">PARTIAL</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022562325">PM Integration Testing</a></span>
+      <span class="tpf-id"> [22022562325]</span> <span class="badge migrated">MIGRATED</span>
+      <ul class="tcd-list">
+        <li>22022421309: Cross Products (ZBB negative, sideband harasser)</li>
+        <li>22022421311: EndPoint Sweep</li>
+      </ul>
+    </li>
+  </ul>
+  <div class="gap-note">GAP: No dedicated Negative Validation TPF; partial coverage via PM Integration cross products only</div>
+</td>
+<td></td>
+</tr>
+
+<tr>
+<td>34</td>
+<td class="tpf-name">CrossProducts/Stress/Concurrency<br><small>(PM×PM/Security/Reset/Manageability/Traffic/OSPL/PMON/RAS/MEM RAS/DFD/PCIe-CXL/VTD)</small></td>
+<td><span class="badge covered">COVERED</span></td>
+<td>
+  <ul class="tpf-list">
+    <li>
+      <span class="tpf-name"><a href="https://hsdes.intel.com/appstore/article-one/#/22022562325">PM Integration Testing</a></span>
+      <span class="tpf-id"> [22022562325]</span> <span class="badge migrated">MIGRATED</span>
+      <ul class="tcd-list">
+        <li>22022420631: pmx cross products</li>
+        <li>22022420633: Solar Cross Products</li>
+        <li>22022421309: Cross Products</li>
+        <li>22022421311: EndPoint Sweep</li>
+      </ul>
+    </li>
+  </ul>
+</td>
+<td></td>
+</tr>
+
+</tbody>
+</table>
+
+<h2>Migration Status — All 24 TPFs</h2>
+<div class="mig-grid">
+  <div class="mig-card"><div class="id">16030703128</div><div class="name">Package C-States (PKGC)</div><span class="badge not-mig">NOT MIGRATED</span> — 17 TCDs</div>
+  <div class="mig-card"><div class="id">16030703129</div><div class="name">C-States</div><span class="badge not-mig">NOT MIGRATED</span> — 13 TCDs</div>
+  <div class="mig-card"><div class="id">22022420417</div><div class="name">Memory Thermal Management</div><span class="badge not-mig">NOT MIGRATED</span> — 6 TCDs</div>
+  <div class="mig-card"><div class="id">22022420435</div><div class="name">Fabric DVFS</div><span class="badge not-mig">NOT MIGRATED</span> — 5 TCDs</div>
+  <div class="mig-card"><div class="id">22022420461</div><div class="name">Pstate Legacy</div><span class="badge not-mig">NOT MIGRATED</span> — 6 TCDs</div>
+  <div class="mig-card"><div class="id">22022420466</div><div class="name">Pstate-Core ICCP</div><span class="badge not-mig">NOT MIGRATED</span> — 1 TCD</div>
+  <div class="mig-card"><div class="id">22022420473</div><div class="name">Pstate-DCM FIT</div><span class="badge not-mig">NOT MIGRATED</span> — 1 TCD</div>
+  <div class="mig-card"><div class="id">22022420477</div><div class="name">Pstate-EPB, SAPM-DLL and EET</div><span class="badge not-mig">NOT MIGRATED</span> — 2 TCDs</div>
+  <div class="mig-card"><div class="id">22022420483</div><div class="name">Pstate-HWP</div><span class="badge not-mig">NOT MIGRATED</span> — 2 TCDs</div>
+  <div class="mig-card"><div class="id">22022420484</div><div class="name">Pstate-PEM</div><span class="badge not-mig">NOT MIGRATED</span> — 3 TCDs</div>
+  <div class="mig-card"><div class="id">22022420485</div><div class="name">Pstate-PLR</div><span class="badge not-mig">NOT MIGRATED</span> — 1 TCD</div>
+  <div class="mig-card"><div class="id">22022420495</div><div class="name">IMH PM Telemetry</div><span class="badge not-mig">NOT MIGRATED</span> — 2 TCDs</div>
+  <div class="mig-card"><div class="id">22022562315</div><div class="name">SST (Intel Speed Select Technology)</div><span class="badge migrated">MIGRATED ✓</span> — 13 TCDs</div>
+  <div class="mig-card"><div class="id">22022562316</div><div class="name">Power: RAPL &amp; Power Limiting</div><span class="badge migrated">MIGRATED ✓</span> — 14 TCDs</div>
+  <div class="mig-card"><div class="id">22022562317</div><div class="name">Power: SVID</div><span class="badge migrated">MIGRATED ✓</span> — 3 TCDs</div>
+  <div class="mig-card"><div class="id">22022562325</div><div class="name">PM Integration Testing</div><span class="badge migrated">MIGRATED ✓</span> — 4 TCDs</div>
+  <div class="mig-card"><div class="id">22022562330</div><div class="name">SoC Thermal Management</div><span class="badge not-mig">NOT MIGRATED</span> — 6 TCDs</div>
+  <div class="mig-card"><div class="id">22022562533</div><div class="name">Autonomous Idle PM (AIPM)</div><span class="badge not-mig">NOT MIGRATED</span> — 9 TCDs</div>
+  <div class="mig-card"><div class="id">22022564381</div><div class="name">SoC Thermal Management - CBB</div><span class="badge not-mig">NOT MIGRATED</span> — 3 TCDs</div>
+  <div class="mig-card"><div class="id">22022564382</div><div class="name">SoC Thermal Protection</div><span class="badge not-mig">NOT MIGRATED</span> — 5 TCDs</div>
+  <div class="mig-card"><div class="id">22022564393</div><div class="name">Power &amp; Current Protection</div><span class="badge migrated">MIGRATED ✓</span> — 15 TCDs</div>
+  <div class="mig-card"><div class="id">22022564395</div><div class="name">SST-TF &amp; PCT</div><span class="badge migrated">MIGRATED ✓</span> — 6 TCDs</div>
+  <div class="mig-card"><div class="id">22022564794</div><div class="name">Power: DRAM RAPL</div><span class="badge not-mig">NOT MIGRATED</span> — 8 TCDs</div>
+  <div class="mig-card"><div class="id">16030732015</div><div class="name">P-State Operating Range &amp; Freq Config</div><span class="badge not-mig">NOT MIGRATED</span> — 6 TCDs</div>
+</div>
+
+<h2>Coverage Gaps Summary</h2>
+<table style="max-width:700px">
+<thead><tr><th>Feature</th><th>Gap Type</th></tr></thead>
+<tbody>
+<tr><td><b>MemCLOS DRC</b></td><td>No TPF exists in TP 16030686481</td></tr>
+<tr><td><b>ADR</b></td><td>No TPF exists in TP 16030686481</td></tr>
+<tr><td><b>PEGA</b></td><td>No TPF exists in TP 16030686481</td></tr>
+<tr><td><b>REARM</b></td><td>No TPF exists in TP 16030686481</td></tr>
+<tr><td><b>Phase Shedding</b> (IMH CFCMEM/CFCIO/CBB core/CBB ring)</td><td>No TPF exists in TP 16030686481</td></tr>
+<tr><td><b>Link Power States</b> (PCIe/CXL/UXI L0s/L0p/L1)</td><td>Partial — embedded in PKGC only, no standalone TPF</td></tr>
+<tr><td><b>Telemetry</b> — Converged Telemetry / PM Error Reporting / Fine Grained Energy Reporting</td><td>Partial — no dedicated TPF for these sub-topics</td></tr>
+<tr><td><b>TPMI</b></td><td>Partial — no standalone TPMI TPF; scattered in register-level TCDs</td></tr>
+<tr><td><b>Mechanisms/Reporting</b> — PM Perfmons / Converged Tel / PM Error / Fine Grained Energy</td><td>Partial — only PLR has a TCD; rest not covered</td></tr>
+<tr><td><b>Negative Val</b> (HPM opcodes/TPMI/mailbox/MSRs)</td><td>Partial — covered only via PM Integration cross-product TCDs</td></tr>
+</tbody>
+</table>
+
+</main>
+<footer>
+  NWP PM Test Plan coverage dry-run &nbsp;|&nbsp; TP 16030686481 &nbsp;|&nbsp; 2026-06-04 &nbsp;|&nbsp; No HSD writes performed
+</footer>
+</body>
+</html>

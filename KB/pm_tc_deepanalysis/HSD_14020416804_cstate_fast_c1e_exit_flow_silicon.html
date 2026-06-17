@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: CState Fast C1E: Exit Flow Silicon</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: CState Fast C1E: Exit Flow Silicon</h1>
+      <p>Segment: FV | Source: HSD_14020416804_cstate_fast_c1e_exit_flow_silicon.inference.md | Generated: 2026-06-17 21:14:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: CState Fast C1E: Exit Flow Silicon</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>14020416804</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>CState Fast C1E: Exit flow_silicon</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Core C-States</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Fast C1E exit flow — return to C0 operating frequency/voltage</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies the **Fast C1E exit flow**. When an interrupt or work arrives while core is in C1E, the core should return to C0 with full operating frequency/voltage. Uses `pm.focused.cstate_focus.check_cst_focus()`.</p>
+<p>Tags: `DMR_PO`, `plc.feature.p1`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>C1E Exit Pass/Fail Criteria</h3>
+<table class="md-table"><thead><tr>
+<th>Signal</th>
+<th>Expected After C1E Exit</th>
+</tr></thead><tbody>
+<tr>
+<td>`core_cstate`</td>
+<td>C0</td>
+</tr>
+<tr>
+<td>PICLET FSM</td>
+<td>`PICLET_PMA_IDLE`</td>
+</tr>
+<tr>
+<td>SRL</td>
+<td>`SRL_IDLE`</td>
+</tr>
+<tr>
+<td>`BGF_RUN`</td>
+<td>1</td>
+</tr>
+<tr>
+<td>`CORE_PWR_GOOD`</td>
+<td>1</td>
+</tr>
+<tr>
+<td>`PLL_LOCK`</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Frequency</td>
+<td>Returned to operating frequency</td>
+</tr>
+<tr>
+<td>Voltage</td>
+<td>Returned to operating voltage</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Place core in C1E (per entry TC 14020416803)</td>
+<td>Core in C1E at 400MHz/Vmin</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Send interrupt</td>
+<td>Trigger C1E exit</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify core returns to C0</td>
+<td>All exit signals match above</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify frequency ramps back up</td>
+<td>Full operating ratio restored</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify voltage restored</td>
+<td>Returns from Vmin to operating voltage</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Run via PMx</td>
+<td>`python runPmx.py -x nwp.xml -p cstates -H 1 -M 5`</td>
+</tr>
+</tbody></table>
+<h3>C1E Exit Considerations</h3>
+<ul>
+<li>C1E exit is faster than C6 exit (no PLL relock needed if PLL stayed active)</li>
+<li>Voltage ramp from Vmin to operating voltage must complete before full-speed execution</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>All C0 exit signals correct</li>
+<li>Frequency restored to pre-C1E ratio</li>
+<li>Voltage restored from Vmin</li>
+<li>`c1e_period = 0` after exit</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; C1E exit functional on NWP; verify frequency/voltage restoration**</p>
+<p>**Priority**: High — `plc.feature.p1`; C1E exit correctness affects performance recovery after light-load idle periods</p>
+    </div>
+  </div>
+</body>
+</html>

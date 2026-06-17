@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Thermal Reporting] Verify POWER_CTL</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Thermal Reporting] Verify POWER_CTL</h1>
+      <p>Segment: FV | Source: HSD_22022421660_verify_power_ctl.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Thermal Reporting] Verify POWER_CTL</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421660</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Thermal Reporting] Verify POWER_CTL</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>MSR 0x1FC POWER_CTL — PROCHOT enable, C1E enable, thermal eff_tj_max</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **MSR 0x1FC POWER_CTL** — package-multicast register with key fields:</p>
+<ul>
+<li>`ENABLE_BIDIR_PROCHOT` [0]: enables response to PROCHOT# input (allows platform to throttle CPU)</li>
+<li>`C1E_ENABLE` [1]: enables C1E; **CBB uses this for eff_tj_max calculation**</li>
+</ul>
+<p>The `C1E_ENABLE` interaction with `eff_tj_max` is critical — changing C1E enable affects effective Tj_max used in thermal management.</p>
+<p>On NWP, `POWER_CTL` is the same package register. C1E_ENABLE affect on eff_tj_max same.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>`Ready_for_testing` + `plc.feature.p1` + `NGA_MAIN` + `PMSS_NWP_READINESS_CHECK` tags</li>
+<li>POWER_CTL register directly applicable on NWP</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>MSR 0x1FC Key Bits</h3>
+<table class="md-table"><thead><tr>
+<th>Bit</th>
+<th>Field</th>
+<th>Default</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td>[0]</td>
+<td>`ENABLE_BIDIR_PROCHOT`</td>
+<td>0</td>
+<td>Enables PROCHOT# input response</td>
+</tr>
+<tr>
+<td>[1]</td>
+<td>`C1E_ENABLE`</td>
+<td>0</td>
+<td>Enables C1E idle; affects eff_tj_max</td>
+</tr>
+</tbody></table>
+<h3>C1E + eff_tj_max Interaction</h3>
+<p>When `C1E_ENABLE = 1`:</p>
+<ul>
+<li>CBB uses `eff_tj_max = tj_max + c1e_offset` (slightly higher effective limit)</li>
+<li>This affects thermal throttling threshold</li>
+</ul>
+<h3>NWP Verification</h3>
+<pre><code>
+import svtools.common.baseaccess as baseaccess
+base = baseaccess.getglobalbase()
+
+power_ctl = base.rdmsr(0x1FC)
+bidir_prochot = (power_ctl &gt;&gt; 0) &amp; 1
+c1e_enable = (power_ctl &gt;&gt; 1) &amp; 1
+print(f&quot;MSR 0x1FC POWER_CTL: 0x{power_ctl:08X}&quot;)
+print(f&quot;  ENABLE_BIDIR_PROCHOT: {bidir_prochot}&quot;)
+print(f&quot;  C1E_ENABLE: {c1e_enable}&quot;)
+
+# Verify C1E_ENABLE matches expected BIOS setting
+# Toggle C1E_ENABLE; verify eff_tj_max changes in MCP_THERMAL_REPORT_1
+</code></pre>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Read MSR 0x1FC baseline</td>
+<td>Verify default values</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Enable BIDIR_PROCHOT; assert PROCHOT#</td>
+<td>`POWER_CTL[0] = 1`; verify throttling</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Disable BIDIR_PROCHOT; verify throttle released</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Toggle C1E_ENABLE; verify eff_tj_max changes</td>
+<td>Read MCP_THERMAL_REPORT_1 before/after</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>`ENABLE_BIDIR_PROCHOT` correctly enables/disables PROCHOT# response</li>
+<li>`C1E_ENABLE` correctly affects `eff_tj_max` in CBB thermal calculation</li>
+<li>Register accessible as package-multicast (all CBBs see same value)</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — thermalManagement.py; POWER_CTL same on NWP**</p>
+<p>Required adaptations:</p>
+<p>1. NWP single IMH: package-multicast reaches both CBBs</p>
+<p>2. Verify `eff_tj_max` calculation path in NWP CBB thermal implementation</p>
+<p>**Priority**: Medium — `plc.feature.p1` + `NGA_MAIN`; POWER_CTL thermal + C1E interaction</p>
+    </div>
+  </div>
+</body>
+</html>

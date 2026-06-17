@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bug 13013917876 — [DMR] [X1 A0 PO] [Telemetry] Missing Core Telemetry Data on Punit</title>
+<link rel="stylesheet" href="../templates/bug_analysis.css">
+</head>
+<body>
+
+<a href="dmr_pm_retrospective.html" class="back-link">← Dashboard</a>
+
+<h1>
+  <span class="badge badge-tool">TOOL</span>
+  HSD 13013917876
+</h1>
+
+<div class="card">
+  <dl class="metadata-grid">
+    <dt>Title</dt>
+    <dd>[DMR] [X1 A0 PO] [Telemetry] Missing Core Telemetry Data on Punit</dd>
+
+    <dt>HSD Link</dt>
+    <dd><a href="https://hsdes.intel.com/appstore/article-one/#/13013917876" target="_blank">13013917876</a></dd>
+
+    <dt>Status</dt>
+    <dd>complete.wont_validate</dd>
+
+    <dt>Priority</dt>
+    <dd><span class="badge badge-priority-3">3-medium</span></dd>
+
+    <dt>Owner</dt>
+    <dd>ymeshula</dd>
+
+    <dt>Component</dt>
+    <dd>val.env.debug_tools</dd>
+
+    <dt>Defect Die</dt>
+    <dd>compute</dd>
+
+    <dt>Conclusion</dt>
+    <dd>env.bug</dd>
+  </dl>
+</div>
+
+<h2>Classification</h2>
+<div class="card">
+  <table>
+    <tr>
+      <th>Dimension</th><th>Value</th><th>Confidence</th>
+    </tr>
+    <tr>
+      <td>Root Cause Type</td>
+      <td><span class="badge badge-tool">TOOL</span></td>
+      <td>
+        <span class="confidence conf-high">
+          <span class="confidence-bar"><span class="confidence-fill" style="width:85%"></span></span>
+          85%
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>Feature</td>
+      <td>Tools</td>
+      <td>
+        <span class="confidence conf-high">
+          <span class="confidence-bar"><span class="confidence-fill" style="width:90%"></span></span>
+          90%
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>Sub-Feature</td>
+      <td>debug_tools</td>
+      <td>—</td>
+    </tr>
+  </table>
+  <p style="margin-top:0.5rem;font-size:0.85rem;color:var(--text-secondary);">
+    <strong>Reasoning:</strong> conclusion='env.bug' → TOOL
+  </p>
+</div>
+
+
+<h2>Root Cause Summary</h2>
+<div class="card">
+  <p>System:</p>
+<p>========</p>
+<p>ha01wvaw0035, AN4CORECAFE501</p>
+<p>2 enabled modules (module9 and module10):</p>
+<p>In [7]: sv.sockets.cbbs.computes.modules</p>
+<p>Out[7]:</p>
+<p>socket0.cbb0.compute1.module9 - &lt;socket0.cbb0.compute1.module9 - ModuleComponent @ 1789254313792&gt;</p>
+<p>socket0.cbb0.compute1.module10 - &lt;socket0.cbb0.compute1.module10 - ModuleComponent @ 1789254312784&gt;</p>
+<p>Details:</p>
+<p>========</p>
+<p>As part of the DMR PO tasks, we are attempting to sample telemetry on both the core and Punit to verify that the basic telemetry push is</p>
+</div>
+
+
+
+<h2>Root Cause Description</h2>
+<div class="card">
+  
+  <div class="extracted-content">
+    <h4 style="margin:0 0 0.5rem;color:var(--text-secondary);font-size:0.8rem;">Extracted from HSD</h4>
+    <p>Core telemetry data pushed from the PMA GPSB to the PUnit shows all zeros on the PUnit side, even though the telemetry values are non-zero on the core side (readable from telemetry SRAM and PCode registers). The root cause was identified as a PythonSV collateral issue (<code>env.bug</code>) — when reading the PCU telemetry array via PythonSV, the tool returns the same data for all entries in the array, indicating a register access/addressing bug in the namednodes collateral rather than a hardware telemetry pipeline failure.</p>
+  </div>
+  
+  
+  <div class="llm-enriched" style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+    <h4 style="margin:0 0 0.5rem;color:var(--accent-purple);font-size:0.8rem;">🔍 LLM-Enriched Analysis</h4>
+    <p>The telemetry push pipeline works as follows: Core PMA GPSB is configured via <code>gpsb_telem_cfg_0</code> (enable <code>pushdata_en=1</code>, <code>oobt_en=1</code>, <code>periodic_mode=1</code>) to periodically send telemetry data to the PUnit via GPSB sideband messages. On the PUnit side, the data lands in the <code>io_int_telem_cfg</code> PMSB register array. The fact that telemetry data is present in the core-side SRAM and PCode registers confirms the hardware pipeline is functional. The issue is that PythonSV’s namednodes collateral for the PCU telemetry array does not correctly index the array elements, returning the same base-address data for all entries. This was confirmed when the IDC team (Igal) did not see the issue on their system using direct register access.</p>
+  </div>
+  
+</div>
+
+
+
+<h2>Fix Description</h2>
+<div class="card">
+  
+  <div class="extracted-content">
+    <h4 style="margin:0 0 0.5rem;color:var(--text-secondary);font-size:0.8rem;">Extracted from HSD</h4>
+    <p>No silicon or firmware fix required. The issue was a PythonSV namednodes collateral bug (conclusion: <code>env.bug</code>). Status: <code>complete.wont_validate</code> — the collateral team (Westbrook, Mark T and Karanam, kavya.laalasa) was asked to investigate and fix the register definition for the PCU telemetry array.</p>
+  </div>
+  
+  
+  <div class="llm-enriched" style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+    <h4 style="margin:0 0 0.5rem;color:var(--accent-teal);font-size:0.8rem;">🔧 LLM-Enriched Fix Analysis</h4>
+    <p>The fix is in the PythonSV namednodes register definitions for the PCU telemetry array on the PUnit side. The array indexing in the <code>.xml</code> register description likely has incorrect stride or base offset, causing all array elements to map to the same physical address. Once the namednodes collateral is updated, <code>sv.socket0.cbb0.compute1.pma9.pmsb.io_int_telem_cfg</code> should correctly return per-entry telemetry data. The core-side registers (<code>gpsb_telem_cfg_0</code>, <code>pushdata_en</code>, <code>oobt_en</code>) are correctly defined and functional.</p>
+  </div>
+  
+</div>
+
+
+
+<h2>Component Interaction Diagrams</h2>
+<div class="card">
+  
+  <h3 style="color:var(--accent-red);">Root Cause Interaction</h3>
+  <div class="mermaid">
+graph TD
+    A(Core PMA - gpsb_telem_cfg_0) -->|periodic telemetry push via GPSB| B(PUnit PMSB - io_int_telem_cfg array)
+    B -->|data present in HW| C[PCode Telemetry Registers]
+    C -->|data readable directly| D[Telemetry SRAM - Non-Zero]
+    B -->|PythonSV read| E[Namednodes Array Access]
+    E -->|incorrect array indexing| F[All Entries Return Same Data]
+    F -->|appears as all zeros| G[Missing Telemetry - False Alarm]
+    style E fill:#ff6b6b,stroke:#c92a2a,color:#fff
+    style F fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  </div>
+  
+  
+  <h3 style="color:var(--accent-teal);margin-top:1.5rem;">Fix Interaction</h3>
+  <div class="mermaid">
+graph TD
+    A(Core PMA - gpsb_telem_cfg_0) -->|periodic telemetry push via GPSB| B(PUnit PMSB - io_int_telem_cfg array)
+    B -->|PythonSV read| C[Namednodes Array Access]:::fix
+    C -->|correct array stride/offset| D[Per-Entry Telemetry Data]
+    D -->|matches core-side values| E[Telemetry Validation Pass]
+    classDef fix fill:#51cf66,stroke:#2b8a3e,color:#fff
+    style D fill:#51cf66,stroke:#2b8a3e,color:#fff
+    style E fill:#51cf66,stroke:#2b8a3e,color:#fff
+  </div>
+  
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{primaryColor:'#313244',primaryTextColor:'#cdd6f4',primaryBorderColor:'#585b70',lineColor:'#a6adc8',secondaryColor:'#45475a',tertiaryColor:'#1e1e2e'}});</script>
+
+
+
+<h2>Source Code References</h2>
+<div class="card">
+  <ul>
+    
+    <li><code>gpsb_telem_cfg_0</code></li>
+    
+    <li><code>io_int_telem_cfg</code></li>
+    
+    <li><code>CORE_PMA_CR_TELEM_DATA_OUT_CONFIG</code></li>
+    
+    <li><code>sv.socket0.cbb0.compute1.pma9.gpsb.gpsb_telem_cfg_0</code></li>
+    
+    <li><code>sv.socket0.cbb0.compute1.pma9.pmsb.io_int_telem_cfg</code></li>
+    
+  </ul>
+</div>
+
+
+<h2>Feature Mapping</h2>
+<div class="card">
+  <ul>
+    <li><strong>Primary Feature:</strong> Tools</li>
+    <li><strong>Sub-Feature:</strong> debug_tools</li>
+    <li><strong>Component Path:</strong> val.env.debug_tools</li>
+  </ul>
+</div>
+
+
+
+
+<h2>Key Registers</h2>
+<div class="card">
+  <ul>
+    
+    <li><code>sv.socket0.cbb0.compute1.pma9.pmsb.io_int_telem_cfg.show</code></li>
+    
+    <li><code>sv.socket0.cbb0.compute1.pma9.pmsb.io_int_telem_cfg</code></li>
+    
+    <li><code>sv.socket0.cbb0.base.punit_regs.punit_pmsb.pmsb_pcu.mc1e_residency</code></li>
+    
+    <li><code>sv.socket0.cbb0.pcode.vars.telemetry_handler.mc1e_residency_ccps.data_low</code></li>
+    
+  </ul>
+</div>
+
+
+<h2>Timeline</h2>
+<div class="card">
+  <div class="timeline">
+    
+    <div class="timeline-item">
+      <span class="timeline-date">2025-10-09 21:30:04</span><br>Submitted
+    </div>
+    
+    
+    <div class="timeline-item">
+      <span class="timeline-date">2025-11-05 05:35:32</span><br>Root Caused
+    </div>
+    
+    
+    <div class="timeline-item">
+      <span class="timeline-date">2025-11-05 19:41:35</span><br>Closed
+    </div>
+    
+    
+    <div class="timeline-item">
+      <strong>26</strong> days open
+    </div>
+    
+  </div>
+</div>
+
+
+
+
+
+
+<h2>Latest Forum Activity</h2>
+<div class="card">
+  <blockquote>sv.sockets.cbb0.compute1.pma9.gpsb.gpsb_telem_cfg_0.show()</blockquote>
+</div>
+
+
+<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.75rem;color:var(--text-muted);">
+  Generated by DMR PM Bug Retrospective Pipeline at 2026-05-28T06:44:02+00:00
+</footer>
+
+</body>
+</html>

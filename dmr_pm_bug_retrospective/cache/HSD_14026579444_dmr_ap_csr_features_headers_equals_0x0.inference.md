@@ -1,0 +1,216 @@
+# HSD 14026579444: [DMR AP] CSR* features headers equals 0x0
+
+## Metadata
+
+| Field | Value |
+|-------|-------|
+| **HSD ID** | [14026579444](https://hsdes.intel.com/appstore/article-one/#/14026579444) |
+| **Status** | rejected.cannot_reproduce |
+| **Priority** | 3-medium |
+| **Owner** | psiebies |
+| **Component** | fw.primecode |
+| **Defect Die** | ioe |
+| **Conclusion** | no_root_cause.rejected |
+
+## Classification
+
+| Dimension | Value | Confidence |
+|-----------|-------|------------|
+| **Root Cause Type** | **UNKNOWN** | 20% |
+| **Feature** | Core C-States | 52% |
+| **Sub-Feature** | C1 | — |
+
+**Reasoning**: No strong indicators found
+
+## Root Cause Summary
+
+To reproduce read 4 bytes of below registers via mmio in UEFI Shell:
+
+1. Read the CSR_ALL IMH 0 header address = 0x1010ffc17920
+
+2. Read the CSR_ALL   
+IMH 1 header address = 0x1621ffc17920
+
+3. Read the CSR_ALL CBB 0 header address = 0x1010ffa17000
+
+4. Read the CSR_PKG_ROOT IMH 0 header address = 0x1010ffc1a000
+
+5. Read the CSR_PKG_ROOT IMH 1 header address = 0x1621ffc1a000
+
+6. Read the CSR_COMPUTE CBB 0 header address = 0x1010ffa19000
+
+Results:
+
+IMH 0:
+
+ERR: imh0 PortID - Given header: 
+
+imh0_C
+
+## Raw HSD Text
+
+<!-- This section provides raw HSD data for agent enrichment (Stage 3b). -->
+<!-- The Copilot agent extracts root cause, fix description, code refs, and diagrams. -->
+
+### Forum Notes
+[ww50.4]
+
+From primecode side they do not observe the issue, using pythonsv they read the expected values, need owner to attend as this does not look like a defect and primecode is not able to reproduce. AR Pawel to join to sysdebug, otherwise will demote to pre-sighting
+
+### Description
+To reproduce read 4 bytes of below registers via mmio in UEFI Shell:
+
+1. Read the CSR_ALL IMH 0 header address = 0x1010ffc17920
+
+2. Read the CSR_ALL   
+IMH 1 header address = 0x1621ffc17920
+
+3. Read the CSR_ALL CBB 0 header address = 0x1010ffa17000
+
+4. Read the CSR_PKG_ROOT IMH 0 header address = 0x1010ffc1a000
+
+5. Read the CSR_PKG_ROOT IMH 1 header address = 0x1621ffc1a000
+
+6. Read the CSR_COMPUTE CBB 0 header address = 0x1010ffa19000
+
+Results:
+
+IMH 0:
+
+ERR: imh0 PortID - Given header: 
+
+imh0_CSR_ALL 
+- 
+0x0 
+- is not equal to expected value: 
+0xc0040001
+.
+
+ERR: imh0 PortID - Given header: 
+
+imh0_CSR_PKG_ROOT 
+- 
+0x0 
+- is not equal to expected value: 
+0xc0040001
+.
+
+IMH 1:
+
+ERR: imh1 PortID - Given header: 
+imh1_CSR_ALL 
+- 
+0x0 
+- is not equal to expected value: 
+0x50001
+.
+
+ERR: imh1 PortID - Given header: 
+imh1_CSR_PKG_ROOT 
+- 
+0x0 
+- is not equal to expected value: 
+0x50001
+.
+
+CBB 0:
+
+ERR: cbb0 PortID - Given header: 
+cbb0_CSR_ALL 
+- 
+0x0 
+- is not equal to expected value: 
+0x101
+.
+
+ERR: cbb0 PortID - Given header: 
+cbb0_CSR_COMPUTE 
+- 
+0x0 
+- is not equal to expected value: 
+0x101
+.
+
+Validation environment:
+
+Platform: AN004022BMH2261.amr.corp.intel.com
+
+UP: 
+OKSDCRB1_86B_2025.44.2.02_0028.D87_60000979_MMC0.643.0_1P0_NonIPClean_Trace_DebugSigned.bin
+
+As is mentioned in the 
+TPMI spec
+:
+
+### Comments (latest)
+++++14614879681 psiebies
+Automated Message: This record has been cloned. The preceding comments are originally from the parent record 18043812456.
+
+++++14614879682 psiebies
+<p>Moved to cpu.logic -&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/18044008854" target="_blank">https://hsdes.intel.com/appstore/article-one/#/18044008854</a></p>
+
+++++14614879683 vwang
+Automated Message: This record has been cloned. The preceding comments are originally from the parent record 18043911933.
+
+++++14614879684 vwang
+[CloneScript] PreSighting 18043911933 cloned to Sighting 14026579444
+++++1862509474 jbrzezin
+We do not observe this same behavior with UP X0000983 - probably the OSXML is the root cause.
+++++14614890627 vwang 
+OK.  Close this for now.  @Siebieszuk, Pawel , Next time, please do initial triage and collect logs or dumps first during pre-sighting stage.
+
+### Tags
+ps.eval
+
+### Conclusion
+no_root_cause.rejected
+
+### Component
+fw.primecode
+
+## Root Cause Description
+
+<!-- Populated by LLM enrichment stage (Stage 3b). -->
+
+## Fix Description
+
+<!-- Populated by LLM enrichment stage (Stage 3b). -->
+
+## Source Code References
+
+<!-- Populated by LLM enrichment stage (Stage 3b). -->
+
+## Component Interaction: Root Cause
+
+<!-- Populated by LLM enrichment stage (Stage 3b). -->
+
+## Component Interaction: Fix
+
+<!-- Populated by LLM enrichment stage (Stage 3b). -->
+
+## Feature Mapping
+
+- **Primary Feature**: Core C-States
+- **Sub-Feature**: C1
+- **Component Path**: fw.primecode
+
+## Firmware Touchpoints
+
+- No firmware touchpoints detected in text fields
+
+## Key Registers
+
+- `TPMI spec`
+
+## Timeline
+
+- **Submitted**: 2025-12-09 06:34:07
+- **Closed**: 2025-12-12 05:54:49
+- **Days Open**: 2
+
+## Lessons Learned
+
+<!-- Add lessons learned after human review -->
+
+---
+*Generated by classify_sightings.py at 2026-05-28T06:39:38+00:00*

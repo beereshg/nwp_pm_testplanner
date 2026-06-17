@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [ITD] Verify VCCFIXDIG ITD</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [ITD] Verify VCCFIXDIG ITD</h1>
+      <p>Segment: FV | Source: HSD_22022421542_verify_vccfixdig_itd.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [ITD] Verify VCCFIXDIG ITD</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421542</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[ITD] Verify VCCFIXDIG ITD</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; ITD</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>VCCFIXDIG (Fixed-frequency Digital FIVR) — iMH PrimeCode</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>VCCFIXDIG is a **fixed-frequency FIVR** rail. Per the ITD architecture, **VCCFIXDIG is fused at Vhot — no ITD compensation is expected**. The ITD_SLOPE for VCCFIXDIG is 0 in production fusing. This test verifies that:</p>
+<p>1. The VCCFIXDIG fuse checkout confirms zero slope (no ITD compensation)</p>
+<p>2. The DTS and RC offset infrastructure is working (even with zero compensation)</p>
+<p>The DTS source is `dts_ddr_a` (based on the test step table: `rsrc_adapt_dtsddr_a 0x7E00`, `RC_MC_E`). On NWP, VCCFIXDIG is the fixed-frequency digital rail — same architecture, same &quot;fused at Vhot&quot; expectation. The sub_feature `logs,cmdline` indicates this TC captures logs and command-line outputs for validation.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>VCCFIXDIG is present on NWP as a fixed-frequency FIVR</li>
+<li>&quot;Fused at Vhot — no ITD compensation expected&quot; applies on NWP</li>
+<li>`PMSS_NWP_READINESS_CHECK` tag: evaluated for NWP</li>
+<li>Primary verification: ITD_SLOPE = 0 confirmed, no compensation applied</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon with VCCFIXDIG active</li>
+<li>VCCFIXDIG ITD fuses: `ITD_SLOPE = 0` expected (fused at Vhot)</li>
+<li>PythonSv access to `sv.socket0.imh0.punit.*`</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run ITD thermal test</td>
+<td>`python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Verify VCCFIXDIG ITD slope fuse = 0</td>
+<td>Read `pcode_itd_slope` for VCCFIXDIG domain (separate from core/CFC slope fuses)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>`itd.print_itd_info(0, 0)` — verify VCCFIXDIG shows 0 compensation</td>
+<td>Expected: no voltage offset for this domain</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read VCCFIXDIG DTS: `dts_ddr_a` at `RC_MC_E`</td>
+<td>NWP DDR DTS sensor: `rsrc_adapt_dtsddr_a 0x7E00`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify VCCFIXDIG RC offset = 0 (no ITD applied)</td>
+<td>`sv.socket0.imh0.punit.resctrl_cr_vccfixdig_v_offset.read()` — expect 0</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Capture logs (`logs` sub_feature tag)</td>
+<td>Save `itd.print_itd_info` output + command-line output to test log</td>
+</tr>
+</tbody></table>
+<h3>VCCFIXDIG DTS Source (from test steps table)</h3>
+<table class="md-table"><thead><tr>
+<th>DTS Name</th>
+<th>Resource Adapter</th>
+<th>RC Offset</th>
+<th>RC Location</th>
+<th>Index</th>
+</tr></thead><tbody>
+<tr>
+<td>`dts_ddr_a`</td>
+<td>`rsrc_adapt_dtsddr_a`</td>
+<td>`0x7E00`</td>
+<td>`RC_MC_E`</td>
+<td>0,1,2</td>
+</tr>
+<tr>
+<td>`dts_ddr_a`</td>
+<td>`rsrc_adapt_dtsddr_a`</td>
+<td>`0x7E04`</td>
+<td>`RC_MC_E`</td>
+<td>0,1,2</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>VCCFIXDIG ITD_SLOPE fuse = 0 (production fusing at Vhot)</li>
+<li>RC voltage offset for VCCFIXDIG = 0 (no ITD compensation applied)</li>
+<li>DTS infrastructure (`dts_ddr_a`) reads correctly even with zero slope</li>
+<li>`itd.print_itd_info` confirms VCCFIXDIG compensation = 0V</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>VCCFIXDIG architecture</td>
+<td>Fixed-frequency, fused at Vhot</td>
+<td>Same on NWP</td>
+<td>Direct reuse</td>
+</tr>
+<tr>
+<td>ITD slope</td>
+<td>0 (production fusing)</td>
+<td>Same expectation</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>DTS source</td>
+<td>`dts_ddr_a` at `RC_MC_E`</td>
+<td>NWP DDR DTS (verify MC location)</td>
+<td>Confirm NWP MC-E/W topology</td>
+</tr>
+<tr>
+<td>VCCFIXDIG variants</td>
+<td>`VCCFIXDIG_E` (and others per HAS)</td>
+<td>NWP VCCFIXDIG domains (verify)</td>
+<td>Check NWP VCCFIXDIG domain count</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+from pm.focus import itd
+
+SockNum = 0
+
+# Print ITD info — VCCFIXDIG should show 0 compensation
+print(&quot;=== VCCFIXDIG ITD Validation ===&quot;)
+itd.print_itd_info(SockNum, 0)
+
+# VCCFIXDIG RC voltage offset (expect 0)
+for domain_name in [&quot;vccfixdig_e&quot;, &quot;vccfixdig_w&quot;]:  # verify NWP domain names
+    try:
+        offset = sv.socket0.imh0.punit.getbypath(f&quot;resctrl_cr_{domain_name}_v_offset&quot;).read()
+        status = &quot;PASS (zero)&quot; if offset == 0 else f&quot;UNEXPECTED ({offset})&quot;
+        print(f&quot;VCCFIXDIG {domain_name.upper()} V_OFFSET: {offset} [{status}]&quot;)
+    except Exception as e:
+        print(f&quot;VCCFIXDIG {domain_name}: {e}&quot;)
+
+# DDR DTS read
+try:
+    dts_ddr = sv.socket0.imh0.punit.getbypath(&quot;rsrc_adapt_dtsddr_a&quot;).read()
+    print(f&quot;DTS DDR_A: 0x{dts_ddr:08X}&quot;)
+except Exception as e:
+    print(f&quot;DTS DDR_A: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**NWP VCCFIXDIG domain count** — DMR has multiple VCCFIXDIG variants (E, W, MIO_*); NWP may have different set</td>
+<td>Low</td>
+<td>Verify from NWP SVID/CFC HAS</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**Non-zero slope corner case** — if any VCCFIXDIG domain has non-zero slope in pre-production fusing, this TC would FAIL — expected and worth investigating</td>
+<td>Low</td>
+<td>Flag to NWP PM team; production fusing should have ITD_SLOPE=0</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; verify VCCFIXDIG domain names**</p>
+<p>VCCFIXDIG ITD verification is straightforward: confirm zero slope and zero compensation. Same &quot;fused at Vhot&quot; architecture on NWP.</p>
+<p>Required adaptations:</p>
+<p>1. `python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3`</p>
+<p>2. Verify NWP VCCFIXDIG domain names (E, W, MIO variants)</p>
+<p>3. Confirm NWP DDR DTS (`dts_ddr_a`) sensor placement for MC-E</p>
+<p>**Priority**: Medium — `logs,cmdline` tag means this is primarily a log capture/verification TC; straightforward bring-up check</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Thermal Reporting] Verify DTS Temperature Reporting During Reset</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Thermal Reporting] Verify DTS Temperature Reporting During Reset</h1>
+      <p>Segment: FV | Source: HSD_22022421641_verify_dts_temperature_reporting_during_reset.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Thermal Reporting] Verify DTS Temperature Reporting During Reset</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421641</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Thermal Reporting] Verify DTS temperature reporting during reset</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; Thermal Reporting</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>DTS reporting during reset (cross-product: `pm.xproducts.reset`)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This is **new content** (`New_content` sub_feature tag) testing that DTS temperature reporting correctly handles the invalid-temperature period during reset. The test uses a bootscript to halt before/after Reset Stage 3 (after DTS have been enabled but before PM flows come online). During this window, temperature should be marked as **invalid** (`valid = 0`) until PCode initializes. While invalid, the value `0x8000` (or equivalent sentinel) should be reported rather than a real temperature.</p>
+<p>The exact NWP registers are already given in the test steps:</p>
+<ul>
+<li>`sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.bios_reset_cpl_cfg.rst_cpl3`</li>
+<li>`sv.socket0.cbb0.compute0.cpu.module0.core0.pcu_cr_therm_status.valid`</li>
+<li>`sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature`</li>
+<li>`sv.socket0.cbb0.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature`</li>
+</ul>
+<p>These are already NWP-specific paths (use `imh0`, `cbb0`). Command is TBD — new script needed.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>Test steps already use NWP-compatible register paths (`sv.socket0.imh0.*`, `sv.socket0.cbb0.*`)</li>
+<li>`pm.xproducts.reset` cross-domain scope</li>
+<li>`New_content` tag: first implementation on NWP</li>
+<li>`PMSS_NWP_READINESS_CHECK` tag: explicitly for NWP</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon with bootscript capability</li>
+<li>Bootscript can halt at `rst_cpl3` (Reset Stage 3 completion)</li>
+<li>PythonSv access before PM flows initialize (may require special debug mode)</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Use bootscript to halt after DTS enabled but before PM flows online</td>
+<td>Halt condition: `sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.bios_reset_cpl_cfg.rst_cpl3 == 1` (detect completion)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read core temperature validity flag</td>
+<td>`sv.socket0.cbb0.compute0.cpu.module0.core0.pcu_cr_therm_status.valid`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify temperature marked as **invalid** before PCode initialization</td>
+<td>`valid == 0` expected at this boot stage</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify temperature value = `0x8000` (sentinel for invalid)</td>
+<td>`pcu_cr_therm_status.digital_readout` should show invalid value</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Read package temperature registers</td>
+<td>`sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature` → should show invalid</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Also read CBB-side: `sv.socket0.cbb0.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature`</td>
+<td>Same check; both should show invalid</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Resume boot past PCode init; verify `valid == 1` and real temperature reported</td>
+<td>After PM flows start, DTS valid should assert</td>
+</tr>
+</tbody></table>
+<h3>DTS Validity Window</h3>
+<table class="md-table"><thead><tr>
+<th>Boot Phase</th>
+<th>DTS State</th>
+<th>Expected Behavior</th>
+</tr></thead><tbody>
+<tr>
+<td>Before RST_CPL3</td>
+<td>Not yet enabled</td>
+<td>Registers may be inaccessible</td>
+</tr>
+<tr>
+<td>After RST_CPL3, before PCode init</td>
+<td>DTS enabled, `valid == 0`</td>
+<td>Temperature = 0x8000 sentinel</td>
+</tr>
+<tr>
+<td>After PCode Phase 4 (slow loop start)</td>
+<td>DTS valid, `valid == 1`</td>
+<td>Real temperature reported</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>**Before PCode init**: `pcu_cr_therm_status.valid == 0`; `digital_readout == 0x8000` or equivalent sentinel</li>
+<li>**After PCode init**: `valid == 1`; real temperature value reported</li>
+<li>Package temperature registers (`package_temperature`) reflect invalid state before and valid state after</li>
+<li>No spurious thermal events triggered during invalid temperature window</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>Register paths</td>
+<td>DMR-specific paths</td>
+<td>Test steps already use `sv.socket0.imh0.*` and `sv.socket0.cbb0.*` — NWP-compatible</td>
+<td>**Already NWP-adapted**</td>
+</tr>
+<tr>
+<td>Core path</td>
+<td>DMR core path</td>
+<td>`sv.socket0.cbb0.compute0.cpu.module0.core0.*` — verify NWP hierarchy</td>
+<td>Confirm NWP core namednodes path</td>
+</tr>
+<tr>
+<td>Bootscript halt</td>
+<td>DMR bootscript</td>
+<td>NWP bootscript (same mechanism)</td>
+<td>Verify NWP bootscript halt capability</td>
+</tr>
+<tr>
+<td>DTS invalid sentinel</td>
+<td>`0x8000` (DMR)</td>
+<td>Same sentinel expected on NWP</td>
+<td>Same x86 DTS convention</td>
+</tr>
+<tr>
+<td>Command</td>
+<td>TBD (New script)</td>
+<td>New script to be written</td>
+<td>NWP team must create script</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<pre><code>
+# NWP DTS Temperature Reporting During Reset Validation
+
+# Step 1: Check RST_CPL3 status (bootscript halt point)
+try:
+    rst_cpl3 = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.bios_reset_cpl_cfg.rst_cpl3.read()
+    print(f&quot;RST_CPL3: {rst_cpl3} (1=Stage3 complete)&quot;)
+except Exception as e:
+    print(f&quot;RST_CPL3: {e}&quot;)
+
+# Step 2-4: Core DTS validity (halt before PCode init)
+try:
+    core_therm = sv.socket0.cbb0.compute0.cpu.module0.core0.pcu_cr_therm_status.read()
+    valid = sv.socket0.cbb0.compute0.cpu.module0.core0.pcu_cr_therm_status.valid.read()
+    readout = sv.socket0.cbb0.compute0.cpu.module0.core0.pcu_cr_therm_status.digital_readout.read()
+    print(f&quot;Core DTS valid: {valid} (expected 0 before PCode init)&quot;)
+    print(f&quot;Core DTS readout: 0x{readout:04X} (expected 0x8000 if invalid)&quot;)
+except Exception as e:
+    print(f&quot;Core DTS: {e}&quot;)
+
+# Step 5-6: Package temperature
+try:
+    imh_pkg_temp = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature.read()
+    cbb_pkg_temp = sv.socket0.cbb0.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature.read()
+    print(f&quot;iMH package_temperature: 0x{imh_pkg_temp:08X}&quot;)
+    print(f&quot;CBB0 package_temperature: 0x{cbb_pkg_temp:08X}&quot;)
+except Exception as e:
+    print(f&quot;Package temp: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**New script needed** — command is TBD; NWP team must write a bootscript-based reset halt test</td>
+<td>High</td>
+<td>Primary blocker; coordinate with NWP bring-up team</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**NWP core namednodes path** — `sv.socket0.cbb0.compute0.cpu.module0.core0` needs verification for NWP hierarchy</td>
+<td>Medium</td>
+<td>Verify during bring-up; use `sv.socket0.cbb0.search(&#x27;pcu_cr_therm_status&#x27;, &#x27;r&#x27;)`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>**Bootscript halt timing** — halting after RST_CPL3 but before PCode init requires precise halt point</td>
+<td>Medium</td>
+<td>Work with NWP bring-up team on exact bootscript halt sequence</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — test steps already NWP-compatible; needs new script**</p>
+<p>Register paths in the test steps are already using NWP namednodes (`imh0`, `cbb0`). The primary work is writing the new bootscript-based test script.</p>
+<p>Required adaptations:</p>
+<p>1. Write new test script (TBD command) for NWP bootscript halt + DTS validity check</p>
+<p>2. Verify NWP core namednodes path: `sv.socket0.cbb0.compute0.cpu.module0.core0.*`</p>
+<p>3. Coordinate with NWP bring-up team for bootscript halt methodology</p>
+<p>**Priority**: Medium — `New_content` and `pm.xproducts.reset`; important for DTS bring-up validation; needs script development</p>
+    </div>
+  </div>
+</body>
+</html>

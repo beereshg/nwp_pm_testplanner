@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Prochot Flow] Verify Prochot CBB Entry and Exit Flow</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Prochot Flow] Verify Prochot CBB Entry and Exit Flow</h1>
+      <p>Segment: FV | Source: HSD_22022421548_verify_prochot_cbb_entry_and_exit.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Prochot Flow] Verify Prochot CBB Entry and Exit Flow</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421548</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Prochot Flow] Verify Prochot CBB Entry and Exit Flow</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PROCHOT entry/exit for CBB — frequency drops to Pm, restores on removal</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **PROCHOT flow through CBB**:</p>
+<p>1. Confirm core frequency NOT at Pm before injection (MSR 0x198 bits [15:8])</p>
+<p>2. Inject PROCHOT</p>
+<p>3. Verify frequency drops to Pm (800–500 MHz range)</p>
+<p>4. Remove PROCHOT</p>
+<p>5. Verify frequency recovers</p>
+<p>DMR steps reference OakStream Simics path for PROCHOT injection. On NWP silicon, use PythonSV PROCHOT trigger register.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>`Ready_for_testing` + `plc.feature.p1` + `PMSS_NWP_READINESS_CHECK` tags</li>
+<li>PROCHOT CBB entry/exit directly applicable on NWP</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP PROCHOT Injection (Adapted from OakStream Simics)</h3>
+<p>DMR Simics path: `oakstream.mb.mcp0.imh_die0.punit.punit[0]-&gt;prochot_trigger`</p>
+<p>NWP silicon path: `sv.socket0.imh0.punit.&lt;prochot_trigger register&gt;`</p>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run prochot_thermal PMx</td>
+<td>`python runPmx.py -x nwp.xml -p prochot_thermal -tM 20 -M 5`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Confirm core not at Pm: read MSR 0x198 [15:8]</td>
+<td>Expected: ratio &gt; Pm</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Inject PROCHOT via NWP PythonSV</td>
+<td>`sv.socket0.imh0.punit.prochot_trigger.write(1)`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read MSR 0x198 [15:8]; verify at Pm (800–500 MHz)</td>
+<td>PROCHOT throttle active</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Remove PROCHOT: `sv.socket0.imh0.punit.prochot_trigger.write(0)`</td>
+<td>Release</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify frequency recovers above Pm</td>
+<td>MSR 0x198 shows normal ratio</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>Pre-PROCHOT: core ratio above Pm</li>
+<li>Post-PROCHOT-inject: core ratio = Pm (Pn/minimum)</li>
+<li>Post-PROCHOT-release: core ratio recovers to pre-PROCHOT level</li>
+<li>Both CBBs respond to PROCHOT (CBB0 and CBB1)</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; PROCHOT CBB flow same; NWP PythonSV inject path**</p>
+<p>1. `python runPmx.py -x nwp.xml -p prochot_thermal -tM 20 -M 5`</p>
+<p>2. Adapt PROCHOT injection from OakStream Simics to NWP silicon PythonSV register write</p>
+<p>3. Verify `sv.socket0.imh0.punit.prochot_trigger` register name on NWP</p>
+<p>**Priority**: Medium — `plc.feature.p1`; PROCHOT CBB throttle entry/exit verification</p>
+    </div>
+  </div>
+</body>
+</html>

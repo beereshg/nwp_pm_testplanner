@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [PV] PMSS - SST PCT Partition Custom Config</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [PV] PMSS - SST PCT Partition Custom Config</h1>
+      <p>Segment: FV | Source: HSD_16030717717_pv_pmss_sst_pct_partition_custom_config.inference.md | Generated: 2026-06-17 21:14:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [PV] PMSS - SST PCT Partition Custom Config</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>16030717717</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[PV] PMSS - SST PCT Partition Custom Config</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-06-09</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SST</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PCT (Priority Core Turbo)</td>
+</tr>
+<tr>
+<td>**Validation Layer**</td>
+<td>**OS Software Stack** — distinct from FV hardware register layer</td>
+</tr>
+<tr>
+<td>**Feature Classification**</td>
+<td>**Silicon-heavy** (CAPID4.bit29 fuse-gated; HW enforces HP/LP TRL) with firmware orchestration (PCode/BIOS program CLOS config)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_As-Is**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Duplication Analysis vs FV</h2>
+<h3>FV Counterpart</h3>
+<ul>
+<li>[22022422105](https://hsdes.intel.com/appstore/article-one/#/22022422105) PCT - Default HP core selection (FV TCD 22022420858)</li>
+<li>[16030715686](https://hsdes.intel.com/appstore/article-one/#/16030715686) [PSS] PCT - Default HP core selection</li>
+</ul>
+<h3>Assessment: **Complementary — NOT a duplicate**</h3>
+<p>**Validation layers differ fundamentally:**</p>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>FV TC 22022422105</th>
+<th>PV TC 16030717717 (this TC)</th>
+</tr></thead><tbody>
+<tr>
+<td>Interface</td>
+<td>PythonSV → namednodes → TPMI MMIO direct</td>
+<td>SST tool → `intel-speed-select` kernel driver → sysfs → TPMI</td>
+</tr>
+<tr>
+<td>Bug class caught</td>
+<td>Silicon/TPMI encoding, PCode handler errors</td>
+<td>Kernel driver, SST tool, BIOS ACPI _DSM interface</td>
+</tr>
+<tr>
+<td>OS required</td>
+<td>No (bare metal PythonSV)</td>
+<td>Yes (Linux with intel-speed-select driver loaded)</td>
+</tr>
+<tr>
+<td>Validates</td>
+<td>Hardware implements PCT correctly</td>
+<td>Software stack correctly exposes PCT to OS</td>
+</tr>
+</tbody></table>
+<p>**Unique coverage of this PV TC:**</p>
+<ul>
+<li>Validates `intel-speed-select` driver correctly programs `SST_CLOS_CONFIG` when BIOS selects a custom partition count</li>
+<li>Validates `sst perf-profile config` CLI correctly translates user partition count to TPMI writes</li>
+<li>Validates sysfs ABI exposes correct HP/LP core sets after custom partition configuration</li>
+<li>Catches driver bugs (e.g., off-by-one in partition→CLOS mapping)</li>
+</ul>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_As-Is**</p>
+<p>PCT with custom partition configuration is supported on NWP:</p>
+<ul>
+<li>SST-TF active on NWP (not ZBB)</li>
+<li>2 CBBs × 48 cores = 96 total cores; partition config applies per CBB</li>
+<li>`intel-speed-select` driver must correctly handle NWP&#x27;s 2-CBB topology</li>
+</ul>
+<p>NWP-specific consideration: verify `sst` tool enumerates both CBBs when setting custom partition count; driver must not assume 4 CBBs (DMR topology).</p>
+<p>---</p>
+<h2>Section B: Test Procedure</h2>
+<h3>Preconditions</h3>
+<ul>
+<li>NWP-IMH system booted to Linux with `intel-speed-select` driver loaded</li>
+<li>Verify: `lsmod | grep intel_speed_select`</li>
+<li>SST-TF not ZBB: `sst turbofreq info` should show enabled</li>
+</ul>
+<h3>Test Steps</h3>
+<p>1. Read current PCT config: `sst perf-profile info`</p>
+<p>2. Set custom partition count (e.g., 4 HP cores/CBB): `sst perf-profile config --clos 0 --core-count 4`</p>
+<p>3. Verify via sysfs: `cat /sys/bus/pci/.../intel_speed_select/clos_config`</p>
+<p>4. Verify via PythonSV cross-check (optional): read `SST_CLOS_CONFIG[0]` via namednodes</p>
+<p>5. Run workload and verify HP cores receive higher turbo frequency</p>
+<h3>Pass Criteria</h3>
+<ul>
+<li>`sst perf-profile config` exits 0; no driver errors in dmesg</li>
+<li>sysfs reports correct partition count matching configuration</li>
+<li>HP cores get higher TRL than LP cores under load</li>
+<li>No regression in non-PCT operation after reconfiguration</li>
+</ul>
+<p>---</p>
+<h2>Section C: Coverage Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>Category</th>
+<th>Status</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>Architecture / Functionality</td>
+<td>✅ Covered</td>
+<td>PCT partition via BIOS and SST tool path</td>
+</tr>
+<tr>
+<td>Interface and Protocols</td>
+<td>✅ Covered</td>
+<td>`intel-speed-select` driver, sysfs, TPMI CLOS config</td>
+</tr>
+<tr>
+<td>Reset, Power, and Clocking</td>
+<td>⚠️ Partial</td>
+<td>Post-reset partition config persistence not tested here</td>
+</tr>
+<tr>
+<td>Programming Model</td>
+<td>✅ Covered</td>
+<td>BIOS knob + SST tool custom config path</td>
+</tr>
+<tr>
+<td>Operational Behavior</td>
+<td>✅ Covered</td>
+<td>Custom partition active under workload</td>
+</tr>
+<tr>
+<td>Corner Cases &amp; Error Handling</td>
+<td>⚠️ Partial</td>
+<td>Invalid partition counts not tested (see FV TC 16030768621)</td>
+</tr>
+<tr>
+<td>Security / Safety / Policy</td>
+<td>❌ Not Covered</td>
+<td>Privilege check for sst tool not tested</td>
+</tr>
+<tr>
+<td>References</td>
+<td>✅ Covered</td>
+<td>NWP HAS SST-TF, intel-speed-select driver docs</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Spec References</h2>
+<ul>
+<li>NWP HAS PM Features: https://docs.intel.com/documents/custom-xeon/newport-docs/has/Overview/NWP_HAS.html#pm-features</li>
+<li>KB Article: KB/pm_features/sst/sst_main.md</li>
+<li>FV TC (hardware layer): [22022422105](https://hsdes.intel.com/appstore/article-one/#/22022422105)</li>
+</ul>
+<p>---</p>
+<h2>Section E: Risk Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr></thead><tbody>
+<tr>
+<td>`intel-speed-select` driver assumes 4 CBBs (DMR) instead of 2 (NWP)</td>
+<td>Medium</td>
+<td>High — wrong HP core set assigned</td>
+<td>Verify driver enumerates CBBs dynamically; check sysfs per-CBB entries</td>
+</tr>
+<tr>
+<td>SST tool misreads NWP TPMI capability register</td>
+<td>Medium</td>
+<td>Medium — wrong max partition count reported</td>
+<td>Cross-check with PythonSV direct TPMI read</td>
+</tr>
+<tr>
+<td>Partition count config not persisted across S3</td>
+<td>Low</td>
+<td>Low</td>
+<td>Out of scope for this TC</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendations</h2>
+<p>1. **[NWP topology]** Add explicit check that `sst perf-profile info` shows 2 CBB instances (not 4) and correct per-CBB core count (48).</p>
+<p>2. **[Cross-validation]** After setting custom partition via SST tool, add PythonSV readback of `SST_CLOS_CONFIG` to confirm HW matches SW view.</p>
+<p>3. **[HAS Reference]** Link NWP SST-TF HAS section in TC description.</p>
+    </div>
+  </div>
+</body>
+</html>

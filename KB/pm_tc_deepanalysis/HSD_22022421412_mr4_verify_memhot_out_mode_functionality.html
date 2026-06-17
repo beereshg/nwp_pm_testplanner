@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Memhot] MR4 Verify Memhot_Out Mode Functionality</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Memhot] MR4 Verify Memhot_Out Mode Functionality</h1>
+      <p>Segment: FV | Source: HSD_22022421412_mr4_verify_memhot_out_mode_functionality.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Memhot] MR4 Verify Memhot_Out Mode Functionality</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421412</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Memhot] MR4 Verify Memhot_Out mode functionality (copy)</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Memory Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Memhot_Out (MEMHOT_OUT GPIO) — MC asserts MEMHOT output when DIMM temp crosses threshold</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>The **MEMHOT_OUT** pin is driven by the MC when DIMM temperature crosses the threshold configured by `temp_memhotout_sel`. This propagates a thermal event to the platform BMC. Test uses MR4-based CLTT.</p>
+<p>Tags: `DMR_PO`, `plc.ti_gate.b0`, `plc.feature.p1`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Memhot_Out Configuration</h3>
+<table class="md-table"><thead><tr>
+<th>Register</th>
+<th>Fields</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td>`dimm_temp_ev_ctrl[1:0]`</td>
+<td>`temp_memhotout_sel`</td>
+<td>Selects threshold level that drives MEMHOT output</td>
+</tr>
+<tr>
+<td>`dimm_temp_thresh[1:0]`</td>
+<td>Low/mid/high</td>
+<td>Threshold the MC compares to TSOD/MR4 temp</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run `runPmx.py` memhot_mr4 plugin</td>
+<td>`python runPmx.py -x nwp.xml -p memhot_mr4 -tM 60 -M 5 --retry_count 2`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Configure MEMHOT output threshold</td>
+<td>`dimm_temp_ev_ctrl.temp_memhotout_sel = low`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Warm DIMM above configured threshold (MR4 reading)</td>
+<td>Physical thermal head</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify MC asserts MEMHOT output pin</td>
+<td>`ip_temp_memhotout` = 1</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify MEMHOT_OUT drives platform GPIO</td>
+<td>Platform BMC sees MEMHOT assertion</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Cool DIMM below threshold</td>
+<td>MEMHOT_OUT de-asserts</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify MEMTRIP output when temp crosses memtrip threshold</td>
+<td>Additional verification</td>
+</tr>
+</tbody></table>
+<h3>Pass Criteria</h3>
+<ul>
+<li>MC asserts MEMHOT_OUT when MR4 temp crosses programmed threshold</li>
+<li>Platform GPIO reflects assertion</li>
+<li>MEMHOT de-asserts when temperature drops below threshold</li>
+<li>MEMTRIP asserts at memtrip threshold</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; `dimm_temp_ev_ctrl` and `dimm_temp_thresh` same architecture on NWP**</p>
+<p>**Priority**: Medium — `plc.feature.p1`; MEMHOT_OUT drives BMC thermal response — must work correctly for platform thermal management</p>
+    </div>
+  </div>
+</body>
+</html>

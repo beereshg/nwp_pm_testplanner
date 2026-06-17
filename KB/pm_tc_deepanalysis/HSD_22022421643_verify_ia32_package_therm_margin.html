@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Thermal Reporting] Verify IA32_PACKAGE_THERM_MARGIN</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Thermal Reporting] Verify IA32_PACKAGE_THERM_MARGIN</h1>
+      <p>Segment: FV | Source: HSD_22022421643_verify_ia32_package_therm_margin.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Thermal Reporting] Verify IA32_PACKAGE_THERM_MARGIN</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421643</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Thermal Reporting] Verify IA32_PACKAGE_THERM_MARGIN</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>MSR 0x1A1 PACKAGE_THERM_MARGIN — fan speed margin in 8.8 format</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **MSR 0x1A1 PACKAGE_THERM_MARGIN**:</p>
+<ul>
+<li>Thermal margin in 8.8 fixed-point format (bits [15:0])</li>
+<li>Used for fan speed control by platform</li>
+<li>Pass/Fail: margin value congruent with formula:</li>
+</ul>
+<p>`ref_temp + dts_cal_guardband + fan_speed_offset`</p>
+<p>On NWP, the same `pcode_dts_cal_guardband` fuse exists at `sv.socket0.imh0.fuses.punit.pcode_dts_cal_guardband` and the thermal margin formula applies.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>`Ready_for_testing` + `plc.feature.p1` + `NGA_MAIN` + `PMSS_NWP_READINESS_CHECK` tags</li>
+<li>Standard thermal margin MSR; fuse path same on NWP</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Thermal Margin Formula</h3>
+<pre><code>
+THERM_MARGIN = ref_temp + dts_cal_guardband + fan_speed_offset
+</code></pre>
+<p>Where:</p>
+<ul>
+<li>`ref_temp`: from `IA32_TEMPERATURE_TARGET.REF_TEMP` bits [23:16]</li>
+<li>`dts_cal_guardband`: fuse `sv.socket0.imh0.fuses.punit.pcode_dts_cal_guardband`</li>
+<li>`fan_speed_offset`: from `IA32_TEMPERATURE_TARGET.FAN_TEMP_TARGET_OFFSET` bits [15:8]</li>
+</ul>
+<h3>NWP Verification</h3>
+<pre><code>
+import svtools.common.baseaccess as baseaccess
+base = baseaccess.getglobalbase()
+
+# Read PACKAGE_THERM_MARGIN
+pkg_therm_margin = base.rdmsr(0x1A1)
+therm_margin_raw = pkg_therm_margin &amp; 0xFFFF
+therm_margin = therm_margin_raw / 256.0  # 8.8 format
+print(f&quot;PACKAGE_THERM_MARGIN: {therm_margin:.3f} degrees C (raw: 0x{therm_margin_raw:04X})&quot;)
+
+# Read TEMPERATURE_TARGET for calculation
+temp_target = base.rdmsr(0x1A2)
+ref_temp = (temp_target &gt;&gt; 16) &amp; 0xFF
+fan_speed_offset = (temp_target &gt;&gt; 8) &amp; 0xFF
+
+# Read DTS cal guardband fuse
+dts_guardband = sv.socket0.imh0.fuses.punit.pcode_dts_cal_guardband.read()
+
+expected_margin = ref_temp + dts_guardband + fan_speed_offset
+print(f&quot;ref_temp={ref_temp}, dts_guardband={dts_guardband}, fan_speed_offset={fan_speed_offset}&quot;)
+print(f&quot;Expected margin: {expected_margin}&quot;)
+print(f&quot;PASS&quot; if abs(therm_margin - expected_margin) &lt; 1.0 else &quot;FAIL&quot;)
+</code></pre>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>`THERM_MARGIN` value matches formula: `ref_temp + dts_cal_guardband + fan_speed_offset`</li>
+<li>Margin updates dynamically as die temperature changes</li>
+<li>Register accessible from package scope</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — thermalManagement.py script + same fuse path on NWP**</p>
+<p>Required adaptations:</p>
+<p>1. Use `thermalManagement.py` from NWP PythonSV repo (same script, `sv.socket0.imh0` path)</p>
+<p>2. Verify `pcode_dts_cal_guardband` fuse name on NWP (same as DMR)</p>
+<p>**Priority**: Medium — `plc.feature.p1` + `NGA_MAIN`; thermal margin fan control verification</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Solar] CStates - CStates_AnyCore -- Exercise</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Solar] CStates - CStates_AnyCore -- Exercise</h1>
+      <p>Segment: FV | Source: HSD_14020458273_cstates_cstates_anycore_exercise.inference.md | Generated: 2026-06-17 21:14:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Solar] CStates - CStates_AnyCore -- Exercise</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>14020458273</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Solar] CStates - CStates_AnyCore -- Exercise</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Core C-States</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Solar AnyCore Exercise — stress testing all C-states on any core (no residency verification)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test uses the **Solar** tool in **Exercise mode** to stress-test core C-states (C1 and C6) across all cores. Exercise mode = no residency verification; just stress for stability. Functional on NWP (C1, C6A/C6S/C6S-P all available).</p>
+<p>Command variants:</p>
+<p>1. Simplified: `/usr/bin/solar/solar.sh /cstate -scope 0:0:100 -states C1,C6 -mode e /logpath . /log_ip_disables`</p>
+<p>2. Full NGA: `/usr/bin/solar/solar.sh /cfg &lt;NWP Solar XML&gt; /cstate -d hour:@{TestLine.TestStageEstimatedTime} /logpath`</p>
+<p>Tags: `DMR_PO`, `NGA_MAIN`, `plc.feature.p1`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP Solar AnyCore Exercise Command</h3>
+<pre><code>
+# NWP: cstate exercise on all 96 cores
+/usr/bin/solar/solar.sh \
+  /cstate -scope 0:0:100 -states C1,C6 -mode e \
+  /logpath . \
+  /log_ip_disables
+</code></pre>
+<p>Or via NGA XML:</p>
+<pre><code>
+/usr/bin/solar/solar.sh \
+  /cfg /usr/local/python/newport/pm/Solar/Solar_orderedleave_crossproduct.xml \
+  /cfg /usr/lib/python3/dist-packages/newport/pm/Solar/SOLAR_NWP_XMLS/Exercise/CSTATES/Cstates_anycore_exercise.xml \
+  /cstate -d hour:@{TestLine.TestStageEstimatedTime} \
+  /logpath
+</code></pre>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Verify NWP Solar XML paths exist</td>
+<td>`Cstates_anycore_exercise.xml` for NWP</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run Solar AnyCore Exercise</td>
+<td>Command above; `-scope 0:0:100` = all 100% of cores</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Run for required duration</td>
+<td>Per NGA `TestStageEstimatedTime`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Monitor for hangs, MCAs</td>
+<td>Any failure = test failure</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Check Solar log</td>
+<td>`solar.log` in /logpath; look for errors</td>
+</tr>
+</tbody></table>
+<h3>NWP Notes</h3>
+<ul>
+<li>`-scope 0:0:100` = socket 0, tile 0, 100% of cores = all 96 NWP cores</li>
+<li>`-states C1,C6` covers all functional core C-states on NWP</li>
+<li>C6 on NWP includes C6A, C6S, C6S-P depending on hint</li>
+<li>No SMT on NWP — solar exercises per physical core</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>No hang during Solar exercise</li>
+<li>No MCA during exercise</li>
+<li>Solar job completes without fatal errors</li>
+<li>System stable after run</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — Adapt Solar XML path `diamondrapids` → `newport`; `-scope 0:0:100` covers all 96 NWP cores; `-states C1,C6` functional**</p>
+<p>**Priority**: High — `NGA_MAIN`, `plc.feature.p1`; AnyCore exercise is the primary stress test for C-state infrastructure correctness</p>
+    </div>
+  </div>
+</body>
+</html>

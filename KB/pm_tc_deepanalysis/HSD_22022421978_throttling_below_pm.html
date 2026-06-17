@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: Throttling Below Pm</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: Throttling Below Pm</h1>
+      <p>Segment: FV | Source: HSD_22022421978_throttling_below_pm.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: Throttling Below Pm</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421978</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>Throttling below Pm</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>RAPL throttling below Pm (minimum operating frequency)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **RAPL throttling below Pm** (the minimum supported operating frequency). From Wave 3 Common HAS: when RAPL power limit forces the operating point below Pm, the hardware behavior (clock gating, voltage reduction, or halt) must match the specification.</p>
+<p>Test steps reference GNR TC (16014287020) using `pm.pmutils.cpu_rapl` functions:</p>
+<p>1. Import `cpu_rapl` from pmutils</p>
+<p>2. Set RAPL limit below minimum (low enough to force below-Pm operation)</p>
+<p>3. Verify behavior matches spec (throttle action below Pm)</p>
+<p>Tags: `DMR_PO`, `plc.feature.p2`, `PMSS_NWP_READINESS_CHECK`</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP Pm (Minimum Ratio)</h3>
+<table class="md-table"><thead><tr>
+<th>Parameter</th>
+<th>NWP Path</th>
+</tr></thead><tbody>
+<tr>
+<td>Pm ratio</td>
+<td>`sv.socket0.imh0.fuses.punit.&lt;pm_ratio_fuse&gt;` or MSR `IA32_PLATFORM_INFO` [55:48]</td>
+</tr>
+<tr>
+<td>Pm frequency</td>
+<td>Pm ratio × 100 MHz</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Import cpu_rapl and read Pm</td>
+<td>`import pm.pmutils.cpu_rapl as rapl; pm = rapl.get_pm_ratio()`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Start workload</td>
+<td>Ensure system is active (RAPL active)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Set PL1 limit low enough to force below Pm</td>
+<td>Very low power budget (below idle×2)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify throttle behavior at or below Pm</td>
+<td>Core clock gating or halt; check `perf_limit_reasons.power`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify system stability during below-Pm throttle</td>
+<td>No hang, no MCA</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Restore PL1 to TDP; verify recovery</td>
+<td>System returns to normal operation</td>
+</tr>
+</tbody></table>
+<h3>PMx Command</h3>
+<pre><code>
+python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3
+</code></pre>
+<h3>NWP Notes</h3>
+<ul>
+<li>NWP Pm is the minimum guaranteed frequency; below-Pm behavior defined in HAS Wave 3 Common</li>
+<li>2 CBBs × 48 cores; below-Pm throttle applies to all cores globally</li>
+<li>`runPmx.py -x nwp.xml` (not `dmr.xml`)</li>
+<li>Wave 3 Common HAS: https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Socket_RAPL/Socket_RAPL.html#throttling-below-pm-spr-onwards</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>When RAPL forces operation below Pm: defined throttle behavior (per HAS spec)</li>
+<li>`perf_limit_reasons.power` bit set during RAPL throttle</li>
+<li>System stable (no hang or MCA) during below-Pm RAPL throttle</li>
+<li>Recovery to normal frequency when PL1 restored</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; read NWP Pm from fuse/MSR; below-Pm behavior per Wave 3 HAS**</p>
+<p>1. `python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</p>
+<p>2. Read NWP Pm from `IA32_PLATFORM_INFO` [55:48] or fuse</p>
+<p>3. Set PL1 to force below-Pm; verify throttle behavior and system stability</p>
+<p>4. Reference: Wave 3 Common HAS §throttling-below-pm-spr-onwards</p>
+<p>**Priority**: Medium — `plc.feature.p2`; below-Pm RAPL throttle validates an extreme boundary condition of the power management control loop</p>
+    </div>
+  </div>
+</body>
+</html>

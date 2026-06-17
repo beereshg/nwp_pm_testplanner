@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: SIMPL Cross Cold Reset</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: SIMPL Cross Cold Reset</h1>
+      <p>Segment: FV | Source: HSD_22022421891_simpl_cross_cold_reset.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: SIMPL Cross Cold Reset</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421891</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>SIMPL Cross Cold Reset</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SIMPL - IccMax</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>SIMPL reset cross-product — policy 0 restored on cold reset</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>Verifies that after a cold reset, SIMPL reverts to policy 0 (default safe policy). The SIMPL Cold Reset Handshake terminates and `current_policy` and `target_policy` return to 0.</p>
+<p>NWP has single IMH (imh0) — registers use `sv.socket0.imh0` only (no `imh1`).</p>
+<p>Tags: `DMR_PO`, `plc.ti_gate.b0`, `plc.feature.p2`, `pm.xproducts.reset`, `NGA_MAIN`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP Command</h3>
+<pre><code>
+# Covered by Reset Team; PMx coverage:
+python runPmx.py -x nwp.xml -p simpl_reset -tM 60
+</code></pre>
+<h3>Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Set SIMPL to non-default policy (if possible)</td>
+<td>Fuse/override state</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Initiate a Cold Reset</td>
+<td>Platform cold reset</td>
+</tr>
+<tr>
+<td>3</td>
+<td>After boot, read `current_policy`</td>
+<td>`sv.socket0.imh0.pcudata.patch_persistent.current_policy`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read `target_policy`</td>
+<td>`sv.socket0.imh0.pcudata.patch_persistent.target_policy`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify both = 0 (default policy)</td>
+<td>Cold reset must restore Policy 0</td>
+</tr>
+</tbody></table>
+<h3>NWP Register Paths</h3>
+<pre><code>
+# DMR: sv.sockets.imhs → NWP: sv.socket0.imh0 (single IMH only)
+current = sv.socket0.imh0.pcudata.patch_persistent.current_policy
+target  = sv.socket0.imh0.pcudata.patch_persistent.target_policy
+assert current == 0, f&quot;SIMPL current_policy should be 0 after cold reset, got {current}&quot;
+assert target  == 0, f&quot;SIMPL target_policy should be 0 after cold reset, got {target}&quot;
+</code></pre>
+<h3>Pass Criteria</h3>
+<ul>
+<li>After cold reset: `current_policy` = 0 and `target_policy` = 0 on IMH0</li>
+<li>SIMPL Cold Reset Handshake terminates correctly</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `sv.sockets.imhs` → `sv.socket0.imh0` (NWP single IMH); `dmr.xml` → `nwp.xml`; `simpl_reset` PMx plugin; Policy 0 restore on cold reset is mandatory**</p>
+<p>**Priority**: High — `PMSS_NWP_READINESS_CHECK`; reset cross-product is a P2 validation gate</p>
+    </div>
+  </div>
+</body>
+</html>

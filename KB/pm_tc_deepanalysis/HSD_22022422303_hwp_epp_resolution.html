@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: HWP EPP Resolution</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: HWP EPP Resolution</h1>
+      <p>Segment: FV | Source: HSD_22022422303_hwp_epp_resolution.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: HWP EPP Resolution</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422303</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>HWP EPP resolution</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Pstate Stack</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>HWP — Energy Performance Preference (EPP) source resolution</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **HWP EPP resolution** — how APS uses the EPP value and from which source. Key algorithm properties:</p>
+<ul>
+<li>EPP range 0–255 divided into four buckets: [0–63], [64–127], [128–191], [192–255]</li>
+<li>Values in algorithm tables are same within each bucket</li>
+<li>**EPP shifting on multi-thread is disabled** (epp_shift_cutoff = 255) — irrelevant on NWP which is non-SMT</li>
+<li>EPP grouping should be disabled</li>
+</ul>
+<p>EPP sources: OS (per-core MSR), BIOS (global), PECI (OOB). The test verifies APS behaves correctly for each EPP bucket.</p>
+<p>On NWP (non-SMT), EPP shifting is not applicable (already disabled by epp_shift_cutoff=255). Primary adaptation: `dmr.xml` → `nwp.xml`.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>HWP EPP resolution applicable on NWP</li>
+<li>`NGA_MAIN` tag: primary CI coverage</li>
+<li>`Ready_for_testing` + `PMSS_NWP_READINESS_CHECK`: confirmed ready</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>EPP Bucket Behavior</h3>
+<table class="md-table"><thead><tr>
+<th>EPP Range</th>
+<th>Bucket</th>
+<th>APS Behavior</th>
+<th>NWP</th>
+</tr></thead><tbody>
+<tr>
+<td>0–63</td>
+<td>Performance</td>
+<td>Max turbo granted; frequency aggressive</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>64–127</td>
+<td>Balanced Performance</td>
+<td>High turbo; slight bias to performance</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>128–191</td>
+<td>Balanced Power</td>
+<td>Moderate; energy efficiency priority</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>192–255</td>
+<td>Power Saving</td>
+<td>Minimum needed frequency; conservative</td>
+<td>Same</td>
+</tr>
+</tbody></table>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run HWP check</td>
+<td>`python runPmx.py -x nwp.xml -p hwpm_check -tM 60`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Set EPP = 0 (bucket 0): verify aggressive turbo</td>
+<td>Per-core `IA32_HWP_REQUEST.EPP = 0`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Set EPP = 64 (bucket 1): verify balanced performance</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Set EPP = 128 (bucket 2): verify balanced power</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Set EPP = 192 (bucket 3): verify power saving</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify algorithm tables consistent within each bucket</td>
+<td>Check all EPP values 0–63 give same behavior</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify EPP grouping disabled on NWP</td>
+<td>Check CPUID.06.EAX[10]</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>APS frequency selection consistent within each EPP bucket</li>
+<li>No EPP shifting (non-SMT NWP; epp_shift_cutoff=255)</li>
+<li>EPP source priority: OS &gt; BIOS &gt; PECI (for non-OOB mode)</li>
+<li>CPUID.06.EAX[10] = 1 (HWP EPP supported on NWP)</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; EPP bucket behavior identical, NWP non-SMT simplifies EPP resolution**</p>
+<p>Required adaptations:</p>
+<p>1. `python runPmx.py -x nwp.xml -p hwpm_check -tM 60`</p>
+<p>2. NWP non-SMT: per-physical-core EPP (no thread aggregation or shifting)</p>
+<p>3. Verify CPUID.06.EAX[10] on NWP (HWP EPP support bit)</p>
+<p>**Priority**: High — `NGA_MAIN`; EPP resolution is foundational HWP algorithm input</p>
+    </div>
+  </div>
+</body>
+</html>

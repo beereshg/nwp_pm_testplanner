@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bug {{ sid }} — {{ title_short }}</title>
+<link rel="stylesheet" href="../templates/bug_analysis.css">
+</head>
+<body>
+
+<a href="dmr_pm_retrospective.html" class="back-link">← Dashboard</a>
+
+<h1>
+  <span class="badge {{ badge_class }}">{{ root_cause_type }}</span>
+  HSD {{ sid }}
+</h1>
+
+<div class="card">
+  <dl class="metadata-grid">
+    <dt>Title</dt>
+    <dd>{{ title }}</dd>
+
+    <dt>HSD Link</dt>
+    <dd><a href="https://hsdes.intel.com/appstore/article-one/#/{{ sid }}" target="_blank">{{ sid }}</a></dd>
+
+    <dt>Status</dt>
+    <dd>{{ status_reason }}</dd>
+
+    <dt>Priority</dt>
+    <dd><span class="badge {{ priority_class }}">{{ priority }}</span></dd>
+
+    <dt>Owner</dt>
+    <dd>{{ owner }}</dd>
+
+    <dt>Component</dt>
+    <dd>{{ component }}</dd>
+
+    <dt>Defect Die</dt>
+    <dd>{{ defect_die }}</dd>
+
+    <dt>Conclusion</dt>
+    <dd>{{ conclusion }}</dd>
+  </dl>
+</div>
+
+<h2>Classification</h2>
+<div class="card">
+  <table>
+    <tr>
+      <th>Dimension</th><th>Value</th><th>Confidence</th>
+    </tr>
+    <tr>
+      <td>Root Cause Type</td>
+      <td><span class="badge {{ badge_class }}">{{ root_cause_type }}</span></td>
+      <td>
+        <span class="confidence {{ conf_class }}">
+          <span class="confidence-bar"><span class="confidence-fill" style="width:{{ rc_confidence_pct }}%"></span></span>
+          {{ rc_confidence_pct }}%
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>Feature</td>
+      <td>{{ feature }}</td>
+      <td>
+        <span class="confidence {{ feat_conf_class }}">
+          <span class="confidence-bar"><span class="confidence-fill" style="width:{{ feat_confidence_pct }}%"></span></span>
+          {{ feat_confidence_pct }}%
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>Sub-Feature</td>
+      <td>{{ sub_feature }}</td>
+      <td>—</td>
+    </tr>
+  </table>
+  <p style="margin-top:0.5rem;font-size:0.85rem;color:var(--text-secondary);">
+    <strong>Reasoning:</strong> {{ rc_reasoning }}
+  </p>
+</div>
+
+{% if description_html %}
+<h2>Root Cause Summary</h2>
+<div class="card">
+  {{ description_html }}
+</div>
+{% endif %}
+
+{% if root_cause_description or llm_root_cause %}
+<h2>Root Cause Description</h2>
+<div class="card">
+  {% if root_cause_description %}
+  <div class="extracted-content">
+    <h4 style="margin:0 0 0.5rem;color:var(--text-secondary);font-size:0.8rem;">Extracted from HSD</h4>
+    {{ root_cause_description }}
+  </div>
+  {% endif %}
+  {% if llm_root_cause %}
+  <div class="llm-enriched" style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+    <h4 style="margin:0 0 0.5rem;color:var(--accent-purple);font-size:0.8rem;">🔍 LLM-Enriched Analysis</h4>
+    {{ llm_root_cause }}
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if fix_description or llm_fix %}
+<h2>Fix Description</h2>
+<div class="card">
+  {% if fix_description %}
+  <div class="extracted-content">
+    <h4 style="margin:0 0 0.5rem;color:var(--text-secondary);font-size:0.8rem;">Extracted from HSD</h4>
+    {{ fix_description }}
+  </div>
+  {% endif %}
+  {% if llm_fix %}
+  <div class="llm-enriched" style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+    <h4 style="margin:0 0 0.5rem;color:var(--accent-teal);font-size:0.8rem;">🔧 LLM-Enriched Fix Analysis</h4>
+    {{ llm_fix }}
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if rc_mermaid or fix_mermaid %}
+<h2>Component Interaction Diagrams</h2>
+<div class="card">
+  {% if rc_mermaid %}
+  <h3 style="color:var(--accent-red);">Root Cause Interaction</h3>
+  <div class="mermaid">
+{{ rc_mermaid }}
+  </div>
+  {% endif %}
+  {% if fix_mermaid %}
+  <h3 style="color:var(--accent-teal);margin-top:1.5rem;">Fix Interaction</h3>
+  <div class="mermaid">
+{{ fix_mermaid }}
+  </div>
+  {% endif %}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{primaryColor:'#313244',primaryTextColor:'#cdd6f4',primaryBorderColor:'#585b70',lineColor:'#a6adc8',secondaryColor:'#45475a',tertiaryColor:'#1e1e2e'}});</script>
+{% endif %}
+
+{% if code_refs %}
+<h2>Source Code References</h2>
+<div class="card">
+  <ul>
+    {% for ref in code_refs %}
+    <li><code>{{ ref }}</code></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<h2>Feature Mapping</h2>
+<div class="card">
+  <ul>
+    <li><strong>Primary Feature:</strong> {{ feature }}</li>
+    <li><strong>Sub-Feature:</strong> {{ sub_feature }}</li>
+    <li><strong>Component Path:</strong> {{ component }}</li>
+  </ul>
+</div>
+
+{% if has_touchpoints %}
+<h2>Firmware Touchpoints</h2>
+<div class="card">
+  {% for domain, refs in fw_touchpoints.items() %}
+  {% if refs %}
+  <h3>{{ domain | upper }}</h3>
+  <ul>
+    {% for ref in refs %}
+    <li><code>{{ ref }}</code></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if key_registers %}
+<h2>Key Registers</h2>
+<div class="card">
+  <ul>
+    {% for reg in key_registers %}
+    <li><code>{{ reg }}</code></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<h2>Timeline</h2>
+<div class="card">
+  <div class="timeline">
+    {% if submitted_date %}
+    <div class="timeline-item">
+      <span class="timeline-date">{{ submitted_date }}</span><br>Submitted
+    </div>
+    {% endif %}
+    {% if root_caused_date %}
+    <div class="timeline-item">
+      <span class="timeline-date">{{ root_caused_date }}</span><br>Root Caused
+    </div>
+    {% endif %}
+    {% if closed_date %}
+    <div class="timeline-item">
+      <span class="timeline-date">{{ closed_date }}</span><br>Closed
+    </div>
+    {% endif %}
+    {% if days_open %}
+    <div class="timeline-item">
+      <strong>{{ days_open }}</strong> days open
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if clone_chain %}
+<h2>Clone Chain</h2>
+<div class="card">
+  <table>
+    <tr><th>ID</th><th>Tenant</th><th>Status</th><th>Title</th></tr>
+    {% for c in clone_chain %}
+    <tr>
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/{{ c.id }}" target="_blank">{{ c.id }}</a></td>
+      <td>{{ c.tenant_label }}</td>
+      <td>{{ c.status_reason }}</td>
+      <td>{{ c.title_short }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+{% if linked_bugs %}
+<h2>Linked Bugs</h2>
+<div class="card">
+  <ul>
+    {% for b in linked_bugs %}
+    <li><a href="https://hsdes.intel.com/appstore/article-one/#/{{ b.id }}" target="_blank">{{ b.id }}</a>: {{ b.title_short }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{% if latest_comment %}
+<h2>Latest Forum Activity</h2>
+<div class="card">
+  <blockquote>{{ latest_comment }}</blockquote>
+</div>
+{% endif %}
+
+<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.75rem;color:var(--text-muted);">
+  Generated by DMR PM Bug Retrospective Pipeline at {{ generated_at }}
+</footer>
+
+</body>
+</html>

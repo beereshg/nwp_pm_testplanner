@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Memhot] Verify Memhot_Out Mode Functionality (TSOD)</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Memhot] Verify Memhot_Out Mode Functionality (TSOD)</h1>
+      <p>Segment: FV | Source: HSD_22022421423_verify_memhot_out_mode_functionality.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Memhot] Verify Memhot_Out Mode Functionality (TSOD)</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421423</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Memhot] Verify Memhot_Out mode functionality</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Memory Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Memhot_Out with TSOD-based CLTT — MC drives MEMHOT_OUT when TSOD/MR4 temp crosses threshold</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>Same MEMHOT_OUT mechanism as TC 22022421412 (MR4), but using **TSOD** as temperature source. MC compares TSOD temp code to threshold and drives MEMHOT_OUT pin.</p>
+<p>Tags: `DMR_PO`, `plc.ti_gate.b0`, `plc.feature.p1`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Adapted Command (NWP)</h3>
+<pre><code>
+python runPmx.py -x nwp.xml -p memhot_tsod -tM 60 -M 5 --retry_count 2
+</code></pre>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run `memhot_tsod` PMx plugin</td>
+<td>Command above</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Configure MEMHOT output threshold</td>
+<td>`dimm_temp_ev_ctrl.temp_memhotout_sel`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Configure `dimm_temp_thresh[1:0]`</td>
+<td>Low/mid/high for TSOD temp</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Warm DIMM above threshold</td>
+<td>TSOD reading crosses threshold</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify MC drives MEMHOT_OUT</td>
+<td>`ip_temp_memhotout` = 1</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Cool DIMM</td>
+<td>MEMHOT_OUT de-asserts</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify MEMTRIP at memtrip threshold</td>
+<td>`ip_temp_memtrip` = 1</td>
+</tr>
+</tbody></table>
+<h3>Pass Criteria</h3>
+<ul>
+<li>MC drives MEMHOT_OUT when TSOD temp ≥ programmed threshold</li>
+<li>MEMHOT_OUT de-asserts when TSOD temp drops below threshold</li>
+<li>MEMTRIP asserts at memtrip threshold</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; `memhot_tsod` PMx plugin; MEMHOT_OUT mechanism same as MR4 variant**</p>
+<p>**Priority**: Medium — `plc.feature.p1`; TSOD-based MEMHOT_OUT provides platform notification of memory thermal events</p>
+    </div>
+  </div>
+</body>
+</html>

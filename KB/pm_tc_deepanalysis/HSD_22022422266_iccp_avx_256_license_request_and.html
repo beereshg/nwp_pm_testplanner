@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: ICCP — AVX 256 License Request and Grant Flow</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: ICCP — AVX 256 License Request and Grant Flow</h1>
+      <p>Segment: FV | Source: HSD_22022422266_iccp_avx_256_license_request_and.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: ICCP — AVX 256 License Request and Grant Flow</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422266</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>ICCP: AVX 256 License request and grant flow</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Pstate Stack</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>ICCP — AVX-256 license grant and frequency limiting</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies the **AVX-256 ICCP license request and grant flow**: when a core executes AVX-256 (256-bit wide) instructions, frequency is limited to the AVX-256 turbo ratio limit table, and `IA_PERF_LIMIT_REASONS.AVX_STATUS` is set when clipped.</p>
+<p>On NWP, AVX-256 is supported and the ICCP license mechanism is the same as DMR. Primary adaptation: `dmr.xml` → `nwp.xml`.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>AVX-256 instructions supported on NWP</li>
+<li>ICCP AVX-256 license mechanism present on NWP</li>
+<li>`Ready_for_testing` + `PMSS_NWP_READINESS_CHECK` tags</li>
+<li>Same ICCP grant flow as AMX (TC 22022422262) but lower cdyn level</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>AVX License Hierarchy</h3>
+<table class="md-table"><thead><tr>
+<th>License Level</th>
+<th>Instructions</th>
+<th>cdyn</th>
+<th>Frequency Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>Base/Normal</td>
+<td>SSE/scalar</td>
+<td>Low</td>
+<td>No clipping</td>
+</tr>
+<tr>
+<td>AVX-128</td>
+<td>128-bit AVX</td>
+<td>Medium</td>
+<td>Minor clip or none</td>
+</tr>
+<tr>
+<td>AVX-256</td>
+<td>256-bit AVX (Heavy)</td>
+<td>High</td>
+<td>AVX-256 turbo ratio limit</td>
+</tr>
+<tr>
+<td>AMX</td>
+<td>AMX TMUL</td>
+<td>Highest</td>
+<td>AMX turbo ratio limit (lowest freq)</td>
+</tr>
+</tbody></table>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Configure BIOS: TurboMode = 1, EETurbo = 1</td>
+<td>Same knobs</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run AVX-256 turbo verification</td>
+<td>`python runPmx.py -x nwp.xml -p turbo -tM 60`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Execute AVX-256 workload on test core</td>
+<td>turbo plug-in drives AVX-256 execution</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify ICCP AVX-256 license granted</td>
+<td>Read ICCP license register</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify frequency clamped to AVX-256 ratio limit</td>
+<td>`IA32_PERF_STATUS` per core</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify PLR AVX_STATUS = 1 when frequency clipped</td>
+<td>Read per-core PLR</td>
+</tr>
+</tbody></table>
+<h3>NWP Validation</h3>
+<pre><code>
+# NWP AVX-256 ICCP License Verification
+
+# AVX-256 turbo ratio limit (from fuses or TPMI)
+try:
+    avx256_trl = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.avx256_turbo_ratio_limit.read()
+    print(f&quot;AVX-256 Turbo Ratio Limit: 0x{avx256_trl:08X}&quot;)
+except Exception as e:
+    print(f&quot;AVX256 TRL: {e}&quot;)
+
+# Per-core PLR check (NWP: 2 CBBs × 48 cores)
+for cbb_idx in range(2):
+    cbb = getattr(sv.socket0, f&#x27;cbb{cbb_idx}&#x27;)
+    for compute_idx in range(4):
+        try:
+            plr = cbb.getbypath(
+                f&quot;compute[{compute_idx}].cpu.module0.core0.ia_perf_limit_reasons&quot;
+            ).read()
+            avx_status = (plr &gt;&gt; 18) &amp; 1  # AVX status bit (verify bit position for NWP)
+            if avx_status:
+                print(f&quot;CBB{cbb_idx} C{compute_idx}: PLR AVX_STATUS=1 (frequency clipped by AVX-256 limit)&quot;)
+        except Exception:
+            pass
+</code></pre>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>ICCP AVX-256 license granted when AVX-256 code running</li>
+<li>Core frequency ≤ AVX-256 turbo ratio limit during AVX-256 execution</li>
+<li>`IA_PERF_LIMIT_REASONS.AVX_STATUS = 1` when clipped</li>
+<li>Frequency restores when AVX-256 code stops</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>AVX-256 support</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Direct reuse</td>
+</tr>
+<tr>
+<td>AVX-256 turbo ratio limit</td>
+<td>DMR fuse values</td>
+<td>NWP-specific values</td>
+<td>Verify NWP AVX-256 TRL fuses</td>
+</tr>
+<tr>
+<td>ICCP grant flow</td>
+<td>Same as AMX TC 262</td>
+<td>Same</td>
+<td>Consistent</td>
+</tr>
+<tr>
+<td>Script XML</td>
+<td>`dmr.xml`</td>
+<td>`nwp.xml`</td>
+<td>**Required change**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; get NWP AVX-256 turbo ratio limit values**</p>
+<p>AVX-256 ICCP license verification is directly applicable on NWP.</p>
+<p>Required adaptations:</p>
+<p>1. `python runPmx.py -x nwp.xml -p turbo -tM 60`</p>
+<p>2. Get NWP AVX-256 turbo ratio limit from NWP HAS/fuses</p>
+<p>3. Verify PLR AVX_STATUS bit position consistent with NWP</p>
+<p>**Priority**: Medium — `Ready_for_testing`; AVX-256 ICCP license validation</p>
+    </div>
+  </div>
+</body>
+</html>

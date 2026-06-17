@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [IMH DTS &amp; Telemetry] Verify Accelerator DTS Functionality</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [IMH DTS &amp; Telemetry] Verify Accelerator DTS Functionality</h1>
+      <p>Segment: FV | Source: HSD_22022421487_verify_accelerator_dts_functionality.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [IMH DTS &amp; Telemetry] Verify Accelerator DTS Functionality</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421487</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[IMH DTS &amp; Telemetry] Verify Accelerator DTS Functionality</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>DTS — Accelerator IP thermal sensor via CFCIO Resource Controller</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **Accelerator DTS** functionality. From test step IP table:</p>
+<table class="md-table"><thead><tr>
+<th>IP Stack</th>
+<th>No. of DTS</th>
+<th>IMH RS location</th>
+<th>DTS location</th>
+<th>Comment</th>
+</tr></thead><tbody>
+<tr>
+<td>Accelerator</td>
+<td>1</td>
+<td>inside accelerator</td>
+<td>inside accelerator misc block</td>
+<td>One DTS and one RS within accelerator stack</td>
+</tr>
+</tbody></table>
+<p>Flow:</p>
+<p>1. Read DTS temperature in Accelerator IP</p>
+<p>2. Read temperature in corresponding Resource Controller — **CFCIO**</p>
+<p>3. Read temperature in PUNIT telemetry</p>
+<p>4. Compare all — should match</p>
+<p>Tags: `DMR_PO`, `plc.feature.p1`, `PMSS_NWP_READINESS_CHECK`</p>
+<p>NWP has Accelerator IP (DSA/IAA/QAT type accelerators in iMH die). Adapt CFCIO RC path.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Accelerator DTS Chain (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Measurement</th>
+<th>NWP Path</th>
+</tr></thead><tbody>
+<tr>
+<td>Accelerator DTS direct</td>
+<td>`sv.socket0.imh0.&lt;accel_dts_path&gt;.temperature`</td>
+</tr>
+<tr>
+<td>CFCIO Resource Controller</td>
+<td>`sv.socket0.imh0.cfcio.&lt;rc_telem_reg&gt;`</td>
+</tr>
+<tr>
+<td>PUNIT telemetry</td>
+<td>`sv.socket0.imh0.punit.&lt;accel_telem_reg&gt;`</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run dts_telemetry PMx</td>
+<td>`python runPmx.py -x nwp.xml -p dts_telemetry -tM 60 --retry_count 2`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read Accelerator DTS temperature directly</td>
+<td>`sv.socket0.imh0.&lt;accel_misc&gt;.dts.temperature.read()`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read CFCIO RC temperature</td>
+<td>`sv.socket0.imh0.cfcio.&lt;telem_reg&gt;.read()`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read PUNIT telemetry</td>
+<td>`sv.socket0.imh0.punit.&lt;accel_telem&gt;.read()`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Compare all three — should match</td>
+<td>DTS ≈ CFCIO RC ≈ PUNIT telem</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Stress accelerator (run accelerator workload)</td>
+<td>Verify all three tracking together</td>
+</tr>
+</tbody></table>
+<h3>NWP Notes</h3>
+<ul>
+<li>NWP: single `imh0` — Accelerator IP in iMH die</li>
+<li>CFCIO is the RC for Accelerator thermal; also manages IO Fabric DTS</li>
+<li>1 DTS instance in Accelerator stack (not multiple)</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>Accelerator DTS, CFCIO RC, and PUNIT telemetry agree on temperature</li>
+<li>All three update together under accelerator workload</li>
+<li>1 DTS per Accelerator stack confirmed</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; Accelerator DTS in imh0; CFCIO RC path**</p>
+<p>1. `python runPmx.py -x nwp.xml -p dts_telemetry -tM 60 --retry_count 2`</p>
+<p>2. NWP: Accelerator DTS in `sv.socket0.imh0.*`</p>
+<p>3. Validate 3-level chain: Accelerator DTS → CFCIO RC → PUNIT telemetry</p>
+<p>**Priority**: Medium — `plc.feature.p1`; Accelerator DTS validates IO accelerator thermal monitoring path</p>
+    </div>
+  </div>
+</body>
+</html>

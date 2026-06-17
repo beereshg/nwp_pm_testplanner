@@ -1,0 +1,2650 @@
+{
+  "timestamp": "2026-06-10T21:04:34.483348",
+  "stem": "fmod_svos_comprehensive",
+  "features": {
+    "RAPL_Socket": [
+      {
+        "label": "Socket Rapl Domain Header CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.socket_rapl_domain_header",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Socket Rapl Domain Header CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.socket_rapl_domain_header",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Socket Rapl Power Unit CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.socket_rapl_power_unit",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Socket Rapl Power Unit CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.socket_rapl_power_unit",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Socket Rapl Pl Info CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.socket_rapl_pl_info",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Socket Rapl Pl Info CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.socket_rapl_pl_info",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Socket Rapl Pl1 Control CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.socket_rapl_pl1_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Socket Rapl Pl1 Control CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.socket_rapl_pl1_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Socket Rapl Pl2 Control CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.socket_rapl_pl2_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Socket Rapl Pl2 Control CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.socket_rapl_pl2_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Socket Rapl Pl4 Control CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.socket_rapl_pl4_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Socket Rapl Pl4 Control CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.socket_rapl_pl4_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Socket Rapl Energy Status CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.socket_rapl_energy_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Socket Rapl Energy Status CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.socket_rapl_energy_status",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Socket Rapl Perf Status CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.socket_rapl_perf_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Socket Rapl Perf Status CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.socket_rapl_perf_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Rapl Energy Report CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.rapl_energy_report",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Rapl Energy Report CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.rapl_energy_report",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Package RAPL Limit GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.package_rapl_limit",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nd()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute package_rapl_limit",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Package RAPL Perf Status",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.package_rapl_perf_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nus.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute package_rapl_perf_status",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Package Power SKU",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.package_power_sku",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute package_power_sku",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Package Power SKU Unit",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.package_power_sku_unit",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute package_power_sku_unit",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Package Energy Status",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.package_energy_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nread()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute package_energy_status",
+        "status": "error",
+        "nonzero": false
+      }
+    ],
+    "RAPL_DRAM": [
+      {
+        "label": "Dram Rapl Domain Header CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.dram_rapl_domain_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Dram Rapl Domain Header CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.dram_rapl_domain_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Dram Rapl Power Unit CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.dram_rapl_power_unit",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Dram Rapl Power Unit CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.dram_rapl_power_unit",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Dram Rapl Pl Info CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.dram_rapl_pl_info",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Dram Rapl Pl Info CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.dram_rapl_pl_info",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Dram Rapl Pl1 Control CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.dram_rapl_pl1_control",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Dram Rapl Pl1 Control CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.dram_rapl_pl1_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Dram Rapl Energy Status CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.dram_rapl_energy_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Dram Rapl Energy Status CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.dram_rapl_energy_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Dram Rapl Perf Status CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.dram_rapl_perf_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Dram Rapl Perf Status CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.dram_rapl_perf_status",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "DRAM Energy Status GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.dram_energy_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nd()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute dram_energy_status",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "DRAM RAPL Perf Status CFG",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.dram_rapl_perf_status_cfg",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\ncfg.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute dram_rapl_perf_status_cfg",
+        "status": "error",
+        "nonzero": false
+      }
+    ],
+    "RAPL_Platform": [
+      {
+        "label": "Platform Rapl Domain Header CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.platform_rapl_domain_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Platform Rapl Domain Header CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.platform_rapl_domain_header",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Platform Rapl Power Unit CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.platform_rapl_power_unit",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Platform Rapl Power Unit CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.platform_rapl_power_unit",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Platform Rapl Pl Info CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.platform_rapl_pl_info",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Platform Rapl Pl Info CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.platform_rapl_pl_info",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Platform Rapl Pl1 Control CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.platform_rapl_pl1_control",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Platform Rapl Pl1 Control CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.platform_rapl_pl1_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Platform Rapl Pl2 Control CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.platform_rapl_pl2_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Platform Rapl Pl2 Control CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.platform_rapl_pl2_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Platform Rapl Energy Status CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.platform_rapl_energy_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Platform Rapl Energy Status CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.platform_rapl_energy_status",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Platform Rapl Perf Status CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.platform_rapl_perf_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Platform Rapl Perf Status CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.platform_rapl_perf_status",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Platform RAPL Limit",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.platform_rapl_limit",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nad()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute platform_rapl_limit",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Platform Energy Status",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.platform_energy_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute platform_energy_status",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Platform Power Info",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.platform_power_info",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nad()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute platform_power_info",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Primary Plane Turbo Power Limit",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.primary_plane_turbo_power_limit",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nwer_limit.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute primary_plane_turbo_power_limit",
+        "status": "error",
+        "nonzero": false
+      }
+    ],
+    "PEM_SIMPL_RACL": [
+      {
+        "label": "Pem Header CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.pem_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x302",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pem Header CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.pem_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x302",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pem Control CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.pem_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pem Control CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.pem_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pem Status CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.pem_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pem Status CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.pem_status",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Pem Pmt Info CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.pem_pmt_info",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x20018103074003",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pem Pmt Info CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.pem_pmt_info",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x20018103074003",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pfm Header CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.pfm_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pfm Header CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.pfm_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pfm Control CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.pfm_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pfm Control CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.pfm_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pfm Status CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.pfm_status",
+        "value": "0x5",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pfm Status CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.pfm_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x5",
+        "status": "ok",
+        "nonzero": true
+      }
+    ],
+    "PMAX": [
+      {
+        "label": "Pmax Header CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.pmax_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pmax Header CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.pmax_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pmax Control CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.pmax_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pmax Control CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.pmax_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pmax Status CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.pmax_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pmax Status CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.pmax_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      }
+    ],
+    "PLR": [
+      {
+        "label": "Plr Header CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.plr_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Plr Header CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.plr_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Plr Die Level CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.plr_die_level",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Plr Die Level CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.plr_die_level",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Plr Mailbox Interface CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.plr_mailbox_interface",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Plr Mailbox Interface CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.plr_mailbox_interface",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Plr Mailbox Data CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.plr_mailbox_data",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Plr Mailbox Data CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.plr_mailbox_data",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "ACP Perf Limit CBB0 (all FIDs)",
+        "path": "sv.socket0.cbb0.base.punit_regs.punit_pmsb.pmsb_pcu.acp_perf_limit",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nd()\nacp_perf_limit[\"fid_0\"]=0x0\nacp_perf_limit[\"fid_8\"]=0x0\nacp_perf_limit[\"fid_16\"]=0x0\nacp_perf_limit[\"fid_24\"]=0x0\nacp_perf_limit[\"fid_32\"]=0x0\nacp_perf_limit[\"fid_40\"]=0x0\nacp_perf_limit[\"fid_48\"]=0x0\nacp_perf_limit[\"fid_56\"]=0x0\nacp_perf_limit[\"fid_64\"]=0x0\nacp_perf_limit[\"fid_72\"]=0x0\nacp_perf_limit[\"fid_80\"]=0x0\nacp_perf_limit[\"fid_88\"]=0x0\nacp_perf_limit[\"fid_96\"]=0x0\nacp_perf_limit[\"fid_104\"]=0x0\nacp_perf_limit[\"fid_112\"]=0x0\nacp_perf_limit[\"fid_120\"]=0x0\nacp_perf_limit[\"fid_128\"]=0x0\nacp_perf_limit[\"fid_136\"]=0x0\nacp_perf_limit[\"fid_144\"]=0x0\nacp_perf_limit[\"fid_152\"]=0x0\nacp_perf_limit[\"fid_160\"]=0x0\nacp_perf_limit[\"fid_168\"]=0x0\nacp_perf_limit[\"fid_176\"]=0x0\nacp_perf_limit[\"fid_184\"]=0x0\nacp_perf_limit[\"fid_192\"]=0x0\nacp_perf_limit[\"fid_200\"]=0x0\nacp_perf_limit[\"fid_208\"]=0x0\nacp_perf_limit[\"fid_216\"]=0x0\nacp_perf_limit[\"fid_224\"]=0x0\nacp_perf_limit[\"fid_232\"]=0x0\nacp_perf_limit[\"fid_240\"]=0x0\nacp_perf_limit[\"fid_248\"]=0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "ACP Perf Limit CBB1 (all FIDs)",
+        "path": "sv.socket0.cbb1.base.punit_regs.punit_pmsb.pmsb_pcu.acp_perf_limit",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nd()\nacp_perf_limit[\"fid_0\"]=0x0\nacp_perf_limit[\"fid_8\"]=0x0\nacp_perf_limit[\"fid_16\"]=0x0\nacp_perf_limit[\"fid_24\"]=0x0\nacp_perf_limit[\"fid_32\"]=0x0\nacp_perf_limit[\"fid_40\"]=0x0\nacp_perf_limit[\"fid_48\"]=0x0\nacp_perf_limit[\"fid_56\"]=0x0\nacp_perf_limit[\"fid_64\"]=0x0\nacp_perf_limit[\"fid_72\"]=0x0\nacp_perf_limit[\"fid_80\"]=0x0\nacp_perf_limit[\"fid_88\"]=0x0\nacp_perf_limit[\"fid_96\"]=0x0\nacp_perf_limit[\"fid_104\"]=0x0\nacp_perf_limit[\"fid_112\"]=0x0\nacp_perf_limit[\"fid_120\"]=0x0\nacp_perf_limit[\"fid_128\"]=0x0\nacp_perf_limit[\"fid_136\"]=0x0\nacp_perf_limit[\"fid_144\"]=0x0\nacp_perf_limit[\"fid_152\"]=0x0\nacp_perf_limit[\"fid_160\"]=0x0\nacp_perf_limit[\"fid_168\"]=0x0\nacp_perf_limit[\"fid_176\"]=0x0\nacp_perf_limit[\"fid_184\"]=0x0\nacp_perf_limit[\"fid_192\"]=0x0\nacp_perf_limit[\"fid_200\"]=0x0\nacp_perf_limit[\"fid_208\"]=0x0\nacp_perf_limit[\"fid_216\"]=0x0\nacp_perf_limit[\"fid_224\"]=0x0\nacp_perf_limit[\"fid_232\"]=0x0\nacp_perf_limit[\"fid_240\"]=0x0\nacp_perf_limit[\"fid_248\"]=0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "ACP Perf Limit IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms_pmsb.ptpcfsms_pmsb.acp_perf_limit",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n)\nacp_perf_limit[\"fid_0\"]=0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "IA Perf Limit Reasons2 GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.ia_perf_limit_reasons2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute ia_perf_limit_reasons2",
+        "status": "error",
+        "nonzero": false
+      }
+    ],
+    "OPC_HWP": [
+      {
+        "label": "Opc Header CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.opc_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Header CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.opc_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Hwp Capability CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.opc_hwp_capability",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Hwp Capability CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.opc_hwp_capability",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Hwp Controls CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.opc_hwp_controls",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Hwp Controls CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.opc_hwp_controls",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Pkg Therm Status CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.opc_pkg_therm_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Pkg Therm Status CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.opc_pkg_therm_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Pkgc Entry Control CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.opc_pkgc_entry_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Pkgc Entry Control CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.opc_pkgc_entry_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Dimm Temps 0 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.opc_dimm_temps_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Dimm Temps 0 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.opc_dimm_temps_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Dimm Temps 1 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.opc_dimm_temps_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Dimm Temps 1 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.opc_dimm_temps_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Dimm Temps 2 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.opc_dimm_temps_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Dimm Temps 2 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.opc_dimm_temps_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Dimm Temps 3 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.opc_dimm_temps_3",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Dimm Temps 3 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.opc_dimm_temps_3",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "OPC HWP Controls IMH0 FSMS",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.opc_hwp_controls",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "HWP Capabilities GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.hwp_capabilities",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n)\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute hwp_capabilities",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "HWP Request GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.hwp_request",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nhwp_request[\"fid_0\"]=0xff01\nhwp_request[\"fid_1\"]=0xff01",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "HWP Request PKG GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.hwp_request_pkg",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute hwp_request_pkg",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "HWP Status GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.hwp_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nhwp_status[\"fid_0\"]=0x0\nhwp_status[\"fid_1\"]=0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "HWP Interrupt GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.hwp_interrupt",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nhwp_interrupt[\"fid_0\"]=0x0\nhwp_interrupt[\"fid_1\"]=0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "HWP PECI Request Info GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.hwp_peci_request_info",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nread()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute hwp_peci_request_info",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "PM Enable GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.pm_enable",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute pm_enable",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "GPSB HWP_REQUEST pma0 (per-FID)",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.hwp_request",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nhwp_request[\"fid_0\"]=0xff01\nhwp_request[\"fid_1\"]=0xff01",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "GPSB HWP_REQUEST_RESOLVED pma0",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.hwp_request_resolved",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nead()\n0x300000000000000",
+        "status": "ok",
+        "nonzero": true
+      }
+    ],
+    "SST_PP_Current": [
+      {
+        "label": "Sst Header CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xc010203",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Header CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xc010203",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Header CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xc680011f031",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Header CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xc680011f031",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Control CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x8",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Control CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x8",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Status CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x8",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Status CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x8",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Misc Control CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_misc_control",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Sst Pp Misc Control CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_misc_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Misc Status CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_misc_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Misc Status CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_misc_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 0 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_info_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x18181818",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 0 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_info_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x18181818",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 1 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_info_1",
+        "value": "0x34808200202020",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 1 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_info_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x34808200202020",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 2 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_info_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xffffffff",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 2 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_info_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xffffffff",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 3 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_info_3",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 3 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_info_3",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 4 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_info_4",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x57",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 4 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_info_4",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x57",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 5 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_info_5",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x20",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 5 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_info_5",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x20",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 6 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_info_6",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1a",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 6 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_info_6",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1a",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 7 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_info_7",
+        "value": "0x14",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 7 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_info_7",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x14",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 8 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_info_8",
+        "value": "0xe",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 8 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_info_8",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xe",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 9 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_info_9",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x8",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 9 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_info_9",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x8",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 10 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_info_10",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x40",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 10 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_info_10",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x40",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 11 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_info_11",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x41b1b040c1857",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 11 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_info_11",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x41b1b040c1857",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 12 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_info_12",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 12 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_info_12",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Info 13 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_info_13",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Sst Pp Info 13 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_info_13",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Offset 0 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_offset_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x100e00",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Offset 0 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_offset_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x100e00",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Offset 1 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_pp_offset_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x6f553b2107",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Pp Offset 1 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_pp_offset_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x6f553b2107",
+        "status": "ok",
+        "nonzero": true
+      }
+    ],
+    "SST_TF_BF": [
+      {
+        "label": "Sst Bf Info 0 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_bf_info_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1a4002c38022",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Bf Info 0 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_bf_info_0",
+        "value": "0x1a4002c38022",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Bf Info 1 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_bf_info_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Bf Info 1 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_bf_info_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 0 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_tf_info_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x33",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 0 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_tf_info_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x33",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 1 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_tf_info_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x40",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 1 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_tf_info_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x40",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 2 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_tf_info_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x7f",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 2 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_tf_info_2",
+        "value": "0x7f",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 3 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_tf_info_3",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x10",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 3 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_tf_info_3",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x10",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 4 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_tf_info_4",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x8",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 4 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_tf_info_4",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x8",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 5 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_tf_info_5",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x8",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 5 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_tf_info_5",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x8",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 6 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_tf_info_6",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x8",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 6 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_tf_info_6",
+        "value": "0x8",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 7 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_tf_info_7",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x7f",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 7 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_tf_info_7",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x7f",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 8 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_tf_info_8",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x40",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 8 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_tf_info_8",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x40",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 9 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_tf_info_9",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Tf Info 9 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_tf_info_9",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      }
+    ],
+    "SST_CP_CLOS": [
+      {
+        "label": "Sst Cp Header CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_cp_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x20",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Cp Header CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_cp_header",
+        "value": "0x20",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Cp Control CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_cp_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Cp Control CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_cp_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Cp Status CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_cp_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Cp Status CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_cp_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Clos Assoc 0 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_clos_assoc_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Clos Assoc 0 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_clos_assoc_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Clos Assoc 1 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_clos_assoc_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Clos Assoc 1 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_clos_assoc_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Clos Assoc 2 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_clos_assoc_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Clos Assoc 2 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_clos_assoc_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Clos Assoc 3 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_clos_assoc_3",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Clos Assoc 3 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_clos_assoc_3",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Clos Config 0 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_clos_config_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xff0000",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Clos Config 0 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_clos_config_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xff0000",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Clos Config 1 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_clos_config_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xff0000",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Clos Config 1 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_clos_config_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xff0000",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Clos Config 2 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_clos_config_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xff0000",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Clos Config 2 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_clos_config_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xff0000",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Clos Config 3 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.sst_clos_config_3",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xff0000",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Sst Clos Config 3 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.sst_clos_config_3",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xff0000",
+        "status": "ok",
+        "nonzero": true
+      }
+    ],
+    "SST_PP1_Profile": [
+      {
+        "label": "Pp1 Sst Pp Info 0 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.pp1_sst_pp_info_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x18181818",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pp1 Sst Pp Info 0 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.pp1_sst_pp_info_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x18181818",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pp1 Sst Pp Info 4 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.pp1_sst_pp_info_4",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x57",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pp1 Sst Pp Info 4 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.pp1_sst_pp_info_4",
+        "value": "0x57",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pp1 Sst Pp Info 11 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.pp1_sst_pp_info_11",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x41b1b040c1857",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pp1 Sst Pp Info 11 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.pp1_sst_pp_info_11",
+        "value": "0x41b1b040c1857",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pp1 Sst Bf Info 0 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.pp1_sst_bf_info_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1a4002c38022",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pp1 Sst Bf Info 0 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.pp1_sst_bf_info_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1a4002c38022",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pp1 Sst Tf Info 0 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.pp1_sst_tf_info_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x33",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pp1 Sst Tf Info 0 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.pp1_sst_tf_info_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x33",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pp1 Sst Tf Info 2 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.pp1_sst_tf_info_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x10",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Pp1 Sst Tf Info 2 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.pp1_sst_tf_info_2",
+        "value": "0x10",
+        "status": "ok",
+        "nonzero": true
+      }
+    ],
+    "UFS_Fabric_DVFS": [
+      {
+        "label": "Ufs Header CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.ufs_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1f0103",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Ufs Header CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.ufs_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1f0103",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Ufs Control CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.ufs_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x800788d03021b01",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Ufs Control CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.ufs_control",
+        "value": "0x800788d03021b01",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Ufs Status CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.ufs_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1904e1b",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Ufs Status CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.ufs_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1904e1b",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Ufs Adv Control 1 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.ufs_adv_control_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1810",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Ufs Adv Control 1 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.ufs_adv_control_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1810",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Ufs Adv Control 2 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.ufs_adv_control_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xffff1810",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Ufs Adv Control 2 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.ufs_adv_control_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xffff1810",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Ufs Fabric Cluster Offset CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.ufs_fabric_cluster_offset",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x2",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Ufs Fabric Cluster Offset CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.ufs_fabric_cluster_offset",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x2",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "UFS_CONTROL Fabric1 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.ufs_control_fabric_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x2007f01",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "UFS_STATUS Fabric1 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.ufs_status_fabric_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "UFS_ADV_CONTROL_1 Fabric1 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.ufs_adv_control_1_fabric_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "UFS_ADV_CONTROL_2 Fabric1 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.ufs_adv_control_2_fabric_1",
+        "value": "0xffff0000",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "UFS Control IMH0 FSMS",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.ufs_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x800788d02021501",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "UFS Status IMH0 FSMS",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.ufs_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1040ac004",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "UFS Adv Control 1 IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.ufs_adv_control_1",
+        "value": "0x7f08",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "UFS Adv Control 2 IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.ufs_adv_control_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xffff0008",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "UFS Fabric Cluster Offset IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.ufs_fabric_cluster_offset",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n()\n0x602",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Uncore Ratio Limit IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.uncore_ratio_limit",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Uncore Configuration IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.uncore_configuration",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x4368087f",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Uncore Perf Status IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.uncore_perf_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Uncore Ratio Limit GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.uncore_ratio_limit",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nd()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute uncore_ratio_limit",
+        "status": "error",
+        "nonzero": false
+      }
+    ],
+    "Thermal_Prochot": [
+      {
+        "label": "Opc Thermal Monitor CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.opc_thermal_monitor",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Opc Thermal Monitor CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.opc_thermal_monitor",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Prochot Response Power CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.prochot_response_power",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Prochot Response Power CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.prochot_response_power",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Stat Temphot Cfg CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.stat_temphot_cfg",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute stat_temphot_cfg",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Stat Temphot Cfg CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.stat_temphot_cfg",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute stat_temphot_cfg",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Stat Temptrip CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.stat_temptrip",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute stat_temptrip",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Stat Temptrip CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.stat_temptrip",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute stat_temptrip",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Temperature Target CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.temperature_target",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute temperature_target",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Temperature Target CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.temperature_target",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute temperature_target",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Temperature Target Cfg CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.temperature_target_cfg",
+        "value": "Traceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute temperature_target_cfg",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Temperature Target Cfg CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.temperature_target_cfg",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute temperature_target_cfg",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Thermtrip Config Cfg CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.thermtrip_config_cfg",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute thermtrip_config_cfg",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Thermtrip Config Cfg CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.thermtrip_config_cfg",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute thermtrip_config_cfg",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Package Temperature GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.package_temperature",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nad()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute package_temperature",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "PP0 Temperature GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.pp0_temperature",
+        "value": "Traceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute pp0_temperature",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Package Therm Margin GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.package_therm_margin",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nead()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute package_therm_margin",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Therm Event FFM GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.therm_event_ffm",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute therm_event_ffm",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "MCP Thermal Report 1",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.mcp_thermal_report_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nead()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute mcp_thermal_report_1",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "MCP Thermal Report 2",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.mcp_thermal_report_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nead()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute mcp_thermal_report_2",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Mem Thermal Temperature Report",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.mem_trml_temperature_report",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\neport.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute mem_trml_temperature_report",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "VR Current Config IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.vr_current_config",
+        "value": "0x500",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "VR Misc Config IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.vr_misc_config",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x16000000363636",
+        "status": "ok",
+        "nonzero": true
+      }
+    ],
+    "FIT_Turbo": [
+      {
+        "label": "Fit Config 0 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.fit_config_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xffffffffffffffff",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Fit Config 0 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.fit_config_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xffffffffffffffff",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Fit Config 1 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.fit_config_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xffffffffffffffff",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Fit Config 1 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.fit_config_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xffffffffffffffff",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Fit Info 0 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.fit_info_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x80e141a2057",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Fit Info 0 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.fit_info_0",
+        "value": "0x80e141a2057",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Odc Header CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.odc_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Odc Header CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.odc_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x1",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Odc Turbo Max Ratio CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.odc_turbo_max_ratio",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Odc Turbo Max Ratio CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.odc_turbo_max_ratio",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Odc Trl Ratios CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.odc_trl_ratios",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x57",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Odc Trl Ratios CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.odc_trl_ratios",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x57",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Odc Trl Numcores CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.odc_trl_numcores",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x40",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Odc Trl Numcores CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.odc_trl_numcores",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x40",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Turbo Activation Ratio GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.turbo_activation_ratio",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute turbo_activation_ratio",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Turbo Ratio Limit Ratios GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.turbo_ratio_limit_ratios",
+        "value": "os.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute turbo_ratio_limit_ratios",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Turbo Ratio Limit Groups GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.turbo_ratio_limit_groups",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nps.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute turbo_ratio_limit_groups",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Dynamic Perf Power Ctl CFG",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.dynamic_perf_power_ctl_cfg",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n_cfg.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute dynamic_perf_power_ctl_cfg",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "P-State Limits CFG",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.p_state_limits_cfg",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nd()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute p_state_limits_cfg",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "RP State Limits CFG",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.rp_state_limits_cfg",
+        "value": "ad()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute rp_state_limits_cfg",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "SST_PP_INFO_4 IMH0 FSMS",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.sst_pp_info_4",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "SST_PP_INFO_11 IMH0 FSMS",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.sst_pp_info_11",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x4081504051824",
+        "status": "ok",
+        "nonzero": true
+      }
+    ],
+    "SVID": [
+      {
+        "label": "Svid Config CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.svid_config",
+        "value": "Traceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute svid_config",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Svid Config CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.svid_config",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute svid_config",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "SVID Config GPSB",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.svid_1_30_0_cfg",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute svid_1_30_0_cfg",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "SVID Config IMH0 FSMS",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.svid_config",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x8042a7ff",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "VR Current Config CFG IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.vr_current_config_cfg",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x500",
+        "status": "ok",
+        "nonzero": true
+      }
+    ],
+    "GPSB_CState_Platform": [
+      {
+        "label": "C-State Latency Control",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.c_state_latency_control",
+        "value": "l.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute c_state_latency_control",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "C2 DDR Timing",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.c2_ddr_tt",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute c2_ddr_tt",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "C2C3 Timing CFG",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.c2c3tt_cfg",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute c2c3tt_cfg",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "PC2 Residency Counter",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.pc2_rcntr",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute pc2_rcntr",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "PC3 Residency Counter",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.pc3_rcntr",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute pc3_rcntr",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "PC6 Residency Counter",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.pc6_rcntr",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute pc6_rcntr",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "PC7 Residency Counter",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.pc7_rcntr",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute pc7_rcntr",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Platform Info (max/min non-turbo ratio)",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.platform_info",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute platform_info",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "PST Config Control",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.pst_config_control",
+        "value": "d()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute pst_config_control",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Energy Perf Bias Config (EPB)",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.energy_perf_bias_config",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\ng.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute energy_perf_bias_config",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "IO BW P-Limit Control",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.io_bandwidth_p_limit_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nontrol.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute io_bandwidth_p_limit_control",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "IO BW P-Limit Override",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.io_bw_p_limit_override",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute io_bw_p_limit_override",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "PCode Config",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.pcode_config",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute pcode_config",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "SAPM Control CFG",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.sapmctl_cfg",
+        "value": "Traceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute sapmctl_cfg",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Freq CLOS Config",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.freq_clos_config",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n)\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute freq_clos_config",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Freq CLOS0 Config",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.freq_clos0_config",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute freq_clos0_config",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Freq CLOS1 Config",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.freq_clos1_config",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute freq_clos1_config",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Pair Weight Override",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.pair_weight_override",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nead()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute pair_weight_override",
+        "status": "error",
+        "nonzero": false
+      }
+    ],
+    "IMH0_PMSB": [
+      {
+        "label": "ACP Perf Limit (fid_0)",
+        "path": "sv.socket0.imh0.punit.ptpcfsms_pmsb.ptpcfsms_pmsb.acp_perf_limit",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n)\nacp_perf_limit[\"fid_0\"]=0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Core Electrical Req",
+        "path": "sv.socket0.imh0.punit.ptpcfsms_pmsb.ptpcfsms_pmsb.core_electrical_req",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nread()\ncore_electrical_req[\"fid_0\"]=0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Core PM Event",
+        "path": "sv.socket0.imh0.punit.ptpcfsms_pmsb.ptpcfsms_pmsb.core_pm_event",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Uncore Virtual Signal",
+        "path": "sv.socket0.imh0.punit.ptpcfsms_pmsb.ptpcfsms_pmsb.uncore_virtual_sig",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nead()\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Uncore Telem [first 500 slots]",
+        "path": "sv.socket0.imh0.punit.ptpcfsms_pmsb.ptpcfsms_pmsb.uncore_telem",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nuncore_telem[0]=0x0\nuncore_telem[1]=0x0\nuncore_telem[2]=0x0\nuncore_telem[3]=0x0\nuncore_telem[4]=0x0\nuncore_telem[5]=0x0\nuncore_telem[6]=0x0\nuncore_telem[7]=0x0\nuncore_telem[8]=0x0\nuncore_telem[9]=0x0\nuncore_telem[10]=0x0\nuncore_telem[11]=0x0\nuncore_telem[12]=0x0\nuncore_telem[13]=0x0\nuncore_telem[14]=0x0\nuncore_telem[15]=0x0\nuncore_telem[16]=0x0\nuncore_telem[17]=0x0\nuncore_telem[18]=0x0\nuncore_telem[19]=0x0\nuncore_telem[20]=0x0\nuncore_telem[21]=0x0\nuncore_telem[22]=0x0\nuncore_telem[23]=0x0\nuncore_telem[24]=0x0\nuncore_telem[25]=0x0\nuncore_telem[26]=0x0\nuncore_telem[27]=0x0\nuncore_telem[28]=0x0\nuncore_telem[29]=0x0\nuncore_telem[30]=0x0\nuncore_telem[31]=0x0\nuncore_telem[32]=0x0\nuncore_telem[33]=0x0\nuncore_telem[34]=0x0\nuncore_telem[35]=0x0\nuncore_telem[36]=0x0\nuncore_telem[37]=0x0\nuncore_telem[38]=0x0\nuncore_telem[39]=0x0\nuncore_telem[40]=0x0\nuncore_telem[41]=0x0\nuncore_telem[42]=0x0\nuncore_telem[43]=0x0\nuncore_telem[44]=0x0\nuncore_telem[45]=0x0\nuncore_telem[46]=0x0\nuncore_telem[47]=0x0\nuncore_telem[48]=0x0\nuncore_telem[49]=0x0\nuncore_telem[50]=0x0\nuncore_telem[51]=0x0\nuncore_telem[52]=0x0\nuncore_telem[53]=0x0\nuncore_telem[54]=0x0\nuncore_telem[55]=0x0\nuncore_telem[56]=0x0\nuncore_telem[57]=0x0\nuncore_telem[58]=0x0\nuncore_telem[59]=0x0\nuncore_telem[60]=0x0\nuncore_telem[61]=0x0\nuncore_telem[62]=0x0\nuncore_telem[63]=0x0\nuncore_telem[64]=0x0\nuncore_telem[65]=0x0\nuncore_telem[66]=0x0\nuncore_telem[67]=0x0\nuncore_telem[68]=0x0\nuncore_telem[69]=0x0\nuncore_telem[70]=0x0\nuncore_telem[71]=0x0\nuncore_telem[72]=0x0\nuncore_telem[73]=0x0\nuncore_telem[74]=0x0\nuncore_telem[75]=0x0\nuncore_telem[76]=0x0\nuncore_telem[77]=0x0\nuncore_telem[78]=0x0\nuncore_telem[79]=0x0\nuncore_telem[80]=0x0\nuncore_telem[81]=0x0\nuncore_telem[82]=0x0\nuncore_telem[83]=0x0\nuncore_telem[84]=0x0\nuncore_telem[85]=0x0\nuncore_telem[86]=0x0\nuncore_telem[87]=0x0\nuncore_telem[88]=0x0\nuncore_telem[89]=0x0\nuncore_telem[90]=0x0\nuncore_telem[91]=0x0\nuncore_telem[92]=0x0\nuncore_telem[93]=0x0\nuncore_telem[94]=0x0\nuncore_telem[95]=0x0\nuncore_telem[96]=0x0\nuncore_telem[97]=0x0\nuncore_telem[98]=0x0\nuncore_telem[99]=0x0\nuncore_telem[100]=0x0\nuncore_telem[101]=0x0\nuncore_telem[102]=0x0\nuncore_telem[103]=0x0\nuncore_telem[104]=0x0\nuncore_telem[105]=0x0\nuncore_telem[106]=0x0\nuncore_telem[107]=0x0\nuncore_telem[108]=0x0\nuncore_telem[109]=0x0\nuncore_telem[110]=0x0\nuncore_telem[111]=0x0\nuncore_telem[112]=0x0\nuncore_telem[113]=0x0\nuncore_telem[114]=0x0\nuncore_telem[115]=0x0\nuncore_telem[116]=0x0\nuncore_telem[117]=0x0\nuncore_telem[118]=0x0\nuncore_telem[119]=0x0\nuncore_telem[120]=0x0\nuncore_telem[121]=0x0\nuncore_telem[122]=0x0\nuncore_telem[123]=0x0\nuncore_telem[124]=0x0\nuncore_telem[125]=0x0\nuncore_telem[126]=0x0\nuncore_telem[127]=0x0\nuncore_telem[128]=0x0\nuncore_telem[129]=0x0\nuncore_telem[130]=0x0\nuncore_telem[131]=0x0\nuncore_telem[132]=0x0\nuncore_telem[133]=0x0\nuncore_telem[134]=0x0\nuncore_telem[135]=0x0\nuncore_telem[136]=0x0\nuncore_telem[137]=0x0\nuncore_telem[138]=0x0\nuncore_telem[139]=0x0\nuncore_telem[140]=0x0\nuncore_telem[141]=0x0\nuncore_telem[142]=0x0\nuncore_telem[143]=0x0\nuncore_telem[144]=0x0\nuncore_telem[145]=0x0\nuncore_telem[146]=0x0\nuncore_telem[147]=0x0\nuncore_telem[148]=0x0\nuncore_telem[149]=0x0\nuncore_telem[150]=0x0\nuncore_telem[151]=0x0\nuncore_telem[152]=0x0\nuncore_telem[153]=0x0\nuncore_telem[154]=0x0\nuncore_telem[155]=0x0\nuncore_telem[156]=0x0\nuncore_telem[157]=0x0\nuncore_telem[158]=0x0\nuncore_telem[159]=0x0\nuncore_telem[160]=0x0\nuncore_telem[161]=0x0\nuncore_telem[162]=0x0\nuncore_telem[163]=0x0\nuncore_telem[164]=0x0\nuncore_telem[165]=0x0\nuncore_telem[166]=0x0\nuncore_telem[167]=0x0\nuncore_telem[168]=0x0\nuncore_telem[169]=0x0\nuncore_telem[170]=0x0\nuncore_telem[171]=0x0\nuncore_telem[172]=0x0\nuncore_telem[173]=0x0\nuncore_telem[174]=0x0\nuncore_telem[175]=0x0\nuncore_telem[176]=0x0\nuncore_telem[177]=0x0\nuncore_telem[178]=0x0\nuncore_telem[179]=0x0\nuncore_telem[180]=0x0\nuncore_telem[181]=0x0\nuncore_telem[182]=0x0\nuncore_telem[183]=0x0\nuncore_telem[184]=0x0\nuncore_telem[185]=0x0\nuncore_telem[186]=0x0\nuncore_telem[187]=0x0\nuncore_telem[188]=0x0\nuncore_telem[189]=0x0\nuncore_telem[190]=0x0\nuncore_telem[191]=0x0\nuncore_telem[192]=0x0\nuncore_telem[193]=0x0\nuncore_telem[194]=0x0\nuncore_telem[195]=0x0\nuncore_telem[196]=0x0\nuncore_telem[197]=0x0\nuncore_telem[198]=0x0\nuncore_telem[199]=0x0\nuncore_telem[200]=0x0\nuncore_telem[201]=0x0\nuncore_telem[202]=0x0\nuncore_telem[203]=0x0\nuncore_telem[204]=0x0\nuncore_telem[205]=0x0\nuncore_telem[206]=0x0\nuncore_telem[207]=0x0\nuncore_telem[208]=0x0\nuncore_telem[209]=0x0\nuncore_telem[210]=0x0\nuncore_telem[211]=0x0\nuncore_telem[212]=0x0\nuncore_telem[213]=0x0\nuncore_telem[214]=0x0\nuncore_telem[215]=0x0\nuncore_telem[216]=0x0\nuncore_telem[217]=0x0\nuncore_telem[218]=0x0\nuncore_telem[219]=0x0\nuncore_telem[220]=0x0\nuncore_telem[221]=0x0\nuncore_telem[222]=0x0\nuncore_telem[223]=0x0\nuncore_telem[224]=0x0\nuncore_telem[225]=0x0\nuncore_telem[226]=0x0\nuncore_telem[227]=0x0\nuncore_telem[228]=0x0\nuncore_telem[229]=0x0\nuncore_telem[230]=0x0\nuncore_telem[231]=0x0\nuncore_telem[232]=0x0\nuncore_telem[233]=0x0\nuncore_telem[234]=0x0\nuncore_telem[235]=0x0\nuncore_telem[236]=0x0\nuncore_telem[237]=0x0\nuncore_telem[238]=0x0\nuncore_telem[239]=0x0\nuncore_telem[240]=0x0\nuncore_telem[241]=0x0\nuncore_telem[242]=0x0\nuncore_telem[243]=0x0\nuncore_telem[244]=0x0\nuncore_telem[245]=0x0\nuncore_telem[246]=0x0\nuncore_telem[247]=0x0\nuncore_telem[248]=0x0\nuncore_telem[249]=0x0\nuncore_telem[250]=0x0\nuncore_telem[251]=0x0\nuncore_telem[252]=0x0\nuncore_telem[253]=0x0\nuncore_telem[254]=0x0\nuncore_telem[255]=0x0\nuncore_telem[256]=0x0\nuncore_telem[257]=0x0\nuncore_telem[258]=0x0\nuncore_telem[259]=0x0\nuncore_telem[260]=0x0\nuncore_telem[261]=0x0\nuncore_telem[262]=0x0\nuncore_telem[263]=0x0\nuncore_telem[264]=0x0\nuncore_telem[265]=0x0\nuncore_telem[266]=0x0\nuncore_telem[267]=0x0\nuncore_telem[268]=0x0\nuncore_telem[269]=0x0\nuncore_telem[270]=0x0\nuncore_telem[271]=0x0\nuncore_telem[272]=0x0\nuncore_telem[273]=0x0\nuncore_telem[274]=0x0\nuncore_telem[275]=0x0\nuncore_telem[276]=0x0\nuncore_telem[277]=0x0\nuncore_telem[278]=0x0\nuncore_telem[279]=0x0\nuncore_telem[280]=0x0\nuncore_telem[281]=0x0\nuncore_telem[282]=0x0\nuncore_telem[283]=0x0\nuncore_telem[284]=0x0\nuncore_telem[285]=0x0\nuncore_telem[286]=0x0\nuncore_telem[287]=0x0\nuncore_telem[288]=0x0\nuncore_telem[289]=0x0\nuncore_telem[290]=0x0\nuncore_telem[291]=0x0\nuncore_telem[292]=0x0\nuncore_telem[293]=0x0\nuncore_telem[294]=0x0\nuncore_telem[295]=0x0\nuncore_telem[296]=0x0\nuncore_telem[297]=0x0\nuncore_telem[298]=0x0\nuncore_telem[299]=0x0\nuncore_telem[300]=0x0\nuncore_telem[301]=0x0\nuncore_telem[302]=0x0\nuncore_telem[303]=0x0\nuncore_telem[304]=0x0\nuncore_telem[305]=0x0\nuncore_telem[306]=0x0\nuncore_telem[307]=0x0\nuncore_telem[308]=0x0\nuncore_telem[309]=0x0\nuncore_telem[310]=0x0\nuncore_telem[311]=0x0\nuncore_telem[312]=0x0\nuncore_telem[313]=0x0\nuncore_telem[314]=0x0\nuncore_telem[315]=0x0\nuncore_telem[316]=0x0\nuncore_telem[317]=0x0\nuncore_telem[318]=0x0\nuncore_telem[319]=0x0\nuncore_telem[320]=0x0\nuncore_telem[321]=0x0\nuncore_telem[322]=0x0\nuncore_telem[323]=0x0\nuncore_telem[324]=0x0\nuncore_telem[325]=0x0\nuncore_telem[326]=0x0\nuncore_telem[327]=0x0\nuncore_telem[328]=0x0\nuncore_telem[329]=0x0\nuncore_telem[330]=0x0\nuncore_telem[331]=0x0\nuncore_telem[332]=0x0\nuncore_telem[333]=0x0\nuncore_telem[334]=0x0\nuncore_telem[335]=0x0\nuncore_telem[336]=0x0\nuncore_telem[337]=0x0\nuncore_telem[338]=0x0\nuncore_telem[339]=0x0\nuncore_telem[340]=0x0\nuncore_telem[341]=0x0\nuncore_telem[342]=0x0\nuncore_telem[343]=0x0\nuncore_telem[344]=0x0\nuncore_telem[345]=0x0\nuncore_telem[346]=0x0\nuncore_telem[347]=0x0\nuncore_telem[348]=0x0\nuncore_telem[349]=0x0\nuncore_telem[350]=0x0\nuncore_telem[351]=0x0\nuncore_telem[352]=0x0\nuncore_telem[353]=0x0\nuncore_telem[354]=0x0\nuncore_telem[355]=0x0\nuncore_telem[356]=0x0\nuncore_telem[357]=0x0\nuncore_telem[358]=0x0\nuncore_telem[359]=0x0\nuncore_telem[360]=0x0\nuncore_telem[361]=0x0\nuncore_telem[362]=0x0\nuncore_telem[363]=0x0\nuncore_telem[364]=0x0\nuncore_telem[365]=0x0\nuncore_telem[366]=0x0\nuncore_telem[367]=0x0\nuncore_telem[368]=0x0\nuncore_telem[369]=0x0\nuncore_telem[370]=0x0\nuncore_telem[371]=0x0\nuncore_telem[372]=0x0\nuncore_telem[373]=0x0\nuncore_telem[374]=0x0\nuncore_telem[375]=0x0\nuncore_telem[376]=0x0\nuncore_telem[377]=0x0\nuncore_telem[378]=0x0\nuncore_telem[379]=0x0\nuncore_telem[380]=0x0\nuncore_telem[381]=0x0\nuncore_telem[382]=0x0\nuncore_telem[383]=0x0\nuncore_telem[384]=0x0\nuncore_telem[385]=0x0\nuncore_telem[386]=0x0\nuncore_telem[387]=0x0\nuncore_telem[388]=0x0\nuncore_telem[389]=0x0\nuncore_telem[390]=0x0\nuncore_telem[391]=0x0\nuncore_telem[392]=0x0\nuncore_telem[393]=0x0\nuncore_telem[394]=0x0\nuncore_telem[395]=0x0\nuncore_telem[396]=0x0\nuncore_telem[397]=0x0\nuncore_telem[398]=0x0\nuncore_telem[399]=0x0\nuncore_telem[400]=0x0\nuncore_telem[401]=0x0\nuncore_telem[402]=0x0\nuncore_telem[403]=0x0\nuncore_telem[404]=0x0\nuncore_telem[405]=0x0\nuncore_telem[406]=0x0\nuncore_telem[407]=0x0\nuncore_telem[408]=0x0\nuncore_telem[409]=0x0\nuncore_telem[410]=0x0\nuncore_telem[411]=0x0\nuncore_telem[412]=0x0\nuncore_telem[413]=0x0\nuncore_telem[414]=0x0\nuncore_telem[415]=0x0\nuncore_telem[416]=0x0\nuncore_telem[417]=0x0\nuncore_telem[418]=0x0\nuncore_telem[419]=0x0\nuncore_telem[420]=0x0\nuncore_telem[421]=0x0\nuncore_telem[422]=0x0\nuncore_telem[423]=0x0\nuncore_telem[424]=0x0\nuncore_telem[425]=0x0\nuncore_telem[426]=0x0\nuncore_telem[427]=0x0\nuncore_telem[428]=0x0\nuncore_telem[429]=0x0\nuncore_telem[430]=0x0\nuncore_telem[431]=0x0\nuncore_telem[432]=0x0\nuncore_telem[433]=0x0\nuncore_telem[434]=0x0\nuncore_telem[435]=0x0\nuncore_telem[436]=0x0\nuncore_telem[437]=0x0\nuncore_telem[438]=0x0\nuncore_telem[439]=0x0\nuncore_telem[440]=0x0\nuncore_telem[441]=0x0\nuncore_telem[442]=0x0\nuncore_telem[443]=0x0\nuncore_telem[444]=0x0\nuncore_telem[445]=0x0\nuncore_telem[446]=0x0\nuncore_telem[447]=0x0\nuncore_telem[448]=0x0\nuncore_telem[449]=0x0\nuncore_telem[450]=0x0\nuncore_telem[451]=0x0\nuncore_telem[452]=0x0\nuncore_telem[453]=0x0\nuncore_telem[454]=0x0\nuncore_telem[455]=0x0\nuncore_telem[456]=0x0\nuncore_telem[457]=0x0\nuncore_telem[458]=0x0\nuncore_telem[459]=0x0\nuncore_telem[460]=0x0\nuncore_telem[461]=0x0\nuncore_telem[462]=0x0\nuncore_telem[463]=0x0\nuncore_telem[464]=0x0\nuncore_telem[465]=0x0\nuncore_telem[466]=0x0\nuncore_telem[467]=0x0\nuncore_telem[468]=0x0\nuncore_telem[469]=0x0\nuncore_telem[470]=0x0\nuncore_telem[471]=0x0\nuncore_telem[472]=0x0\nuncore_telem[473]=0x0\nuncore_telem[474]=0x0\nuncore_telem[475]=0x0\nuncore_telem[476]=0x0\nuncore_telem[477]=0x0\nuncore_telem[478]=0x0\nuncore_telem[479]=0x0\nuncore_telem[480]=0x0\nuncore_telem[481]=0x0\nuncore_telem[482]=0x0\nuncore_telem[483]=0x0\nuncore_telem[484]=0x0\nuncore_telem[485]=0x0\nuncore_telem[486]=0x0\nuncore_telem[487]=0x0\nuncore_telem[488]=0x0\nuncore_telem[489]=0x0\nuncore_telem[490]=0x0\nuncore_telem[491]=0x0\nuncore_telem[492]=0x0\nuncore_telem[493]=0x0\nuncore_telem[494]=0x0\nuncore_telem[495]=0x0\nuncore_telem[496]=0x0\nuncore_telem[497]=0x0\nuncore_telem[498]=0x0\nuncore_telem[499]=0x0",
+        "status": "ok",
+        "nonzero": true
+      }
+    ],
+    "IMH0_FSMS_Power": [
+      {
+        "label": "Power CTL1 IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.power_ctl1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xa0084005e",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "OPC HWP Controls IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.opc_hwp_controls",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "PLR Mailbox Interface IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.plr_mailbox_interface",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "PLR Mailbox Data IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.plr_mailbox_data",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "SST PP Info 0 IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.sst_pp_info_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xf0f1818",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "SST PP Info 4 (TRL) IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.sst_pp_info_4",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "SST PP Info 11 (P0/P1/Pm) IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.sst_pp_info_11",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x4081504051824",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "SST PP Control IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.sst_pp_control",
+        "value": "0x8",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "SST PP Status IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.sst_pp_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x8",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "SST TF Info 0 IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.sst_tf_info_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xf0f1818181033",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "SST TF Info 2 IMH0",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.sst_tf_info_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Uncore Telemetry Mapping",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.uncore_telemetry_mapping",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n)\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Uncore FIVR Error Log CFG",
+        "path": "sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.uncore_fivr_err_log_cfg",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      }
+    ],
+    "OOBMSM_Telemetry": [
+      {
+        "label": "Oobmsm Telem Params 0 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.oobmsm_telem_params_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Oobmsm Telem Params 0 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.oobmsm_telem_params_0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Oobmsm Telem Params 1 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.oobmsm_telem_params_1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Oobmsm Telem Params 1 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.oobmsm_telem_params_1",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Oobmsm Telem Params 2 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.oobmsm_telem_params_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Oobmsm Telem Params 2 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.oobmsm_telem_params_2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Oobmsm Telem Params 3 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.oobmsm_telem_params_3",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Oobmsm Telem Params 3 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.oobmsm_telem_params_3",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Oobmsm Telem Params 4 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.oobmsm_telem_params_4",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Oobmsm Telem Params 4 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.oobmsm_telem_params_4",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Oobmsm Telem Params 5 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.oobmsm_telem_params_5",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Oobmsm Telem Params 5 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.oobmsm_telem_params_5",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Oobmsm Telem Params 6 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.oobmsm_telem_params_6",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Oobmsm Telem Params 6 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.oobmsm_telem_params_6",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Oobmsm Telem Params 7 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.oobmsm_telem_params_7",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Oobmsm Telem Params 7 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.oobmsm_telem_params_7",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Oobmsm Telem Params 8 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.oobmsm_telem_params_8",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Oobmsm Telem Params 8 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.oobmsm_telem_params_8",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Package Energy+Time Status",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.package_energy_time_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\natus.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute package_energy_time_status",
+        "status": "error",
+        "nonzero": false
+      }
+    ],
+    "DRC_MISC": [
+      {
+        "label": "Drc Header CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.drc_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xffffffffffffffff",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Drc Header CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.drc_header",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0xffffffffffffffff",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Drc Control CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.drc_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Drc Control CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.drc_control",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Drc Status CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.drc_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Drc Status CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.drc_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Drc Config0 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.drc_config0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Drc Config0 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.drc_config0",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Drc Config1 CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.drc_config1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Drc Config1 CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.drc_config1",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Ia32 Misc Package Ctls CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.ia32_misc_package_ctls",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Ia32 Misc Package Ctls CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.ia32_misc_package_ctls",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Interface Select CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.interface_select",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Interface Select CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.interface_select",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Overclocking Mailbox CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.overclocking_mailbox",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Overclocking Mailbox CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.overclocking_mailbox",
+        "value": "0x0",
+        "status": "ok",
+        "nonzero": false
+      },
+      {
+        "label": "Overclocking Secure Status CBB0",
+        "path": "sv.socket0.cbb0.base.tpmi.overclocking_secure_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "Overclocking Secure Status CBB1",
+        "path": "sv.socket0.cbb1.base.tpmi.overclocking_secure_status",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n0x0",
+        "status": "ok",
+        "nonzero": true
+      },
+      {
+        "label": "PCU Misc Enables 2",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.pcu_misc_enables2",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute pcu_misc_enables2",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "PCU DFX Ctrl 2",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.pcu_dfx_ctrl2",
+        "value": "Traceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute pcu_dfx_ctrl2",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "LLC Config",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.llc_config",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute llc_config",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "LLC Structure",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.llc_structure",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute llc_structure",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Global NID Socket Map",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.global_nid_socket_0_to_3_map",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n_3_map.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute global_nid_socket_0_to_3_map",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Die Config",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.die_config",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute die_config",
+        "status": "error",
+        "nonzero": false
+      },
+      {
+        "label": "Turbo Activation Ratio",
+        "path": "sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.turbo_activation_ratio",
+        "value": "[newport.mb.mcp0.imh_die0.gpsb_router spec-viol] nonposted from newport.mb.mcp0.imh_die0.oobmsm.oobmsm[0].port.gpsb (src_id=0x0009): message to dest_id=0x0014 which has no agent mapped\n.read()\nTraceback (most recent call last):\n  File \"<cmdline>\", line 1, in <module>\n  File \"/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py\", line 339, in __getattr__\n    raise AttributeError(\"Unknown Attribute {0}\".format(attr))\nAttributeError: Unknown Attribute turbo_activation_ratio",
+        "status": "error",
+        "nonzero": false
+      }
+    ]
+  }
+}

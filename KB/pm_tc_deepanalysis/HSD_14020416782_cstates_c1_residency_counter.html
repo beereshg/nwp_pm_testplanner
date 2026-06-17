@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: CStates C1 residency counter</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: CStates C1 residency counter</h1>
+      <p>Segment: FV | Source: HSD_14020416782_cstates_c1_residency_counter.inference.md | Generated: 2026-06-17 21:14:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: CStates C1 residency counter</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>14020416782</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>CStates C1 residency counter</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-05-27</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Core C-States</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>C1/C1E residency counters are supported on NWP with the same per-core MSR interface (0x778). The test requires only CBB/core count adaptation (2 CBBs × 48 cores = 96 total).</p>
+<h3>Test Intent</h3>
+<p>Verify that the per-core C1 residency counter (MSR 0x778, `CC1_RESIDENCY`) increments monotonically when cores are placed in the C1 (halt) or C1E (enhanced halt) state. The test exercises C1 dwell via the MWAIT instruction (EAX[7:4]=0x0, sub-state=0x0 for C1; sub-state=0x1 for C1E) and reads back the residency counter before and after to confirm positive increment. On NWP, C1 and C1E are fully supported. The test uses `pm.focused.cstate_focus` module and measures KPI thresholds (minimum expected C1 residency percentage during idle). All 96 cores (2 CBBs × 48) must show increasing counters when placed in C1 state.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon or VP at boot-complete with minimal background load</li>
+<li>PythonSv + namednodes accessible</li>
+<li>`pm.focused.cstate_focus` module available</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Read baseline CC1 counter (MSR 0x778) per-core</td>
+<td>2 CBBs × 48 cores = 96 reads</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Trigger C1 dwell (OS idle or explicit MWAIT C1)</td>
+<td>Same stimulus; applies to all 96 cores</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Wait defined dwell period (e.g., 1 second)</td>
+<td>Same timing</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Re-read CC1 counter on all cores</td>
+<td>Verify positive delta on all 96 cores</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify C1E residency also captured (sub-state 1)</td>
+<td>Check with C1E enabled (POWER_CTL1.C1E_ENABLE=1)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Confirm C6 residency NOT inflated (cores stayed in C1)</td>
+<td>CC6 counter (MSR 0x3FD) should not increase significantly</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>CC1 residency counter (MSR 0x778) increases on all 96 cores after C1 dwell</li>
+<li>C1 residency KPI threshold met (expected percentage configured in test plan)</li>
+<li>CC6 counter stays low during C1-only dwell sequence</li>
+<li>No core shows CC1 = 0 after a sustained idle period</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<h3>Core Count</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>Total cores</td>
+<td>Up to 256</td>
+<td>**96**</td>
+<td>Smaller sample; all cores must still pass</td>
+</tr>
+<tr>
+<td>CBB count</td>
+<td>Up to 4</td>
+<td>**2**</td>
+<td>`range(4)` → `range(2)`</td>
+</tr>
+<tr>
+<td>Cores per CBB</td>
+<td>64</td>
+<td>**48**</td>
+<td>`range(64)` → `range(48)`</td>
+</tr>
+<tr>
+<td>C1 / C1E support</td>
+<td>Yes</td>
+<td>**Yes**</td>
+<td>No change</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<table class="md-table"><thead><tr>
+<th>Category</th>
+<th>Register</th>
+<th>Field</th>
+<th>Expected</th>
+<th>Verify On</th>
+</tr></thead><tbody>
+<tr>
+<td>C1 Residency</td>
+<td>MSR 0x778 (`CC1_RESIDENCY`)</td>
+<td>full 64-bit</td>
+<td>Monotonic increase</td>
+<td>Per-core, 96 cores</td>
+</tr>
+<tr>
+<td>C1E Enable</td>
+<td>MSR 0x1FC (`POWER_CTL1`)</td>
+<td>bit[1]</td>
+<td>1 (enabled for C1E sub-test)</td>
+<td>Package</td>
+</tr>
+<tr>
+<td>C6 Residency</td>
+<td>MSR 0x3FD (`CC6_RESIDENCY`)</td>
+<td>full</td>
+<td>Minimal increase during C1 dwell</td>
+<td>Per-core</td>
+</tr>
+</tbody></table>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+import time
+
+before_cc1 = {}
+for cbb_idx in range(2):    # NWP: 2 CBBs
+    for core_idx in range(48):  # NWP: 48 cores/CBB
+        cbb = sv.socket0.getbypath(f&quot;cbb{cbb_idx}&quot;)
+        before_cc1[(cbb_idx, core_idx)] = cbb.core[core_idx].read_msr(0x778)
+
+time.sleep(2)   # Dwell period
+
+fails = 0
+for cbb_idx in range(2):
+    for core_idx in range(48):
+        cbb = sv.socket0.getbypath(f&quot;cbb{cbb_idx}&quot;)
+        after = cbb.core[core_idx].read_msr(0x778)
+        delta = after - before_cc1[(cbb_idx, core_idx)]
+        if delta == 0:
+            print(f&quot;WARN: CBB{cbb_idx} Core{core_idx} CC1 did not increment&quot;)
+            fails += 1
+
+print(f&quot;C1 residency check complete. Failures: {fails}/96&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**Background load** — any active core prevents C1 dwell</td>
+<td>Medium</td>
+<td>Ensure minimal OS activity during test</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**C1E vs C1** — test should cover both sub-states separately</td>
+<td>Low</td>
+<td>Run with C1E enabled and disabled</td>
+</tr>
+<tr>
+<td>3</td>
+<td>**KPI threshold** — NWP C1 residency threshold may differ from DMR</td>
+<td>Low</td>
+<td>Calibrate for 96-core NWP topology</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — Trivial adaptation needed (loop bounds only).**</p>
+<p>C1 residency counter test runs directly on NWP. Only change needed is core/CBB loop bounds.</p>
+<p>Required adaptations:</p>
+<p>1. `range(4)` → `range(2)` for CBBs; `range(64)` → `range(48)` for cores</p>
+<p>2. Update KPI threshold to NWP-appropriate value</p>
+<p>**Priority**: High — C1 residency is a fundamental bring-up validation checkpoint.</p>
+    </div>
+  </div>
+</body>
+</html>

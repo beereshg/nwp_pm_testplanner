@@ -1,0 +1,213 @@
+# HSD 14027887106: [DMR][RAPL] ICC_HARD_LIMIT is not changing to 1 when deep throttling (throttling below Pm) state is triggered with RAPL
+
+## Metadata
+
+| Field | Value |
+|-------|-------|
+| **HSD ID** | [14027887106](https://hsdes.intel.com/appstore/article-one/#/14027887106) |
+| **Status** | open.clone |
+| **Priority** | 3-medium |
+| **Owner** | salmanha |
+| **Component** | hw.power |
+| **Defect Die** | compute |
+| **Conclusion** |  |
+
+## Classification
+
+| Dimension | Value | Confidence |
+|-----------|-------|------------|
+| **Root Cause Type** | **UNKNOWN** | 20% |
+| **Feature** | Power/RAPL | 80% |
+| **Sub-Feature** | VR | — |
+
+**Reasoning**: No strong indicators found
+
+## Root Cause Summary
+
+Original issue: Core Throttling Issue: No Throttle Below Pm with RAPL PID Out = 1--->  (
+
+https://hsdes.intel.com/appstore/article-one/#/16029411875
+
+)
+
+Summary:
+
+In the scenario described in the HAS, beyond architectural throttling and PLL clock divide, Pcode is required to program all cores to operate at their Cdyn0 through WP3 programming, as follows:
+
+ICC_SOFT_LIMIT=1
+
+ICC_HARD_LIMIT=1
+
+The definition of the exit behavior is captured in the RAPL HAS. For clarity, since Pcode does not current
+
+## Raw HSD Text
+
+<!-- This section provides raw HSD data for agent enrichment (Stage 3b). -->
+<!-- The Copilot agent extracts root cause, fix description, code refs, and diagrams. -->
+
+### Forum Notes
+will talk with pCode to find any potential bugeco for debugging.
+
+### Description
+Original issue: Core Throttling Issue: No Throttle Below Pm with RAPL PID Out = 1--->  (
+
+https://hsdes.intel.com/appstore/article-one/#/16029411875
+
+)
+
+Summary:
+
+In the scenario described in the HAS, beyond architectural throttling and PLL clock divide, Pcode is required to program all cores to operate at their Cdyn0 through WP3 programming, as follows:
+
+ICC_SOFT_LIMIT=1
+
+ICC_HARD_LIMIT=1
+
+The definition of the exit behavior is captured in the RAPL HAS. For clarity, since Pcode does not currently run any current PID control loop, the ICC limits must be set to their maximum values.
+
+ICC_SOFT_LIMIT=0xFF
+
+ICC_HARD_LIMIT=0xFF
+
+In deep throttled state we are seeing:
+
+ICC_SOFT_LIMIT=0x1
+
+ICC_HARD_LIMIT=0xFF
+
+In deep throttled exit state we are seeing:
+
+ICC_SOFT_LIMIT=0x1
+
+ICC_HARD_LIMIT=0xFF
+
+Without throttling 
+
+icc_soft_limit=1
+
+ and 
+
+icc_hard_limit=0xff, 
+
+while
+
+ core freq=2600MHz
+
+On triggering throttling condition
+
+(Socket PL1=0)
+
+ the values are
+
+ 
+
+icc_soft_limit=1
+
+ and 
+
+icc_hard_limit=0xff, 
+
+with 
+
+core ratio = 400MHz.
+
+icc_hard_limit is not getting 1 with throttling.
+
+In [31]: sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_pl1_control.pwr_lim
+
+Out[31]: 0xfa0
+
+ 
+
+In [38]: sv.socket0.cbb0.compute0.pma4.pmsb.target_typeb_wp3.show()
+
+0x00000002 : num_domains_active_allowed (31:28) (rw/v) -- Number of domains...
+
+0x00000000 : rsvd0 (27:27) (rw) -- FIVR/DLVR Input Voltage Grant. (VCCIN VI...
+
+0x000007ff : vccin_grant (26:16) (rw/v) -- FIVR/DLVR Input Voltage Grant. (...
+
+0x000000ff : icc_hard_limit (15:08) (rw/v) -- Maximum allowable instantaneo...
+
+0x00000001 : icc_soft_limit (07:00) (rw/v) -- Maximum allowable current lim...
+
+ 
+
+In [39]: (sv.socket0.cbb0.compute0.pma4.pmsb.io_core_operating_point.core_ratio_16p67/6*100)
+
+Out[39]: 2600.0
+
+ 
+
+#Triggering Throttling using PL1=0 
+
+In [42]: sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_pl1_control.pwr_lim=0
+
+ 
+
+In [43]: sv.socket0.imh0.pcudata.raplVars.socket_rapl_pid_output
+
+Out[43]: 0x1
+
+ 
+
+In [44]: sv.
+
+### Comments (latest)
+++++14615440158 vwang
+[CloneScript] PreSighting 16030594221 cloned to Sighting 14027887106
+
+++++14615440174 vwang 
+We have a broken sighting: 16029411875    [DMR][X1 A0][RAPL] Core Throttling Issue: No Throttle Below Pm with RAPL PID Out = 1 This is a new one to cover the similar issue.
+
+### Component
+hw.power
+
+## Root Cause Description
+
+<!-- Populated by LLM enrichment stage (Stage 3b). -->
+
+## Fix Description
+
+<!-- Populated by LLM enrichment stage (Stage 3b). -->
+
+## Source Code References
+
+<!-- Populated by LLM enrichment stage (Stage 3b). -->
+
+## Component Interaction: Root Cause
+
+<!-- Populated by LLM enrichment stage (Stage 3b). -->
+
+## Component Interaction: Fix
+
+<!-- Populated by LLM enrichment stage (Stage 3b). -->
+
+## Feature Mapping
+
+- **Primary Feature**: Power/RAPL
+- **Sub-Feature**: VR
+- **Component Path**: hw.power
+
+## Firmware Touchpoints
+
+- No firmware touchpoints detected in text fields
+
+## Key Registers
+
+- `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_pl1_control.pwr_lim`
+- `sv.socket0.cbb0.compute0.pma4.pmsb.target_typeb_wp3.show`
+- `sv.socket0.cbb0.compute0.pma4.pmsb.io_core_operating_point.core_ratio_16p67`
+- `sv.socket0.imh0.pcudata.raplVars.socket_rapl_pid_output`
+
+## Timeline
+
+- **Submitted**: 2026-05-19 23:20:12
+- **Days Open**: 2
+
+## Lessons Learned
+
+<!-- Add lessons learned after human review -->
+
+---
+*Generated by classify_sightings.py at 2026-05-28T06:39:38+00:00*

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: RAPL PEM (PnP Excursion Monitor)</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: RAPL PEM (PnP Excursion Monitor)</h1>
+      <p>Segment: FV | Source: HSD_22022422032_rapl_pem_pnp_excursion_monitor.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: RAPL PEM (PnP Excursion Monitor)</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422032</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>RAPL PEM (PnP Excursion Monitor)</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PEM (PnP Excursion Monitor) — verify PEM status bits for PL1/PL2/Fast RAPL</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies the **PEM (PnP Excursion Monitor) status** for RAPL throttle events. PEM tracks power excursions above PL1/PL2/Fast RAPL limits. Reference: Wave 3 Common HAS §PEM_STATUS-Gen3-DMR.</p>
+<p>RAPL PEM registers (from test steps):</p>
+<ul>
+<li>`@sv.socket0.cbb0.base.tpmi.pem_control`</li>
+<li>`@sv.socket0.cbb0.base.tpmi.pem_status`</li>
+</ul>
+<p>On NWP: 2 CBBs — verify PEM on both `cbb0` and `cbb1`. Tags: `DMR_PO`, `plc.feature.p2`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>PEM Registers (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Register</th>
+<th>NWP Path</th>
+</tr></thead><tbody>
+<tr>
+<td>PEM control (cbb0)</td>
+<td>`sv.socket0.cbb0.base.tpmi.pem_control`</td>
+</tr>
+<tr>
+<td>PEM status (cbb0)</td>
+<td>`sv.socket0.cbb0.base.tpmi.pem_status`</td>
+</tr>
+<tr>
+<td>PEM control (cbb1)</td>
+<td>`sv.socket0.cbb1.base.tpmi.pem_control`</td>
+</tr>
+<tr>
+<td>PEM status (cbb1)</td>
+<td>`sv.socket0.cbb1.base.tpmi.pem_status`</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run cpu_rapl PMx</td>
+<td>`python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Set PL1 below current power to trigger PL1 RAPL excursion</td>
+<td>Active PL1 throttle</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read PEM status on cbb0 and cbb1</td>
+<td>`pem_status.rapl_pl1_excursion` bit set</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Trigger PL2 excursion (burst power &gt; PL2)</td>
+<td>PL2 timer expires</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Read PEM status for PL2 bit</td>
+<td>`pem_status.rapl_pl2_excursion`</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Trigger Fast RAPL excursion</td>
+<td>`pem_status.fast_rapl_excursion`</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify PEM status cleared after throttle ends</td>
+<td>Status bits reset after excursion ends</td>
+</tr>
+</tbody></table>
+<h3>NWP: Both CBBs</h3>
+<pre><code>
+# NWP PEM verification on both CBBs
+for cbb_idx in range(2):
+    pem = sv.socket0.getbypath(f&quot;cbb{cbb_idx}.base.tpmi.pem_status&quot;)
+    pem.show()
+</code></pre>
+<h3>Pass Criteria</h3>
+<ul>
+<li>PEM PL1 excursion bit set when PL1 is active throttle source</li>
+<li>PEM PL2 excursion bit set during PL2 burst</li>
+<li>PEM Fast RAPL bit set during Fast RAPL engagement</li>
+<li>PEM status bits correct on both cbb0 AND cbb1</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; PEM on both CBBs (`cbb0` and `cbb1`)**</p>
+<p>1. `python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</p>
+<p>2. Trigger PL1, PL2, Fast RAPL excursions; verify PEM status on both `cbb0` and `cbb1`</p>
+<p>3. Reference: Wave 3 Common HAS §PEM_STATUS-Gen3-DMR</p>
+<p>**Priority**: Medium — `plc.feature.p2`; PEM provides visibility into RAPL excursion events — critical for RAPL debug and monitoring</p>
+    </div>
+  </div>
+</body>
+</html>

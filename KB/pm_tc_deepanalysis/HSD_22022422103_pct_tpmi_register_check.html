@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: PCT - TPMI Register Check</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: PCT - TPMI Register Check</h1>
+      <p>Segment: FV | Source: HSD_22022422103_pct_tpmi_register_check.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: PCT - TPMI Register Check</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422103</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>PCT - TPMI register check</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SST</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PCT (Performance Core Tuning) — SST-TF-based HP/LP core frequency segmentation</td>
+</tr>
+<tr>
+<td>**Feature Classification**</td>
+<td>**Silicon-heavy** (CAPID4.bit29 fuse-gated; HW enforces HP/LP TRL) with firmware orchestration (PCode/BIOS/PrimeCode/Acode)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>PCT (Performance Core Tuning) partitions cores into High Priority (HP) and Low Priority (LP) groups, allowing HP cores to run at a higher turbo frequency when power allows. PCT relies on SST-TF infrastructure (TPMI-based CLOS configuration), and SST-TF is **functional on NWP** (not ZBB).</p>
+<p>Test verifies TPMI registers after boot:</p>
+<ul>
+<li>`SST_CLOS_CONFIG[0]`: HP cores — min=P1, max=SST_TF turbo ratio</li>
+<li>`SST_CLOS_CONFIG[3]`: LP cores — min=Pn, max=LP clip ratio</li>
+<li>`SST_CP_CONTROL.SST_CP_PRIORITY_TYPE = 1` (Ordered Throttling)</li>
+<li>`SST_PP_CONTROL.feature_state[1] = 1` (SST-TF enabled)</li>
+</ul>
+<p>NWP topology: 2 CBBs × 48 cores = 96 total cores; `sst_pp_control` per CBB.</p>
+<p>Tags: `plc.feature.p1`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Adapted Command (NWP)</h3>
+<pre><code>
+python runPmx.py -x nwp.xml -p pct -tM 60 -M 10 --retry_count 2
+</code></pre>
+<h3>NWP CLOS Configuration Check</h3>
+<pre><code>
+# NWP: verify PCT CLOS config per CBB (2 CBBs, 48 cores each)
+for cbb_idx in range(2):
+    cbb = sv.socket0.cbb[cbb_idx]
+    # Check CLOS config for HP (CLOS[0]) and LP (CLOS[3])
+    # cbb.punit.sst_clos_config[0]  -- HP config
+    # cbb.punit.sst_clos_config[3]  -- LP config
+    # cbb.punit.sst_cp_control.sst_cp_priority_type  -- expect = 1
+</code></pre>
+<h3>Pass Criteria</h3>
+<ul>
+<li>`SST_CLOS_CONFIG[0]` and `[3]` match BIOS settings</li>
+<li>`SST_CP_CONTROL.SST_CP_PRIORITY_TYPE = 1` (Ordered Throttling)</li>
+<li>`SST_PP_CONTROL.feature_state[1] = 1` per CBB</li>
+<li>HP cores subscribed to CLOS[0], LP cores to CLOS[3]</li>
+<li>`pct` PMx plugin passes for NWP</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; 2 CBBs × 48 cores; PCT/SST-TF functional on NWP; SST python package: `diamondrapids` → `newport`**</p>
+<p>**Priority**: High — `plc.feature.p1`, `PMSS_NWP_READINESS_CHECK`; PCT TPMI register baseline is foundation for all PCT functional tests</p>
+<p>---</p>
+<h2>Feature Classification: Silicon-Heavy with Firmware Orchestration</h2>
+<p>&gt; **PCT is primarily a silicon-heavy feature with moderate firmware orchestration.**</p>
+<p>&gt; Firmware/BIOS/PCode are important for discovery, programming, and policy — but the</p>
+<p>&gt; feature is fundamentally rooted in hardware capability and hardware behavior.</p>
+<h3>Silicon-Heavy Evidence</h3>
+<ul>
+<li>`CAPID4.bit29 = PCT_ENABLE`: feature is fuse-gated — silicon capability, not a firmware construct</li>
+<li>Core frequency/TRL enforcement happens in hardware (Acode + CBB PCode at RTL level)</li>
+<li>Topology (HP/LP core assignment) implemented in silicon CLOS hardware</li>
+<li>Key scenarios (C6 interaction, TDP convergence, real power/frequency) require real silicon</li>
+<li>PSS model gaps exist: VP cannot model exact Acode behavior; HSLE cannot model cross-die HPM</li>
+</ul>
+<h3>Firmware Orchestration Responsibilities</h3>
+<table class="md-table"><thead><tr>
+<th>Firmware Agent</th>
+<th>PCT Role</th>
+</tr></thead><tbody>
+<tr>
+<td>BIOS</td>
+<td>Capability check (CAPID4.bit29); knob exposure; TPMI/MSR programming order</td>
+</tr>
+<tr>
+<td>PCode (CBB)</td>
+<td>Dereferences SST_CLOS_CONFIG; applies HP/LP TRL to cores</td>
+</tr>
+<tr>
+<td>PrimeCode (NIO/IMH)</td>
+<td>Sends HPM RAPL_PERF_LIMIT messages with PCT-adjusted limits</td>
+</tr>
+<tr>
+<td>Acode (core uCode)</td>
+<td>Applies derating ratio to HP vs LP cores at execution level</td>
+</tr>
+</tbody></table>
+<h3>Implication for This TC (FV — TPMI Register Check)</h3>
+<p>This TC is **directly in the silicon-heavy domain**: it validates that the hardware TPMI</p>
+<p>registers (SST_CLOS_CONFIG, SST_CP_CONTROL, SST_PP_CONTROL) contain the correct values</p>
+<p>after BIOS/PCode programming. A failure here most likely indicates:</p>
+<p>1. **Silicon bug** — hardware ignores or misroutes the TPMI write</p>
+<p>2. **PCode bug** — firmware writes wrong value to register</p>
+<p>3. **BIOS bug** — BIOS programs wrong partition count or CLOS assignment</p>
+<p>This TC is the **FV ground truth** — if it passes, silicon implements PCT registers correctly.</p>
+<p>PSS (pre-silicon) catches firmware/model bugs; PV catches driver/tool stack bugs.</p>
+<h3>Risk Prioritization</h3>
+<table class="md-table"><thead><tr>
+<th>Risk Owner</th>
+<th>Risk</th>
+<th>Likelihood</th>
+</tr></thead><tbody>
+<tr>
+<td>Silicon</td>
+<td>TPMI CLOS config write silently ignored</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>PCode</td>
+<td>Wrong CLOS priority type written (ordered vs proportional)</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>BIOS</td>
+<td>HP core count off-by-one for NWP 2-CBB topology</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>PCode</td>
+<td>SST_CP_CONTROL not updated after BIOS knob change</td>
+<td>Low</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Appendix: PCT Validation — Three-Tier Architecture Reference</h2>
+<p>&gt; This appendix is referenced by all PCT cache files. It captures the authoritative</p>
+<p>&gt; justification for why FV, PSS, and PV coverage is complementary, not duplicate.</p>
+<h3>Validation Architecture</h3>
+<pre><code>
+PRE-SILICON                    POST-SILICON
+─────────────────────          ────────────────────────────────────────
+PSS (Model Validation)         FV (Hardware Truth)    PV (System Behavior)
+  VP (Simics)                    Silicon                Silicon
+  HSLE (CBB or IMH RTL)          PythonSV→TPMI          sst→driver→sysfs→TPMI
+  HSLE XOS (IMH+CBB RTL)
+</code></pre>
+<h3>PSS Sub-Environment RTL Fidelity</h3>
+<table class="md-table"><thead><tr>
+<th>PSS Env</th>
+<th>RTL Fidelity</th>
+<th>What it validates</th>
+<th>Cannot validate</th>
+</tr></thead><tbody>
+<tr>
+<td>VP (Simics)</td>
+<td>Simulated core — Acode/core RTL **not** exact</td>
+<td>Firmware flows: PCode/PrimeCode TPMI writes, HPM messages, PCode state machine</td>
+<td>Core µarch response, exact Acode execution, real power/frequency</td>
+</tr>
+<tr>
+<td>HSLE</td>
+<td>Full RTL — one die at a time</td>
+<td>HW signal flows within one die; TPMI register behavior at gate level</td>
+<td>Cross-die IMH↔CBB HPM protocol; full-system power flows</td>
+</tr>
+<tr>
+<td>HSLE XOS</td>
+<td>Full RTL — **both IMH and CBB**</td>
+<td>End-to-end HW flows: HPM passing IMH↔CBB, TPMI→core response, PCode+PrimeCode co-execution</td>
+<td>OS stack (no Linux), real power/voltage</td>
+</tr>
+</tbody></table>
+<h3>Bug Coverage Matrix</h3>
+<table class="md-table"><thead><tr>
+<th>Bug Category</th>
+<th>VP</th>
+<th>HSLE</th>
+<th>HSLE XOS</th>
+<th>FV</th>
+<th>PV</th>
+</tr></thead><tbody>
+<tr>
+<td>PCode TPMI write logic</td>
+<td>✅</td>
+<td>⚠️</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅ indirect</td>
+</tr>
+<tr>
+<td>PrimeCode HPM message to CBB</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅ indirect</td>
+</tr>
+<tr>
+<td>CBB PCode misreads CLOS config</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅ indirect</td>
+</tr>
+<tr>
+<td>Acode applies wrong ratio to HP cores</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅ indirect</td>
+</tr>
+<tr>
+<td>IMH↔CBB HPM protocol bug</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅ indirect</td>
+</tr>
+<tr>
+<td>Silicon TPMI decoder HW bug</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅ indirect</td>
+</tr>
+<tr>
+<td>Real fuse gating PCT wrong</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅ indirect</td>
+</tr>
+<tr>
+<td>`intel-speed-select` driver bug</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>`sst` tool misparse capability</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>NWP 2-CBB topology in driver</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>TDP convergence (real power)</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>BIOS negative knob validation</td>
+<td>✅ safe</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌ risky</td>
+<td>❌</td>
+</tr>
+</tbody></table>
+<h3>Why PSS ≠ FV (Time axis, not content axis)</h3>
+<pre><code>
+Firmware bug in PCode TPMI write:
+  PSS → FAIL ✅  (catches it 6+ months before silicon)
+  FV  → FAIL ✅  (confirms on real silicon)
+
+Silicon TPMI decoder hardware bug:
+  PSS → PASS ❌  (RTL model may not have same layout bug)
+  FV  → FAIL ✅  (ground truth — only FV catches it)
+
+Model gap (missing TPMI field in VP):
+  PSS → PASS ❌  (model doesn&#x27;t implement that field)
+  FV  → ground truth behavior ✅
+</code></pre>
+<p>PSS = **early detection**; FV = **ground truth**. Neither replaces the other.</p>
+<h3>Why PSS ≠ PV (Interface axis)</h3>
+<p>PSS environments (VP/HSLE/XOS) run minimal boot — **no Linux OS, no `intel-speed-select` driver, no sysfs, no `sst` tool**. PV cannot run pre-silicon. Zero content overlap.</p>
+<h3>Scenario Ownership Summary</h3>
+<table class="md-table"><thead><tr>
+<th>Scenario</th>
+<th>PSS</th>
+<th>FV</th>
+<th>PV</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>Discovery / TPMI Check</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>All required — different layers</td>
+</tr>
+<tr>
+<td>Default HP Core / Config</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>3-layer validation</td>
+</tr>
+<tr>
+<td>Enable / Disable</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>Same feature, different layer</td>
+</tr>
+<tr>
+<td>C6 Interaction</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>HW-level; no OS needed</td>
+</tr>
+<tr>
+<td>Partition Sweep</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>Requires full driver stack</td>
+</tr>
+<tr>
+<td>TDP Convergence</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>Needs real silicon power</td>
+</tr>
+<tr>
+<td>BIOS Negative Validation</td>
+<td>✅</td>
+<td>❌ risky</td>
+<td>❌</td>
+<td>Safe only in emulation</td>
+</tr>
+</tbody></table>
+<h3>Final Verdict</h3>
+<p>&gt; **✅ Keep ALL tiers. Reject NO PCT TCs as duplicates.**</p>
+<p>&gt; PCT validation = 3-layer system: PSS (early) → FV (hardware truth) → PV (system behavior)</p>
+<p>&gt; These layers are complementary, not redundant.</p>
+<p>&gt;</p>
+<p>&gt; Feature classification: **Silicon-heavy** (CAPID4 fuse, HW TRL enforcement, Acode derating)</p>
+<p>&gt; with **moderate firmware orchestration** (BIOS knobs, PCode CLOS programming, PrimeCode HPM).</p>
+    </div>
+  </div>
+</body>
+</html>

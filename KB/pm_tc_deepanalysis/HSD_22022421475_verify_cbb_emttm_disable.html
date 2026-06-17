@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [CBB Thermal Management] Verify CBB EMTTM Disable</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [CBB Thermal Management] Verify CBB EMTTM Disable</h1>
+      <p>Segment: FV | Source: HSD_22022421475_verify_cbb_emttm_disable.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [CBB Thermal Management] Verify CBB EMTTM Disable</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421475</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[CBB Thermal Management] Verify CBB EMTTM Disable</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; CBB Thermal Management</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies that CBB-level EMTTM (PCode-managed PID thermal control for CCF/Ring and cross-throttle) can be disabled via the OS/BIOS control register `IA32_MISC_ENABLE[AUTO_THERMAL_CONTROL_CIRCUIT_ENABLE]` (bit 3). By default this is enabled; clearing it disables CBB EMTTM-triggered frequency throttling. On NWP, CBB EMTTM is supported and the `IA32_MISC_ENABLE` disable path exists. The test requires adapting the script from `dmr.xml` to `nwp.xml` and updating CBB monitoring from 4 to 2 CBBs.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>CBB EMTTM disable via `IA32_MISC_ENABLE` bit 3 is a standard x86 MSR path present on NWP</li>
+<li>`runPmx.py -p emttm_thermal` reusable with NWP config; `-x dmr.xml` → `-x nwp.xml`</li>
+<li>NWP has 2 CBBs (not 4); CBB-level register monitoring scope changes</li>
+<li>Sub-feature is `No_content_required` — mechanism is straightforward register write + verify</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP platform with CBB Pcode accessible via PythonSv</li>
+<li>`runPmx.py` available with NWP config</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Baseline: verify CBB EMTTM enabled — `IA32_MISC_ENABLE[3]` = 1</td>
+<td>Same MSR; package-level read</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run `emttm_test.loopSetup()`</td>
+<td>Change config to NWP (2 CBBs)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Disable CBB EMTTM: clear `IA32_MISC_ENABLE[AUTO_THERMAL_CONTROL_CIRCUIT_ENABLE]` = 0</td>
+<td>Same MSR write; package multicast</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Apply thermal load on CCF/Ring domain</td>
+<td>Same mechanism</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify CBB EMTTM does not throttle Ring/CCF frequency</td>
+<td>Check CCF ratio ceiling — should remain at P1 without EMTTM floor</td>
+<td>Loop over `range(2)` CBBs (not 4)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Re-enable CBB EMTTM: set `IA32_MISC_ENABLE[3]` = 1</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify EMTTM resumes throttling when thermal load applied</td>
+<td>Same acceptance criterion</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>After disabling `IA32_MISC_ENABLE[3]`: CBB EMTTM PID stops asserting CCF frequency limits even at overtemperature</li>
+<li>After re-enabling: CBB EMTTM PID resumes throttling</li>
+<li>Hardware thermtrip still active regardless of EMTTM state</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<h3>Topology Changes</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>CBB count</td>
+<td>4</td>
+<td>2</td>
+<td>Monitor `range(2)` CBBs</td>
+</tr>
+<tr>
+<td>Script XML</td>
+<td>`dmr.xml`</td>
+<td>`nwp.xml`</td>
+<td>Direct substitution</td>
+</tr>
+<tr>
+<td>`IA32_MISC_ENABLE` MSR</td>
+<td>Package multicast</td>
+<td>Same</td>
+<td>No adaptation needed</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>Register Check Table (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Category</th>
+<th>Register</th>
+<th>Field</th>
+<th>Expected</th>
+<th>Verify On</th>
+</tr></thead><tbody>
+<tr>
+<td>EMTTM enable</td>
+<td>`IA32_MISC_ENABLE` (MSR 0x1A0)</td>
+<td>`AUTO_THERMAL_CONTROL[3]`</td>
+<td>0 = disabled, 1 = enabled</td>
+<td>Package MSR</td>
+</tr>
+<tr>
+<td>Thermal status</td>
+<td>`IA32_PACKAGE_THERM_STATUS` (MSR 0x1B1)</td>
+<td>`THERMAL_MONITOR_STATUS[0]`</td>
+<td>0 when EMTTM disabled (no throttle asserted)</td>
+<td>Package</td>
+</tr>
+<tr>
+<td>CCF ratio</td>
+<td>CBB slow limits PMA_CR</td>
+<td>CCF ratio ceiling</td>
+<td>Unchanged (not EMTTM-limited)</td>
+<td>Per CBB</td>
+</tr>
+</tbody></table>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+# Read IA32_MISC_ENABLE EMTTM bit (use MSR read tool or OS utility)
+# MSR 0x1A0 bit 3 = AUTO_THERMAL_CONTROL_CIRCUIT_ENABLE
+
+# Check IA32_PACKAGE_THERM_STATUS on package
+# Verify thermal throttle status bit is 0 when EMTTM disabled + thermal load applied
+
+# Check per-CBB thermal status on NWP (2 CBBs)
+for cbb_idx in range(2):  # NWP has 2 CBBs
+    try:
+        punit = sv.socket0.getbypath(f&quot;cbb{cbb_idx}.base.tpmi&quot;)
+        thermal_sts = punit.getbypath(&quot;thermal_status&quot;).read()
+        print(f&quot;CBB{cbb_idx} thermal status: 0x{thermal_sts:08X}&quot;)
+    except Exception as e:
+        print(f&quot;CBB{cbb_idx}: {e}&quot;)
+
+# Package-level EMTTM disable flag
+ptpcfsms = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms
+try:
+    modes = ptpcfsms.pcode_system_modes_control.read()
+    emttm_disable = (modes &gt;&gt; 6) &amp; 1
+    print(f&quot;Package EMTTM_DISABLE: {emttm_disable}&quot;)
+except Exception as e:
+    print(f&quot;Package modes: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**Safety risk when CBB EMTTM disabled on silicon** — disabling EMTTM on live silicon with real thermal load could cause overheating; test must use controlled thermal conditions</td>
+<td>High</td>
+<td>Run with thermal monitoring safety guardrail; thermtrip still active</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**`IA32_MISC_ENABLE` multicast scope** — on NWP, verify that writing pkg MSR disables EMTTM on all 2 CBBs simultaneously (not per-CBB register)</td>
+<td>Low</td>
+<td>Standard x86 multicast behavior; verify on NWP bring-up</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADAPT — config substitution + thermal safety guardrail required**</p>
+<p>CBB EMTTM disable is the same mechanism on NWP as DMR. The primary adaptation is script config (dmr.xml → nwp.xml) and CBB monitoring scope (4→2). A thermal safety guardrail is required when running on silicon.</p>
+<p>Required adaptations:</p>
+<p>1. Change `runPmx.py -x dmr.xml` → `-x nwp.xml`</p>
+<p>2. Update CBB monitoring loop to `range(2)`</p>
+<p>3. Add thermal safety guardrail (temperature monitor + abort condition)</p>
+<p>**Priority**: Medium — EMTTM disable is a DFx/compliance test; important for bring-up but lower priority than functional throttle tests</p>
+    </div>
+  </div>
+</body>
+</html>

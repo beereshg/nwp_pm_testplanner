@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: RAPL Response Time and Quality</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: RAPL Response Time and Quality</h1>
+      <p>Segment: FV | Source: HSD_22022421965_rapl_response_time_and_quality.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: RAPL Response Time and Quality</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421965</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>RAPL Response time and quality</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PL1/PL2 convergence time — power must converge within 5× tau</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **RAPL convergence quality**:</p>
+<ul>
+<li>Consumed power (measured via energy status) must converge to PL1 and PL2 within **5× the programmed tau** value</li>
+<li>Uses `pm.pmutils.cpu_rapl.py` functions: `pl1_limit_convergence` and `pl2_limit_convergence`</li>
+</ul>
+<p>Test steps:</p>
+<p>1. Run workload (e.g., PTU TDP `./ptu -ct 3`)</p>
+<p>2. Set PL1/PL2 limit (must be above idle power to ensure convergence)</p>
+<p>3. Measure convergence time to the set limit</p>
+<p>4. Verify convergence ≤ 5× tau</p>
+<p>On NWP: same RAPL PID control loop; tau fuses from `imh0.fuses.punit.*`; `plc.feature.p2`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run cpu_rapl PMx</td>
+<td>`python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Start workload above idle (PTU TDP)</td>
+<td>`./ptu -ct 3` or equivalent on NWP</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Call `pl1_limit_convergence(target_pl1)`</td>
+<td>Set PL1 above idle power; measure convergence time</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify convergence time ≤ 5× tau1</td>
+<td>Tau1 read from `IA32_PACKAGE_POWER_LIMIT.TIME_WINDOW_POWER_LIMIT1`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Call `pl2_limit_convergence(target_pl2)`</td>
+<td>Set PL2; measure convergence time</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify convergence time ≤ 5× tau2</td>
+<td>Tau2 from PL2 MSR time window field</td>
+</tr>
+</tbody></table>
+<h3>NWP RAPL MSR Paths</h3>
+<table class="md-table"><thead><tr>
+<th>MSR</th>
+<th>Path</th>
+</tr></thead><tbody>
+<tr>
+<td>Package power limit</td>
+<td>`IA32_PACKAGE_POWER_LIMIT` (MSR 0x610)</td>
+</tr>
+<tr>
+<td>Package energy status</td>
+<td>`IA32_PACKAGE_ENERGY_STATUS` (MSR 0x611)</td>
+</tr>
+<tr>
+<td>Tau field</td>
+<td>Bits [23:17] of MSR 0x610 (PL1 tau), bits [55:49] (PL2 tau)</td>
+</tr>
+</tbody></table>
+<pre><code>
+# NWP convergence test using pmutils
+import pm.pmutils.cpu_rapl as rapl
+rapl.pl1_limit_convergence(target_watts=&lt;above_idle&gt;)
+rapl.pl2_limit_convergence(target_watts=&lt;above_idle&gt;)
+</code></pre>
+<h3>NWP Key Note</h3>
+<ul>
+<li>Avoid setting PL1/PL2 below idle power (convergence will not occur)</li>
+<li>NWP 96 cores (48/CBB × 2 CBBs) — total socket power must exceed limit for RAPL to activate</li>
+<li>`runPmx.py -x nwp.xml` (not `dmr.xml`)</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>PL1 convergence time ≤ 5× tau1</li>
+<li>PL2 convergence time ≤ 5× tau2</li>
+<li>Energy status MSR reflects convergence</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; use `pl1_limit_convergence` + `pl2_limit_convergence` from pmutils**</p>
+<p>1. `python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</p>
+<p>2. Run PTU workload; set PL1/PL2 above idle power; measure convergence ≤ 5× tau</p>
+<p>3. NWP: 2 CBBs × 48 cores; tau from MSR 0x610; energy from MSR 0x611</p>
+<p>**Priority**: Medium — `plc.feature.p2`; RAPL response time quality is a key correctness validation for power management accuracy</p>
+    </div>
+  </div>
+</body>
+</html>

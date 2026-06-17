@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: HWP Functionality With OS Optin</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: HWP Functionality With OS Optin</h1>
+      <p>Segment: FV | Source: HSD_22022422305_hwp_functionality_with_os_optin.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: HWP Functionality With OS Optin</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422305</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>HWP Functionality with OS Optin</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Pstate Stack</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>HWP Native Mode — OS optin via IA32_PM_ENABLE (MSR 0x770)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>In **HWP Native Mode**, the OS has the option to use HWP or legacy P-state interface. A HWP-agnostic OS uses legacy interface. When the OS opts in (writes to `IA32_PM_ENABLE` MSR 0x770, bit 0 = 1), HWP interface is enforced. The test verifies:</p>
+<p>1. System uses legacy P-states before OS opts in</p>
+<p>2. After OS optin (MSR 0x770), HWP interface is enforced</p>
+<p>3. Transition from legacy to HWP mode is seamless</p>
+<p>On NWP, same `IA32_PM_ENABLE` optin mechanism applies.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>HWP OS optin via MSR 0x770 is architectural on NWP</li>
+<li>`plc.feature.p2` tag: P2 feature validation</li>
+<li>`PMSS_NWP_READINESS_CHECK` tag: evaluated for NWP</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>HWP Optin States</h3>
+<table class="md-table"><thead><tr>
+<th>State</th>
+<th>IA32_PM_ENABLE[0]</th>
+<th>P-state Interface</th>
+<th>Effect</th>
+</tr></thead><tbody>
+<tr>
+<td>Before optin</td>
+<td>0</td>
+<td>Legacy (`IA32_PERF_CTL`)</td>
+<td>HWP-agnostic OS can request ratios</td>
+</tr>
+<tr>
+<td>After optin</td>
+<td>1 (write-once)</td>
+<td>HWP (`IA32_HWP_REQUEST`)</td>
+<td>Legacy writes ignored; HWP autonomous</td>
+</tr>
+</tbody></table>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Boot NWP with `ProcessorHWPMEnable = 1` (native mode)</td>
+<td>Same BIOS knob</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Verify `IA32_PM_ENABLE[0] = 0` (before optin)</td>
+<td>`rdmsr 0x770` per core</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Run `hwpm_check` to exercise legacy interface</td>
+<td>`python runPmx.py -x nwp.xml -p hwpm_check -tM 60`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>OS opts in: write `IA32_PM_ENABLE[0] = 1`</td>
+<td>`wrmsr 0x770 0x1` (write-once)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify optin persists (write-once bit)</td>
+<td>`rdmsr 0x770` should return 1</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify HWP interface now enforced; legacy PERF_CTL ignored</td>
+<td>Issue legacy P-state; HWP APS overrides</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>Before optin: legacy P-state requests via `IA32_PERF_CTL` are honored</li>
+<li>After optin: `IA32_PM_ENABLE[0] = 1` (write-once; cannot be cleared)</li>
+<li>After optin: HWP APS controls frequency autonomously</li>
+<li>No MCAs during mode transition</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; HWP optin mechanism is architectural MSR**</p>
+<p>Required adaptations:</p>
+<p>1. `python runPmx.py -x nwp.xml -p hwpm_check -tM 60`</p>
+<p>2. NWP non-SMT: optin per physical core (96 cores; simpler than DMR multi-thread)</p>
+<p>3. Verify `IA32_PM_ENABLE` (MSR 0x770) write-once enforcement on NWP</p>
+<p>**Priority**: Low-Medium — no `DMR_PO`; HWP OS optin legacy→HWP transition validation</p>
+    </div>
+  </div>
+</body>
+</html>

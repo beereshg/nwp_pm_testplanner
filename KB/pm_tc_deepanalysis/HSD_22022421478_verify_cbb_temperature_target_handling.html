@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [CBB Thermal Management] Verify CBB Temperature Target Handling</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [CBB Thermal Management] Verify CBB Temperature Target Handling</h1>
+      <p>Segment: FV | Source: HSD_22022421478_verify_cbb_temperature_target_handling.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [CBB Thermal Management] Verify CBB Temperature Target Handling</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421478</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[CBB Thermal Management] Verify CBB Temperature Target Handling</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; CBB Thermal Management</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies that CBB Pcode correctly computes and applies the effective TjMax temperature target (`eff_tj_max`) used for all CBB EMTTM PID control loops. The `eff_tj_max` is calculated from SST-PP/BF temperature levels, C1E disable offset, TCC offset from MSR/TPMI, and OC offset. On NWP, `eff_tj_max` computation is supported but is simpler because SST-BF and SST-PP are ZBB (omitted from the formula). The test requires adapting the CBB loop from 4 to 2, updating the script config, and updating the expected eff_tj_max formula to exclude SST-PP/BF paths. The `NGA_MAIN` tag indicates this is a priority automation TC.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>`eff_tj_max` computation by CBB Pcode is present on NWP; the register `TEMPERATURE_TARGET` is in TPMI</li>
+<li>SST-BF and SST-PP are ZBB on NWP — eff_tj_max formula simplifies to: `fuse.TjMax - (c1e_offset + tcc_offset)`</li>
+<li>C1E offset path is still active on NWP (C1E is supported); must include in verification</li>
+<li>NWP has 2 CBBs (DMR: 4); `TEMPERATURE_TARGET` verification must cover both CBBs</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP platform (VP or silicon) with BIOS having programmed TCC_OFFSET</li>
+<li>PythonSv access to `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.temperature_target`</li>
+<li>C1E enable status readable</li>
+</ul>
+<h3>NWP eff_tj_max Formula</h3>
+<pre><code>
+# NWP eff_tj_max (simplified — no SST-PP/BF)
+eff_tj_max_c1e_offset = c1e_disabled ? fuse.TJ_MAX_C1E_DISABLED_OFFSET : 0
+eff_tj_max_msr_offset = max(MSR.IA32_TEMPERATURE_TARGET[TJ_MAX_TCC_OFFSET],
+                            TPMI.temperature_target.tcc_offset)
+eff_tj_max = fuse.HIGHEST_TJ_MAX - (eff_tj_max_c1e_offset + eff_tj_max_msr_offset)
+
+# Note: SST_PP_T_THROTTLE and SST_BF paths are NOT used on NWP (ZBB)
+</code></pre>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run `thermalManagement.py.thermTest` with NWP config</td>
+<td>2 CBBs, `nwp.xml`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read `fuse.HIGHEST_TJ_MAX` and `fuse.TJ_MAX_C1E_DISABLED_OFFSET`</td>
+<td>Same; read via PythonSv fuse namespace</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read `IA32_TEMPERATURE_TARGET[27:24]` (TCC_OFFSET from MSR)</td>
+<td>Same MSR</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read C1E enable from `MSR POWER_CTL[C1E_ENABLE]`</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Compute expected `eff_tj_max` using NWP formula (no SST-PP/BF)</td>
+<td>Update formula — omit SST_PP/BF lookup</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Read `TEMPERATURE_TARGET` from package TPMI (`ptpcfsms.temperature_target`)</td>
+<td>Same TPMI register</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify `TEMPERATURE_TARGET.tcc_offset` reflects the programmed offset</td>
+<td>Same acceptance criterion</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Change TCC_OFFSET via MSR (write new value); re-read and verify eff_tj_max updates</td>
+<td>Same</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>`eff_tj_max` computed by Pcode matches formula: `TjMax - (c1e_offset + tcc_offset)` (no SST-PP)</li>
+<li>`TEMPERATURE_TARGET` TPMI register reflects the effective TCC offset</li>
+<li>eff_tj_max updates within one Pcode slow-loop cycle (~1ms) after TCC_OFFSET change</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<h3>eff_tj_max Formula Differences</h3>
+<table class="md-table"><thead><tr>
+<th>Component</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>SST-PP T_THROTTLE base</td>
+<td>Active (level-dependent fuse)</td>
+<td>ZBB — use `fuse.HIGHEST_TJ_MAX`</td>
+<td>Test must use base TjMax fuse as reference</td>
+</tr>
+<tr>
+<td>SST-BF T_THROTTLE override</td>
+<td>Active when BF enabled</td>
+<td>ZBB — not applicable</td>
+<td>Remove SST-BF branch from verification</td>
+</tr>
+<tr>
+<td>C1E offset</td>
+<td>Conditional on C1E enable</td>
+<td>Same (C1E supported)</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>TCC_OFFSET MSR</td>
+<td>Active</td>
+<td>Same</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>OC offset</td>
+<td>Active when OC enabled</td>
+<td>Same (if OC enabled on NWP)</td>
+<td>Check NWP OC support</td>
+</tr>
+</tbody></table>
+<h3>Topology</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>CBBs</td>
+<td>4</td>
+<td>2</td>
+<td>Verify eff_tj_max on both CBBs</td>
+</tr>
+<tr>
+<td>Script XML</td>
+<td>`dmr.xml`</td>
+<td>`nwp.xml`</td>
+<td>Direct substitution</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>Register Check Table (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Category</th>
+<th>Register</th>
+<th>Field</th>
+<th>Expected</th>
+<th>Verify On</th>
+</tr></thead><tbody>
+<tr>
+<td>Temperature target</td>
+<td>`ptpcfsms.temperature_target`</td>
+<td>`tcc_offset`</td>
+<td>Programmed TCC_OFFSET value</td>
+<td>Package TPMI</td>
+</tr>
+<tr>
+<td>Package DTS</td>
+<td>`ptpcfsms.package_temperature_pmt`</td>
+<td>—</td>
+<td>Current package temperature</td>
+<td>Package PMT</td>
+</tr>
+<tr>
+<td>TjMax fuse</td>
+<td>NWP fuse namespace</td>
+<td>`HIGHEST_TJ_MAX`</td>
+<td>Fuse-programmed TjMax</td>
+<td>Package</td>
+</tr>
+<tr>
+<td>C1E enable</td>
+<td>`MSR POWER_CTL`</td>
+<td>`C1E_ENABLE[1]`</td>
+<td>1 (enabled)</td>
+<td>Package MSR</td>
+</tr>
+<tr>
+<td>TCC offset MSR</td>
+<td>`IA32_TEMPERATURE_TARGET`</td>
+<td>`TJ_MAX_TCC_OFFSET[27:24]`</td>
+<td>BIOS-programmed offset</td>
+<td>Package MSR</td>
+</tr>
+</tbody></table>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+# Read temperature target TPMI register (NWP)
+ptpcfsms = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms
+
+tcc_offset = ptpcfsms.temperature_target.tcc_offset_time_window.read()
+pkg_temp = ptpcfsms.package_temperature_pmt.read()
+print(f&quot;TCC offset: {tcc_offset}&quot;)
+print(f&quot;Package temp: {pkg_temp}&quot;)
+
+# Read per-CBB EMTTM temperature targets (NWP has 2 CBBs)
+for cbb_idx in range(2):  # NWP has 2 CBBs
+    try:
+        cbb_tpmi = sv.socket0.getbypath(f&quot;cbb{cbb_idx}.base.tpmi&quot;)
+        cbb_temp_tgt = cbb_tpmi.getbypath(&quot;temperature_target&quot;).read()
+        print(f&quot;CBB{cbb_idx} temperature_target: 0x{cbb_temp_tgt:08X}&quot;)
+    except Exception as e:
+        print(f&quot;CBB{cbb_idx}: {e}&quot;)
+
+# Read TjMax from fuses
+try:
+    tj_max = sv.socket0.imh0.fuses.punit.tj_max.read()
+    print(f&quot;Fuse TjMax: {tj_max}&quot;)
+except Exception as e:
+    print(f&quot;TjMax fuse: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**SST-PP ZBB changes verification reference** — test logic that reads SST_PP_T_THROTTLE as the base temperature must be updated to use fuse.HIGHEST_TJ_MAX directly</td>
+<td>Medium</td>
+<td>Update expected-value computation in `thermalManagement.py`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**OC offset on NWP** — if OC is not supported/enabled, the OC offset path (which *decrements* the offset, increasing headroom) must be excluded</td>
+<td>Low</td>
+<td>Verify NWP OC support in PM HAS</td>
+</tr>
+<tr>
+<td>3</td>
+<td>**CBB TPMI temperature_target register path** — NWP namednodes path needs bring-up validation</td>
+<td>Low</td>
+<td>Estimate in code above</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADAPT — SST-PP removal from formula + NGA prioritization**</p>
+<p>Temperature target handling is fundamentally supported on NWP. The key adaptation is removing SST-PP/BF paths from the eff_tj_max formula and using fuse TjMax directly. This is a high-priority test (NGA_MAIN) and should be among the first SoC Thermal TCs automated for NWP.</p>
+<p>Required adaptations:</p>
+<p>1. Update eff_tj_max formula in test: remove SST-PP/BF lookup; use `fuse.HIGHEST_TJ_MAX`</p>
+<p>2. Change script to NWP config (`nwp.xml`); CBB loop: `range(2)`</p>
+<p>3. Verify NWP `TEMPERATURE_TARGET` TPMI register path in namednodes</p>
+<p>**Priority**: Critical — NGA_MAIN; eff_tj_max correctness is prerequisite for all EMTTM throttle tests</p>
+    </div>
+  </div>
+</body>
+</html>

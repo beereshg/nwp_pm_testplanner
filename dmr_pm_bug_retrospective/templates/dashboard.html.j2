@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DMR PM Bug Retrospective Dashboard</title>
+<link rel="stylesheet" href="../templates/bug_analysis.css">
+</head>
+<body>
+
+<h1>DMR PM Bug Retrospective Dashboard</h1>
+<p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.5rem;">
+  {{ total }} sightings from HSD query {{ query_id }} · Generated {{ generated_at }}
+</p>
+
+<!-- ── Summary Cards ──────────────────────────── -->
+<div class="summary-cards">
+  <div class="summary-card">
+    <div class="count" style="color:var(--text-primary)">{{ total }}</div>
+    <div class="label">Total</div>
+  </div>
+  {% for rct, cnt in rc_counts %}
+  <div class="summary-card">
+    <div class="count" style="color:var(--{{ rc_color_map.get(rct, 'text-secondary') }})">{{ cnt }}</div>
+    <div class="label">{{ rct }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- ── Feature Breakdown ──────────────────────── -->
+<h2>By Feature</h2>
+<div class="card">
+  <table>
+    <tr><th>Feature</th><th>Count</th><th>Bar</th></tr>
+    {% for feat, cnt in feat_counts %}
+    <tr>
+      <td>{{ feat }}</td>
+      <td>{{ cnt }}</td>
+      <td>
+        <div style="background:var(--accent-blue);height:8px;width:{{ (cnt / max_feat_count * 200) | int }}px;border-radius:3px;"></div>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<!-- ── Filters ────────────────────────────────── -->
+<h2>Sighting Table</h2>
+<div class="filters">
+  <div class="filter-group">
+    <label for="flt-search">Search</label>
+    <input type="text" id="flt-search" placeholder="Title or ID...">
+  </div>
+  <div class="filter-group">
+    <label for="flt-rc">Root Cause</label>
+    <select id="flt-rc">
+      <option value="">All</option>
+      {{ rc_opts }}
+    </select>
+  </div>
+  <div class="filter-group">
+    <label for="flt-feat">Feature</label>
+    <select id="flt-feat">
+      <option value="">All</option>
+      {{ feat_opts }}
+    </select>
+  </div>
+  <div class="filter-group">
+    <label for="flt-priority">Priority</label>
+    <select id="flt-priority">
+      <option value="">All</option>
+      {{ priority_opts }}
+    </select>
+  </div>
+  <div class="filter-group">
+    <label for="flt-status">Status</label>
+    <select id="flt-status">
+      <option value="">All</option>
+      {{ status_opts }}
+    </select>
+  </div>
+  <div class="filter-group">
+    <label for="flt-die">Defect Die</label>
+    <select id="flt-die">
+      <option value="">All</option>
+      {{ die_opts }}
+    </select>
+  </div>
+  <div class="filter-group">
+    <label for="flt-conclusion">Conclusion</label>
+    <select id="flt-conclusion">
+      <option value="">All</option>
+      {{ conclusion_opts }}
+    </select>
+  </div>
+  <button class="btn-clear" onclick="clearFilters()">Clear</button>
+</div>
+
+<div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.5rem;">
+  Showing <span id="visible-count">{{ total }}</span> of {{ total }}
+</div>
+
+<table id="sighting-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Root Cause</th>
+      <th>Feature</th>
+      <th>Priority</th>
+      <th>Status</th>
+      <th>Die</th>
+      <th>Conclusion</th>
+      <th>Owner</th>
+      <th>Title</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{ table_rows }}
+  </tbody>
+</table>
+
+<script>
+const JS_ROWS = [{{ js_rows }}];
+
+function applyFilters() {
+  const fSearch = document.getElementById('flt-search').value.toLowerCase();
+  const fRc = document.getElementById('flt-rc').value;
+  const fFeat = document.getElementById('flt-feat').value;
+  const fPri = document.getElementById('flt-priority').value;
+  const fStatus = document.getElementById('flt-status').value;
+  const fDie = document.getElementById('flt-die').value;
+  const fConc = document.getElementById('flt-conclusion').value;
+
+  const rows = document.querySelectorAll('#sighting-table tbody tr');
+  let visible = 0;
+
+  rows.forEach((tr, i) => {
+    const d = JS_ROWS[i];
+    let show = true;
+    if (fSearch && !d.title.toLowerCase().includes(fSearch) && !d.id.includes(fSearch)) show = false;
+    if (fRc && d.rc !== fRc) show = false;
+    if (fFeat && d.feat !== fFeat) show = false;
+    if (fPri && d.priority !== fPri) show = false;
+    if (fStatus && d.status !== fStatus) show = false;
+    if (fDie && d.die !== fDie) show = false;
+    if (fConc && d.conclusion !== fConc) show = false;
+
+    tr.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+
+  document.getElementById('visible-count').textContent = visible;
+}
+
+function clearFilters() {
+  ['flt-search','flt-rc','flt-feat','flt-priority','flt-status','flt-die','flt-conclusion'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  applyFilters();
+}
+
+document.querySelectorAll('.filters select, .filters input').forEach(el => {
+  el.addEventListener('input', applyFilters);
+});
+</script>
+
+<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.75rem;color:var(--text-muted);">
+  Generated by DMR PM Bug Retrospective Pipeline at {{ generated_at }}
+</footer>
+
+</body>
+</html>

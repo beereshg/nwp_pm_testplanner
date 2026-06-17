@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [MR4] Verify End-to-End Functionality</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [MR4] Verify End-to-End Functionality</h1>
+      <p>Segment: FV | Source: HSD_22022421341_verify_end_to_end_functionality.inference.md | Generated: 2026-06-17 21:14:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [MR4] Verify End-to-End Functionality</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421341</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[MR4] Verify end to end Functionality</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Memory Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>MR4-based CLTT end-to-end — BIOS knob, thresholds, throttle, memhot, memtrip</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This is the **comprehensive MR4-based CLTT end-to-end test**: configure BIOS knob → set thresholds → warm DIMM → verify throttle at each band → verify memhot/memtrip assertion at each crossing.</p>
+<p>Uses `cltt.py`. Tags: `NGA_MAIN`, `plc.ti_gate.b0`, `plc.feature.p1`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>MR4 CLTT Registers</h3>
+<table class="md-table"><thead><tr>
+<th>Register</th>
+<th>Fields</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td>`mr4_temp_thresh[0:1]`</td>
+<td>low/mid/high/memtrip/2xrefresh</td>
+<td>MR4 temp threshold crossings</td>
+</tr>
+<tr>
+<td>`thr_ctrl0`</td>
+<td>throttle control</td>
+<td>Enable throttle per threshold</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Set BIOS knob `thermalthrottlingsupport` = MR4 mode</td>
+<td>BIOS knob config</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Configure MR4 thresholds: `mr4_temp_thresh[0:1]`</td>
+<td>Low/mid/high bands</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Run memory traffic workload</td>
+<td>Stress memory bandwidth</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Warm DIMM to low threshold</td>
+<td>Verify throttle at THRT_MID bandwidth</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Warm DIMM to mid threshold</td>
+<td>Verify throttle at THRT_HIGH bandwidth</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Warm DIMM to high threshold</td>
+<td>Verify throttle at THRT_CRIT bandwidth</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Cross memtrip threshold</td>
+<td>Verify MEMHOT output; verify MEMTRIP</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Run `cltt.py`</td>
+<td>Full automated CLTT verification</td>
+</tr>
+</tbody></table>
+<h3>NWP Command</h3>
+<pre><code>
+cltt.py
+# (with NWP python package path)
+</code></pre>
+<h3>Pass Criteria</h3>
+<ul>
+<li>Each temperature threshold crossing triggers correct throttle level</li>
+<li>MEMHOT output asserts when programmed threshold crossed</li>
+<li>MEMTRIP asserts when memtrip threshold crossed</li>
+<li>`cltt.py` passes for NWP MR4 mode</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — MR4 CLTT end-to-end; `cltt.py` needs NWP package; adapt paths; BIOS knob same name on NWP**</p>
+<p>**Priority**: High — `NGA_MAIN`, `plc.feature.p1`; end-to-end MR4 CLTT is the primary memory thermal management validation</p>
+    </div>
+  </div>
+</body>
+</html>

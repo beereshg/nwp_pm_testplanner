@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: Socket RAPL Verification - OOB</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: Socket RAPL Verification - OOB</h1>
+      <p>Segment: FV | Source: HSD_22022422040_socket_rapl_verification_oob.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: Socket RAPL Verification - OOB</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422040</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>Socket Rapl verification - OOB</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Validate all Socket RAPL TPMI registers via OOB (Out-of-Band) access</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **all TPMI Socket RAPL registers via OOB access** path (in-band via PythonSV + TPMI). The registers are in the `ptpcfsms` block, which aggregates the TPMI Socket RAPL domain.</p>
+<p>All registers under NWP path: `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.*`</p>
+<p>Tags: `DMR_PO`, `plc.feature.p2`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Complete NWP Socket RAPL TPMI Register Set</h3>
+<table class="md-table"><thead><tr>
+<th>TPMI Register</th>
+<th>NWP Path</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td>`socket_rapl_domain_header`</td>
+<td>`ptpcfsms.socket_rapl_domain_header`</td>
+<td>Socket RAPL domain capability header</td>
+</tr>
+<tr>
+<td>`socket_rapl_energy_status`</td>
+<td>`ptpcfsms.socket_rapl_energy_status`</td>
+<td>Socket energy counter</td>
+</tr>
+<tr>
+<td>`socket_rapl_perf_status`</td>
+<td>`ptpcfsms.socket_rapl_perf_status`</td>
+<td>Throttle counter</td>
+</tr>
+<tr>
+<td>`socket_rapl_pl1_control`</td>
+<td>`ptpcfsms.socket_rapl_pl1_control`</td>
+<td>PL1 limit, tau, lock, clamp, enable</td>
+</tr>
+<tr>
+<td>`socket_rapl_pl2_control`</td>
+<td>`ptpcfsms.socket_rapl_pl2_control`</td>
+<td>PL2 limit, tau, enable</td>
+</tr>
+<tr>
+<td>`socket_rapl_pl4_control`</td>
+<td>`ptpcfsms.socket_rapl_pl4_control`</td>
+<td>PL4 peak power limit</td>
+</tr>
+<tr>
+<td>`socket_rapl_pl_info`</td>
+<td>`ptpcfsms.socket_rapl_pl_info`</td>
+<td>Min/max power information</td>
+</tr>
+<tr>
+<td>`socket_rapl_power_unit`</td>
+<td>`ptpcfsms.socket_rapl_power_unit`</td>
+<td>Power/energy/time units</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run cpu_rapl PMx</td>
+<td>`python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>OOB read all Socket RAPL TPMI registers</td>
+<td>Via PythonSV `ptpcfsms` accessor</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify `socket_rapl_power_unit` encoding</td>
+<td>Power/energy/time units match spec defaults</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify `socket_rapl_pl_info` bounds</td>
+<td>Min/max power per fuse-driven TDP</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify `socket_rapl_domain_header`</td>
+<td>Capability bits correct for NWP</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify PL1/PL2/PL4 defaults</td>
+<td>Match fuse-driven or BIOS-programmed defaults</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify energy status incrementing</td>
+<td>Non-zero and increasing</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Cross-check PL1/PL2 vs CSR registers</td>
+<td>TPMI should match CSR (`package_rapl_limit_cfg`)</td>
+</tr>
+</tbody></table>
+<h3>Full OOB Register Dump</h3>
+<pre><code>
+# NWP: OOB dump of all Socket RAPL TPMI registers
+ptpcfsms = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms
+
+# All socket RAPL registers
+rapl_regs = [
+    &quot;socket_rapl_domain_header&quot;,
+    &quot;socket_rapl_energy_status&quot;,
+    &quot;socket_rapl_perf_status&quot;,
+    &quot;socket_rapl_pl1_control&quot;,
+    &quot;socket_rapl_pl2_control&quot;,
+    &quot;socket_rapl_pl4_control&quot;,
+    &quot;socket_rapl_pl_info&quot;,
+    &quot;socket_rapl_power_unit&quot;,
+]
+for reg in rapl_regs:
+    try:
+        r = ptpcfsms.getbypath(reg)
+        r.show()
+    except Exception as e:
+        print(f&quot;{reg}: ERROR {e}&quot;)
+</code></pre>
+<h3>Pass Criteria</h3>
+<ul>
+<li>All 8 Socket RAPL TPMI registers readable via OOB</li>
+<li>`socket_rapl_power_unit` fields match spec-defined encoding</li>
+<li>`socket_rapl_pl_info` min/max power bounds within spec</li>
+<li>`socket_rapl_domain_header` capability bits correct</li>
+<li>PL1/PL2 defaults consistent with fuse/BIOS settings</li>
+<li>TPMI registers agree with corresponding CSR registers</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — All ptpcfsms paths directly applicable to NWP; single imh0; enumerate all 8 RAPL TPMI registers**</p>
+<p>1. `python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</p>
+<p>2. OOB access all 8 Socket RAPL TPMI registers via `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.*`</p>
+<p>3. Cross-check against CSR equivalents; verify power unit encoding and pl_info bounds</p>
+<p>**Priority**: High — `plc.feature.p2`; comprehensive OOB register validation ensures TPMI Socket RAPL domain is fully accessible and correctly initialized</p>
+    </div>
+  </div>
+</body>
+</html>

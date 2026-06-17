@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: CState Fast C1E: Entry Flow Silicon</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: CState Fast C1E: Entry Flow Silicon</h1>
+      <p>Segment: FV | Source: HSD_14020416803_cstate_fast_c1e_entry_flow_silicon.inference.md | Generated: 2026-06-17 21:14:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: CState Fast C1E: Entry Flow Silicon</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>14020416803</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>CState Fast C1E: Entry flow_silicon</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Core C-States</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Fast C1E entry flow — frequency reduction, voltage setpoint, C1E period</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies the **Fast C1E entry flow**. When a core enters C1E:</p>
+<p>1. Frequency reduces to C1E working point (WP)</p>
+<p>2. Voltage reduces to Vmin</p>
+<p>3. Frequency = 4 (for 400MHz C1E WP)</p>
+<p>4. `acp_state.c1e_period = 1`</p>
+<p>Uses `pm.focused.cstate_focus.check_cst_focus()`. Tags: `DMR_PO`, `plc.feature.p1`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>C1E Entry Pass/Fail Criteria</h3>
+<table class="md-table"><thead><tr>
+<th>Signal</th>
+<th>Expected During C1E</th>
+</tr></thead><tbody>
+<tr>
+<td>`pma.control_c1e.enable`</td>
+<td>1 (C1E enabled)</td>
+</tr>
+<tr>
+<td>`pma.io_c1e_wp.core_voltage`</td>
+<td>Vmin (varies by SKU)</td>
+</tr>
+<tr>
+<td>`pma.io_c1e_wp.core_frequency`</td>
+<td>4 (400 MHz)</td>
+</tr>
+<tr>
+<td>`pma.acp_state.core_ratio`</td>
+<td>= C1E WP ratio</td>
+</tr>
+<tr>
+<td>`pma.acp_state.core_voltage`</td>
+<td>= C1E WP voltage</td>
+</tr>
+<tr>
+<td>`pma.acp_state.c1e_period`</td>
+<td>1 (in C1E)</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Boot SVOS with C1E enabled</td>
+<td>FastC1E BIOS knob on</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run cstate focus</td>
+<td>`import pm.focused.cstate_focus as cf; cf.check_cst_focus()`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>OR run via PMx</td>
+<td>`python runPmx.py -x nwp.xml -p cstates -H 1 -M 5`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Idle core → OS requests C1E</td>
+<td>Core enters C1 → promotes to C1E</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify frequency = 400MHz</td>
+<td>`io_c1e_wp.core_frequency = 4`</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify voltage at Vmin</td>
+<td>`io_c1e_wp.core_voltage` per SKU spec</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify `c1e_period = 1`</td>
+<td>In C1E state</td>
+</tr>
+</tbody></table>
+<h3>NWP PMA Path Adaptation</h3>
+<pre><code>
+# DMR PMA path (from test steps):
+# pma.control_c1e.enable
+# pma.io_c1e_wp.core_voltage, .core_frequency
+# pma.acp_state.core_ratio, .core_voltage, .c1e_period
+# NWP: adapt to NWP CBB/compute/pma hierarchy
+# sv.socket0.cbb0.compute0.pma0.core_pmsb_top.core_pma_pmsb.&lt;field&gt;
+</code></pre>
+<h3>Pass Criteria</h3>
+<ul>
+<li>`control_c1e.enable = 1` during C1E</li>
+<li>Frequency = 4 (400 MHz) at C1E WP</li>
+<li>Voltage = Vmin at C1E WP</li>
+<li>`c1e_period = 1` during C1E dwell</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; adapt PMA register paths to NWP hierarchy; C1E functional on NWP**</p>
+<p>**Priority**: High — `plc.feature.p1`; Fast C1E entry validation is critical for idle power — frequency/voltage at WP determines C1E power savings</p>
+    </div>
+  </div>
+</body>
+</html>

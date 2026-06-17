@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [TPMI/PMT] Verify Package Temperature PMT Register</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [TPMI/PMT] Verify Package Temperature PMT Register</h1>
+      <p>Segment: FV | Source: HSD_22022421576_verify_package_temperature_pmt_register.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [TPMI/PMT] Verify Package Temperature PMT Register</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421576</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[TPMI/PMT] Verify Package Temperature PMT Register</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; TPMI/PMT</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PMT PCS Index 2 — Package Temperature</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies the **Package Temperature PMT register** (PCS index 2). This register reports temperature margin to throttle — the delta between maximum temperature and TJ_max. Individual dies calculate their own margins and send them to the root iMH via HPM `SOCKET_THERMAL`. Root PrimeCode takes the maximum across all dies and populates this register. On NWP: same architecture, single iMH receives from 2 CBBs. Primary adaptation: `dmr.xml` → `nwp.xml`, CBB count 2.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>PMT Package Temperature register present on NWP</li>
+<li>Same HPM `SOCKET_THERMAL` aggregation: 2 CBBs → iMH on NWP</li>
+<li>`DMR_PO` tag: silicon validation bring-up priority</li>
+<li>`PMSS_NWP_READINESS_CHECK` tag: evaluated for NWP</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon with thermal reporting active</li>
+<li>All CBBs sending temperature via `SOCKET_THERMAL` HPM</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run PMT thermal test</td>
+<td>`python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read package temperature from each die</td>
+<td>NWP: `sv.socket0.cbb{0,1}.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read iMH aggregated package temperature</td>
+<td>`sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify iMH value = max across all sources</td>
+<td>`max(cbb0_temp, cbb1_temp, imh0_internal_temp)`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Apply temperature stimulus and verify register updates</td>
+<td>Stress workload; verify PMT temperature tracks</td>
+</tr>
+</tbody></table>
+<h3>Formula</h3>
+<pre><code>
+PACKAGE_TEMPERATURE_PMT = MAX(
+    sv.socket0.cbb0.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature,
+    sv.socket0.cbb1.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature,
+    sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature
+)
+</code></pre>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>PMT `package_temperature` = max of all die temperatures</li>
+<li>Value updates with thermal changes within slow-loop interval</li>
+<li>HPM `SOCKET_THERMAL` correctly delivers CBB temperatures to iMH</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>Die count</td>
+<td>4 CBBs + iMH(s)</td>
+<td>2 CBBs + 1 iMH</td>
+<td>Fewer sources in max calculation</td>
+</tr>
+<tr>
+<td>HPM `SOCKET_THERMAL`</td>
+<td>4 CBB sources</td>
+<td>2 CBB sources</td>
+<td>Same mechanism; fewer HPM senders</td>
+</tr>
+<tr>
+<td>PMT register path</td>
+<td>`ptpcioregs.package_temperature`</td>
+<td>Same on NWP iMH</td>
+<td>Direct reuse</td>
+</tr>
+<tr>
+<td>`sv.sockets.cbbs` DMR pattern</td>
+<td>Iterates all CBBs</td>
+<td>NWP: `cbb0`, `cbb1`</td>
+<td>Update iteration</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<pre><code>
+# NWP Package Temperature PMT Validation
+temps = {}
+
+# CBB package temperatures
+for cbb_idx in range(2):
+    cbb = getattr(sv.socket0, f&#x27;cbb{cbb_idx}&#x27;)
+    try:
+        temp = cbb.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature.read()
+        temps[f&#x27;cbb{cbb_idx}&#x27;] = temp
+        print(f&quot;CBB{cbb_idx} temperature: {temp}&quot;)
+    except Exception as e:
+        print(f&quot;CBB{cbb_idx}: {e}&quot;)
+
+# iMH aggregated package temperature
+try:
+    imh_temp = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature.read()
+    temps[&#x27;imh0&#x27;] = imh_temp
+    print(f&quot;iMH0 package_temperature PMT: {imh_temp}&quot;)
+except Exception as e:
+    print(f&quot;iMH0 PMT: {e}&quot;)
+
+if temps:
+    expected_max = max(temps.values())
+    actual_pmt = temps.get(&#x27;imh0&#x27;, None)
+    status = &quot;PASS&quot; if actual_pmt == expected_max else f&quot;FAIL (expected {expected_max}, got {actual_pmt})&quot;
+    print(f&quot;\nExpected PMT max: {expected_max} | Actual PMT: {actual_pmt} [{status}]&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**HPM `SOCKET_THERMAL` timing** — HPM delivery latency from CBB to iMH may cause transient mismatches; expect ±1 slow-loop tolerance</td>
+<td>Low</td>
+<td>Use average/stable workload for comparison</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; update CBB loop to 2**</p>
+<p>Package Temperature PMT aggregation is architecturally identical on NWP. Straightforward port.</p>
+<p>Required adaptations:</p>
+<p>1. `python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2`</p>
+<p>2. Loop `range(2)` for CBBs (not 4)</p>
+<p>3. `sv.socket0.cbb{0,1}` paths (not `sv.sockets.cbbs` iterator)</p>
+<p>**Priority**: Medium — DMR_PO; fundamental thermal reporting bring-up verification</p>
+    </div>
+  </div>
+</body>
+</html>

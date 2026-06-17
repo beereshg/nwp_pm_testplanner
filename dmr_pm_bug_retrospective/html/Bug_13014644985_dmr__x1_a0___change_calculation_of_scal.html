@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bug 13014644985 — [DMR][X1 A0]  Change calculation of scalability projection for a more accurate P</title>
+<link rel="stylesheet" href="../templates/bug_analysis.css">
+</head>
+<body>
+
+<a href="dmr_pm_retrospective.html" class="back-link">← Dashboard</a>
+
+<h1>
+  <span class="badge badge-fw-pcode">FW_PCODE</span>
+  HSD 13014644985
+</h1>
+
+<div class="card">
+  <dl class="metadata-grid">
+    <dt>Title</dt>
+    <dd>[DMR][X1 A0]  Change calculation of scalability projection for a more accurate Palpha tuning</dd>
+
+    <dt>HSD Link</dt>
+    <dd><a href="https://hsdes.intel.com/appstore/article-one/#/13014644985" target="_blank">13014644985</a></dd>
+
+    <dt>Status</dt>
+    <dd>complete.validated</dd>
+
+    <dt>Priority</dt>
+    <dd><span class="badge badge-priority-3">3-medium</span></dd>
+
+    <dt>Owner</dt>
+    <dd>dlevy1</dd>
+
+    <dt>Component</dt>
+    <dd>fw.pcode</dd>
+
+    <dt>Defect Die</dt>
+    <dd>base</dd>
+
+    <dt>Conclusion</dt>
+    <dd>hw.tuning</dd>
+  </dl>
+</div>
+
+<h2>Classification</h2>
+<div class="card">
+  <table>
+    <tr>
+      <th>Dimension</th><th>Value</th><th>Confidence</th>
+    </tr>
+    <tr>
+      <td>Root Cause Type</td>
+      <td><span class="badge badge-fw-pcode">FW_PCODE</span></td>
+      <td>
+        <span class="confidence conf-high">
+          <span class="confidence-bar"><span class="confidence-fill" style="width:70%"></span></span>
+          70%
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>Feature</td>
+      <td>Platform PM Interface</td>
+      <td>
+        <span class="confidence conf-medium">
+          <span class="confidence-bar"><span class="confidence-fill" style="width:52%"></span></span>
+          52%
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>Sub-Feature</td>
+      <td>PECI</td>
+      <td>—</td>
+    </tr>
+  </table>
+  <p style="margin-top:0.5rem;font-size:0.85rem;color:var(--text-secondary);">
+    <strong>Reasoning:</strong> tag contains FIX_PATCH → FW_PCODE
+  </p>
+</div>
+
+
+<h2>Root Cause Summary</h2>
+<div class="card">
+  <p>According to Post Si</p>
+<p>DMR</p>
+<p>data,</p>
+<p>for Omnetpp, regardless of the ratio, the avg_scalability_per_core is very similar, while the scalability counter varies significantly.</p>
+<p>At high frequencies, the gap in scalability between Omnetpp &amp; x264 narrows.</p>
+<p>The way that Pcode projects the</p>
+<p>avg_scalability_per_core to a ref_ratio</p>
+<p>=</p>
+<p>10</p>
+<p>may</p>
+<p>affect the granularity of</p>
+<p>the</p>
+<p>workload scalability</p>
+<p>analysis</p>
+<p>, particularly for workloads that don&#x27;t scale well</p>
+<p>This may impact the post-Si tuning, es</p>
+</div>
+
+
+
+<h2>Root Cause Description</h2>
+<div class="card">
+  
+  <div class="extracted-content">
+    <h4 style="margin:0 0 0.5rem;color:var(--text-secondary);font-size:0.8rem;">Extracted from HSD</h4>
+    <p>PCode projects <code>avg_scalability_per_core</code> to a fixed reference ratio of 10 (1.0 GHz) for workload scalability analysis used by the Palpha tuning algorithm. For workloads that don&#x27;t scale well (e.g., Omnetpp), the scalability counter varies significantly at different frequencies, but the projected <code>avg_scalability_per_core</code> at ref_ratio=10 remains nearly constant, losing granularity needed for accurate Palpha differentiation. At high frequencies, the scalability gap between well-scaling (x264) and poorly-scaling (Omnetpp) workloads narrows, reducing the effectiveness of EPB&gt;0 energy-performance bias profiles.</p>
+  </div>
+  
+  
+  <div class="llm-enriched" style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+    <h4 style="margin:0 0 0.5rem;color:var(--accent-purple);font-size:0.8rem;">🔍 LLM-Enriched Analysis</h4>
+    <p>Per the PState Stack KB, PCode manages autonomous P-state selection via the PEGA engine, which uses workload characterization signals (including scalability counters) to determine optimal frequency. The scalability projection normalizes raw per-core scalability measurements to a reference frequency for cross-frequency comparison. With <code>scalability_ref_ratio=10</code> (1.0 GHz — near Pn), the projection maps all high-frequency observations into a narrow value range, because the scalability function is approximately linear near the bottom of the V/F curve. By raising the reference to <code>scalability_ref_ratio=20</code> (2.0 GHz — closer to P1), the projection preserves more of the natural spread between workload types, enabling the Palpha algorithm to better distinguish compute-bound vs memory-bound workloads. This impacts PEGA’s EET (Energy Efficient Turbo) attenuation and EPB-driven efficiency decisions.</p>
+  </div>
+  
+</div>
+
+
+
+<h2>Fix Description</h2>
+<div class="card">
+  
+  <div class="extracted-content">
+    <h4 style="margin:0 0 0.5rem;color:var(--text-secondary);font-size:0.8rem;">Extracted from HSD</h4>
+    <p>Fixed in PCode patch <code>DMR_A0_6000099A</code>. The <code>scalability_ref_ratio</code> parameter was changed from 10 to 20 (2.0 GHz) and exposed as a PCode class variable so it can be tuned post-silicon without a code change. Delivered in IFWI <code>DMR_AP_2026.13.3.01</code> and BKC <code>OKS_DMR_AP_2026WW16</code>. Validated and closed.</p>
+  </div>
+  
+  
+  <div class="llm-enriched" style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+    <h4 style="margin:0 0 0.5rem;color:var(--accent-teal);font-size:0.8rem;">🔧 LLM-Enriched Fix Analysis</h4>
+    <p>The fix is a PCode tuning change in the scalability projection function (likely in <code>source/pcode/flows/autonomous_pstate/</code> or the PEGA workload characterization path). By exposing <code>scalability_ref_ratio</code> as a class variable, it becomes adjustable via ITP/PCode variables without requiring a firmware rebuild, following the PCode vars mechanism pattern. The value of 20 (2.0 GHz) was agreed upon by the Palpha SOC and PCode architects as providing better granularity for workload differentiation while remaining within the guaranteed frequency range (below P1 on most SKUs).</p>
+  </div>
+  
+</div>
+
+
+
+<h2>Component Interaction Diagrams</h2>
+<div class="card">
+  
+  <h3 style="color:var(--accent-red);">Root Cause Interaction</h3>
+  <div class="mermaid">
+graph TD
+    A(HW Scalability Counter) -->|raw per-core scalability| B[PCode Scalability Projection]
+    B -->|ref_ratio=10, 1.0GHz| C{Projected avg_scalability}
+    C -->|Omnetpp ≈ x264 at ref 1GHz| D[Low Granularity]
+    D -->|Palpha cannot distinguish| E[PEGA/EET Suboptimal]
+    E -->|wrong EPB>0 decisions| F[Inefficient P-State Selection]
+    style B fill:#ff6b6b,stroke:#c92a2a,color:#fff
+    style D fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  </div>
+  
+  
+  <h3 style="color:var(--accent-teal);margin-top:1.5rem;">Fix Interaction</h3>
+  <div class="mermaid">
+graph TD
+    A(HW Scalability Counter) -->|raw per-core scalability| B[PCode Scalability Projection]:::fix
+    B -->|ref_ratio=20, 2.0GHz| C{Projected avg_scalability}
+    C -->|Omnetpp clearly lower than x264| D[High Granularity]
+    D -->|Palpha differentiates workloads| E[PEGA/EET Accurate]
+    E -->|correct EPB>0 decisions| F[Optimal P-State Selection]
+    classDef fix fill:#51cf66,stroke:#2b8a3e,color:#fff
+    style D fill:#51cf66,stroke:#2b8a3e,color:#fff
+    style F fill:#51cf66,stroke:#2b8a3e,color:#fff
+  </div>
+  
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{primaryColor:'#313244',primaryTextColor:'#cdd6f4',primaryBorderColor:'#585b70',lineColor:'#a6adc8',secondaryColor:'#45475a',tertiaryColor:'#1e1e2e'}});</script>
+
+
+
+<h2>Source Code References</h2>
+<div class="card">
+  <ul>
+    
+    <li><code>source/pcode/flows/autonomous_pstate/</code></li>
+    
+    <li><code>source/pcode/flows/pega/</code></li>
+    
+    <li><code>scalability_ref_ratio</code></li>
+    
+    <li><code>avg_scalability_per_core</code></li>
+    
+    <li><code>FIX_PATCH_DMR_AP1_A0_6000099A</code></li>
+    
+    <li><code>FIX_IFWI_DMR_AP1_2026.13.3.01</code></li>
+    
+    <li><code>FIX_BKC_OKS_DMR_AP1_2026WW16</code></li>
+    
+  </ul>
+</div>
+
+
+<h2>Feature Mapping</h2>
+<div class="card">
+  <ul>
+    <li><strong>Primary Feature:</strong> Platform PM Interface</li>
+    <li><strong>Sub-Feature:</strong> PECI</li>
+    <li><strong>Component Path:</strong> fw.pcode</li>
+  </ul>
+</div>
+
+
+
+
+
+<h2>Timeline</h2>
+<div class="card">
+  <div class="timeline">
+    
+    <div class="timeline-item">
+      <span class="timeline-date">2026-02-12 11:45:40</span><br>Submitted
+    </div>
+    
+    
+    <div class="timeline-item">
+      <span class="timeline-date">2026-03-04 21:22:03</span><br>Root Caused
+    </div>
+    
+    
+    <div class="timeline-item">
+      <span class="timeline-date">2026-04-28 18:31:04</span><br>Closed
+    </div>
+    
+    
+    <div class="timeline-item">
+      <strong>75</strong> days open
+    </div>
+    
+  </div>
+</div>
+
+
+
+
+
+
+<h2>Latest Forum Activity</h2>
+<div class="card">
+  <blockquote>And shoudl this mailbox be generic or on top of  another debug mailbox so that if/when we find another debug usage we can just add an encoding ?) After presenting the data to the architects (Palpha SOC &amp; Pcode), it was agreed that we have an opportunity to improve the future tuning by changing the r</blockquote>
+</div>
+
+
+<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.75rem;color:var(--text-muted);">
+  Generated by DMR PM Bug Retrospective Pipeline at 2026-05-28T06:44:02+00:00
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Thermal Reporting] Verify IA32_PACKAGE_THERM_STATUS</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Thermal Reporting] Verify IA32_PACKAGE_THERM_STATUS</h1>
+      <p>Segment: FV | Source: HSD_22022421644_verify_ia32_package_therm_status.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Thermal Reporting] Verify IA32_PACKAGE_THERM_STATUS</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421644</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Thermal Reporting] Verify IA32_PACKAGE_THERM_STATUS</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>MSR 0x1B1 PACKAGE_THERM_STATUS — package-scoped thermal status bits</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **MSR 0x1B1 PACKAGE_THERM_STATUS** — package-scoped thermal status register containing:</p>
+<ul>
+<li>Current value + sticky log bits for: TM, PROCHOT, OOS, Threshold 1/2, Power Limit, Pmax, HW Feedback Notification</li>
+<li>Current Temperature, resolution and valid bit</li>
+<li>Both current status and sticky log bits must be verified</li>
+</ul>
+<p>On NWP, the same package thermal status MSR is present. `dmr.xml` → `nwp.xml`.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>`DMR_PO` + `plc.feature.p1` + `PMSS_NWP_READINESS_CHECK` tags</li>
+<li>Standard package thermal status; NWP direct applicability</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>MSR 0x1B1 Key Bits</h3>
+<table class="md-table"><thead><tr>
+<th>Bit</th>
+<th>Field</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td>[0]</td>
+<td>THERMAL_MONITOR_STATUS</td>
+<td>TM currently throttling</td>
+</tr>
+<tr>
+<td>[1]</td>
+<td>THERMAL_MONITOR_LOG</td>
+<td>Sticky: TM tripped</td>
+</tr>
+<tr>
+<td>[2]</td>
+<td>PROCHOT_EVENT</td>
+<td>PROCHOT# asserted</td>
+</tr>
+<tr>
+<td>[3]</td>
+<td>PROCHOT_LOG</td>
+<td>Sticky: PROCHOT seen</td>
+</tr>
+<tr>
+<td>[10]</td>
+<td>POWER_LIMIT_STATUS</td>
+<td>Power limit triggered</td>
+</tr>
+<tr>
+<td>[22:16]</td>
+<td>TEMPERATURE</td>
+<td>Current die temperature (°C below Tj_max)</td>
+</tr>
+<tr>
+<td>[29]</td>
+<td>RESOLUTION</td>
+<td>Temperature reading resolution</td>
+</tr>
+<tr>
+<td>[31]</td>
+<td>VALID</td>
+<td>Temperature reading valid</td>
+</tr>
+</tbody></table>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run thermal_interrupt PMx</td>
+<td>`python runPmx.py -x nwp.xml -p thermal_interrupt -tM 60 -M 5`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read MSR 0x1B1 baseline</td>
+<td>All status bits clear; temperature valid</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Force thermal condition (EMTTM)</td>
+<td>Reduce cooling or force TCC assertion</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify TM_STATUS and TM_LOG bits set</td>
+<td>Bits [0] and [1]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Assert PROCHOT#; verify PROCHOT bits</td>
+<td>Bits [2] and [3]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Clear sticky bits; verify they clear</td>
+<td>Write 0 to log bits</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>MSR 0x1B1 accessible (package-scoped)</li>
+<li>All status bits update correctly when thermal events occur</li>
+<li>Sticky log bits set on event; clear on SW write</li>
+<li>Temperature field valid and changing with die temperature</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; package thermal status same on NWP**</p>
+<p>Required adaptations:</p>
+<p>1. `python runPmx.py -x nwp.xml -p thermal_interrupt -tM 60 -M 5`</p>
+<p>2. NWP single socket: package thermal MSR at `sv.socket0.imh0` path</p>
+<p>**Priority**: High — `DMR_PO` + `plc.feature.p1`; package thermal status bring-up check</p>
+    </div>
+  </div>
+</body>
+</html>

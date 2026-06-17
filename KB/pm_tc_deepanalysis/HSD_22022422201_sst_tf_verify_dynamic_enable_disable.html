@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: SST-TF - Verify Dynamic Enable/Disable via TPMI</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: SST-TF - Verify Dynamic Enable/Disable via TPMI</h1>
+      <p>Segment: FV | Source: HSD_22022422201_sst_tf_verify_dynamic_enable_disable.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: SST-TF - Verify Dynamic Enable/Disable via TPMI</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422201</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>SST-TF - Verify dynamic enable/disable via TPMI</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-05-29</td>
+</tr>
+<tr>
+<td>**Version**</td>
+<td>v2</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SST</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>SST-TF dynamic enable/disable via TPMI sst_pp_control.feature_state[bit 1]</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Test Case</h2>
+<h3>Intent</h3>
+<p>Verify that SST-TF can be dynamically enabled and disabled at runtime by writing to TPMI field `sst_pp_control.feature_state[bit 1]`. The test validates the complete enable/disable flow including: feature availability check per PP level, CLOS dependency enforcement, error type reporting when prerequisites are not met, and symmetric disable-after-enable behavior.</p>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>SVOS booted with SST-TF capable SKU</li>
+<li>BIOS SST knobs at default (TF not force-disabled)</li>
+<li>CLOS programming available (io_pm_qos_config.enable_clos accessible)</li>
+<li>For NWP: PP level fixed at PP0 (SST-PP is ZBB); SST-TF availability determined solely on PP0</li>
+</ul>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>Expected Result</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Verify TF is currently disabled: read `sst_pp_status.feature_state[bit 1]`</td>
+<td>== 0x0 (TF off)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Enable TF: write `sst_pp_control.feature_state[bit 1] = 0x1`</td>
+<td>Write accepted</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Check TF availability on current PP level: read `sst_tf_info_0.feature_supported`</td>
+<td>Reports TF support for PP0</td>
+</tr>
+<tr>
+<td>4a</td>
+<td>If PP does NOT support TF: verify `sst_pp_status.feature_error_type[2:0]`</td>
+<td>== 0x1 (feature not supported by HW)</td>
+</tr>
+<tr>
+<td>4b</td>
+<td>If PP does NOT support TF: verify `sst_pp_status.feature_state[bit 1]`</td>
+<td>== 0x0 (TF was NOT enabled)</td>
+</tr>
+<tr>
+<td>5a</td>
+<td>If PP supports TF AND `io_pm_qos_config.enable_clos == 0x1`: verify `sst_pp_status.feature_state[bit 1]`</td>
+<td>== 0x1 (TF enabled successfully)</td>
+</tr>
+<tr>
+<td>5b</td>
+<td>If PP supports TF AND `io_pm_qos_config.enable_clos == 0x0`: verify `sst_pp_status.feature_error_type[2:0]`</td>
+<td>== 0x1 (dependency not met)</td>
+</tr>
+<tr>
+<td>5c</td>
+<td>If PP supports TF AND CLOS disabled: verify `sst_pp_status.feature_state[bit 1]`</td>
+<td>== 0x0 (TF not enabled due to CLOS dependency)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>With TF enabled, disable TF: write `sst_pp_control.feature_state[bit 1] = 0x0`</td>
+<td>Write accepted</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify TF disabled: read `sst_pp_status.feature_state[bit 1]`</td>
+<td>== 0x0 (TF off again)</td>
+</tr>
+</tbody></table>
+<h3>Pass/Fail Criteria</h3>
+<ul>
+<li>SST-TF enable/disable toggles correctly via TPMI write to `sst_pp_control.feature_state[bit 1]`</li>
+<li>Error type `0x1` correctly reported when PP level does not support TF or CLOS dependency not met</li>
+<li>Feature state in status register accurately reflects enable/disable outcome</li>
+<li>Symmetric behavior: enable then disable returns to original disabled state</li>
+</ul>
+<p>---</p>
+<h2>Section A: NWP Architecture Delta</h2>
+<h3>Disposition: Runnable_On_N-1</h3>
+<p>SST-TF dynamic enable/disable is **fully supported on NWP**. SST-TF is one of only 2 active SST features on NWP (SST-TF + PCT). The test requires a config adaptation: `dmr.xml` -&gt; `nwp.xml` in the runPmx command. NWP is fixed at PP0 since SST-PP is ZBB, simplifying the test (no PP level iteration needed in static mode).</p>
+<h3>DMR -&gt; NWP Architecture Delta</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>SST-TF feature status</td>
+<td>Active</td>
+<td>Active</td>
+<td>No change -- core flow identical</td>
+</tr>
+<tr>
+<td>PP levels</td>
+<td>Multiple PP levels active (SST-PP)</td>
+<td>PP0 only (SST-PP ZBB)</td>
+<td>NWP tests only PP0; no dynamic PP iteration needed</td>
+</tr>
+<tr>
+<td>CBB count</td>
+<td>4</td>
+<td>2</td>
+<td>SST-TF is per-package; no CBB-count dependency</td>
+</tr>
+<tr>
+<td>Cores per CBB</td>
+<td>32</td>
+<td>48</td>
+<td>HP/LP CLOS assignment covers more cores per CBB</td>
+</tr>
+<tr>
+<td>Total cores</td>
+<td>128</td>
+<td>96</td>
+<td>Affects HP/LP partition sizing</td>
+</tr>
+<tr>
+<td>HP core count (PCT)</td>
+<td>Variable per SKU</td>
+<td>8 HP cores (2 per partition x 4 partitions)</td>
+<td>Fixed HP count on NWP; HP TRL bucket resolution uses 8</td>
+</tr>
+<tr>
+<td>CLOS dependency</td>
+<td>io_pm_qos_config.enable_clos required for TF enable</td>
+<td>Same -- CLOS required</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>Error type reporting</td>
+<td>sst_pp_status.feature_error_type[2:0]</td>
+<td>Same register, same encoding</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>Test config</td>
+<td>`dmr.xml`</td>
+<td>`nwp.xml` (runPmx config)</td>
+<td>Config file change required</td>
+</tr>
+<tr>
+<td>Test script</td>
+<td>`sst_tf_validate.py` (validateTF.test_tpmi_control)</td>
+<td>Same script, NWP-compatible</td>
+<td>Verify NWP XML has correct TPMI offsets</td>
+</tr>
+<tr>
+<td>DLCP interaction</td>
+<td>Active</td>
+<td>TBD -- SST_TF_INFO_10 validation pending</td>
+<td>Confirm DLCP fuse state on NWP</td>
+</tr>
+</tbody></table>
+<h3>NWP Simplification</h3>
+<p>Since SST-PP is ZBB on NWP, the test TC instruction &quot;If in static PP, run this test only on the boot PP level. For full coverage, run this test in dynamic PP and iterate over all PP levels&quot; simplifies to: **always run on PP0 only**. The dynamic PP iteration variant is not applicable on NWP.</p>
+<p>---</p>
+<h2>Section B: Interactions</h2>
+<h3>Swimlane Data</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Actor</th>
+<th>Action</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>BIOS</td>
+<td>Programs SST_TF fuse-derived data into TPMI registers (SST_TF_INFO_0..8) at reset Phase 5 via PrimeCode sstTfInfoInit()</td>
+<td>TPMI SRAM</td>
+</tr>
+<tr>
+<td>2</td>
+<td>BIOS</td>
+<td>Programs CLOS assignments: HP cores -&gt; CLOS[0], LP cores -&gt; CLOS[3] via SST_CLOS_ASSOC registers</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>3</td>
+<td>BIOS</td>
+<td>Optionally enables SST-TF at boot via SST_PP_CONTROL.feature_state[1] = 1</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>4</td>
+<td>PCode (CBB)</td>
+<td>SstManager slow loop detects feature_state[1] change; reads SST_PP_CONTROL via TPMI IO</td>
+<td>TPMI IO</td>
+</tr>
+<tr>
+<td>5</td>
+<td>PCode (CBB)</td>
+<td>SstManager sends HPM_MSG_COMPUTE_CLOS_CONFIG with HP module counts to TrlManager</td>
+<td>HPM</td>
+</tr>
+<tr>
+<td>6</td>
+<td>PCode (CBB)</td>
+<td>TrlManager loads HP CLOS TRL tables from IO_SST_TF_INFO_2..8 and LP CLOS from IO_SST_TF_INFO_0</td>
+<td>TPMI IO</td>
+</tr>
+<tr>
+<td>7</td>
+<td>PCode (CBB)</td>
+<td>Workpoint calc applies per-CLOS frequency: HP cores get elevated TRL, LP cores get clipped ratio</td>
+<td>Internal</td>
+</tr>
+<tr>
+<td>8</td>
+<td>OS/Test</td>
+<td>Reads sst_pp_status.feature_state[1] to verify TF is currently disabled (== 0x0)</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>9</td>
+<td>OS/Test</td>
+<td>Writes sst_pp_control.feature_state[1] = 0x1 to enable SST-TF</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>10</td>
+<td>PCode (CBB)</td>
+<td>SstManager detects enable in slow loop; checks feature_supported and CLOS dependency</td>
+<td>TPMI IO</td>
+</tr>
+<tr>
+<td>11</td>
+<td>PCode (CBB)</td>
+<td>If valid: sets feature_state[1] = 1 in sst_pp_status; TrlManager reloads HP/LP tables</td>
+<td>TPMI IO</td>
+</tr>
+<tr>
+<td>12</td>
+<td>PCode (CBB)</td>
+<td>If invalid: sets feature_error_type[2:0] = 0x1; keeps feature_state[1] = 0 in status</td>
+<td>TPMI IO</td>
+</tr>
+<tr>
+<td>13</td>
+<td>OS/Test</td>
+<td>Reads sst_pp_status to verify enable outcome (feature_state and feature_error_type)</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>14</td>
+<td>OS/Test</td>
+<td>Reads sst_tf_info_0.feature_supported to confirm PP0 supports TF</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>15</td>
+<td>OS/Test</td>
+<td>Writes sst_pp_control.feature_state[1] = 0x0 to disable SST-TF</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>16</td>
+<td>PCode (CBB)</td>
+<td>SstManager detects disable; TrlManager reverts to base SST-PP TRL (no HP/LP split)</td>
+<td>TPMI IO</td>
+</tr>
+<tr>
+<td>17</td>
+<td>OS/Test</td>
+<td>Reads sst_pp_status.feature_state[1] to verify TF disabled (== 0x0)</td>
+<td>TPMI MMIO</td>
+</tr>
+</tbody></table>
+<h3>Sequence Data</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>From</th>
+<th>To</th>
+<th>Message</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>BIOS</td>
+<td>TPMI SRAM</td>
+<td>Write SST_TF_INFO_0..8 (fuse-derived LP clip + HP TRL arrays) at reset Phase 5</td>
+<td>TPMI SRAM</td>
+</tr>
+<tr>
+<td>2</td>
+<td>BIOS</td>
+<td>TPMI SRAM</td>
+<td>Write SST_CLOS_ASSOC registers (HP-&gt;CLOS[0], LP-&gt;CLOS[3])</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>3</td>
+<td>OS/Test</td>
+<td>TPMI</td>
+<td>Read sst_pp_status.feature_state[1] -- verify disabled (0x0)</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>4</td>
+<td>OS/Test</td>
+<td>TPMI</td>
+<td>Write sst_pp_control.feature_state[1] = 0x1 (enable request)</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>5</td>
+<td>PCode SstManager</td>
+<td>TPMI IO</td>
+<td>Read SST_PP_CONTROL -- detect feature_state[1] change (slow loop)</td>
+<td>TPMI IO</td>
+</tr>
+<tr>
+<td>6</td>
+<td>PCode SstManager</td>
+<td>TPMI IO</td>
+<td>Read sst_tf_info_0.feature_supported for current PP level</td>
+<td>TPMI IO</td>
+</tr>
+<tr>
+<td>7</td>
+<td>PCode SstManager</td>
+<td>PCode TrlManager</td>
+<td>Send HPM_MSG_COMPUTE_CLOS_CONFIG with HP module counts</td>
+<td>HPM</td>
+</tr>
+<tr>
+<td>8</td>
+<td>PCode TrlManager</td>
+<td>TPMI IO</td>
+<td>Load IO_SST_TF_INFO_0 (LP clip ratios)</td>
+<td>TPMI IO</td>
+</tr>
+<tr>
+<td>9</td>
+<td>PCode TrlManager</td>
+<td>TPMI IO</td>
+<td>Load IO_SST_TF_INFO_2..8 (HP TRL ratios per CDYN x bucket)</td>
+<td>TPMI IO</td>
+</tr>
+<tr>
+<td>10</td>
+<td>PCode TrlManager</td>
+<td>Workpoint Calc</td>
+<td>Signal TRL table update -- HP cores elevated, LP cores clipped</td>
+<td>Internal</td>
+</tr>
+<tr>
+<td>11</td>
+<td>PCode SstManager</td>
+<td>TPMI IO</td>
+<td>Write sst_pp_status: feature_state[1]=1, feature_error_type=0x0</td>
+<td>TPMI IO</td>
+</tr>
+<tr>
+<td>12</td>
+<td>OS/Test</td>
+<td>TPMI</td>
+<td>Read sst_pp_status -- verify feature_state[1] == 1 (enabled)</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>13</td>
+<td>OS/Test</td>
+<td>TPMI</td>
+<td>Write sst_pp_control.feature_state[1] = 0x0 (disable request)</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>14</td>
+<td>PCode SstManager</td>
+<td>TPMI IO</td>
+<td>Detect disable; TrlManager reverts to base SST-PP TRL tables</td>
+<td>TPMI IO</td>
+</tr>
+<tr>
+<td>15</td>
+<td>PCode SstManager</td>
+<td>TPMI IO</td>
+<td>Write sst_pp_status: feature_state[1]=0</td>
+<td>TPMI IO</td>
+</tr>
+<tr>
+<td>16</td>
+<td>OS/Test</td>
+<td>TPMI</td>
+<td>Read sst_pp_status -- verify feature_state[1] == 0 (disabled)</td>
+<td>TPMI MMIO</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section C: Interface Coverage Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>Interface</th>
+<th>Register / Field</th>
+<th>Access</th>
+<th>Tested By This TC</th>
+<th>Coverage Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>TPMI SST</td>
+<td>sst_pp_control.feature_state[1]</td>
+<td>Write</td>
+<td>Yes -- Steps 2, 6 (enable/disable)</td>
+<td>Primary DUT interface</td>
+</tr>
+<tr>
+<td>TPMI SST</td>
+<td>sst_pp_status.feature_state[1]</td>
+<td>Read</td>
+<td>Yes -- Steps 1, 5a, 5c, 7 (verify state)</td>
+<td>Status feedback</td>
+</tr>
+<tr>
+<td>TPMI SST</td>
+<td>sst_pp_status.feature_error_type[2:0]</td>
+<td>Read</td>
+<td>Yes -- Steps 4a, 5b (error check)</td>
+<td>Error condition coverage</td>
+</tr>
+<tr>
+<td>TPMI SST</td>
+<td>sst_tf_info_0.feature_supported</td>
+<td>Read</td>
+<td>Yes -- Step 3 (availability check)</td>
+<td>Per-PP-level capability</td>
+</tr>
+<tr>
+<td>TPMI SST</td>
+<td>io_pm_qos_config.enable_clos</td>
+<td>Read</td>
+<td>Yes -- Step 5 (CLOS dependency)</td>
+<td>CLOS pre-condition check</td>
+</tr>
+<tr>
+<td>TPMI SST</td>
+<td>SST_CLOS_ASSOC</td>
+<td>Read/Write</td>
+<td>No -- programmed by BIOS, not toggled by test</td>
+<td>Covered by PCT/CLOS TCs</td>
+</tr>
+<tr>
+<td>PCode</td>
+<td>SstManager slow loop</td>
+<td>Internal</td>
+<td>Indirect -- triggered by TPMI write</td>
+<td>Not directly observable</td>
+</tr>
+<tr>
+<td>PCode</td>
+<td>TrlManager HP/LP table reload</td>
+<td>Internal</td>
+<td>Indirect -- effect visible via frequency</td>
+<td>Not directly observable</td>
+</tr>
+<tr>
+<td>MSR</td>
+<td>0x1AD PRIMARY_TURBO_RATIO_LIMIT</td>
+<td>Read</td>
+<td>No -- not explicitly checked</td>
+<td>Could add as supplemental verification</td>
+</tr>
+<tr>
+<td>HPM</td>
+<td>HPM_MSG_COMPUTE_CLOS_CONFIG</td>
+<td>Internal</td>
+<td>Indirect</td>
+<td>FW-internal message</td>
+</tr>
+</tbody></table>
+<h3>Coverage Gaps</h3>
+<p>1. **MSR 0x1AD verification**: Test does not read PRIMARY_TURBO_RATIO_LIMIT to confirm HP TRL ratios are applied after TF enable</p>
+<p>2. **Frequency verification**: Test verifies register state only; does not confirm actual core frequency changes (HP elevated, LP clipped)</p>
+<p>3. **CLOS assignment verification**: BIOS-programmed CLOS assignments not verified by this TC (covered by separate PCT TCs)</p>
+<p>4. **Error type 0x2/0x3**: Only error type 0x1 is tested; other error codes not exercised</p>
+<p>---</p>
+<h2>Section D: NWP Specification References</h2>
+<table class="md-table"><thead><tr>
+<th>Document</th>
+<th>Section</th>
+<th>Relevance</th>
+</tr></thead><tbody>
+<tr>
+<td>[SST HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html)</td>
+<td>SST-TF Feature Control</td>
+<td>sst_pp_control.feature_state and sst_pp_status register definitions</td>
+</tr>
+<tr>
+<td>[SST HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html)</td>
+<td>SST_TF_INFO Registers</td>
+<td>SST_TF_INFO_0..8 register layouts, feature_supported bit</td>
+</tr>
+<tr>
+<td>[SST HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html)</td>
+<td>Error Type Encoding</td>
+<td>feature_error_type values: 0x0=none, 0x1=not supported, 0x2=dependency</td>
+</tr>
+<tr>
+<td>[NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)</td>
+<td>SST-TF (PCT profile)</td>
+<td>NWP-specific: SST-TF active via PCT only; SST-PP/BF/CP/HGS ZBB</td>
+</tr>
+<tr>
+<td>[PCT HAS](https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html)</td>
+<td>Priority Core Turbo</td>
+<td>PCT as consumer of SST-TF on NWP; HP core selection via CLOS[0]</td>
+</tr>
+<tr>
+<td>PrimeCode source</td>
+<td>`src/flow/sst/sst_tpmi_general/v2_0/sst_tpmi_general.cpp`</td>
+<td>sstTfInfoInit() -- TPMI register programming at reset Phase 5</td>
+</tr>
+<tr>
+<td>PCode source</td>
+<td>`source/pcode/flows/sst/sst_manager.cpp`</td>
+<td>SstManager slow loop -- feature_state[1] change detection</td>
+</tr>
+<tr>
+<td>PCode source</td>
+<td>`source/pcode/flows/trls/trl_manager.cpp`</td>
+<td>TrlManager HP/LP CLOS TRL table loading</td>
+</tr>
+<tr>
+<td>Test script</td>
+<td>`graniterapids/pm/sst/sst_tf/sst_tf_validate.py`</td>
+<td>validateTF.test_tpmi_control method (reference implementation)</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section E: NWP Risk Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>NWP `nwp.xml` runPmx config not available or missing SST-TF TPMI offsets</td>
+<td>Medium</td>
+<td>High -- test cannot run</td>
+<td>Verify nwp.xml has SST TPMI register offsets before test execution</td>
+</tr>
+<tr>
+<td>2</td>
+<td>PP0 does not have SST-TF fused as supported on NWP validation SKU</td>
+<td>Low</td>
+<td>High -- test hits error path only, never positive enable</td>
+<td>Check sst_tf_info_0.feature_supported on NWP validation parts; if 0, test only validates error reporting</td>
+</tr>
+<tr>
+<td>3</td>
+<td>CLOS dependency (io_pm_qos_config.enable_clos) not pre-configured by BIOS</td>
+<td>Medium</td>
+<td>Medium -- test gets error_type 0x1 instead of successful enable</td>
+<td>Verify BIOS enables CLOS by default for PCT/SST-TF; add CLOS enable step if needed</td>
+</tr>
+<tr>
+<td>4</td>
+<td>PCode slow-loop latency between TPMI write and status update causes false failure</td>
+<td>Low</td>
+<td>Medium -- race condition in status read</td>
+<td>Add polling/delay between sst_pp_control write and sst_pp_status read (1+ slow-loop period)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Test script `sst_tf_validate.py` has DMR-specific PP level iteration that fails on NWP</td>
+<td>Medium</td>
+<td>Medium -- script error on NWP single-PP topology</td>
+<td>Review script for NWP single-PP-level compatibility; skip dynamic PP iteration</td>
+</tr>
+<tr>
+<td>6</td>
+<td>DLCP (SST_TF_INFO_10) fuse state unknown on NWP -- may interact with TF enable flow</td>
+<td>Low</td>
+<td>Low -- DLCP is independent path from dynamic TF enable</td>
+<td>Confirm DLCP fuse off on NWP validation parts; no TF enable flow interaction expected</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendations</h2>
+<p>1. **ADOPT with config change**: Replace `dmr.xml` with `nwp.xml` in runPmx command: `python runPmx.py -x nwp.xml -p sst_tf -tM 60 -M 5 --retry_count 2`</p>
+<p>2. **Remove dynamic PP iteration**: NWP is fixed at PP0 (SST-PP ZBB). The test instruction to &quot;iterate over all PP levels in dynamic PP&quot; is not applicable. Run on PP0 only.</p>
+<p>3. **Add CLOS pre-condition check**: Before attempting TF enable, explicitly verify `io_pm_qos_config.enable_clos == 0x1`. If CLOS is not enabled, enable it first or document that the test is exercising the error path.</p>
+<p>4. **Add slow-loop latency tolerance**: Insert a short delay or polling loop between `sst_pp_control` write and `sst_pp_status` read to account for PCode slow-loop processing time (detection is not interrupt-driven).</p>
+<p>5. **Add MSR 0x1AD supplemental check**: After successful TF enable, read `PRIMARY_TURBO_RATIO_LIMIT` (MSR 0x1AD) to verify HP TRL ratios are programmed correctly. This confirms the full PCode flow executed (SstManager -&gt; TrlManager -&gt; MSR update).</p>
+<p>6. **Verify NWP HP core count**: After TF enable, verify that the HP/LP partitioning matches expected NWP configuration (8 HP cores, 88 LP cores). Can read CLOS assignments or check HWP MSR differentiation.</p>
+    </div>
+  </div>
+</body>
+</html>

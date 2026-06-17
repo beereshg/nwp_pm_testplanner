@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: HWP Package Level and Thread Level Cross Product</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: HWP Package Level and Thread Level Cross Product</h1>
+      <p>Segment: FV | Source: HSD_22022422312_hwp_package_level_and_thread_level.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: HWP Package Level and Thread Level Cross Product</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422312</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>HWP_Package_level_and_thread_level_cross_product</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Pstate Stack</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>HWP — Package-level vs core-level HWP request resolution</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **HWP request resolution** when cores use either package-level HWP request or individual core-level HWP requests. Resolution rule:</p>
+<ul>
+<li>**Max** of `IA32_HWP_REQUEST.Min`, `IA32_HWP_REQUEST.Max`, `IA32_HWP_REQUEST.Desired` (performance floor/ceiling/target)</li>
+<li>**Min** of `IA32_HWP_REQUEST.EPP` (power/performance preference)</li>
+</ul>
+<p>On NWP (non-SMT), &quot;thread-level&quot; becomes &quot;core-level&quot; — each physical core can have its own `IA32_HWP_REQUEST` or subscribe to the package-level request. The resolution logic is the same.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>Package-level HWP request (`IA32_HWP_REQUEST_PKG`) + core-level requests present on NWP</li>
+<li>`DMR_PO` + `plc.feature.p2` + `PMSS_NWP_READINESS_CHECK` tags</li>
+<li>Non-SMT simplification: no thread aggregation within a core</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Resolution Algorithm</h3>
+<pre><code>
+For each core:
+    if IA32_HWP_REQUEST.PKG_CONTROL_ENABLE:
+        base_request = IA32_HWP_REQUEST_PKG
+    else:
+        base_request = IA32_HWP_REQUEST (per-core)
+
+Resolved.Min = max(base_request.Min)
+Resolved.Max = max(base_request.Max)
+Resolved.Desired = max(base_request.Desired)
+Resolved.EPP = min(base_request.EPP)
+</code></pre>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Configure package-level HWP request</td>
+<td>Write `IA32_HWP_REQUEST_PKG` with specific min/max/desired/EPP</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Enable some cores to use package-level request</td>
+<td>Set `IA32_HWP_REQUEST.PKG_CONTROL_ENABLE = 1`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Set individual core request on other cores</td>
+<td>`IA32_HWP_REQUEST` per-core</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Run hwpm_check</td>
+<td>`python runPmx.py -x nwp.xml -p hwpm_check -tM 60`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify resolved request = max(min/max/desired), min(EPP)</td>
+<td>Per-core `IA32_PERF_STATUS`</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify package-level subscribing cores follow package request</td>
+<td>Cores with PKG_CONTROL_ENABLE use package request</td>
+</tr>
+</tbody></table>
+<h3>NWP Non-SMT Note</h3>
+<ul>
+<li>&quot;Thread-level&quot; in DMR (2 threads/core) → &quot;core-level&quot; on NWP (1 thread/core)</li>
+<li>Each core has its own `IA32_HWP_REQUEST` — no intra-core thread aggregation needed</li>
+<li>Package-level request (`IA32_HWP_REQUEST_PKG`) applies globally per socket</li>
+</ul>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>Cores subscribing to package request correctly use `IA32_HWP_REQUEST_PKG`</li>
+<li>Cores with individual requests use per-core values</li>
+<li>Resolution: max(min, max, desired) and min(EPP) correctly applied</li>
+<li>Verified on all 96 NWP cores (2 CBBs × 48)</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; non-SMT simplifies core-level request handling**</p>
+<p>HWP package/core request resolution applicable on NWP. Non-SMT eliminates thread aggregation complexity.</p>
+<p>Required adaptations:</p>
+<p>1. `python runPmx.py -x nwp.xml -p hwpm_check -tM 60`</p>
+<p>2. NWP: per-physical-core `IA32_HWP_REQUEST` (no thread index)</p>
+<p>3. 2 CBBs × 48 cores = 96 resolution points to verify</p>
+<p>**Priority**: High — `DMR_PO` + `plc.feature.p2`; HWP package vs core request resolution</p>
+    </div>
+  </div>
+</body>
+</html>

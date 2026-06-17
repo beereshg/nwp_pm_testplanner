@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: SVID Registers Verification</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: SVID Registers Verification</h1>
+      <p>Segment: FV | Source: HSD_22022421920_svid_registers_verification.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: SVID Registers Verification</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421920</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>SVID Registers Verification</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SVID</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>SVID register state verification (SVID control, status, vendor, capability registers)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>Verifies SVID-related registers match expected power-on defaults and spec. Template content incomplete in source HSD.</p>
+<p>Tags: `DMR_PO`, `plc.feature.p2`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP Command</h3>
+<pre><code>
+python runPmx.py -x nwp.xml -p svid -p core_power -tM 60 -M 5
+</code></pre>
+<h3>Key NWP Register Paths</h3>
+<pre><code>
+# NWP: single IMH → imh0 only
+sv.socket0.imh0.pcudata.svid_control
+sv.socket0.imh0.pcudata.svid_status
+# CBB SVID registers
+sv.socket0.cbb[0].base.pcudata.svid_control
+sv.socket0.cbb[1].base.pcudata.svid_control
+</code></pre>
+<h3>Pass Criteria</h3>
+<ul>
+<li>All SVID registers match spec defaults at boot</li>
+<li>SVID control and status registers reflect correct operating mode</li>
+<li>PMx SVID plugin register checks pass</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; single IMH → `imh0` only; 2 CBBs; template content incomplete — rely on PMx assertions**</p>
+<p>**Priority**: High — `PMSS_NWP_READINESS_CHECK`; register state verification is foundational</p>
+    </div>
+  </div>
+</body>
+</html>

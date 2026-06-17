@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: PCT - Default HP Core Selection</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: PCT - Default HP Core Selection</h1>
+      <p>Segment: FV | Source: HSD_22022422105_pct_default_hp_core_selection.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: PCT - Default HP Core Selection</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>[22022422105](https://hsdes.intel.com/appstore/article/#/22022422105)</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>PCT - Default HP core selection</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-05-29</td>
+</tr>
+<tr>
+<td>**Version**</td>
+<td>v2 (full pipeline re-enrichment)</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SST</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PCT — default HP core selection algorithm</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>mmaltese</td>
+</tr>
+<tr>
+<td>**Status**</td>
+<td>open</td>
+</tr>
+<tr>
+<td>**Val Environment**</td>
+<td>virtual_platform</td>
+</tr>
+<tr>
+<td>**Automation**</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>**Tags**</td>
+<td>`plc.feature.p1`, `PMSS_NWP_READINESS_CHECK`</td>
+</tr>
+<tr>
+<td>**DMR Command**</td>
+<td>`runPmx.py -x dmr.xml -p pct -tM 60 -M 10 --retry_count 2`</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Test Case Intent</h2>
+<p>SW divides all available &quot;processors&quot; into N partitions (default N=4). The first processor in each partition is configured as the PCT HP (High Priority) core. This test verifies the default HP core selection algorithm produces the correct set of HP cores and CLOS assignments on NWP&#x27;s 96-core topology.</p>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>PCT enabled via BIOS knob (PCT Partition Count ≥ 1; default = 4)</li>
+<li>SST-TF active (`SST_PP_CONTROL.feature_state[1] = 1`)</li>
+<li>All cores online (no BIST failures, no OS offlines)</li>
+</ul>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>Expected Result</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Boot with PCT Partition Count = 4 (default)</td>
+<td>System boots with SST-TF/PCT active</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read total available logical processors</td>
+<td>96 (NWP: 2 CBBs × 48, no SMT)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Compute expected partitions: 96 ÷ 4 = 24 cores/partition</td>
+<td>4 partitions of 24 cores each</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Identify expected HP cores: first core of each partition</td>
+<td>Cores at indices 0, 24, 48, 72 (or 2 per partition = 8 total per CCB 14026595435)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Read `SST_CLOS_ASSOC` for each logical processor</td>
+<td>HP cores → CLOS[0], LP cores → CLOS[3]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify HP core CLOS config</td>
+<td>`SST_CLOS_CONFIG[0].max = SST_TF_INFO_2.RATIO_0` (HP TRL)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify LP core CLOS config</td>
+<td>`SST_CLOS_CONFIG[3].max = SST_TF_INFO_0.LP_CLIP_RATIO_0` (~P1)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Read MSR 0x1AD on HP cores</td>
+<td>Overridden with HP TRL ratio</td>
+</tr>
+</tbody></table>
+<h3>Pass / Fail Criteria</h3>
+<ul>
+<li>**PASS**: Correct number of HP cores selected per partition; CLOS assignments match HP/LP segmentation; HP cores report elevated TRL</li>
+<li>**FAIL**: Wrong HP core count, incorrect CLOS mapping, or LP cores not clipped</li>
+</ul>
+<p>---</p>
+<h2>Section A: NWP Architecture Delta</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>PCT is one of only 2 SST features supported on NWP (SST-TF and PCT). All other SST features (SST-BF, SST-PP, SST-CP, HGS) are ZBB&#x27;d. The PCT flow uses SST-TF CLOS infrastructure which is fully functional on NWP.</p>
+<h3>DMR → NWP Delta Table</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact on Test</th>
+</tr></thead><tbody>
+<tr>
+<td>**CBB count**</td>
+<td>4 CBBs</td>
+<td>2 CBBs</td>
+<td>Partition-to-die mapping changes; fewer die boundaries to cross</td>
+</tr>
+<tr>
+<td>**Cores per CBB**</td>
+<td>32 (8 modules × 4 cores)</td>
+<td>48 (24 DCMs × 2 PNC cores)</td>
+<td>Partition size = 24 (NWP) vs 32 (DMR)</td>
+</tr>
+<tr>
+<td>**Total cores**</td>
+<td>128</td>
+<td>96</td>
+<td>Different partition math: 96÷4=24 vs 128÷4=32</td>
+</tr>
+<tr>
+<td>**HP cores per partition**</td>
+<td>1-2</td>
+<td>2 (8 total per CCB 14026595435)</td>
+<td>Verify 2 HP cores per partition on NWP</td>
+</tr>
+<tr>
+<td>**SMT**</td>
+<td>2 threads/core</td>
+<td>None (single-threaded)</td>
+<td>Logical processor = physical core on NWP</td>
+</tr>
+<tr>
+<td>**PCT frequency target**</td>
+<td>~4.6 GHz</td>
+<td>4.4 GHz (POR-1, trending)</td>
+<td>Different TRL ratio values</td>
+</tr>
+<tr>
+<td>**DLCP support**</td>
+<td>Yes (PCT_Module_Mask fuse)</td>
+<td>TBD — confirm if NWP uses DLCP or legacy</td>
+<td>Open item</td>
+</tr>
+<tr>
+<td>**SST-PP interaction**</td>
+<td>SST-PP active, cross-product possible</td>
+<td>SST-PP ZBB&#x27;d — no cross-product</td>
+<td>Simplifies PCT testing</td>
+</tr>
+<tr>
+<td>**PCT Enable knob**</td>
+<td>Integrated into PCT Partition Count</td>
+<td>Same as DMR+</td>
+<td>No standalone PCT Enable knob</td>
+</tr>
+<tr>
+<td>**MADT ordering**</td>
+<td>2 IMH + 4 CBBs</td>
+<td>NIO + 2 CBBs</td>
+<td>Different APIC topology affects partition → core mapping</td>
+</tr>
+<tr>
+<td>**Test config**</td>
+<td>`dmr.xml`</td>
+<td>`nwp.xml`</td>
+<td>Config file swap required</td>
+</tr>
+</tbody></table>
+<h3>NWP PCT Configuration (from CCB [HSD 14026595435](https://hsdes.intel.com/appstore/article/#/14026595435))</h3>
+<table class="md-table"><thead><tr>
+<th>Parameter</th>
+<th>NWP Value</th>
+</tr></thead><tbody>
+<tr>
+<td>HP core count</td>
+<td>8 (2 per partition × 4 partitions)</td>
+</tr>
+<tr>
+<td>PCT frequency target</td>
+<td>4.4 GHz (POR-1)</td>
+</tr>
+<tr>
+<td>Total cores</td>
+<td>96 (2 CBBs × 48)</td>
+</tr>
+<tr>
+<td>Default partitions</td>
+<td>4 → 24 cores/partition</td>
+</tr>
+<tr>
+<td>HP cores per partition</td>
+<td>2</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section B: Interactions — Swimlane &amp; Sequence</h2>
+<h3>Swimlane Data</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Actor</th>
+<th>Action</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>BIOS</td>
+<td>Read PCT Partition Count knob (default=4)</td>
+<td>BIOS Setup</td>
+</tr>
+<tr>
+<td>2</td>
+<td>BIOS</td>
+<td>Discover 96 available cores via CPUID 0x1F</td>
+<td>CPUID</td>
+</tr>
+<tr>
+<td>3</td>
+<td>BIOS</td>
+<td>Divide 96 cores into 4 partitions of 24</td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td>BIOS</td>
+<td>Select 2 HP cores per partition (8 total)</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>PrimeCode (NIO)</td>
+<td>Read SST_TF fuses + PCT_Module_Mask at reset Phase 5</td>
+<td>Fuse ctrl</td>
+</tr>
+<tr>
+<td>6</td>
+<td>PrimeCode (NIO)</td>
+<td>Populate SST_TF_INFO_0..10 TPMI registers</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>7</td>
+<td>BIOS</td>
+<td>Program SST_CLOS_CONFIG[0]: min=P1, max=HP TRL</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>8</td>
+<td>BIOS</td>
+<td>Program SST_CLOS_CONFIG[3]: min=Pn, max=LP_CLIP</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>9</td>
+<td>BIOS</td>
+<td>Program SST_CLOS_ASSOC: HP=CLOS[0], LP=CLOS[3]</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>10</td>
+<td>BIOS</td>
+<td>Set SST_PP_CONTROL.feature_state[1]=1</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>11</td>
+<td>BIOS</td>
+<td>Override MSR 0x1AD with HP TRL ratio</td>
+<td>MSR</td>
+</tr>
+<tr>
+<td>12</td>
+<td>PCode (CBB×2)</td>
+<td>Enforce CLOS limits at runtime: HP=P0max, LP=LP_CLIP</td>
+<td>HW wire</td>
+</tr>
+<tr>
+<td>13</td>
+<td>OS/Test</td>
+<td>Query SST_CLOS_ASSOC per logical processor</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>14</td>
+<td>OS/Test</td>
+<td>Verify 8 HP cores at expected indices</td>
+<td></td>
+</tr>
+<tr>
+<td>15</td>
+<td>OS/Test</td>
+<td>Read SST_CLOS_CONFIG[0].max — verify HP TRL</td>
+<td>TPMI MMIO</td>
+</tr>
+<tr>
+<td>16</td>
+<td>OS/Test</td>
+<td>Read SST_CLOS_CONFIG[3].max — verify LP clip ratio</td>
+<td>TPMI MMIO</td>
+</tr>
+</tbody></table>
+<h3>Sequence Data</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>From</th>
+<th>To</th>
+<th>Message</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>BIOS</td>
+<td>TPMI SRAM</td>
+<td>Read PCT capability (partition count)</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>PrimeCode</td>
+<td>Fuse Controller</td>
+<td>Read SST_TF_CONFIG fuse arrays + PCT_Module_Mask</td>
+<td>[Internal]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PrimeCode</td>
+<td>TPMI SRAM</td>
+<td>Write SST_TF_INFO_0 (LP_CLIP_RATIO), SST_TF_INFO_2 (HP TRL)</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>BIOS</td>
+<td>TPMI SRAM</td>
+<td>Write SST_CLOS_CONFIG[0] (HP: max=TRL ratio)</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>BIOS</td>
+<td>TPMI SRAM</td>
+<td>Write SST_CLOS_CONFIG[3] (LP: max=LP_CLIP)</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>BIOS</td>
+<td>TPMI SRAM</td>
+<td>Write SST_CLOS_ASSOC[core] for all 96 cores</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>BIOS</td>
+<td>Core</td>
+<td>Write MSR 0x1AD (PRIMARY_TURBO_RATIO_LIMIT) = HP TRL</td>
+<td>[MSR]</td>
+</tr>
+<tr>
+<td>8</td>
+<td>BIOS</td>
+<td>PCode</td>
+<td>Set SST_PP_CONTROL.feature_state[1]=1</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>9</td>
+<td>PCode</td>
+<td>Core FIVR/PLL</td>
+<td>Enforce CLOS-based frequency: HP→P0max, LP→LP_CLIP</td>
+<td>[HW wire]</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Test</td>
+<td>TPMI SRAM</td>
+<td>Read SST_CLOS_ASSOC per core — verify HP/LP mapping</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Test</td>
+<td>Core</td>
+<td>Read IA32_HWP_CAPABILITIES (0x771) — HP reports P0max</td>
+<td>[MSR]</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section C: Interface Coverage Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>Interface</th>
+<th>Type</th>
+<th>Register / Address</th>
+<th>Covered by TC?</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>SST_CLOS_ASSOC</td>
+<td>TPMI</td>
+<td>Per-core CLOS assignment</td>
+<td>**Yes**</td>
+<td>Primary check: HP → CLOS[0], LP → CLOS[3]</td>
+</tr>
+<tr>
+<td>SST_CLOS_CONFIG[0]</td>
+<td>TPMI</td>
+<td>HP CLOS config (min/max ratio)</td>
+<td>**Yes**</td>
+<td>Verify max = SST_TF_INFO_2.RATIO_0</td>
+</tr>
+<tr>
+<td>SST_CLOS_CONFIG[3]</td>
+<td>TPMI</td>
+<td>LP CLOS config (min/max ratio)</td>
+<td>**Yes**</td>
+<td>Verify max = LP_CLIP_RATIO_0</td>
+</tr>
+<tr>
+<td>SST_TF_INFO_0</td>
+<td>TPMI</td>
+<td>LP clip ratio array</td>
+<td>Partial</td>
+<td>Implicitly checked via CLOS_CONFIG</td>
+</tr>
+<tr>
+<td>SST_TF_INFO_2</td>
+<td>TPMI</td>
+<td>HP TRL ratio array</td>
+<td>Partial</td>
+<td>Implicitly checked via CLOS_CONFIG</td>
+</tr>
+<tr>
+<td>SST_TF_INFO_10</td>
+<td>TPMI</td>
+<td>PCT_Module_Mask (DLCP)</td>
+<td>**No**</td>
+<td>DLCP on NWP TBD — gap if DLCP active</td>
+</tr>
+<tr>
+<td>SST_PP_CONTROL</td>
+<td>TPMI</td>
+<td>feature_state[1] SST-TF enable</td>
+<td>Partial</td>
+<td>Implicitly required for PCT to function</td>
+</tr>
+<tr>
+<td>MSR 0x1AD</td>
+<td>MSR</td>
+<td>PRIMARY_TURBO_RATIO_LIMIT</td>
+<td>**Should add**</td>
+<td>Verify HP TRL override</td>
+</tr>
+<tr>
+<td>MSR 0x771</td>
+<td>MSR</td>
+<td>IA32_HWP_CAPABILITIES</td>
+<td>**Should add**</td>
+<td>HP cores report P0max, LP report LP_CLIP</td>
+</tr>
+<tr>
+<td>SST_CP_CONTROL</td>
+<td>TPMI</td>
+<td>SST_CP_PRIORITY_TYPE = 1 (Ordered)</td>
+<td>**No**</td>
+<td>Not covered — add negative check</td>
+</tr>
+<tr>
+<td>PCT Partition Count BIOS knob</td>
+<td>BIOS</td>
+<td>BIOS setup variable</td>
+<td>**Yes**</td>
+<td>Default N=4 is the test target</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: NWP Specification References</h2>
+<table class="md-table"><thead><tr>
+<th>Document</th>
+<th>Link</th>
+<th>Relevance</th>
+</tr></thead><tbody>
+<tr>
+<td>PCT HAS</td>
+<td>[PCT Architecture Spec](https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html)</td>
+<td>Primary: PCT algorithm, CLOS mapping, DLCP, HP selection</td>
+</tr>
+<tr>
+<td>Intel SST HAS</td>
+<td>[SST Architecture Spec](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html)</td>
+<td>SST-TF CLOS infrastructure used by PCT</td>
+</tr>
+<tr>
+<td>NWP PM MAS</td>
+<td>[NWP IMH SoC PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)</td>
+<td>NWP-specific PCT scope and configuration</td>
+</tr>
+<tr>
+<td>DMR Overview HAS</td>
+<td>[DMR Overview — CBB Feature List](https://docs.intel.com/documents/arch_datacenter/DMR/Overview/DMR_Overview_HAS.html)</td>
+<td>PCT as separate feature item (HSD 14023051596)</td>
+</tr>
+<tr>
+<td>NWP PCT CCB</td>
+<td>[HSD 14026595435](https://hsdes.intel.com/appstore/article/#/14026595435)</td>
+<td>NWP PCT core count (8 HP), frequency target (4.4 GHz), POR-1 status</td>
+</tr>
+<tr>
+<td>NWP SST ZBB</td>
+<td>[HSD 22021155414](https://hsdes.intel.com/appstore/article/#/22021155414)</td>
+<td>SST-PP/BF/CP/HGS ZBB&#x27;d on NWP</td>
+</tr>
+<tr>
+<td>PrimeCode SST-TF Init</td>
+<td>`src/flow/sst/sst_tpmi_general.cpp::sstTfInfoInit()`</td>
+<td>Firmware: SST_TF_INFO register population at reset Phase 5</td>
+</tr>
+<tr>
+<td>PCode SST Manager</td>
+<td>`source/pcode/sst_manager.cpp::update_cfgs()`</td>
+<td>PCode: CLOS-based frequency enforcement</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section E: NWP Risk Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**HP core count mismatch**: NWP CCB specifies 8 HP cores (2/partition) but TC description says &quot;first processor&quot; (singular) per partition</td>
+<td>Medium</td>
+<td>High</td>
+<td>Clarify: NWP uses 2 HP cores per partition (8 total), not 1. Update TC to expect 8 HP cores on NWP</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**Partition math with 96 cores**: 96 ÷ 4 = 24 is clean, but APIC topology (NIO + 2 CBBs) may produce non-contiguous APIC IDs affecting partition boundaries</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Verify partition algorithm uses logical processor numbering from MADT, not physical die IDs</td>
+</tr>
+<tr>
+<td>3</td>
+<td>**DLCP vs legacy core selection**: If NWP uses DLCP (PCT_Module_Mask fuse), HP core positions are fixed by fuse, not by partition algorithm. TC assumes partition-based selection</td>
+<td>Low-Medium</td>
+<td>High</td>
+<td>Check SST_TF_INFO_10 for PCT_Module_Mask; if non-zero, DLCP is active and test logic must adapt</td>
+</tr>
+<tr>
+<td>4</td>
+<td>**Vrel risk**: CCB 14026595435 notes Vrel risk — if it materializes, PCT falls back to legacy SST-TF with reduced frequency target</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Track CCB status; if Vrel materializes, update expected HP frequency from 4.4 GHz</td>
+</tr>
+<tr>
+<td>5</td>
+<td>**Config file**: DMR command uses `dmr.xml`; NWP requires `nwp.xml` which may not exist yet</td>
+<td>High</td>
+<td>Medium</td>
+<td>Ensure `nwp.xml` runPmx config file is created with correct NWP topology parameters</td>
+</tr>
+<tr>
+<td>6</td>
+<td>**No SMT**: NWP has no SMT, so logical processor = physical core. DMR tests may assume 2 threads per core for CLOS_ASSOC</td>
+<td>Low</td>
+<td>Low</td>
+<td>Verify test does not multiply core count by 2 for thread-level CLOS assignment</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendations</h2>
+<p>1. **ADOPT with adaptation** — Change config from `dmr.xml` → `nwp.xml`; update expected HP core count from 4 to 8 (2 per partition per CCB 14026595435)</p>
+<p>2. **Update expected partition math** — NWP: 96 cores ÷ 4 partitions = 24 cores/partition, with 2 HP cores per partition (indices depend on MADT ordering)</p>
+<p>3. **Add DLCP check** — Read SST_TF_INFO_10 to determine if DLCP is active; if so, HP core positions come from PCT_Module_Mask fuse, not partition algorithm</p>
+<p>4. **Add MSR verification** — Read MSR 0x1AD (TRL) and MSR 0x771 (HWP_CAPABILITIES) on HP vs LP cores to confirm frequency differentiation</p>
+<p>5. **Add SST_CP_CONTROL check** — Verify `SST_CP_PRIORITY_TYPE = 1` (Ordered Throttling) is set</p>
+<p>6. **Priority**: Medium — tagged `plc.feature.p1`; default HP selection is the foundation for all PCT test cases</p>
+<h3>Adapted NWP Command</h3>
+<pre><code>
+python runPmx.py -x nwp.xml -p pct -tM 60 -M 10 --retry_count 2
+</code></pre>
+<h3>NWP Default HP Core Calculation</h3>
+<pre><code>
+# NWP: 96 cores total, N=4 default partitions, 2 HP cores per partition
+total_cores = 96    # 2 CBBs × 48 cores
+n_partitions = 4    # default PCT partition count
+partition_size = total_cores // n_partitions  # = 24 cores/partition
+hp_per_partition = 2  # per CCB 14026595435
+
+# Expected HP core indices (first 2 of each partition)
+hp_cores = []
+for p in range(n_partitions):
+    base = p * partition_size
+    hp_cores.extend([base, base + 1])
+# hp_cores = [0, 1, 24, 25, 48, 49, 72, 73]
+print(f&quot;Expected {len(hp_cores)} HP cores: {hp_cores}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Version History</h2>
+<table class="md-table"><thead><tr>
+<th>Version</th>
+<th>Date</th>
+<th>Changes</th>
+</tr></thead><tbody>
+<tr>
+<td>v1</td>
+<td>2025-07-24</td>
+<td>Initial enrichment</td>
+</tr>
+<tr>
+<td>v2</td>
+<td>2026-05-29</td>
+<td>Full pipeline re-enrichment: fresh HSD metadata, Co-Design MCP query, expanded sections A-F, swimlane/sequence diagrams, risk assessment, 8 HP cores per CCB 14026595435</td>
+</tr>
+</tbody></table>
+<h2>User Notes</h2>
+<p>_(none)_</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Thermal Reporting] Verify MSR 0x1A4 MCP_THERMAL_REPORT_2</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Thermal Reporting] Verify MSR 0x1A4 MCP_THERMAL_REPORT_2</h1>
+      <p>Segment: FV | Source: HSD_22022421650_verify_msr_0x1a4_mcp_thermal_report.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Thermal Reporting] Verify MSR 0x1A4 MCP_THERMAL_REPORT_2</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421650</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Thermal Reporting] Verify MSR 0x1A4 MCP_THERMAL_REPORT_2</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>MSR 0x1A4 MCP_THERMAL_REPORT_2 — package temperature (supersedes GNR ZBB)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **MSR 0x1A4 MCP_THERMAL_REPORT_2** — the replacement for &quot;Package Temperature&quot; which was ZBB on GNR. This MSR reports:</p>
+<ul>
+<li>`temp_tj_max = ref_temp + pcode_dts_cal_guardband + [additional offsets]`</li>
+</ul>
+<p>On NWP (like DMR), `MCP_THERMAL_REPORT_2` is the authoritative package temperature register. Same fuse path.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>`Ready_for_testing` + `plc.feature.p1` + `NGA_MAIN` + `PMSS_NWP_READINESS_CHECK` tags</li>
+<li>MCP_THERMAL_REPORT_2 supersedes GNR ZBB package_temperature; fully applicable on NWP</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>TJmax Formula from MSR 0x1A4</h3>
+<pre><code>
+temp_tj_max = ref_temp + pcode_dts_cal_guardband + [additional_offset]
+</code></pre>
+<h3>NWP Verification</h3>
+<pre><code>
+import svtools.common.baseaccess as baseaccess
+base = baseaccess.getglobalbase()
+
+# Read MCP_THERMAL_REPORT_2 (MSR 0x1A4)
+mcp_report_2 = base.rdmsr(0x1A4)
+print(f&quot;MSR 0x1A4 MCP_THERMAL_REPORT_2: 0x{mcp_report_2:08X}&quot;)
+
+# Decode temperature fields (bits depend on spec)
+pkg_temp = mcp_report_2 &amp; 0xFF  # Approximation; check spec for exact bits
+print(f&quot;Package Temperature margin: {pkg_temp}°C below Tj_max&quot;)
+
+# Read DTS calibration guardband fuse
+dts_guardband = sv.socket0.imh0.fuses.punit.pcode_dts_cal_guardband.read()
+
+# Read REF_TEMP
+temp_target = base.rdmsr(0x1A2)
+ref_temp = (temp_target &gt;&gt; 16) &amp; 0xFF
+
+temp_tj_max_expected = ref_temp + dts_guardband
+print(f&quot;Expected temp_tj_max base: {temp_tj_max_expected}&quot;)
+print(f&quot;pcode_dts_cal_guardband={dts_guardband}, ref_temp={ref_temp}&quot;)
+</code></pre>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>`MCP_THERMAL_REPORT_2` reports valid package temperature</li>
+<li>Value consistent with `temp_tj_max` formula</li>
+<li>Register updated dynamically with die temperature</li>
+<li>Confirms GNR ZBB package_temperature is correctly replaced by this MSR</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — thermalManagement.py; same formula and fuse path on NWP**</p>
+<p>Required adaptations:</p>
+<p>1. Use `thermalManagement.py` from NWP PythonSV repo</p>
+<p>2. Verify `pcode_dts_cal_guardband` fuse at `sv.socket0.imh0.fuses.punit.*` on NWP</p>
+<p>**Priority**: Medium — `plc.feature.p1` + `NGA_MAIN`; package temperature reporting verification</p>
+    </div>
+  </div>
+</body>
+</html>

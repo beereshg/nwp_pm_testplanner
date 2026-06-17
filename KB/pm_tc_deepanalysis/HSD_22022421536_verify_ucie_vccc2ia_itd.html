@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [ITD] Verify UCIe (VCCC2IA) ITD</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [ITD] Verify UCIe (VCCC2IA) ITD</h1>
+      <p>Segment: FV | Source: HSD_22022421536_verify_ucie_vccc2ia_itd.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [ITD] Verify UCIe (VCCC2IA) ITD</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421536</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[ITD] Verify UCIe (VCCC2IA) ITD</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; ITD</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>UCIe D2D (VCCC2IA) — CBB PCode</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>UCIe D2D Phy requires a **fixed voltage targeted to ~0.7V** with 40mV pk-pk AC noise tolerance at ≤16Gb/s. CBB PCode controls the TD compensation for UCIe to maintain this voltage despite temperature variations. There are two ITD events:</p>
+<p>1. **Boot ITD** (PH2.40): One-time ITD calc from actual UCIe temp before D2D training — saves ~11.7% UCIe power</p>
+<p>2. **Periodic ITD** (after PH2.52): Dynamic ITD tracking</p>
+<p>NWP has UCIe D2D links (CBB-to-CBB and/or CBB-to-IMH). The VCCC2IA ITD mechanism is the same architecture. Primary adaptation: `dmr.xml` → `nwp.xml`.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>UCIe D2D Phy ITD (VCCC2IA) is present on NWP</li>
+<li>Boot-time ITD for D2D training power optimization is the same mechanism</li>
+<li>Same AC noise budget (40mV pk-pk at 16Gb/s)</li>
+<li>`PMSS_NWP_READINESS_CHECK` tag: evaluated for NWP</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon with UCIe D2D links trained</li>
+<li>ITD fuses for UCIe (D2D_ITD_SLOPE/SLOPE_2, D2D_ITD_CUTOFF_V/V2) non-zero</li>
+<li>PythonSv access to `sv.socket0.cbb{0,1}.punit.*`</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run ITD thermal test</td>
+<td>`python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Verify Boot ITD (PH2.40): check D2D training used actual UCIe temperature</td>
+<td>NWP: read pre-training UCIe DTS `PCU_CR_DTS_TEMP_SOC_CR[1:0]`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify periodic ITD: `itd.print_itd_info(0, 0)` shows VCCC2IA domain compensation</td>
+<td>UCIe-specific fuses: `D2D_ITD_SLOPE`, `D2D_ITD_CUTOFF_V`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read VCCC2IA RC voltage offset (should reflect current ITD compensation)</td>
+<td>`RESCTRL_CR_C2IA_V_OFFSET` or equivalent in CBB punit</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify AC noise margin maintained: VCCC2IA ±40mV from 0.7V target</td>
+<td>Board-level or scope measurement (advanced)</td>
+</tr>
+</tbody></table>
+<h3>NWP UCIe D2D Topology</h3>
+<ul>
+<li>DMR: 4 CBBs, each with UCIe links to adjacent dies (D2D PHY)</li>
+<li>NWP: 2 CBBs with UCIe links; CBB-to-CBB and CBB-to-IMH</li>
+<li>Each CBB independently manages its VCCC2IA ITD</li>
+</ul>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>VCCC2IA compensation non-zero at operating temperature</li>
+<li>Boot ITD applied before D2D training (verify via boot trace or fw_runtime_tracker log)</li>
+<li>Periodic ITD updates VCCC2IA voltage offset within slow-loop interval</li>
+<li>UCIe D2D training completes successfully with ITD-corrected voltage</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>UCIe D2D topology</td>
+<td>4 CBBs, multi-die D2D links</td>
+<td>2 CBBs, CBB↔CBB + CBB↔IMH</td>
+<td>Domain count differs; per-link mechanism same</td>
+</tr>
+<tr>
+<td>Boot ITD (PH2.40)</td>
+<td>D2D training ITD</td>
+<td>Same phase structure</td>
+<td>Same boot phase</td>
+</tr>
+<tr>
+<td>DMR A0 D2D workaround</td>
+<td>DVFS bypass, fixed boot voltage with ITD guardband</td>
+<td>Workaround may persist or be fixed on NWP</td>
+<td>Check NWP stepping for workaround status</td>
+</tr>
+<tr>
+<td>Fuses</td>
+<td>`D2D_ITD_SLOPE/SLOPE_2`, `D2D_ITD_CUTOFF_V/V2`</td>
+<td>Same fuse names on NWP</td>
+<td>Direct reuse</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+from pm.focus import itd
+
+SockNum = 0
+
+# Print ITD info — VCCC2IA domain should appear
+itd.print_itd_info(SockNum, 0)
+
+# Per-CBB UCIe DTS
+for cbb_idx in range(2):  # NWP: 2 CBBs
+    cbb = getattr(sv.socket0, f&#x27;cbb{cbb_idx}&#x27;)
+    try:
+        dts_c2ia = cbb.getbypath(&quot;punit.dts_temp_soc_cr&quot;).read()
+        print(f&quot;CBB{cbb_idx} DTS_SOC_CR (UCIe): 0x{dts_c2ia:08X}&quot;)
+    except Exception as e:
+        print(f&quot;CBB{cbb_idx} UCIe DTS: {e}&quot;)
+
+# VCCC2IA RC voltage offset
+for cbb_idx in range(2):
+    cbb = getattr(sv.socket0, f&#x27;cbb{cbb_idx}&#x27;)
+    try:
+        c2ia_offset = cbb.getbypath(&quot;punit.resctrl_cr_c2ia_v_offset&quot;).read()
+        print(f&quot;CBB{cbb_idx} VCCC2IA V_OFFSET: {c2ia_offset}&quot;)
+    except Exception as e:
+        print(f&quot;CBB{cbb_idx} C2IA: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**DMR A0 D2D workaround status on NWP** — DMR A0 had UCIe training errors from VCCIO DVFS; fixed boot voltage with ITD guardband was workaround; check if resolved on NWP</td>
+<td>Medium</td>
+<td>Verify NWP stepping-specific workaround applicability</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**NWP UCIe D2D topology** — CBB↔IMH UCIe links may have different VCCC2IA ITD handling than CBB↔CBB</td>
+<td>Low</td>
+<td>Verify from NWP CFC/UCIe MAS</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; check D2D workaround status**</p>
+<p>UCIe D2D ITD is architecturally the same on NWP. Boot ITD and periodic ITD both apply. Verify DMR A0 workaround applicability on NWP stepping.</p>
+<p>Required adaptations:</p>
+<p>1. `python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3`</p>
+<p>2. Check NWP stepping for DMR A0 UCIe DVFS workaround status</p>
+<p>3. Confirm NWP UCIe D2D topology (CBB↔CBB vs CBB↔IMH VCCC2IA)</p>
+<p>**Priority**: Medium — UCIe D2D power optimization and signal integrity critical for multi-die platforms</p>
+    </div>
+  </div>
+</body>
+</html>

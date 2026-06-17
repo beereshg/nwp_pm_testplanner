@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NWP PM Register Sweep — 2026-06-10</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         background: #020617; color: #e2e8f0; display: flex; min-height: 100vh; }
+  aside { width: 220px; background: #0f172a; padding: 24px 0; position: fixed;
+           top: 0; left: 0; bottom: 0; overflow-y: auto; border-right: 1px solid #1e293b; }
+  aside h3 { color: #475569; font-size: 0.7em; font-weight: 700; letter-spacing: 0.1em;
+              text-transform: uppercase; padding: 0 16px 12px; }
+  main { margin-left: 220px; padding: 32px; flex: 1; max-width: 1200px; }
+  header { margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #1e293b; }
+  .stat-card { display: inline-block; background: #0f172a; border: 1px solid #1e293b;
+                border-radius: 8px; padding: 12px 24px; margin-right: 12px; text-align: center; }
+  .stat-num { font-size: 1.8em; font-weight: 700; }
+  .stat-label { font-size: 0.75em; color: #64748b; margin-top: 2px; }
+</style>
+</head>
+<body>
+<aside>
+  <h3>Features</h3>
+  <ul style="list-style:none"><li><a href="#Pstate_Stack" style="color:#94a3b8;text-decoration:none;font-size:0.85em;padding:4px 12px;display:block;border-radius:4px"onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='none'">Pstate_Stack</a></li><li><a href="#CPU_RAPL" style="color:#94a3b8;text-decoration:none;font-size:0.85em;padding:4px 12px;display:block;border-radius:4px"onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='none'">CPU_RAPL</a></li><li><a href="#PMAX_SIMPL_RACL" style="color:#94a3b8;text-decoration:none;font-size:0.85em;padding:4px 12px;display:block;border-radius:4px"onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='none'">PMAX_SIMPL_RACL</a></li><li><a href="#Thermal_Management" style="color:#94a3b8;text-decoration:none;font-size:0.85em;padding:4px 12px;display:block;border-radius:4px"onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='none'">Thermal_Management</a></li><li><a href="#Fabric_DVFS" style="color:#94a3b8;text-decoration:none;font-size:0.85em;padding:4px 12px;display:block;border-radius:4px"onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='none'">Fabric_DVFS</a></li><li><a href="#SST" style="color:#94a3b8;text-decoration:none;font-size:0.85em;padding:4px 12px;display:block;border-radius:4px"onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='none'">SST</a></li><li><a href="#IMH0_Telemetry" style="color:#94a3b8;text-decoration:none;font-size:0.85em;padding:4px 12px;display:block;border-radius:4px"onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='none'">IMH0_Telemetry</a></li></ul>
+</aside>
+<main>
+  <header>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+      <div>
+        <h1 style="font-size:1.4em;color:#f1f5f9">NWP PM Register Sweep</h1>
+        <p style="color:#64748b;font-size:0.85em;margin-top:4px">
+          Active_PM · Simics nwp-7/2026ww23 · 2026-06-10 17:32:16
+        </p>
+      </div>
+    </div>
+    <div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:#f1f5f9">67</div>
+        <div class="stat-label">Total Registers</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:#22c55e">64</div>
+        <div class="stat-label">Successful</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:#ef4444">3</div>
+        <div class="stat-label">Errors</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:#f59e0b">7</div>
+        <div class="stat-label">Features</div>
+      </div>
+    </div>
+  </header>
+  
+    <section id="Pstate_Stack" style="margin-bottom:40px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <h2 style="margin:0;color:#f1f5f9;font-size:1.1em">Pstate_Stack</h2>
+        <span style="background:#22c55e;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.75em;font-weight:700">32/32 OK</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;background:#0f172a;border-radius:8px;overflow:hidden">
+        <thead>
+          <tr style="background:#1e293b">
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:28%">Register</th>
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:34%">Path</th>
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:30%">Value</th>
+            <th style="padding:10px 12px;text-align:center;color:#64748b;font-size:0.78em;font-weight:600;width:8%">Status</th>
+          </tr>
+        </thead>
+        <tbody><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">ACP_PERF_LIMIT CBB0 (all FIDs)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.punit_regs.punit_pmsb.pmsb_pcu.acp_perf_limit</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">d()</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">ACP_PERF_LIMIT CBB1 (all FIDs)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb1.base.punit_regs.punit_pmsb.pmsb_pcu.acp_perf_limit</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">d()</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">ACP_PERF_LIMIT IMH0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.imh0.punit.ptpcfsms_pmsb.ptpcfsms_pmsb.acp_perf_limit</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">)</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">CORE_ELECTRICAL_REQ IMH0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.imh0.punit.ptpcfsms_pmsb.ptpcfsms_pmsb.core_electrical_req</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">read()</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">CORE_PM_EVENT IMH0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.imh0.punit.ptpcfsms_pmsb.ptpcfsms_pmsb.core_pm_event</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">UNCORE_VIRTUAL_SIG IMH0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.imh0.punit.ptpcfsms_pmsb.ptpcfsms_pmsb.uncore_virtual_sig</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">ead()</code><br><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PLATFORM_INFO IMH0 (max/min non-turbo ratio)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.platform_info</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0xcfd800000</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">ENERGY_PERF_BIAS_CONFIG IMH0 (EPB)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.energy_perf_bias_config</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">ad()</code><br><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SST_PP_INFO_11 IMH0 (P0/P1/Pm ratios)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.sst_pp_info_11</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x4081504051824</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SST_PP_INFO_4 IMH0 (TRL ratio_0)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.sst_pp_info_4</td>
+          <td style="padding:10px 12px"><code style="color:#94a3b8">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">OPC_HWP_CAPABILITY CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.opc_hwp_capability</td>
+          <td style="padding:10px 12px"><code style="color:#94a3b8">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">OPC_HWP_CONTROLS CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.opc_hwp_controls</td>
+          <td style="padding:10px 12px"><code style="color:#94a3b8">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">OPC_HWP_CAPABILITY CBB1</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb1.base.tpmi.opc_hwp_capability</td>
+          <td style="padding:10px 12px"><code style="color:#94a3b8">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">OPC_HWP_CONTROLS CBB1</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb1.base.tpmi.opc_hwp_controls</td>
+          <td style="padding:10px 12px"><code style="color:#94a3b8">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">UFS_STATUS CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.ufs_status</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x1904e08</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">UFS_STATUS CBB1</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb1.base.tpmi.ufs_status</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x1904e08</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SST_PP_INFO_11 CBB0 (P0/P1/Pm ratios)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.sst_pp_info_11</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x41b1b040c1857</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SST_PP_INFO_4 CBB0 (TRL ratio_0)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.sst_pp_info_4</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x57</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SST_PP_INFO_5 CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.sst_pp_info_5</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x20</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SST_PP_INFO_6 CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.sst_pp_info_6</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x1a</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SST_PP_INFO_7 CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.sst_pp_info_7</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x14</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SST_PP_INFO_8 CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.sst_pp_info_8</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0xe</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SST_PP_CONTROL CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.sst_pp_control</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SST_PP_STATUS CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.sst_pp_status</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">FIT_CONFIG_0 CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.fit_config_0</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0xffffffffffffffff</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">FIT_CONFIG_1 CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.fit_config_1</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0xffffffffffffffff</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PLR_DIE_LEVEL CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.plr_die_level</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PLR_DIE_LEVEL CBB1</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb1.base.tpmi.plr_die_level</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">GPSB HWP_REQUEST CBB0 pma0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.hwp_request</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">hwp_request["fid_0"]=0xff01</code><br><code style="color:#f59e0b">hwp_request["fid_1"]=0xff01</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">GPSB HWP_REQUEST_RESOLVED CBB0 pma0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.hwp_request_resolved</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">ead()</code><br><code style="color:#f59e0b">0x300000000000000</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PLR MAILBOX IMH0 (high-level clipping)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.plr_mailbox_data</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PLR MAILBOX CBB0 (high-level clipping)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.plr_mailbox_data</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr></tbody>
+      </table>
+    </section>
+    <section id="CPU_RAPL" style="margin-bottom:40px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <h2 style="margin:0;color:#f1f5f9;font-size:1.1em">CPU_RAPL</h2>
+        <span style="background:#22c55e;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.75em;font-weight:700">8/8 OK</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;background:#0f172a;border-radius:8px;overflow:hidden">
+        <thead>
+          <tr style="background:#1e293b">
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:28%">Register</th>
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:34%">Path</th>
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:30%">Value</th>
+            <th style="padding:10px 12px;text-align:center;color:#64748b;font-size:0.78em;font-weight:600;width:8%">Status</th>
+          </tr>
+        </thead>
+        <tbody><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PEM_CONTROL CBB0 (RAPL PEM config)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.pem_control</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PEM_STATUS CBB0 (RAPL PEM status)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.pem_status</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PEM_CONTROL CBB1</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb1.base.tpmi.pem_control</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PEM_STATUS CBB1</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb1.base.tpmi.pem_status</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SOCKET_RAPL_POWER_UNIT IMH0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.socket_rapl_power_unit</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SOCKET_RAPL_ENERGY_STATUS IMH0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.socket_rapl_energy_status</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PLR MAILBOX IMH0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.plr_mailbox_data</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PLR MAILBOX CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.plr_mailbox_data</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr></tbody>
+      </table>
+    </section>
+    <section id="PMAX_SIMPL_RACL" style="margin-bottom:40px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <h2 style="margin:0;color:#f1f5f9;font-size:1.1em">PMAX_SIMPL_RACL</h2>
+        <span style="background:#22c55e;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.75em;font-weight:700">5/5 OK</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;background:#0f172a;border-radius:8px;overflow:hidden">
+        <thead>
+          <tr style="background:#1e293b">
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:28%">Register</th>
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:34%">Path</th>
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:30%">Value</th>
+            <th style="padding:10px 12px;text-align:center;color:#64748b;font-size:0.78em;font-weight:600;width:8%">Status</th>
+          </tr>
+        </thead>
+        <tbody><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PEM_CONTROL CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.pem_control</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PEM_STATUS CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.pem_status</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PLR_DIE_LEVEL CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.plr_die_level</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PLR MAILBOX IMH0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.plr_mailbox_data</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PLR MAILBOX CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.plr_mailbox_data</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr></tbody>
+      </table>
+    </section>
+    <section id="Thermal_Management" style="margin-bottom:40px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <h2 style="margin:0;color:#f1f5f9;font-size:1.1em">Thermal_Management</h2>
+        <span style="background:#f59e0b;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.75em;font-weight:700">7/10 OK</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;background:#0f172a;border-radius:8px;overflow:hidden">
+        <thead>
+          <tr style="background:#1e293b">
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:28%">Register</th>
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:34%">Path</th>
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:30%">Value</th>
+            <th style="padding:10px 12px;text-align:center;color:#64748b;font-size:0.78em;font-weight:600;width:8%">Status</th>
+          </tr>
+        </thead>
+        <tbody><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">OPC_THERMAL_MONITOR CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.opc_thermal_monitor</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">OPC_HWP_CAPABILITY CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.opc_hwp_capability</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">OPC_HWP_CONTROLS CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.opc_hwp_controls</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">UFS_CONTROL CBB0 (CCF GV freq control)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.ufs_control</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x800788d03021b01</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">UFS_STATUS CBB0 (CCF GV freq status)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.ufs_status</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x1904e1b</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PROCHOT_RESPONSE_POWER CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.prochot_response_power</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PLR_DIE_LEVEL CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.plr_die_level</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x0</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">GPSB HWRS_DIE_STATUS CBB0 pma0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.hwrs_die_status</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">Traceback (most recent call last):</code><br><code style="color:#f59e0b">  File "<cmdline>", line 1, in <module></code><br><code style="color:#f59e0b">  File "/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py", line 339, in __getattr__</code><br><code style="color:#f59e0b">    raise AttributeError("Unknown Attribute {0}".format(attr))</code><br><code style="color:#f59e0b">AttributeError: Unknown Attribute hwrs_die_status</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#ef4444;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">ERR</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">GPSB HWRS_SEQ_CONTROL CBB0 pma0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.hwrs_seq_control</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">)</code><br><code style="color:#f59e0b">Traceback (most recent call last):</code><br><code style="color:#f59e0b">  File "<cmdline>", line 1, in <module></code><br><code style="color:#f59e0b">  File "/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py", line 339, in __getattr__</code><br><code style="color:#f59e0b">    raise AttributeError("Unknown Attribute {0}".format(attr))</code><br><code style="color:#f59e0b">AttributeError: Unknown Attribute hwrs_seq_control</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#ef4444;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">ERR</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">GPSB MC_STATUS CBB0 pma0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.compute0.getbypath('pma0').gpsb.mc_status</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">Traceback (most recent call last):</code><br><code style="color:#f59e0b">  File "<cmdline>", line 1, in <module></code><br><code style="color:#f59e0b">  File "/nfs/site/disks/simcloud_mtwestbr_002/repo/nwp_python310/site-packages/namednodes/comp/_comp.py", line 339, in __getattr__</code><br><code style="color:#f59e0b">    raise AttributeError("Unknown Attribute {0}".format(attr))</code><br><code style="color:#f59e0b">AttributeError: Unknown Attribute mc_status</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#ef4444;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">ERR</span></td>
+        </tr></tbody>
+      </table>
+    </section>
+    <section id="Fabric_DVFS" style="margin-bottom:40px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <h2 style="margin:0;color:#f1f5f9;font-size:1.1em">Fabric_DVFS</h2>
+        <span style="background:#22c55e;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.75em;font-weight:700">5/5 OK</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;background:#0f172a;border-radius:8px;overflow:hidden">
+        <thead>
+          <tr style="background:#1e293b">
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:28%">Register</th>
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:34%">Path</th>
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:30%">Value</th>
+            <th style="padding:10px 12px;text-align:center;color:#64748b;font-size:0.78em;font-weight:600;width:8%">Status</th>
+          </tr>
+        </thead>
+        <tbody><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">UFS_CONTROL CBB0 (uncore freq scaling ctrl)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.ufs_control</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x800788d03021b01</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">UFS_STATUS CBB0 (current voltage/freq)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.ufs_status</td>
+          <td style="padding:10px 12px"><code style="color:#94a3b8">all 0x0 (426 entries)</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">UFS_CONTROL CBB1</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb1.base.tpmi.ufs_control</td>
+          <td style="padding:10px 12px"><code style="color:#94a3b8">all 0x0 (112 entries)</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">UFS_STATUS CBB1</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb1.base.tpmi.ufs_status</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">x6b80000. Returning 0xff for each byte.</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PLATFORM_INFO IMH0 (P1 ratio)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.platform_info</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">[newport.mb.s3m0.s3m[0].unmapped_cfg_space info] Reading 2 bytes from address 0x8a80000. Returning 0xff for each byte.</code><br><code style="color:#f59e0b">	9:0 (value written = 0b1000000000, previous value = 0b0000000000)</code><br><code style="color:#f59e0b">0x1904e1b</code><br><code style="color:#f59e0b">0x800788d03021b01</code><br><code style="color:#f59e0b">0x1904e1b</code><br><code style="color:#f59e0b">0x4050cfd801800</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr></tbody>
+      </table>
+    </section>
+    <section id="SST" style="margin-bottom:40px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <h2 style="margin:0;color:#f1f5f9;font-size:1.1em">SST</h2>
+        <span style="background:#22c55e;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.75em;font-weight:700">6/6 OK</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;background:#0f172a;border-radius:8px;overflow:hidden">
+        <thead>
+          <tr style="background:#1e293b">
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:28%">Register</th>
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:34%">Path</th>
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:30%">Value</th>
+            <th style="padding:10px 12px;text-align:center;color:#64748b;font-size:0.78em;font-weight:600;width:8%">Status</th>
+          </tr>
+        </thead>
+        <tbody><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SST_PP_CONTROL CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.sst_pp_control</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x8</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SST_PP_STATUS CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.sst_pp_status</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x8</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SST_PP_INFO_11 CBB0 (P0/P1/Pm ratios)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.sst_pp_info_11</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x41b1b040c1857</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SST_PP_HEADER CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.sst_pp_header</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0xc680011f031</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">SST_PP_INFO_0 CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.sst_pp_info_0</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x18181818</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">PP1_SST_PP_INFO_11 CBB0</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">sv.socket0.cbb0.base.tpmi.pp1_sst_pp_info_11</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">0x41b1b040c1857</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr></tbody>
+      </table>
+    </section>
+    <section id="IMH0_Telemetry" style="margin-bottom:40px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <h2 style="margin:0;color:#f1f5f9;font-size:1.1em">IMH0_Telemetry</h2>
+        <span style="background:#22c55e;color:#fff;padding:2px 10px;border-radius:12px;font-size:0.75em;font-weight:700">1/1 OK</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;background:#0f172a;border-radius:8px;overflow:hidden">
+        <thead>
+          <tr style="background:#1e293b">
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:28%">Register</th>
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:34%">Path</th>
+            <th style="padding:10px 12px;text-align:left;color:#64748b;font-size:0.78em;font-weight:600;width:30%">Value</th>
+            <th style="padding:10px 12px;text-align:center;color:#64748b;font-size:0.78em;font-weight:600;width:8%">Status</th>
+          </tr>
+        </thead>
+        <tbody><tr style="border-bottom:1px solid #1e293b">
+          <td style="padding:10px 12px;color:#e2e8f0;font-size:0.85em">UNCORE_TELEM IMH0 [0:9] (first 10 slots)</td>
+          <td style="padding:10px 12px;font-family:monospace;font-size:0.78em;color:#64748b;max-width:280px;word-break:break-all">[sv.socket0.imh0.punit.ptpcfsms_pmsb.ptpcfsms_pmsb.uncore_telem[i] for i in range(10)]</td>
+          <td style="padding:10px 12px"><code style="color:#f59e0b">d() for i in range(10)]</code><br><code style="color:#f59e0b">[0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0]</code></td>
+          <td style="padding:10px 12px;text-align:center"><span style="background:#22c55e;color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em;font-weight:700">OK</span></td>
+        </tr></tbody>
+      </table>
+    </section>
+</main>
+</body>
+</html>

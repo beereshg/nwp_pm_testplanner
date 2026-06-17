@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [ITD] Verify Inf (VccInf) ITD</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [ITD] Verify Inf (VccInf) ITD</h1>
+      <p>Segment: FV | Source: HSD_22022421535_verify_inf_vccinf_itd.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [ITD] Verify Inf (VccInf) ITD</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421535</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[ITD] Verify Inf (VccInf) ITD</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; ITD</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>VccInf (MBVR) — iMH PrimeCode</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>VccInf is the **only MBVR** (multi-die bypass VR) where ITD occurs in DMR/NWP. Root IMH PrimeCode alone does the ITD correction using the Dispatcher WP → SVID Controller. Because VccInf is shared across IMH and CBB dies, the control requires min temperature across all dies — CBBs send their min temperature to IMH via the `SOCKET_THERMAL` HPM message. VccInf is non-GV (fixed-frequency) — baseline voltage comes from `ACTIVE_VID` fuse.</p>
+<p>Sub_feature is `To_be_ported` indicating script porting needed. The test steps include an OPEN item about defining the Vccinf temperature telemetry interface between CBB and iMH (via HPM or dedicated path). On NWP, this architecture is the same but any OPEN items from DMR may or may not be resolved for NWP.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>VccInf ITD via iMH PrimeCode is present on NWP</li>
+<li>CBB → IMH min temperature via `SOCKET_THERMAL` HPM same architecture</li>
+<li>`To_be_ported` and OPEN items require NWP team coordination</li>
+<li>Single IMH on NWP simplifies the flow slightly (no imh1 to coordinate)</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon with VccInf MBVR active</li>
+<li>ITD fuses for VccInf non-zero (from TC 22022421521: `pcode_itd_cutoff_tj`, etc.)</li>
+<li>`SOCKET_THERMAL` HPM from CBBs delivering min temperature to iMH</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run ITD thermal test</td>
+<td>`python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Verify CBB → iMH temperature reporting via `SOCKET_THERMAL` HPM</td>
+<td>NWP: 2 CBBs sending min temp; iMH receives and uses minimum</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify VccInf ITD compensation: `itd.print_itd_info(0, 0)` shows VccInf domain</td>
+<td>Check VccInf compensation = `ITD_SLOPE * (CUTOFF_V - ACTIVE_VID) * (CUTOFF_TJ - MIN_TEMP)`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Stress CBB to change temperature; verify iMH updates VccInf SVID target</td>
+<td>Verify SVID target changes within slow-loop interval</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Check OPEN: confirm VccInf temperature telemetry path finalized for NWP</td>
+<td>Coordinate with NWP iMH team</td>
+</tr>
+</tbody></table>
+<h3>VccInf ITD Formula (non-GV domain)</h3>
+<pre><code>
+# VccInf is fixed-frequency (non-GV):
+# Baseline = ACTIVE_VID fuse
+# ITD compensation adds to baseline:
+DELTA_TEMP_COLD = ITD_CUTOFF_TJ - MIN_TEMP_ACROSS_ALL_DIES
+DELTA_VOLT = ITD_CUTOFF_V - ACTIVE_VID
+VOLT_COMP = ITD_SLOPE * DELTA_VOLT * DELTA_TEMP_COLD
+VCCINF_TARGET = ACTIVE_VID + VOLT_COMP
+</code></pre>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>VccInf SVID target tracks temperature across all dies</li>
+<li>`SOCKET_THERMAL` HPM delivers correct min temp from each CBB to iMH</li>
+<li>VccInf ITD compensation is non-zero at expected operating temperature</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>VccInf control</td>
+<td>iMH PrimeCode (root)</td>
+<td>Same — single iMH on NWP</td>
+<td>Simpler: no imh1 coordination</td>
+</tr>
+<tr>
+<td>CBB count sending min temp</td>
+<td>4 CBBs</td>
+<td>2 CBBs</td>
+<td>Temperature min-tracking simpler</td>
+</tr>
+<tr>
+<td>Temperature telemetry OPEN</td>
+<td>HPM path being defined</td>
+<td>NWP must resolve same OPEN</td>
+<td>Check if OPEN is resolved in NWP design</td>
+</tr>
+<tr>
+<td>VccInf non-GV</td>
+<td>Fixed baseline `ACTIVE_VID`</td>
+<td>Same on NWP</td>
+<td>Direct reuse</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+from pm.focus import itd
+
+SockNum = 0
+
+# VccInf ITD info
+itd.print_itd_info(SockNum, 0)
+
+# VccInf ITD compensation register
+try:
+    vccinf_comp = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.vccinf_itd_comp.read()
+    print(f&quot;VccInf ITD compensation: {vccinf_comp}&quot;)
+except Exception as e:
+    print(f&quot;VccInf ITD: {e}&quot;)
+
+# SOCKET_THERMAL HPM monitoring (CBB min temp in iMH)
+try:
+    sock_thermal = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_thermal.read()
+    print(f&quot;SOCKET_THERMAL (CBB min temp): 0x{sock_thermal:08X}&quot;)
+except Exception as e:
+    print(f&quot;SOCKET_THERMAL: {e}&quot;)
+
+# VccInf SVID target
+try:
+    vccinf_vid = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.vccinf_vid.read()
+    print(f&quot;VccInf SVID target: 0x{vccinf_vid:08X}&quot;)
+except Exception as e:
+    print(f&quot;VccInf VID: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**OPEN: Vccinf temperature telemetry path** — DMR test steps mention this is unresolved; NWP must resolve the HPM or dedicated path for CBB→iMH temperature</td>
+<td>High</td>
+<td>Coordinate with NWP iMH design team before test execution</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**`To_be_ported` flag** — script porting required for NWP</td>
+<td>Medium</td>
+<td>Port test to use `nwp.xml` and verify HPM path</td>
+</tr>
+<tr>
+<td>3</td>
+<td>**VccInf ITD fuse names** — `pcode_itd_cutoff_tj` etc. are the same; confirm NWP VccInf-specific slope fuses</td>
+<td>Low</td>
+<td>Verify from NWP PM MAS</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADAPT — OPEN item resolution required; `To_be_ported` flag**</p>
+<p>VccInf ITD architecture is the same on NWP. The temperature telemetry OPEN (CBB→iMH HPM path) must be resolved for NWP before test execution.</p>
+<p>Required adaptations:</p>
+<p>1. Resolve VccInf temperature telemetry OPEN for NWP (CBB→iMH HPM mechanism)</p>
+<p>2. `python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3`</p>
+<p>3. Single IMH on NWP simplifies monitoring: only `sv.socket0.imh0.*`</p>
+<p>**Priority**: Medium — foundational for VccInf voltage correctness; OPEN item is a prerequisite</p>
+    </div>
+  </div>
+</body>
+</html>

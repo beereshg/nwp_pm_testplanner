@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [ACP] Verify Core Cross Throttle</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [ACP] Verify Core Cross Throttle</h1>
+      <p>Segment: FV | Source: HSD_22022421445_verify_core_cross_throttle.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [ACP] Verify Core Cross Throttle</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421445</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[ACP] Verify Core Cross Throttle</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; ACP (Autonomous Core Perimeter)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test case verifies that Pcode Core EMTTM triggers a Cross-Core Throttle Request when a core module overheats due to adjacent IP thermal load (also called `CROSS_CORE_THROTTLE_REQUEST`). When a hot core exceeds its self-throttle minimum ratio and is still overtemperature, it writes a virtual signal to Pcode, which applies a physically-aware frequency demotion to neighboring CCPs. On NWP, this ACP cross-core throttle mechanism is supported; the test requires script adaption from `dmr.xml` to `nwp.xml` and CBB loop changes (4→2 CBBs, 32→48 cores). The `DMR_PO` sub-feature tag indicates this was run at PO on DMR silicon — NWP silicon availability is required.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>Core cross-throttle (`PMSB_PCU_CR_VIRTUAL_SIG[CROSS_CORE_THROTTLE_REQ]` bit 13) mechanism exists on NWP</li>
+<li>`runPmx.py -p emttm_thermal` is the test driver; adapting `-x dmr.xml` → `-x nwp.xml` is sufficient for topology config</li>
+<li>NWP CBB count is 2 (not 4) and has 48 cores per CBB — loop bounds in verification must change</li>
+<li>Silicon availability is required (DMR_PO tag confirms silicon-level test, not VP)</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon platform (not VP — cross-throttle is a live thermal event)</li>
+<li>`runPmx.py` with NWP-compatible `nwp.xml` config available</li>
+<li>PythonSv access to `sv.socket0.cbb{0,1}` PMSB registers</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Load EMTTM test module</td>
+<td>Same — `import pm.Active_PM.Thermal_Management.CPU_Thermal_Management.EMTTM_pmx as emttm`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run `emttm_test = emttm.EMTTM(); emttm_test.loopSetup()`</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Execute `emttm_test.mainTest()`</td>
+<td>Change `-x dmr.xml` to `-x nwp.xml` in underlying command</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Trigger thermal excursion on one core module</td>
+<td>Same — use thermal stress workload</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify `PMSB_PCU_CR_VIRTUAL_SIG[CROSS_CORE_THROTTLE_REQ]` (bit 13) set</td>
+<td>Loop over `range(2)` CBBs (not 4)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify Pcode demotes neighboring CCPs&#x27; frequency ratios</td>
+<td>Same acceptance — verify GPSS core ratio limits drop for neighbor CCPs</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify recovery when thermal condition clears</td>
+<td>Same acceptance criterion</td>
+</tr>
+</tbody></table>
+<h3>Alternative via CLI</h3>
+<pre><code>
+python runPmx.py -x nwp.xml -p emttm_thermal -tM 30 -M 6
+</code></pre>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>`CROSS_CORE_THROTTLE_REQUEST` asserts when self-throttle exhausted and core still overtemperature</li>
+<li>Neighboring CCP frequency demoted by physically-aware amount (larger demotion for near neighbors)</li>
+<li>Demotion clears after thermal condition resolves</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<h3>Topology Changes</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>CBB count</td>
+<td>4</td>
+<td>2</td>
+<td>Monitoring loop: `range(2)`</td>
+</tr>
+<tr>
+<td>Cores per CBB</td>
+<td>32</td>
+<td>48</td>
+<td>Inner verification scope: `range(48)`</td>
+</tr>
+<tr>
+<td>Script XML</td>
+<td>`dmr.xml`</td>
+<td>`nwp.xml`</td>
+<td>Direct config substitution</td>
+</tr>
+<tr>
+<td>Physical neighbor mapping</td>
+<td>DMR tile adjacency</td>
+<td>NWP tile adjacency</td>
+<td>Neighbor lookup table in test may need NWP layout</td>
+</tr>
+</tbody></table>
+<h3>SST-PP / Ring C6 Note</h3>
+<table class="md-table"><thead><tr>
+<th>Feature</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>SST-PP eff_tj_max paths</td>
+<td>Active</td>
+<td>ZBB — not used</td>
+<td>Cross-throttle trigger temp uses base TjMax only</td>
+</tr>
+<tr>
+<td>Ring C6</td>
+<td>Active</td>
+<td>ZBB</td>
+<td>No impact — ring C-states ≠ ring thermal throttle</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>Register Check Table (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Category</th>
+<th>Register</th>
+<th>Field</th>
+<th>Expected</th>
+<th>Verify On</th>
+</tr></thead><tbody>
+<tr>
+<td>Cross-throttle signal</td>
+<td>`PMSB_PCU_CR_VIRTUAL_SIG`</td>
+<td>`CROSS_CORE_THROTTLE_REQ[13]`</td>
+<td>1 when hot core at min ratio</td>
+<td>Per-CCP, both CBBs</td>
+</tr>
+<tr>
+<td>Perf limit</td>
+<td>`PERF_LIMIT_REASONS`</td>
+<td>`THERMAL[4]`</td>
+<td>1 during throttle</td>
+<td>Package TPMI</td>
+</tr>
+<tr>
+<td>Core ratio limit</td>
+<td>GPSS core ratio ceiling</td>
+<td>—</td>
+<td>Reduced for neighbor CCPs</td>
+<td>Per-core</td>
+</tr>
+</tbody></table>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+# Check CROSS_CORE_THROTTLE_REQUEST status across both CBBs
+for cbb_idx in range(2):  # NWP has 2 CBBs
+    cbb = sv.socket0.getbypath(f&quot;cbb{cbb_idx}&quot;)
+    for core_idx in range(48):  # NWP has 48 cores per CBB
+        try:
+            virt_sig = cbb.getbypath(
+                f&quot;compute{core_idx // 8}.module{core_idx % 8}.pmsb_pcu_cr_virtual_sig&quot;
+            ).cross_core_throttle_req.read()
+            if virt_sig:
+                print(f&quot;CBB{cbb_idx} core{core_idx}: CROSS_CORE_THROTTLE_REQUEST asserted&quot;)
+        except Exception:
+            pass
+
+# Package-level PLR check
+plr = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.perf_limit_reasons.read()
+print(f&quot;PLR value: 0x{plr:08X}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**Silicon-only test** — cross-throttle requires real thermal events; VP simulation of thermal trips may not trigger the condition accurately</td>
+<td>Medium</td>
+<td>Mark VP environment as `Not Applicable`; run only on silicon</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**NWP tile adjacency mapping** — the physically-aware cross-throttle demotion uses die floorplan; NWP neighbor map may differ from DMR</td>
+<td>Medium</td>
+<td>Validate with NWP PM HAS; test may need updated neighbor table</td>
+</tr>
+<tr>
+<td>3</td>
+<td>**PMSB path naming** — register path `PMSB_PCU_CR_VIRTUAL_SIG` needs NWP namednodes verification</td>
+<td>Low</td>
+<td>Validate during bring-up</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADAPT — script config + topology loop adaptation required**</p>
+<p>The cross-core throttle mechanism is architecturally identical on NWP. The primary changes are: (1) update test script XML from `dmr.xml` to `nwp.xml`, (2) update CBB/core loop bounds (4×32 → 2×48), and (3) verify the NWP tile adjacency table used for physically-aware demotion. This is a silicon-only test that cannot be run on VP.</p>
+<p>Required adaptations:</p>
+<p>1. Change `runPmx.py -x dmr.xml` → `runPmx.py -x nwp.xml`</p>
+<p>2. Update verification loops: `range(2)` CBBs, `range(48)` cores</p>
+<p>3. Confirm NWP PMSB VIRTUAL_SIG register path is accessible via namednodes</p>
+<p>4. Review NWP physical neighbor adjacency for cross-throttle demotion amount</p>
+<p>**Priority**: High — Core cross-throttle is a safety mechanism validated at PO</p>
+    </div>
+  </div>
+</body>
+</html>

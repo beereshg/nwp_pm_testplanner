@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: RAPL - Checkout Fuses Related to RAPL</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: RAPL - Checkout Fuses Related to RAPL</h1>
+      <p>Segment: FV | Source: HSD_22022422017_rapl_checkout_fuses_related_to_rapl.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: RAPL - Checkout Fuses Related to RAPL</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422017</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>RAPL - Checkout fuses related to RAPL</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>RAPL fuse checkout — verify fuses consumed by Pcode and reflected in mapped registers</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **RAPL-related fuses are consumed correctly by Pcode** and reflected in the associated registers. From test steps: MSR interface for RAPL is **deprecated in DMR** (and NWP) — MSRs `IA32_PKG_POWER_SKU_UNIT`, `PACKAGE_POWER_INFO`, `PACKAGE_RAPL_LIMIT`, `PACKAGE_ENERGY_STATUS` are superseded by TPMI/CSR registers.</p>
+<p>Goal: Verify fuse values → Punit registers reflect correct fuse-driven defaults. Uses `flexconPM.py`. Tags: `DMR_PO`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP RAPL Fuse → Register Mapping</h3>
+<table class="md-table"><thead><tr>
+<th>Fuse</th>
+<th>NWP Fuse Path</th>
+<th>Register</th>
+</tr></thead><tbody>
+<tr>
+<td>TDP (PL1 default)</td>
+<td>`sv.socket0.imh0.fuses.punit.&lt;tdp_fuse&gt;`</td>
+<td>`socket_rapl_pl1_control.pl1_power`</td>
+</tr>
+<tr>
+<td>PL2 default</td>
+<td>`sv.socket0.imh0.fuses.punit.&lt;pl2_fuse&gt;`</td>
+<td>`socket_rapl_pl2_control.pl2_power`</td>
+</tr>
+<tr>
+<td>Tau1 (PL1 tau)</td>
+<td>`sv.socket0.imh0.fuses.punit.&lt;tau1_fuse&gt;`</td>
+<td>`socket_rapl_pl1_control.tau1`</td>
+</tr>
+<tr>
+<td>Power Unit</td>
+<td>`sv.socket0.imh0.fuses.punit.&lt;power_unit&gt;`</td>
+<td>`socket_rapl_power_unit.power_units`</td>
+</tr>
+</tbody></table>
+<h3>Flexcon Command (NWP)</h3>
+<pre><code>
+flexconPM.py -c NWPSV.ini  (not DMRSV.ini)
+</code></pre>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Read NWP RAPL fuses</td>
+<td>`sv.socket0.imh0.fuses.punit.&lt;rapl_fuse_fields&gt;`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run flexconPM</td>
+<td>`flexconPM.py -c NWPSV.ini`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify PL1 register = fuse-driven TDP</td>
+<td>TPMI: `socket_rapl_pl1_control.pl1_power`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify PL2 register = fuse-driven PL2</td>
+<td>TPMI: `socket_rapl_pl2_control.pl2_power`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify Power Unit register correct</td>
+<td>TPMI: `socket_rapl_power_unit`</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify deprecated MSRs have no effect</td>
+<td>Write to legacy RAPL MSRs; verify no register change</td>
+</tr>
+</tbody></table>
+<h3>NWP Notes</h3>
+<ul>
+<li>MSR interface deprecated on NWP (same as DMR)</li>
+<li>TPMI registers: `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.*`</li>
+<li>CSR registers: `sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.*`</li>
+<li>`DMRSV.ini` → `NWPSV.ini` for Flexcon</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>All RAPL registers initialized to fuse-driven values after reset</li>
+<li>Deprecated MSRs: write has no effect on TPMI/CSR register values</li>
+<li>Flexcon verification passes for all RAPL fuse → register mappings</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `DMRSV.ini` → `NWPSV.ini`; NWP RAPL fuse paths at `imh0.fuses.punit.*`; MSR deprecated same as DMR**</p>
+<p>1. `flexconPM.py -c NWPSV.ini`</p>
+<p>2. Read NWP RAPL fuses from `sv.socket0.imh0.fuses.punit.*`</p>
+<p>3. Verify TPMI/CSR RAPL registers match fuse-driven values</p>
+<p>4. Confirm deprecated MSR writes have no effect</p>
+<p>**Priority**: High — RAPL fuse checkout is a fundamental bring-up validation step to confirm Pcode correctly consumed all RAPL fuses</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bug 13014051741 — [DMR][A0] aCode stuck in WP calc loop when stressing 0x199</title>
+<link rel="stylesheet" href="../templates/bug_analysis.css">
+</head>
+<body>
+
+<a href="dmr_pm_retrospective.html" class="back-link">← Dashboard</a>
+
+<h1>
+  <span class="badge badge-fw-pcode">FW_PCODE</span>
+  HSD 13014051741
+</h1>
+
+<div class="card">
+  <dl class="metadata-grid">
+    <dt>Title</dt>
+    <dd>[DMR][A0] aCode stuck in WP calc loop when stressing 0x199</dd>
+
+    <dt>HSD Link</dt>
+    <dd><a href="https://hsdes.intel.com/appstore/article-one/#/13014051741" target="_blank">13014051741</a></dd>
+
+    <dt>Status</dt>
+    <dd>complete.validated</dd>
+
+    <dt>Priority</dt>
+    <dd><span class="badge badge-priority-3">3-medium</span></dd>
+
+    <dt>Owner</dt>
+    <dd>jasoncwa</dd>
+
+    <dt>Component</dt>
+    <dd>fw.acode</dd>
+
+    <dt>Defect Die</dt>
+    <dd>compute</dd>
+
+    <dt>Conclusion</dt>
+    <dd>fw.bug</dd>
+  </dl>
+</div>
+
+<h2>Classification</h2>
+<div class="card">
+  <table>
+    <tr>
+      <th>Dimension</th><th>Value</th><th>Confidence</th>
+    </tr>
+    <tr>
+      <td>Root Cause Type</td>
+      <td><span class="badge badge-fw-pcode">FW_PCODE</span></td>
+      <td>
+        <span class="confidence conf-high">
+          <span class="confidence-bar"><span class="confidence-fill" style="width:70%"></span></span>
+          70%
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>Feature</td>
+      <td>Core C-States</td>
+      <td>
+        <span class="confidence conf-medium">
+          <span class="confidence-bar"><span class="confidence-fill" style="width:52%"></span></span>
+          52%
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>Sub-Feature</td>
+      <td>C6</td>
+      <td>—</td>
+    </tr>
+  </table>
+  <p style="margin-top:0.5rem;font-size:0.85rem;color:var(--text-secondary);">
+    <strong>Reasoning:</strong> tag contains FIX_PATCH → FW_PCODE
+  </p>
+</div>
+
+
+<h2>Root Cause Summary</h2>
+<div class="card">
+  <p>Core 1 is a P-State stressor sending back to back 0x199 requests.</p>
+<p>Core 0 is a random code core that also goes into CC6 from time to time.</p>
+<p>Upon entering CC6, aCode is blocking the wake for core 0, as it is handling a WP request update to its module.</p>
+<p>The requests are coming in at ~17-18 usec apart, and aCode doesn’t finish the handling of the WP calc before getting a new WP calc request due to the TARGET_WP1 updates.</p>
+<p>Outcome:</p>
+<p>Core 0 cannot wake from CC6. Core 1 cannot release itself from the</p>
+</div>
+
+
+
+<h2>Root Cause Description</h2>
+<div class="card">
+  
+  <div class="extracted-content">
+    <h4 style="margin:0 0 0.5rem;color:var(--text-secondary);font-size:0.8rem;">Extracted from HSD</h4>
+    <p>Acode gets stuck in an infinite workpoint calculation loop when back-to-back MSR 0x199 (IA32_PERF_CTL) writes arrive at ~17–18 µs intervals. Core 1 is a P-state stressor sending rapid PERF_CTL requests, each of which triggers a TARGET_WP1 update that causes Acode to begin a new workpoint calculation before the previous one completes. Meanwhile, Core 0 is in CC6 and cannot wake because Acode is blocking the CC6 exit flow — the wake interrupt is held pending while Acode continuously services WP calc requests.</p>
+  </div>
+  
+  
+  <div class="llm-enriched" style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+    <h4 style="margin:0 0 0.5rem;color:var(--accent-purple);font-size:0.8rem;">🔍 LLM-Enriched Analysis</h4>
+    <p>Per the Core C-States KB, CC6 exit requires Acode to run the budget release/request flow and manage the CC6→CC1→CC0 staged exit. Acode runs on the Tensilica µcontroller in the Autonomous Core Perimeter (ACP) and is shared between the WP calc handler and the C-state exit handler. Per the PState Stack KB, P-state requests flow through MSR 0x199 → PCode arbitration → TARGET_WP update → Acode GV transition. When TARGET_WP1 updates arrive faster than Acode can complete the WP calc, Acode never yields control to the CC6 exit handler. The Q-channel handshake (CFC_CLK, CFC_PWR) from PMA to SoC remains pending, preventing Core 0 from exiting CC6. The fix in Acode v175 added interrupt prioritization so CC6 wake events preempt the WP calc loop.</p>
+  </div>
+  
+</div>
+
+
+
+<h2>Fix Description</h2>
+<div class="card">
+  
+  <div class="extracted-content">
+    <h4 style="margin:0 0 0.5rem;color:var(--text-secondary);font-size:0.8rem;">Extracted from HSD</h4>
+    <p>Fixed in Acode v175. The Acode firmware was patched to properly handle interrupt prioritization, ensuring CC6 wake events are not starved by continuous WP calc requests. The fix was released in FW patch <code>DMR_A0_60000987</code>, delivered in IFWI <code>DMR_AP_2026.02.3.01</code> and BKC <code>OKS_DMR_AP_2026WW04</code>. Validated in Cafe automation — confirmed the failure no longer reproduces with Acode v175+.</p>
+  </div>
+  
+  
+  <div class="llm-enriched" style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+    <h4 style="margin:0 0 0.5rem;color:var(--accent-teal);font-size:0.8rem;">🔧 LLM-Enriched Fix Analysis</h4>
+    <p>The fix addresses the priority inversion between the WP calc handler and the CC6 exit handler in Acode. Per the ACP PM HAS, Acode manages both P-state GV transitions and C-state timer/budget operations. The patch ensures that when a CC6 wake break event arrives (via the PICLET interrupt filter), Acode completes or defers the current WP calc iteration and services the CC6 exit first. This prevents Core 0 from being indefinitely blocked in CC6 while Core 1’s P-state stress continues. The WA that was temporarily applied in Cafe automation was also removed after the fix was validated.</p>
+  </div>
+  
+</div>
+
+
+
+<h2>Component Interaction Diagrams</h2>
+<div class="card">
+  
+  <h3 style="color:var(--accent-red);">Root Cause Interaction</h3>
+  <div class="mermaid">
+graph TD
+    A[OS P-State Stressor - Core 1] -->|MSR 0x199 writes ~17µs apart| B[PCode P-State Resolution]
+    B -->|TARGET_WP1 update| C[Acode WP Calc Handler]
+    C -->|new WP arrives before calc completes| C
+    D(Core 0 - CC6) -->|wake interrupt| E{Acode Scheduler}
+    E -->|blocked by WP calc loop| F[CC6 Exit Handler - STARVED]
+    F -.->|cannot run| G(Q-Channel Release)
+    G -.->|pending| H[Core 0 Stuck in CC6]
+    style C fill:#ff6b6b,stroke:#c92a2a,color:#fff
+    style F fill:#ff6b6b,stroke:#c92a2a,color:#fff
+    style H fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  </div>
+  
+  
+  <h3 style="color:var(--accent-teal);margin-top:1.5rem;">Fix Interaction</h3>
+  <div class="mermaid">
+graph TD
+    A[OS P-State Stressor - Core 1] -->|MSR 0x199 writes| B[PCode P-State Resolution]
+    B -->|TARGET_WP1 update| C[Acode WP Calc Handler]
+    D(Core 0 - CC6) -->|wake interrupt| E{Acode Priority Scheduler}:::fix
+    E -->|CC6 wake preempts WP calc| F[CC6 Exit Handler]
+    F -->|runs immediately| G(Q-Channel Release)
+    G -->|completes| H[Core 0 Exits to CC0]
+    E -->|WP calc deferred| C
+    classDef fix fill:#51cf66,stroke:#2b8a3e,color:#fff
+    style H fill:#51cf66,stroke:#2b8a3e,color:#fff
+  </div>
+  
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{primaryColor:'#313244',primaryTextColor:'#cdd6f4',primaryBorderColor:'#585b70',lineColor:'#a6adc8',secondaryColor:'#45475a',tertiaryColor:'#1e1e2e'}});</script>
+
+
+
+<h2>Source Code References</h2>
+<div class="card">
+  <ul>
+    
+    <li><code>source/pcode/flows/autonomous_pstate/</code></li>
+    
+    <li><code>source/pcode/flows/pega/</code></li>
+    
+    <li><code>MSR 0x199</code></li>
+    
+    <li><code>TARGET_WP1</code></li>
+    
+    <li><code>CORE_PMA_CR_CORE_STATUS</code></li>
+    
+    <li><code>FIX_PATCH_DMR_AP1_A0_60000987</code></li>
+    
+    <li><code>FIX_IFWI_DMR_AP1_2026.02.3.01</code></li>
+    
+    <li><code>FIX_BKC_OKS_DMR_AP1_2026WW04</code></li>
+    
+  </ul>
+</div>
+
+
+<h2>Feature Mapping</h2>
+<div class="card">
+  <ul>
+    <li><strong>Primary Feature:</strong> Core C-States</li>
+    <li><strong>Sub-Feature:</strong> C6</li>
+    <li><strong>Component Path:</strong> fw.acode</li>
+  </ul>
+</div>
+
+
+<h2>Firmware Touchpoints</h2>
+<div class="card">
+  
+  
+  <h3>PCODE</h3>
+  <ul>
+    
+    <li><code>source/pcode/flows/autonomous_pstate/</code></li>
+    
+    <li><code>source/pcode/flows/pega/</code></li>
+    
+  </ul>
+  
+  
+</div>
+
+
+
+
+<h2>Timeline</h2>
+<div class="card">
+  <div class="timeline">
+    
+    <div class="timeline-item">
+      <span class="timeline-date">2025-11-27 17:52:42</span><br>Submitted
+    </div>
+    
+    
+    <div class="timeline-item">
+      <span class="timeline-date">2025-12-17 23:00:27</span><br>Root Caused
+    </div>
+    
+    
+    <div class="timeline-item">
+      <span class="timeline-date">2026-05-01 23:46:14</span><br>Closed
+    </div>
+    
+    
+    <div class="timeline-item">
+      <strong>155</strong> days open
+    </div>
+    
+  </div>
+</div>
+
+
+
+
+
+
+<h2>Latest Forum Activity</h2>
+<div class="card">
+  <blockquote>] aCode stuck in WP calc loop when stressing 0x199</blockquote>
+</div>
+
+
+<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.75rem;color:var(--text-muted);">
+  Generated by DMR PM Bug Retrospective Pipeline at 2026-05-28T06:44:02+00:00
+</footer>
+
+</body>
+</html>

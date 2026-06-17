@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [GPIO Interface] Verify XX_MEMHOT_OUT_N Output Pin Assertion</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [GPIO Interface] Verify XX_MEMHOT_OUT_N Output Pin Assertion</h1>
+      <p>Segment: FV | Source: HSD_22022421482_verify_xx_memhot_out_n_output.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [GPIO Interface] Verify XX_MEMHOT_OUT_N Output Pin Assertion</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421482</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[GPIO Interface] Verify XX_MEMHOT_OUT_N output pin assertion</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; GPIO Interface</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies that `XX_MEMHOT_OUT_N` (memory hot output pin, active low) is correctly asserted by the CPU when memory temperature exceeds the MemHot threshold. This output pin signals to the platform that memory is running hot. On NWP, the MemHot output GPIO is supported. The verification requires triggering a real memory thermal event (or BIOS-injected memory temperature crossing) and observing the pin assertion at the board level, combined with software-readable status registers.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>`XX_MEMHOT_OUT_N` output pin assertion by Pcode is present on NWP</li>
+<li>`ENABLE_XXMEMHOT_OUT_N_FUSE` = 1 (prerequisite from TC 22022421480)</li>
+<li>`NGA_MAIN` tag: requires silicon-level test with board measurement capability</li>
+<li>NWP single IMH: monitoring is simpler than DMR&#x27;s multi-IMH; same pin response logic</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon platform with board-level MEMHOT_OUT_N pin observable (oscilloscope or test point)</li>
+<li>Memory thermal threshold (MemHot threshold) is programmable or BIOS-injectable</li>
+<li>`ENABLE_XXMEMHOT_OUT_N_FUSE` = 1 on `imh0`</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Confirm fuse: `ENABLE_XXMEMHOT_OUT_N_FUSE` = 1 on `imh0`</td>
+<td>Single IMH on NWP</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Set up DIMM temperature monitoring</td>
+<td>Same setup; NWP memory topology</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Trigger MemHot condition: either heat DIMM above threshold or inject thermal status</td>
+<td>Same triggering mechanism</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify `XX_MEMHOT_OUT_N` asserts (pin goes low) at board level</td>
+<td>Same board measurement; NWP platform test point</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify `PTPCFSMS_GPIO_BUMP_STATUS[XXMEMHOT_OUT_N_STATUS]` reflects asserted state</td>
+<td>NWP PTPCFSMS register path</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Reduce DIMM temperature below threshold; verify pin de-asserts</td>
+<td>Same</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>When DIMM temp exceeds MemHot threshold: `XX_MEMHOT_OUT_N` asserts (pin = low)</li>
+<li>Software-readable status register reflects assertion</li>
+<li>Pin de-asserts when DIMM temp drops below threshold</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>Pin scope</td>
+<td>Package-level output</td>
+<td>Same on NWP</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>IMH count</td>
+<td>Multiple</td>
+<td>Single</td>
+<td>Simpler; only imh0 monitors DIMM temp</td>
+</tr>
+<tr>
+<td>DIMM topology</td>
+<td>DDR5 channels</td>
+<td>NWP DDR5/HBM depending on config</td>
+<td>Verify MemHot threshold and channel config</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+# Check MEMHOT_OUT_N status on NWP
+ptpcfsms = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms
+
+try:
+    gpio_status = ptpcfsms.gpio_bump_status.read()
+    memhot_out = ptpcfsms.gpio_bump_status.xxmemhot_out_n_status.read()
+    print(f&quot;MEMHOT_OUT_N status: {memhot_out} (0=asserted/hot)&quot;)
+except Exception as e:
+    print(f&quot;GPIO status: {e}&quot;)
+
+# MemHot threshold
+try:
+    memhot_thresh = ptpcfsms.memhot_control.read()
+    print(f&quot;MemHot control: 0x{memhot_thresh:08X}&quot;)
+except Exception as e:
+    print(f&quot;MemHot control: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**Board test point for MEMHOT_OUT_N** — requires board-level probing or automated pin detection infrastructure</td>
+<td>High</td>
+<td>Coordinate with platform team</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**NWP memory topology** — MemHot threshold and triggering may differ based on NWP DIMM config (DDR5 vs. HBM)</td>
+<td>Medium</td>
+<td>Verify NWP memory channel config before test</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADAPT — board test point infrastructure required; NGA_MAIN priority**</p>
+<p>Same mechanism as DMR. Board test point verification required. Primary adaptation is NWP single-IMH scope.</p>
+<p>Required adaptations:</p>
+<p>1. Confirm NWP board provides MEMHOT_OUT_N test point or automated detection</p>
+<p>2. Verify NWP MemHot threshold register path</p>
+<p>3. Single IMH scope: `sv.socket0.imh0` only</p>
+<p>**Priority**: High — NGA_MAIN; platform thermal signaling foundational test</p>
+    </div>
+  </div>
+</body>
+</html>

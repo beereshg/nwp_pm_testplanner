@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: PMAX Cross Thermals</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: PMAX Cross Thermals</h1>
+      <p>Segment: FV | Source: HSD_22022421791_pmax_cross_thermals.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: PMAX Cross Thermals</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421791</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>PMAX Cross Thermals</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>PMAX</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PMAX × Thermals cross-feature — PMAX hard throttle concurrent with thermal throttle, verify stability</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>Same cross-feature structure as TC 22022421790 but with Thermals instead of Fast RAPL. Runs thermal throttle (PROCHOT inject or high temp workload) concurrent with PMAX hard throttle injection. Verifies system stability under simultaneous thermal and PMAX events.</p>
+<p>Tags: `New_Content`, `plc.ti_gate.b0`, `pm.xproducts.pm`, `NGA_MAIN`, `plc.feature.p3`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP Approach (command TBD in source)</h3>
+<pre><code>
+# NWP: PMAX × Thermals cross test
+# 1. Inject PROCHOT to cause thermal throttle
+sv.socket0.imh0.punit.prochot_trigger.write(1)
+# 2. Simultaneously inject PMAX hard throttle
+sv.socket0.imh0.pcodeio_map.io_pmax_config.global_pmax_inject.write(0x1)
+# 3. Run for several minutes
+# 4. Verify no crashes, MCAs, or hangs
+# 5. Clear both injections
+sv.socket0.imh0.punit.prochot_trigger.write(0)
+sv.socket0.imh0.pcodeio_map.io_pmax_config.global_pmax_inject.write(0x0)
+</code></pre>
+<h3>Pass Criteria</h3>
+<ul>
+<li>System stable with concurrent PROCHOT (thermal) + PMAX hard throttle</li>
+<li>No MCAs during dual-throttle condition</li>
+<li>Correct priority handling (PMAX hard throttle should dominate)</li>
+<li>Recovery after both cleared</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — No command in source TC; implement via `prochot_trigger` + `global_pmax_inject`; `sv.socket0.imh0.*` only; `NGA_MAIN` priority**</p>
+<p>**Priority**: Medium — `plc.feature.p3`; dual throttle stability is a `ti_gate.b0` cross-feature requirement</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [TPMI/PMT] Verify Thermal Constrained Time PMT Register</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [TPMI/PMT] Verify Thermal Constrained Time PMT Register</h1>
+      <p>Segment: FV | Source: HSD_22022421583_verify_thermal_constrained_time_pmt_register.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [TPMI/PMT] Verify Thermal Constrained Time PMT Register</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421583</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[TPMI/PMT] Verify Thermal Constrained Time PMT Register</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; TPMI/PMT</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PMT PCS Index 32 — Thermal Constrained Time</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies the **Thermal Constrained Time PMT register** (PCS index 32) — a counter that accumulates time spent in thermally-constrained state (temperature exceeds Junction Temperature target). The test procedure is:</p>
+<p>1. Note baseline counter value</p>
+<p>2. Override temperature past Junction Temp (via DTS or DFX injection) to trigger thermal monitor</p>
+<p>3. Verify counter increments while constrained</p>
+<p>4. Remove override and verify counter stops incrementing</p>
+<p>On NWP, the same Thermal Constrained Time counter exists in the PMT interface. Primary adaptation: `dmr.xml` → `nwp.xml`.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>Thermal Constrained Time PMT counter present on NWP</li>
+<li>Same trigger mechanism (DTS temperature override or DFX injection)</li>
+<li>`DMR_PO` tag: silicon validation bring-up priority</li>
+<li>`PMSS_NWP_READINESS_CHECK` tag: evaluated for NWP</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run PMT thermal test</td>
+<td>`python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read baseline `THERMAL_CONSTRAINED_TIME` counter value</td>
+<td>`sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.thermal_constrained_time.read()`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Override temperature above Junction Temp via DTS or DFX injection</td>
+<td>NWP DTS override mechanism (same as DMR; verify NWP DFX path)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Wait for counter to increment (thermal monitor active)</td>
+<td>Poll counter; verify increment within slow-loop interval</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Remove temperature override</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify counter stops incrementing when temperature returns below threshold</td>
+<td>Same pass criterion</td>
+</tr>
+</tbody></table>
+<h3>PMT Reference</h3>
+<ul>
+<li>**PMT URL**: `https://docs.intel.com/documents/primecode/has/PMT_Definitions/dmr_imh/pmt_telemetry.html#package_temperature` (DMR reference; NWP equivalent URL TBD)</li>
+<li>**Counter resolution**: Typically accumulates in ms or 100ms increments per slow loop</li>
+</ul>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>Baseline counter is stable (not incrementing in normal operation)</li>
+<li>Counter increments while temperature ≥ Junction Temp target</li>
+<li>Counter stops when temperature drops below threshold</li>
+<li>Counter value is monotonically non-decreasing (never decreases)</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>Counter register</td>
+<td>`ptpcioregs.thermal_constrained_time`</td>
+<td>Same on NWP</td>
+<td>Direct reuse</td>
+</tr>
+<tr>
+<td>DTS temperature override</td>
+<td>DMR DFX mechanism</td>
+<td>NWP DFX/DTS override</td>
+<td>Verify NWP DTS override method</td>
+</tr>
+<tr>
+<td>Junction Temp threshold</td>
+<td>DMR TJ_MAX</td>
+<td>NWP TJ_MAX</td>
+<td>Same detection logic; NWP-specific value</td>
+</tr>
+<tr>
+<td>PMT documentation</td>
+<td>DMR PMT HAS</td>
+<td>NWP PMT HAS (TBD URL)</td>
+<td>Get NWP PMT URL from NWP PM team</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<pre><code>
+import time
+
+# NWP Thermal Constrained Time PMT Validation
+
+# Step 2: Read baseline
+try:
+    t0 = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.thermal_constrained_time.read()
+    print(f&quot;Baseline THERMAL_CONSTRAINED_TIME: {t0}&quot;)
+except Exception as e:
+    print(f&quot;Counter read: {e}&quot;)
+    t0 = None
+
+# (Step 3: Apply DTS override to trigger thermal monitor — platform-specific)
+# sv.socket0.imh0.punit.dts_override.write(HIGH_TEMP_VALUE)
+
+# Step 4: Poll counter increment
+if t0 is not None:
+    time.sleep(2)  # Wait for slow loop
+    try:
+        t1 = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.thermal_constrained_time.read()
+        delta = t1 - t0
+        print(f&quot;After 2s: THERMAL_CONSTRAINED_TIME = {t1} (delta = {delta})&quot;)
+        print(&quot;PASS&quot; if delta &gt; 0 else &quot;FAIL (counter did not increment)&quot;)
+    except Exception as e:
+        print(f&quot;Counter poll: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; verify DTS override mechanism**</p>
+<p>Thermal Constrained Time counter is architecturally identical. Primary risk is NWP DTS temperature override methodology.</p>
+<p>Required adaptations:</p>
+<p>1. `python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2`</p>
+<p>2. Verify NWP DTS override mechanism (same as DMR or NWP-specific DFX path)</p>
+<p>3. Get NWP PMT documentation URL</p>
+<p>**Priority**: Medium — DMR_PO; thermal constraint time tracking for compliance validation</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: PL4 Perf Limit Verification</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: PL4 Perf Limit Verification</h1>
+      <p>Segment: FV | Source: HSD_22022421778_pl4_perf_limit_verification.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: PL4 Perf Limit Verification</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421778</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>PL4 Perf Limit Verification</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>PMAX</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PL4 power limit — verify default: disabled (pwr_lim_en=0), set to 1.5-3x TDP</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>PL4 is the hardware power limit for PMAX. By default, `pwr_lim_en = 0` (not enforced) but `pwr_lim` is set to 1.5-3× TDP. When enabled, PL4 triggers PMAX throttle when power exceeds PL4.</p>
+<p>Tags: `DMR_PO`, `plc.feature.p2`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Adapted Command (NWP)</h3>
+<pre><code>
+python runPmx.py -x nwp.xml -p pmax -tM 60
+</code></pre>
+<h3>NWP PL4 Register Verification</h3>
+<pre><code>
+# NWP: PL4 power limit register
+pl4 = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_pl4_control
+pl4.show()
+
+# Read TDP (PL1) for comparison
+pl1_pwr = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_pl1_control.pwr_lim.read()
+pl4_pwr = pl4.pwr_lim.read()
+
+pwr_unit = 8  # verify against power_unit register
+tdp_watts = pl1_pwr / pwr_unit
+pl4_watts = pl4_pwr / pwr_unit
+print(f&quot;TDP: {tdp_watts}W, PL4: {pl4_watts}W, Ratio: {pl4_watts/tdp_watts:.2f}x&quot;)
+
+# Verify ratio 1.5-3x TDP
+assert 1.5 &lt;= (pl4_watts / tdp_watts) &lt;= 3.0, &quot;PL4 must be 1.5-3x TDP&quot;
+</code></pre>
+<h3>Pass Criteria</h3>
+<ul>
+<li>`pwr_lim_en = 0` by default (PMAX not enabled by PL4 path at runtime)</li>
+<li>`pwr_lim` set to 1.5-3× TDP (accounts for power unit)</li>
+<li>`lock = 0` (register not locked by BIOS)</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; `sv.socket0.imh0.*` only; verify PL4:TDP ratio for NWP TDP spec values**</p>
+<p>**Priority**: Medium — `plc.feature.p2`; PL4 default programming determines the overcurrent threshold for PMAX protection</p>
+    </div>
+  </div>
+</body>
+</html>

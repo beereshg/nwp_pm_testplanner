@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [IMH Thermal Management] Verify Uncore Throttling (PID)</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [IMH Thermal Management] Verify Uncore Throttling (PID)</h1>
+      <p>Segment: FV | Source: HSD_22022421520_verify_uncore_throttling_pid.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [IMH Thermal Management] Verify Uncore Throttling (PID)</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421520</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[IMH Thermal Management] Verify Uncore Throttling (PID)</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; IMH Thermal Management</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies the PID-based IMH uncore thermal throttling path: when `IMH_DIE_TEMP_MAX &gt;= thermal_trip_point`, PrimeCode applies PID-controlled frequency throttle to the Mem Fabric and IO Fabric domains, sets `THERMAL_MONITOR_STATUS`, and reduces uncore fabric ratios. On NWP, the PrimeCode IMH thermal PID algorithm is the same (Kp, Ki gains are NWP-specific). The test requires adapting the script from `dmr.xml` to `nwp.xml`, monitoring a single IMH (NWP) versus multiple (DMR), and verifying NWP fabric topology (Mem Fabric + IO Fabric as two independent PID loops).</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>PrimeCode IMH thermal throttling (PID-based, separate Mem Fabric and IO Fabric loops) is on NWP</li>
+<li>DMR replaced N-Strike with PID to reduce 5% performance dithering; NWP uses same PID architecture</li>
+<li>`DMR_PO` tag: silicon required; thermal excursion test</li>
+<li>NWP has single IMH (`imh0`); monitoring scope simplifies vs. DMR&#x27;s multi-IMH</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon platform with high-bandwidth memory/IO workload capability</li>
+<li>`runPmx.py` with `nwp.xml` config and `emttm_thermal` profile</li>
+<li>PythonSv access to `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms`</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Configure `runPmx.py` for NWP</td>
+<td>`runPmx.py -x nwp.xml -p emttm_thermal -tM 30 -M 6`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Apply high-bandwidth memory/IO workload to push IMH die temp above trip point</td>
+<td>Same mechanism</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify `THERMAL_MONITOR_STATUS` = 1 in `IA32_PACKAGE_THERM_STATUS`</td>
+<td>Same package MSR</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify Mem Fabric frequency reduced (PID output applied)</td>
+<td>Single IMH; `sv.socket0.imh0` registers</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify IO Fabric frequency reduced independently</td>
+<td>Same IMH; separate PID loop</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify PLR THERMAL bit set in TPMI PLR mailbox</td>
+<td>Package-level (not per-CBB for IMH thermal)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Reduce workload → verify recovery (cold action) and PLR clears</td>
+<td>Same</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>IMH die temp ≥ trip point triggers PrimeCode PID throttle on Mem Fabric + IO Fabric</li>
+<li>`THERMAL_MONITOR_STATUS` = 1 during throttle; `TEMPERATURE` field reflects die temp</li>
+<li>PLR THERMAL bit set; fabric ratios reduced proportional to PID output</li>
+<li>Recovery: fabric ratios return to unconstrained after temp drops below trip point</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>PID gains (Kp, Ki)</td>
+<td>DMR: Kp=0.17, Ki=0.06</td>
+<td>NWP-specific values</td>
+<td>Verify from NWP PM HAS</td>
+</tr>
+<tr>
+<td>IMH count</td>
+<td>Multiple (IMH0, IMH1)</td>
+<td>Single (`imh0`)</td>
+<td>Simpler monitoring</td>
+</tr>
+<tr>
+<td>Script XML</td>
+<td>`dmr.xml`</td>
+<td>`nwp.xml`</td>
+<td>Direct substitution</td>
+</tr>
+<tr>
+<td>Fabric domains</td>
+<td>Mem Fabric + IO Fabric (separate PIDs)</td>
+<td>Same on NWP</td>
+<td>No change</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+# IMH thermal throttle status on NWP (single IMH)
+ptpcfsms = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms
+
+# Package temperature and thermal status
+pkg_temp = ptpcfsms.package_temperature_pmt.read()
+print(f&quot;IMH package temperature: {pkg_temp}&quot;)
+
+# Perf limit reasons (thermal bit)
+plr = ptpcfsms.perf_limit_reasons.read()
+print(f&quot;Package PLR: 0x{plr:08X} (THERMAL bit[4]: {(plr&gt;&gt;4)&amp;1})&quot;)
+
+# Thermal constrained time (RATL/thermal accum)
+try:
+    therm_time = ptpcfsms.thermal_constrained_time_pmt.read()
+    print(f&quot;Thermal constrained time: {therm_time}&quot;)
+except Exception as e:
+    print(f&quot;Thermal constrained: {e}&quot;)
+
+# Thermal monitor status via MSR (package MSR 0x1B1)
+# Use pmutil MSR read: rdmsr -p 0 0x1B1
+# THERMAL_MONITOR_STATUS = bit 0; TEMPERATURE = bits 23:16
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**NWP PID tuning** — Kp and Ki gains are NWP-specific; test pass criterion (throttle depth vs. temperature delta) may differ</td>
+<td>Medium</td>
+<td>Get NWP PID params from PM HAS; update expected throttle response</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**Silicon required** — real thermal excursion needed; VP thermal injection may be inaccurate for IMH die</td>
+<td>Medium</td>
+<td>Plan for silicon-only NGA execution</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADAPT — config substitution + NWP PID constant update**</p>
+<p>IMH PID thermal throttle is architecturally identical on NWP. Primary adaptations: `nwp.xml` config and NWP PID gain parameters. Silicon required for real thermal excursion.</p>
+<p>Required adaptations:</p>
+<p>1. `runPmx.py -x dmr.xml` → `-x nwp.xml`</p>
+<p>2. Update expected throttle response with NWP PID constants (Kp, Ki from NWP PM HAS)</p>
+<p>3. Single IMH monitoring (`sv.socket0.imh0` only)</p>
+<p>**Priority**: High — IMH PID thermal throttle is a PO-validated, fundamental NWP uncore feature</p>
+    </div>
+  </div>
+</body>
+</html>

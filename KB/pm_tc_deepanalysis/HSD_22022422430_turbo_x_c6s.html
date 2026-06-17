@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: Turbo X C6S</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: Turbo X C6S</h1>
+      <p>Segment: FV | Source: HSD_22022422430_turbo_x_c6s.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: Turbo X C6S</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422430</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>Turbo X C6S</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Pstate Stack</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Turbo × C6S cross-product validation</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **Turbo × C6S** cross-product — interaction between Turbo Mode and C6S (C6 with LLC Save — deeper than C6A). In C6S, core powers off and the LLC associated with that core is flushed/saved, enabling deeper power reduction.</p>
+<p>C6S is a core-level idle state functional on NWP. Not to be confused with Package C6 or Ring C6/MC6 (both ZBB on NWP).</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>Core C6S functional on NWP (not ZBB)</li>
+<li>`DMR_PO` + `plc.ti_gate.b0` + `plc.feature.p1` + `pm.xproducts.pm` tags</li>
+<li>C6S provides deeper idle than C6A (LLC flush) → more Turbo headroom</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>C6A vs C6S on NWP</h3>
+<table class="md-table"><thead><tr>
+<th>C-State</th>
+<th>LLC Behavior</th>
+<th>Power Savings</th>
+</tr></thead><tbody>
+<tr>
+<td>C6A</td>
+<td>L1 flush; LLC may remain</td>
+<td>Less</td>
+</tr>
+<tr>
+<td>**C6S**</td>
+<td>L1 + LLC flush/save</td>
+<td>**More**</td>
+</tr>
+<tr>
+<td>Pkg C6</td>
+<td>Full package off</td>
+<td>ZBB on NWP</td>
+</tr>
+</tbody></table>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Enable C6S BIOS knob; enable Turbo</td>
+<td>`C6Enable = 1`, `TurboMode = 0x1`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run turbo PMx</td>
+<td>`python runPmx.py -x nwp.xml -p turbo -tM 60`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Mixed workload: subset active, rest idle to C6S</td>
+<td>`stress-ng` on subset</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify active cores get Turbo</td>
+<td>`IA32_PERF_STATUS`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify idle cores reach C6S (LLC flush)</td>
+<td>C-state status + LLC state</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify C6S exit on interrupt (no hang)</td>
+<td>Wake latency acceptable</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>Turbo granted to active cores while others in C6S</li>
+<li>C6S (with LLC flush) functional on NWP</li>
+<li>C6S exit latency within spec; no hang on wake</li>
+<li>Turbo × C6S does not cause PM instability</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; Core C6S functional on NWP**</p>
+<p>Required adaptations:</p>
+<p>1. `python runPmx.py -x nwp.xml -p turbo -tM 60`</p>
+<p>2. Verify NWP C6S LLC flush mechanism (may use different LLC topology than DMR)</p>
+<p>3. Do not enable Pkg C6 (ZBB) — C6S core-level only</p>
+<p>**Priority**: High — `DMR_PO` + `plc.feature.p1` + `pm.xproducts.pm`; Turbo × C6S cross-product</p>
+    </div>
+  </div>
+</body>
+</html>

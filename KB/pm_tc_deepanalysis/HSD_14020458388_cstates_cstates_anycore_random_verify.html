@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Solar] CStates - CStates_AnyCore_Random -- Verify</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Solar] CStates - CStates_AnyCore_Random -- Verify</h1>
+      <p>Segment: FV | Source: HSD_14020458388_cstates_cstates_anycore_random_verify.inference.md | Generated: 2026-06-17 21:14:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Solar] CStates - CStates_AnyCore_Random -- Verify</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>14020458388</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Solar] CStates - CStates_AnyCore_Random -- Verify</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Core C-States</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Solar AnyCore Random Verify — residency verification with random C-state ordering</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test uses Solar in **Random Verify mode** (`-r -mode v`): C-states are randomized AND residency is verified. Most comprehensive Solar C-state test. Functional on NWP.</p>
+<p>Command: `/usr/bin/solar/solar.sh /cstate -scope 0:0:100 -states C1,C6 -r -mode v /logpath . /log_ip_disables`</p>
+<p>Tags: `NGA_MAIN`, `plc.feature.p1`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP Solar AnyCore Random Verify Command</h3>
+<pre><code>
+# NWP: random verify - all 96 cores, C1 and C6, random order, verify residency
+/usr/bin/solar/solar.sh \
+  /cstate -scope 0:0:100 -states C1,C6 -r -mode v \
+  /logpath . \
+  /log_ip_disables
+</code></pre>
+<p>Or via NGA XML:</p>
+<pre><code>
+/usr/bin/solar/solar.sh \
+  /cfg /usr/local/python/newport/pm/Solar/Solar_orderedleave_crossproduct.xml \
+  /cfg /usr/lib/python3/dist-packages/newport/pm/Solar/SOLAR_NWP_XMLS/Exercise/CSTATES/Cstates_anycore_random_verify.xml \
+  /cstate -d hour:@{TestLine.TestStageEstimatedTime} \
+  /logpath
+</code></pre>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run Solar AnyCore Random Verify</td>
+<td>`-r -mode v`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Solar randomizes C-state request order across 96 cores</td>
+<td>Random inter-core ordering</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Solar verifies residency for each requested C-state</td>
+<td>Residency counter checked</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Run for NGA duration</td>
+<td>Per `TestStageEstimatedTime`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Check Solar verify log</td>
+<td>Pass = all cores achieve expected residency</td>
+</tr>
+</tbody></table>
+<h3>Solar Test Matrix (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>TC</th>
+<th>Mode</th>
+<th>Random</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td>14020458273</td>
+<td>Exercise</td>
+<td>No</td>
+<td>Stability</td>
+</tr>
+<tr>
+<td>14020458300</td>
+<td>Verify</td>
+<td>No</td>
+<td>Ordered residency</td>
+</tr>
+<tr>
+<td>14020458312</td>
+<td>Exercise</td>
+<td>Yes</td>
+<td>Random stability</td>
+</tr>
+<tr>
+<td>**14020458388**</td>
+<td>**Verify**</td>
+<td>**Yes**</td>
+<td>**Random residency — most comprehensive**</td>
+</tr>
+</tbody></table>
+<h3>Pass Criteria</h3>
+<ul>
+<li>All 96 NWP cores achieve C6 residency in random ordering</li>
+<li>C1 residency verified where requested</li>
+<li>No failures, hangs, or MCAs</li>
+<li>Solar verify passes for all cores in scope</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — Combine `-r` and `-mode v`; adapt Solar XML `diamondrapids` → `newport`; this is the most comprehensive C-state verification TC**</p>
+<p>**Priority**: High — `NGA_MAIN`, `plc.feature.p1`; random verify is the definitive C-state correctness test for NWP — must pass before NGA production</p>
+    </div>
+  </div>
+</body>
+</html>

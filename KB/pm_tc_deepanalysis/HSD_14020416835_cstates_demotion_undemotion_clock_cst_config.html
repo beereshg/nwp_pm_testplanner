@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: CStates Demotion/Undemotion CLOCK_CST_CONFIG_CONTROL (0xE2)</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: CStates Demotion/Undemotion CLOCK_CST_CONFIG_CONTROL (0xE2)</h1>
+      <p>Segment: FV | Source: HSD_14020416835_cstates_demotion_undemotion_clock_cst_config.inference.md | Generated: 2026-06-17 21:14:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: CStates Demotion/Undemotion CLOCK_CST_CONFIG_CONTROL (0xE2)</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>14020416835</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>CStates: Demotion/Undemotion: CLOCK_CST_CONFIG_CONTROL_MSR(0XE2) silicon</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Core C-States</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Demotion/Undemotion MSR bits (0xE2 bit25-28) — C1/C3 auto-demotion enable/disable</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **C-state demotion/undemotion** via `CLOCK_CST_CONFIG_CONTROL` (MSR 0xE2):</p>
+<ul>
+<li>Bit 25: `C3_STATE_AUTO_DEMOTION_ENABLE` — demote C6/C7 → C3 based on uncore hint</li>
+<li>Bit 26: `C1_STATE_AUTO_DEMOTION_ENABLE` — demote C3 → C1 based on uncore hint</li>
+<li>Bit 27: `C3_STATE_AUTO_UNDEMOTION_ENABLE`</li>
+<li>Bit 28: `C1_STATE_AUTO_UNDEMOTION_ENABLE`</li>
+</ul>
+<p>Uses `pm.focus.cstate_focus.c6_demotion_focus()`. Tags: `NGA_MAIN`, `plc.feature.p1`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Demotion MSR Bits (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Bit</th>
+<th>Field</th>
+<th>When Set</th>
+</tr></thead><tbody>
+<tr>
+<td>25</td>
+<td>C3_STATE_AUTO_DEMOTION</td>
+<td>Pcode may demote C6/C7 → C3</td>
+</tr>
+<tr>
+<td>26</td>
+<td>C1_STATE_AUTO_DEMOTION</td>
+<td>Pcode may demote C3 → C1</td>
+</tr>
+<tr>
+<td>27</td>
+<td>C3_STATE_AUTO_UNDEMOTION</td>
+<td>Undo C3 demotion</td>
+</tr>
+<tr>
+<td>28</td>
+<td>C1_STATE_AUTO_UNDEMOTION</td>
+<td>Undo C1 demotion</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Boot SVOS with C6 enabled</td>
+<td>Demotion algorithm active</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run demotion focus test</td>
+<td>`import pm.focus.cstate_focus as cf; cf.c6_demotion_focus()` (NWP package)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Enable C3 demotion (bit 25 = 1)</td>
+<td>Set MSR 0xE2 bit 25</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify core demoted from C6→C3</td>
+<td>C-state in register = C3 instead of C6</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Enable C1 demotion (bit 26 = 1)</td>
+<td>Set MSR 0xE2 bit 26</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify core demoted to C1</td>
+<td>C-state in register = C1</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Enable undemotion bits</td>
+<td>Verify core returns to requested C6</td>
+</tr>
+</tbody></table>
+<h3>NWP Notes</h3>
+<ul>
+<li>NWP has no C7 (only C6A/C6S/C6S-P)</li>
+<li>Demotion targets: C6 → C3 → C1</li>
+<li>`NGA_MAIN`: automate via NGA after manual checkout</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>With `C3_STATE_AUTO_DEMOTION_ENABLE=1`: cores demoted to C3 when uncore hint triggers</li>
+<li>With `C1_STATE_AUTO_DEMOTION_ENABLE=1`: further demotion to C1</li>
+<li>Undemotion bits allow return to requested C-state depth</li>
+<li>No system instability during demotion/undemotion cycles</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — MSR address 0xE2 unchanged on NWP; adapt Python import to NWP package; no C7 on NWP (demotion targets C6→C3→C1)**</p>
+<p>**Priority**: Medium — `NGA_MAIN`, `plc.feature.p1`; demotion validation ensures OS-requested deep C-states are correctly handled when uncore is not ready</p>
+    </div>
+  </div>
+</body>
+</html>

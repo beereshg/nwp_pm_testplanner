@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: SVID Basic Commands Functionality Verification</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: SVID Basic Commands Functionality Verification</h1>
+      <p>Segment: FV | Source: HSD_22022421917_svid_basic_commands_functionality_verification.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: SVID Basic Commands Functionality Verification</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421917</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>SVID Basic commands functionality Verification</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SVID</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>SVID basic commands (GetVID, SetVID, SetPS) via PMx plugin</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>SVID (Serial VID interface) basic commands are functional on NWP. The PMx SVID plugin validates GetVID, SetVID, SetPS, and SVID command response correctness. Template content incomplete in source HSD — steps field contains only the unfilled mandatory section template.</p>
+<p>Tags: `DMR_PO`, `plc.feature.p2`, `NGA_MAIN`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP Command</h3>
+<pre><code>
+# DMR → NWP: dmr.xml → nwp.xml
+python runPmx.py -x nwp.xml -p svid -p core_power -tM 60 -M 5
+</code></pre>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Boot to SVOS</td>
+<td>Normal platform boot</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run SVID PMx plugin</td>
+<td>`runPmx.py -x nwp.xml -p svid -p core_power -tM 60 -M 5`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify GetVID commands succeed</td>
+<td>SVID GetVID returns valid voltage codes</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify SetVID commands succeed</td>
+<td>Voltage transitions without MCA</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify SetPS (power state) commands</td>
+<td>PM state transitions via SVID</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Check no SVID command errors</td>
+<td>No SVID Bus Error (SBE) or SVID timeout</td>
+</tr>
+</tbody></table>
+<h3>Pass Criteria</h3>
+<ul>
+<li>All SVID basic commands execute without errors</li>
+<li>Voltage transitions complete in-spec timing</li>
+<li>`runPmx.py` SVID plugin passes all assertions</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; SVID functional on NWP; source TC has empty steps template — rely on PMx SVID plugin assertions**</p>
+<p>**Priority**: High — `PMSS_NWP_READINESS_CHECK`; SVID basic functionality is a P0 bring-up gate</p>
+    </div>
+  </div>
+</body>
+</html>

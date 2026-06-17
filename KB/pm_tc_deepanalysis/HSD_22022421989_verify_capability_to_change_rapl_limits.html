@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: Verify Capability to Change RAPL Limits to Custom-Defined Ones</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: Verify Capability to Change RAPL Limits to Custom-Defined Ones</h1>
+      <p>Segment: FV | Source: HSD_22022421989_verify_capability_to_change_rapl_limits.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: Verify Capability to Change RAPL Limits to Custom-Defined Ones</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421989</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>Verify capability to change rapl limits to custom-defined ones</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>RAPL limit programmability — decrease and increase PL1/PL2 from default</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies that **RAPL limits (PL1, PL2) can be set to custom values** by software:</p>
+<ul>
+<li>Decrease PL1/PL2 from programmed value to less than TDP/1.2×TDP</li>
+<li>Increase PL1/PL2 beyond default values</li>
+<li>Verify RAPL enforces each custom-programmed limit correctly</li>
+</ul>
+<p>This is a fundamental RAPL programmability test. Tags: `DMR_PO`, `plc.feature.p2`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Conditions to Test (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Condition</th>
+<th>NWP PL1/PL2 Value</th>
+<th>Expected Behavior</th>
+</tr></thead><tbody>
+<tr>
+<td>Decrease PL1</td>
+<td>&lt; TDP</td>
+<td>Power throttled to new limit</td>
+</tr>
+<tr>
+<td>Decrease PL2</td>
+<td>&lt; 1.2×TDP</td>
+<td>Burst power capped at new limit</td>
+</tr>
+<tr>
+<td>Increase PL1</td>
+<td>Up to TDP</td>
+<td>Default if platform enforces max</td>
+</tr>
+<tr>
+<td>Increase PL2</td>
+<td>Up to 1.2×TDP</td>
+<td>Burst allowed up to new limit</td>
+</tr>
+<tr>
+<td>PL1 = 0</td>
+<td>0W</td>
+<td>Minimum power state</td>
+</tr>
+<tr>
+<td>PL1 &gt; TDP</td>
+<td>&gt; TDP (if allowed)</td>
+<td>Platform max may clamp</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run cpu_rapl PMx</td>
+<td>`python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read NWP default PL1/PL2</td>
+<td>MSR 0x610 PL1 field; MSR 0x610 PL2 field</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Set PL1 to TDP/2 (50% of TDP)</td>
+<td>Custom decrease; verify enforced</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Set PL2 to 0.6×TDP (50% of default PL2)</td>
+<td>Custom decrease; verify enforced</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Restore to defaults</td>
+<td>Verify system recovers to default limits</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Set PL1 to 0.9×TDP, 0.7×TDP, 0.5×TDP</td>
+<td>Sweep decreasing values; verify each</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify platform max limits respected</td>
+<td>NWP may have max PL1 cap from fuse</td>
+</tr>
+</tbody></table>
+<h3>PMx Command</h3>
+<pre><code>
+python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3
+</code></pre>
+<h3>Pass Criteria</h3>
+<ul>
+<li>RAPL power consumption converges to each custom PL1/PL2 setting</li>
+<li>Decreases: power drops to new limit</li>
+<li>Increases: power allowed up to new limit</li>
+<li>Platform max cap honored if applicable on NWP</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; test custom PL1/PL2 on NWP; note NWP TDP and max cap from fuses**</p>
+<p>1. `python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</p>
+<p>2. Read NWP TDP from `sv.socket0.imh0.fuses.punit.*`; use as baseline</p>
+<p>3. Test decrease and increase scenarios; verify each custom limit enforced</p>
+<p>**Priority**: Medium — `plc.feature.p2`; fundamental RAPL programmability validation — core to NWP power management correctness</p>
+    </div>
+  </div>
+</body>
+</html>

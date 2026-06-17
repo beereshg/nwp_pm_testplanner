@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [ITD] Verify ITD Disable</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [ITD] Verify ITD Disable</h1>
+      <p>Segment: FV | Source: HSD_22022421528_verify_itd_disable.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [ITD] Verify ITD Disable</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421528</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[ITD] Verify ITD disable</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; ITD</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>ITD Disable (debug mechanism)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>ITD for any domain can be **disabled** by setting its `ITD_SLOPE` and `ITD_SLOPE_2` (if applicable) to 0. This causes the ITD algorithm to always calculate a voltage compensation of 0V, passing through uncompensated voltage. This is a debug-only feature used for electrical correctness testing. On NWP, the same disable mechanism applies to all ITD-controlled domains. The test is fully portable: same sequence of `itd.print_itd_info()`, zero-out slope via `pcudata.itd_slope=0`, verify compensation goes to zero. Primary adaptation: `dmr.xml` → `nwp.xml`.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>ITD disable via slope zero is a firmware-level mechanism identical on NWP</li>
+<li>`ready_for_execution` tag in sub_feature: test is already validated for execution (DMR-side ready)</li>
+<li>`PMSS_NWP_READINESS_CHECK` tag: explicitly evaluated for NWP</li>
+<li>No domain-specific topology dependencies — this is a cross-domain mechanism</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon or VP with ITD active (non-zero slope fuses)</li>
+<li>PythonSv access to `sv.socket0.imh0.punit.*` and CBB punit</li>
+<li>`pm.focus.itd` module available</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run ITD thermal test baseline</td>
+<td>`python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Print baseline ITD info: `itd.print_itd_info(SockNum, 0)`</td>
+<td>Same command; socket 0</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Disable ITD for a domain: `pcudata.itd_slope=0`</td>
+<td>Same mechanism; verify NWP `pcudata` interface</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify compensation goes to zero: re-run `itd.print_itd_info(0, 0)`</td>
+<td>Same; expect all compensation = 0V</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Domain should now run at `ACTIVE_VOLTAGE` (fixed-freq) or VF voltage (variable-freq)</td>
+<td>Same acceptance criterion</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Restore ITD (power cycle or write back original slope)</td>
+<td>Same restore procedure</td>
+</tr>
+</tbody></table>
+<h3>ITD Disable Methods on NWP</h3>
+<table class="md-table"><thead><tr>
+<th>Method</th>
+<th>Scope</th>
+<th>Effect</th>
+</tr></thead><tbody>
+<tr>
+<td>`ITD_SLOPE` + `ITD_SLOPE_2` = 0</td>
+<td>Per-domain</td>
+<td>Zero compensation</td>
+</tr>
+<tr>
+<td>`ITD_CUTOFF_TJ` = 0</td>
+<td>All domains</td>
+<td>No temp delta → zero compensation</td>
+</tr>
+<tr>
+<td>`NEGATIVE_ITD_DISABLED=1`</td>
+<td>TTD only</td>
+<td>Disables negative compensation</td>
+</tr>
+<tr>
+<td>OC Mailbox 0x18/0x19 bit 3</td>
+<td>TTD only</td>
+<td>Dynamic disable</td>
+</tr>
+<tr>
+<td>`CORE_PMA_CR_CONFIG_10[TRUE_TD_EN]=0`</td>
+<td>Core TTD only</td>
+<td>ACP true TD disable</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>After `itd_slope=0`: `itd.print_itd_info` shows all domains with 0V compensation</li>
+<li>All domains operate at base voltage (no ITD offset)</li>
+<li>Power consumption increases (voltage not reduced at high temp); verify safe margin</li>
+<li>Restore: power cycle restores fuse-based slope values</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>`pcudata` interface</td>
+<td>Available</td>
+<td>Same on NWP</td>
+<td>Direct reuse</td>
+</tr>
+<tr>
+<td>Domain scope</td>
+<td>All ITD domains affected</td>
+<td>Same</td>
+<td>Same disable mechanism</td>
+</tr>
+<tr>
+<td>`itd.print_itd_info`</td>
+<td>Shows DMR domain list</td>
+<td>Shows NWP domain list</td>
+<td>Verify NWP domain names shown</td>
+</tr>
+<tr>
+<td>XML config</td>
+<td>`dmr.xml`</td>
+<td>`nwp.xml`</td>
+<td>**Must update**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+from pm.focus import itd
+
+SockNum = 0
+
+# Step 2: Baseline
+print(&quot;=== Baseline ITD Info ===&quot;)
+itd.print_itd_info(SockNum, 0)
+
+# Step 3: Disable (example — set slope to 0 via pcudata)
+# NOTE: Exact pcudata path for NWP needs validation
+# pcudata.itd_slope = 0  # apply for specific domain
+
+# Step 4: Verify disabled
+print(&quot;\n=== ITD After Disable ===&quot;)
+itd.print_itd_info(SockNum, 0)
+
+# Verify via RC offset register (should read 0)
+try:
+    vccinf_itd = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.vccinf_itd_comp.read()
+    print(f&quot;VccInf ITD compensation: {vccinf_itd} (expected 0 when disabled)&quot;)
+except Exception as e:
+    print(f&quot;VccInf ITD: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**`pcudata` interface on NWP** — `pcudata.itd_slope` mailbox path needs NWP validation</td>
+<td>Low</td>
+<td>Verify with NWP PM team; same concept, may have different path</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**Electrical risk** — disabling ITD removes voltage guardband; run only on cool silicon to avoid reliability issues</td>
+<td>Medium</td>
+<td>Use VP if possible; limit on-silicon ITD disable to short test windows</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; verify `pcudata` path**</p>
+<p>ITD disable mechanism is architecture-level and identical on NWP. `ready_for_execution` on DMR means test methodology is stable.</p>
+<p>Required adaptations:</p>
+<p>1. `python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3`</p>
+<p>2. Verify NWP `pcudata.itd_slope` interface path with NWP PM team</p>
+<p>3. Use VP for extended ITD-disabled operation (electrical safety)</p>
+<p>**Priority**: Medium — readiness check for debug capability; validates correct ITD framework functioning</p>
+    </div>
+  </div>
+</body>
+</html>

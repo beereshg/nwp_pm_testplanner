@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: AshTree PRT Silicon</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: AshTree PRT Silicon</h1>
+      <p>Segment: FV | Source: HSD_14027619766_ashtree_prt_silicon.inference.md | Generated: 2026-06-17 21:14:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: AshTree PRT Silicon</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>14027619766</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>AshTree PRT_silicon</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>(blank)</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>AshTree PRT — TSC monotonicity during package C-state (12 hrs)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>AshTree PRT verifies TSC monotonicity (always-increasing) via MSR 0x10 during package C-state residency for 12+ hours. PkgC2/PkgC3 are functional on NWP.</p>
+<p>**NWP adaptation**: Use PkgC2 or PkgC3 (functional) — NOT PkgC6 (ZBB on NWP). Test run for `PkgCstate` where target must be one of the non-ZBB package C-states.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP Commands</h3>
+<pre><code>
+# PTAT monitoring
+/usr/local/ptat/ptat -mon -filter 0x0f -id TSC
+
+# TSC monotonicity script
+python readtsc3_base.py
+</code></pre>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Enable MonitorMWait</td>
+<td>`msr -w 22 -o e2 -a`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Enable Package C-state (PkgC2/PkgC3)</td>
+<td>**Not PkgC6 (ZBB)**</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Run TSC monotonicity script for 12+ hours</td>
+<td>`python readtsc3_base.py`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Monitor PTAT for TSC</td>
+<td>`/usr/local/ptat/ptat -mon -filter 0x0f -id TSC`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify TSC is always increasing</td>
+<td>No backwards TSC values</td>
+</tr>
+</tbody></table>
+<h3>NWP PkgC-state Selection</h3>
+<pre><code>
+# Set PkgC2/PkgC3 target (avoid PkgC6 which is ZBB)
+msr -w 22 -o e2 -a  # Enable MonitorMWait
+# BIOS knob: PackageC = C3 (or C2)
+</code></pre>
+<h3>Pass Criteria</h3>
+<ul>
+<li>TSC monotonic for 12+ hours during PkgC2/C3 transitions</li>
+<li>No OS error from `readtsc3_base.py`</li>
+<li>PTAT TSC monitoring shows no backwards timestamps</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — Use PkgC2/PkgC3 (NOT PkgC6 which is ZBB on NWP); TSC monotonicity test architecture same; 12-hour runtime**</p>
+<p>**Priority**: High — Long-run stability test; TSC monotonicity failure is a critical defect for OS and VM correctness</p>
+    </div>
+  </div>
+</body>
+</html>

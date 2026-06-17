@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NWP PM Content Analysis v2 -- CBB/NIO Corrected</title>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{font-family:system-ui,-apple-system,sans-serif;margin:0;background:#f8fafc;color:#1e293b;font-size:14px;line-height:1.5}
+header{background:#0f172a;color:#fff;padding:20px 28px}
+header h1{margin:0;font-size:1.3em;font-weight:700}
+header .sub{font-size:0.8em;color:#94a3b8;margin-top:4px}
+.stats{display:flex;gap:10px;padding:14px 28px;background:#fff;border-bottom:1px solid #e2e8f0;flex-wrap:wrap}
+.sc{background:#f1f5f9;border-radius:8px;padding:8px 16px;min-width:110px;text-align:center;border-top:3px solid #e2e8f0}
+.sc .v{font-size:1.5em;font-weight:700}.sc .l{font-size:0.68em;color:#64748b;margin-top:2px}
+main{padding:20px 28px 40px}
+h2{font-size:1em;font-weight:700;color:#0f172a;margin:20px 0 10px;border-left:4px solid #2563eb;padding-left:10px}
+.note-box{background:#eff6ff;border-left:4px solid #2563eb;padding:10px 14px;border-radius:0 6px 6px 0;font-size:0.82em;color:#1e3a5f;margin-bottom:14px;line-height:1.6}
+.warn-box{background:#fef2f2;border-left:4px solid #dc2626;padding:10px 14px;border-radius:0 6px 6px 0;font-size:0.82em;color:#7f1d1d;margin-bottom:14px;line-height:1.6}
+.ok-box{background:#f0fdf4;border-left:4px solid #059669;padding:10px 14px;border-radius:0 6px 6px 0;font-size:0.82em;color:#14532d;margin-bottom:14px;line-height:1.6}
+table{width:100%;border-collapse:collapse;font-size:0.83em;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.07);margin-bottom:18px}
+thead th{background:#1e293b;color:#fff;padding:9px 12px;text-align:left;white-space:nowrap;font-weight:600}
+tbody td{padding:8px 12px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#f8fafc}
+.domain-card{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.07);margin-bottom:12px;overflow:hidden;border-left:4px solid #e2e8f0}
+.dc-header{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#f8fafc;border-bottom:1px solid #f1f5f9;flex-wrap:wrap}
+.dc-title{font-weight:700;font-size:0.92em;flex:1;min-width:120px}
+.dc-body{padding:10px 14px;font-size:0.82em;color:#475569;line-height:1.5}
+.legend-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;font-size:0.8em}
+.legend-item{display:flex;align-items:center;gap:6px}
+.legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+footer{text-align:center;color:#94a3b8;font-size:0.72em;padding:16px}
+code{background:#e2e8f0;padding:1px 5px;border-radius:3px;font-size:0.9em}
+</style>
+</head>
+<body>
+<header>
+  <h1>NWP PM Content Analysis -- DMR to NWP Focus (v2: CBB/NIO Corrected)</h1>
+  <div class="sub">844 TCs across 14 TPs &nbsp;|&nbsp; 510 open &nbsp;|&nbsp; 334 rejected (ZBB) &nbsp;|&nbsp; Generated 2026-06-17</div>
+</header>
+
+<div class="stats">
+  <div class="sc" style="border-top-color:#1e293b"><div class="v">844</div><div class="l">Total TCs</div></div>
+  <div class="sc" style="border-top-color:#2563eb"><div class="v" style="color:#2563eb">510</div><div class="l">Open</div></div>
+  <div class="sc" style="border-top-color:#94a3b8"><div class="v" style="color:#94a3b8">334</div><div class="l">Rejected / ZBB</div></div>
+  <div class="sc" style="border-top-color:#059669"><div class="v" style="color:#059669">181</div><div class="l">CBB-primary (25%)</div></div>
+  <div class="sc" style="border-top-color:#2563eb"><div class="v" style="color:#2563eb">174</div><div class="l">NIO-primary (16%)</div></div>
+  <div class="sc" style="border-top-color:#7c3aed"><div class="v" style="color:#7c3aed">489</div><div class="l">Both dies (57%)</div></div>
+</div>
+
+<main>
+
+<div class="warn-box">
+<strong>v2 Correction (verified via Co-Design spec tool):</strong>
+P-State/HWP, C-States (PNC), and CCF ring frequency are <strong>CBB PCode/PMA owned</strong>, not NIO.
+NIO Primecode manages: RAPL PID (distributes to CBB via HPM 0x14), PMAX, SIMPL, SVID, platform thermal policy, PM interfaces.
+CBB PCode/PMA manages: HWP requests, turbo ratio, ICCP/FIT, CC6/MC6 entry/exit, CCF ring GV/GVFSM, SST-TF/PCT TRL enforcement.
+Result: CBB-primary TCs = <strong>25%</strong> (was incorrectly shown as 1% in v1).
+</div>
+
+<div class="note-box">
+<strong>NWP Architecture:</strong>
+NIO die = IMH2 + C2C + LPDDR6. CBB = 2x PantherCove (PNC) compute dies (leveraged from DMR).
+PythonSV: CBB paths <code>sv.socket0.cbb{0,1}.*</code> identical to DMR (just 4-to-2 CBBs).
+NIO paths: <code>sv.socket0.nio.punit.*</code> replaces DMR <code>sv.socket0.imh0.punit.*</code>.
+Key ZBBs: PkgC6, SST-BF/CP/PP, Platform RAPL (1-socket), RACL, IMH mem/IO DVFS.
+</div>
+
+<h2>Domain Summary Table</h2>
+<table>
+<thead><tr>
+  <th>Domain</th><th>Total</th><th>Open</th><th>Rej</th>
+  <th>Open %</th><th>IP (corrected)</th><th>PSS Target</th><th>Priority</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong style="color:#1d4ed8">C-States (PNC)</strong></td>
+<td style="text-align:center">52</td>
+<td style="text-align:center;color:#2563eb;font-weight:700">52</td>
+<td style="text-align:center;color:#94a3b8">0</td>
+<td style="min-width:90px">
+  <div style="display:flex;align-items:center;gap:5px">
+    <div style="background:#f1f5f9;border-radius:3px;height:8px;flex:1">
+      <div style="height:8px;width:100%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+    </div>
+    <span style="font-size:0.78em;color:#64748b;white-space:nowrap">100%</span>
+  </div>
+</td>
+<td><span style="background:#059669;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">CBB (compute)</span></td>
+<td><span style="background:#0e7490;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">HSLE</span></td>
+<td><span style="color:#ea580c;font-weight:700;font-size:0.8em">P2 - High</span></td>
+</tr>
+<tr>
+<td><strong style="color:#b45309">P-State / HWP</strong></td>
+<td style="text-align:center">45</td>
+<td style="text-align:center;color:#2563eb;font-weight:700">45</td>
+<td style="text-align:center;color:#94a3b8">0</td>
+<td style="min-width:90px">
+  <div style="display:flex;align-items:center;gap:5px">
+    <div style="background:#f1f5f9;border-radius:3px;height:8px;flex:1">
+      <div style="height:8px;width:100%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+    </div>
+    <span style="font-size:0.78em;color:#64748b;white-space:nowrap">100%</span>
+  </div>
+</td>
+<td><span style="background:#059669;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">CBB (compute)</span></td>
+<td><span style="background:#7c3aed;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP+HSLE</span></td>
+<td><span style="color:#ea580c;font-weight:700;font-size:0.8em">P2 - High</span></td>
+</tr>
+<tr>
+<td><strong style="color:#047857">SST</strong></td>
+<td style="text-align:center">69</td>
+<td style="text-align:center;color:#2563eb;font-weight:700">40</td>
+<td style="text-align:center;color:#94a3b8">29</td>
+<td style="min-width:90px">
+  <div style="display:flex;align-items:center;gap:5px">
+    <div style="background:#f1f5f9;border-radius:3px;height:8px;flex:1">
+      <div style="height:8px;width:57%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+    </div>
+    <span style="font-size:0.78em;color:#64748b;white-space:nowrap">57%</span>
+  </div>
+</td>
+<td><span style="background:#059669;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">CBB (compute)</span></td>
+<td><span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP</span></td>
+<td><span style="color:#ea580c;font-weight:700;font-size:0.8em">P2 - Med-High</span></td>
+</tr>
+<tr>
+<td><strong style="color:#065f46">CBB CCF PM</strong></td>
+<td style="text-align:center">15</td>
+<td style="text-align:center;color:#2563eb;font-weight:700">15</td>
+<td style="text-align:center;color:#94a3b8">0</td>
+<td style="min-width:90px">
+  <div style="display:flex;align-items:center;gap:5px">
+    <div style="background:#f1f5f9;border-radius:3px;height:8px;flex:1">
+      <div style="height:8px;width:100%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+    </div>
+    <span style="font-size:0.78em;color:#64748b;white-space:nowrap">100%</span>
+  </div>
+</td>
+<td><span style="background:#059669;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">CBB (compute)</span></td>
+<td><span style="background:#0e7490;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">HSLE</span></td>
+<td><span style="color:#b45309;font-weight:700;font-size:0.8em">P3 - Medium</span></td>
+</tr>
+<tr>
+<td><strong style="color:#dc2626">RAPL</strong></td>
+<td style="text-align:center">88</td>
+<td style="text-align:center;color:#2563eb;font-weight:700">38</td>
+<td style="text-align:center;color:#94a3b8">50</td>
+<td style="min-width:90px">
+  <div style="display:flex;align-items:center;gap:5px">
+    <div style="background:#f1f5f9;border-radius:3px;height:8px;flex:1">
+      <div style="height:8px;width:43%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+    </div>
+    <span style="font-size:0.78em;color:#64748b;white-space:nowrap">43%</span>
+  </div>
+</td>
+<td><span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">NIO (IO/Primecode)</span></td>
+<td><span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP</span></td>
+<td><span style="color:#b45309;font-weight:700;font-size:0.8em">P3 - Medium</span></td>
+</tr>
+<tr>
+<td><strong style="color:#be123c">Power Control</strong></td>
+<td style="text-align:center">32</td>
+<td style="text-align:center;color:#2563eb;font-weight:700">32</td>
+<td style="text-align:center;color:#94a3b8">0</td>
+<td style="min-width:90px">
+  <div style="display:flex;align-items:center;gap:5px">
+    <div style="background:#f1f5f9;border-radius:3px;height:8px;flex:1">
+      <div style="height:8px;width:100%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+    </div>
+    <span style="font-size:0.78em;color:#64748b;white-space:nowrap">100%</span>
+  </div>
+</td>
+<td><span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">NIO (IO/Primecode)</span></td>
+<td><span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP</span></td>
+<td><span style="color:#b45309;font-weight:700;font-size:0.8em">P3 - Medium</span></td>
+</tr>
+<tr>
+<td><strong style="color:#374151">Telemetry</strong></td>
+<td style="text-align:center">13</td>
+<td style="text-align:center;color:#2563eb;font-weight:700">13</td>
+<td style="text-align:center;color:#94a3b8">0</td>
+<td style="min-width:90px">
+  <div style="display:flex;align-items:center;gap:5px">
+    <div style="background:#f1f5f9;border-radius:3px;height:8px;flex:1">
+      <div style="height:8px;width:100%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+    </div>
+    <span style="font-size:0.78em;color:#64748b;white-space:nowrap">100%</span>
+  </div>
+</td>
+<td><span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">NIO (IO/Primecode)</span></td>
+<td><span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP</span></td>
+<td><span style="color:#059669;font-weight:700;font-size:0.8em">P4 - Low</span></td>
+</tr>
+<tr>
+<td><strong style="color:#78350f">Fabric DVFS</strong></td>
+<td style="text-align:center">34</td>
+<td style="text-align:center;color:#2563eb;font-weight:700">8</td>
+<td style="text-align:center;color:#94a3b8">26</td>
+<td style="min-width:90px">
+  <div style="display:flex;align-items:center;gap:5px">
+    <div style="background:#f1f5f9;border-radius:3px;height:8px;flex:1">
+      <div style="height:8px;width:23%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+    </div>
+    <span style="font-size:0.78em;color:#64748b;white-space:nowrap">23%</span>
+  </div>
+</td>
+<td><span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">NIO (IO/Primecode)</span></td>
+<td><span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP</span></td>
+<td><span style="color:#059669;font-weight:700;font-size:0.8em">P4 - Low</span></td>
+</tr>
+<tr>
+<td><strong style="color:#374151">PM Interfaces</strong></td>
+<td style="text-align:center">7</td>
+<td style="text-align:center;color:#2563eb;font-weight:700">7</td>
+<td style="text-align:center;color:#94a3b8">0</td>
+<td style="min-width:90px">
+  <div style="display:flex;align-items:center;gap:5px">
+    <div style="background:#f1f5f9;border-radius:3px;height:8px;flex:1">
+      <div style="height:8px;width:100%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+    </div>
+    <span style="font-size:0.78em;color:#64748b;white-space:nowrap">100%</span>
+  </div>
+</td>
+<td><span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">NIO (IO/Primecode)</span></td>
+<td><span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP</span></td>
+<td><span style="color:#059669;font-weight:700;font-size:0.8em">P4 - Low</span></td>
+</tr>
+<tr>
+<td><strong style="color:#0e7490">Thermal</strong></td>
+<td style="text-align:center">123</td>
+<td style="text-align:center;color:#2563eb;font-weight:700">114</td>
+<td style="text-align:center;color:#94a3b8">9</td>
+<td style="min-width:90px">
+  <div style="display:flex;align-items:center;gap:5px">
+    <div style="background:#f1f5f9;border-radius:3px;height:8px;flex:1">
+      <div style="height:8px;width:92%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+    </div>
+    <span style="font-size:0.78em;color:#64748b;white-space:nowrap">92%</span>
+  </div>
+</td>
+<td><span style="background:#7c3aed;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">Both dies</span></td>
+<td><span style="background:#0e7490;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">HSLE</span></td>
+<td><span style="color:#dc2626;font-weight:700;font-size:0.8em">P1 - Highest</span></td>
+</tr>
+<tr>
+<td><strong style="color:#7c3aed">Platform PM (PV)</strong></td>
+<td style="text-align:center">213</td>
+<td style="text-align:center;color:#2563eb;font-weight:700">89</td>
+<td style="text-align:center;color:#94a3b8">124</td>
+<td style="min-width:90px">
+  <div style="display:flex;align-items:center;gap:5px">
+    <div style="background:#f1f5f9;border-radius:3px;height:8px;flex:1">
+      <div style="height:8px;width:41%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+    </div>
+    <span style="font-size:0.78em;color:#64748b;white-space:nowrap">41%</span>
+  </div>
+</td>
+<td><span style="background:#7c3aed;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">Both dies</span></td>
+<td><span style="background:#b45309;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">Silicon/XOS</span></td>
+<td><span style="color:#dc2626;font-weight:700;font-size:0.8em">P1 - High</span></td>
+</tr>
+<tr>
+<td><strong style="color:#6b21a8">PM Cross Products</strong></td>
+<td style="text-align:center">34</td>
+<td style="text-align:center;color:#2563eb;font-weight:700">30</td>
+<td style="text-align:center;color:#94a3b8">4</td>
+<td style="min-width:90px">
+  <div style="display:flex;align-items:center;gap:5px">
+    <div style="background:#f1f5f9;border-radius:3px;height:8px;flex:1">
+      <div style="height:8px;width:88%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+    </div>
+    <span style="font-size:0.78em;color:#64748b;white-space:nowrap">88%</span>
+  </div>
+</td>
+<td><span style="background:#7c3aed;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">Both dies</span></td>
+<td><span style="background:#7c3aed;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP+HSLE</span></td>
+<td><span style="color:#b45309;font-weight:700;font-size:0.8em">P3 - Medium</span></td>
+</tr>
+<tr>
+<td><strong style="color:#92400e">PKGC</strong></td>
+<td style="text-align:center">87</td>
+<td style="text-align:center;color:#2563eb;font-weight:700">19</td>
+<td style="text-align:center;color:#94a3b8">68</td>
+<td style="min-width:90px">
+  <div style="display:flex;align-items:center;gap:5px">
+    <div style="background:#f1f5f9;border-radius:3px;height:8px;flex:1">
+      <div style="height:8px;width:21%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+    </div>
+    <span style="font-size:0.78em;color:#64748b;white-space:nowrap">21%</span>
+  </div>
+</td>
+<td><span style="background:#7c3aed;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">Both dies</span></td>
+<td><span style="background:#0e7490;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">HSLE</span></td>
+<td><span style="color:#b45309;font-weight:700;font-size:0.8em">P3 - Med-Low</span></td>
+</tr>
+<tr>
+<td><strong style="color:#1e40af">AIPM</strong></td>
+<td style="text-align:center">32</td>
+<td style="text-align:center;color:#2563eb;font-weight:700">8</td>
+<td style="text-align:center;color:#94a3b8">24</td>
+<td style="min-width:90px">
+  <div style="display:flex;align-items:center;gap:5px">
+    <div style="background:#f1f5f9;border-radius:3px;height:8px;flex:1">
+      <div style="height:8px;width:25%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+    </div>
+    <span style="font-size:0.78em;color:#64748b;white-space:nowrap">25%</span>
+  </div>
+</td>
+<td><span style="background:#7c3aed;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">Both dies</span></td>
+<td><span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP</span></td>
+<td><span style="color:#059669;font-weight:700;font-size:0.8em">P4 - Low</span></td>
+</tr>
+</tbody></table>
+
+<h2>Domain Deep-Dive -- NWP Adaptation Notes</h2>
+<div class="legend-row">
+  <div class="legend-item"><div class="legend-dot" style="background:#059669"></div>CBB (compute die) -- PCode/PMA owned</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2563eb"></div>NIO (IO die) -- Primecode owned</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div>Both dies -- coordination required</div>
+</div>
+
+<div class="domain-card" style="border-left-color:#1d4ed8">
+  <div class="dc-header">
+    <span class="dc-title" style="color:#1d4ed8">C-States (PNC)</span>
+    <span style="font-size:0.78em;color:#64748b">52 TCs</span>
+    <span style="font-size:0.78em;color:#2563eb;font-weight:700">&nbsp;52 open</span>
+    <span style="font-size:0.78em;color:#94a3b8">&nbsp;/ 0 rej</span>
+    <span style="background:#059669;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">CBB (compute)</span>&nbsp;<span style="background:#0e7490;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">HSLE</span>
+    <span style="margin-left:auto"><span style="color:#ea580c;font-weight:700;font-size:0.8em">P2 - High</span></span>
+  </div>
+  <div class="dc-body">
+    <div style="margin-bottom:8px"><strong>CBB PMA/PCode owns CC6/MC6</strong> (not NIO). PNC single-thread. MC6 deepest idle on NWP. PkgC6 ZBB. Registers: sv.socket0.cbb{0,1}.compute.* and punit_pmsb. MSR residency paths same.</div>
+    <div style="display:flex;gap:8px;align-items:center;font-size:0.8em;flex-wrap:wrap">
+      <span style="color:#64748b">Open</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:100%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#2563eb;font-weight:700">100%</span>
+      <span style="color:#64748b;margin-left:8px">Rejected</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:0%;background:#94a3b8;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#94a3b8;font-weight:600">0%</span>
+    </div>
+  </div>
+</div>
+
+<div class="domain-card" style="border-left-color:#b45309">
+  <div class="dc-header">
+    <span class="dc-title" style="color:#b45309">P-State / HWP</span>
+    <span style="font-size:0.78em;color:#64748b">45 TCs</span>
+    <span style="font-size:0.78em;color:#2563eb;font-weight:700">&nbsp;45 open</span>
+    <span style="font-size:0.78em;color:#94a3b8">&nbsp;/ 0 rej</span>
+    <span style="background:#059669;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">CBB (compute)</span>&nbsp;<span style="background:#7c3aed;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP+HSLE</span>
+    <span style="margin-left:auto"><span style="color:#ea580c;font-weight:700;font-size:0.8em">P2 - High</span></span>
+  </div>
+  <div class="dc-body">
+    <div style="margin-bottom:8px"><strong>CBB PCode manages HWP/turbo ratio for PNC cores</strong>. NIO Primecode does NOT manage core P-states. ICCP/FIT run in CBB PCode. Registers: sv.socket0.cbb{0,1}.base.punit_regs.*</div>
+    <div style="display:flex;gap:8px;align-items:center;font-size:0.8em;flex-wrap:wrap">
+      <span style="color:#64748b">Open</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:100%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#2563eb;font-weight:700">100%</span>
+      <span style="color:#64748b;margin-left:8px">Rejected</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:0%;background:#94a3b8;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#94a3b8;font-weight:600">0%</span>
+    </div>
+  </div>
+</div>
+
+<div class="domain-card" style="border-left-color:#047857">
+  <div class="dc-header">
+    <span class="dc-title" style="color:#047857">SST</span>
+    <span style="font-size:0.78em;color:#64748b">69 TCs</span>
+    <span style="font-size:0.78em;color:#2563eb;font-weight:700">&nbsp;40 open</span>
+    <span style="font-size:0.78em;color:#94a3b8">&nbsp;/ 29 rej</span>
+    <span style="background:#059669;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">CBB (compute)</span>&nbsp;<span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP</span>
+    <span style="margin-left:auto"><span style="color:#ea580c;font-weight:700;font-size:0.8em">P2 - Med-High</span></span>
+  </div>
+  <div class="dc-body">
+    <div style="margin-bottom:8px"><strong>CBB PCode enforces SST-TF TRL and PCT CLOS policies</strong>. SST-BF/CP/PP ZBB (HSD 22021155414). Only SST-TF + PCT survive. 29/69 already rejected.</div>
+    <div style="display:flex;gap:8px;align-items:center;font-size:0.8em;flex-wrap:wrap">
+      <span style="color:#64748b">Open</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:57%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#2563eb;font-weight:700">57%</span>
+      <span style="color:#64748b;margin-left:8px">Rejected</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:42%;background:#94a3b8;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#94a3b8;font-weight:600">42%</span>
+    </div>
+  </div>
+</div>
+
+<div class="domain-card" style="border-left-color:#065f46">
+  <div class="dc-header">
+    <span class="dc-title" style="color:#065f46">CBB CCF PM</span>
+    <span style="font-size:0.78em;color:#64748b">15 TCs</span>
+    <span style="font-size:0.78em;color:#2563eb;font-weight:700">&nbsp;15 open</span>
+    <span style="font-size:0.78em;color:#94a3b8">&nbsp;/ 0 rej</span>
+    <span style="background:#059669;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">CBB (compute)</span>&nbsp;<span style="background:#0e7490;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">HSLE</span>
+    <span style="margin-left:auto"><span style="color:#b45309;font-weight:700;font-size:0.8em">P3 - Medium</span></span>
+  </div>
+  <div class="dc-body">
+    <div style="margin-bottom:8px"><strong>Fully CBB-native</strong>: CCF ring freq (GVFSM), VF curves, Fast Ring C3, Active Idle. CBB count 4-to-2. Ring C3 ZBB on silicon; Fast Ring C3 + MC6 active.</div>
+    <div style="display:flex;gap:8px;align-items:center;font-size:0.8em;flex-wrap:wrap">
+      <span style="color:#64748b">Open</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:100%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#2563eb;font-weight:700">100%</span>
+      <span style="color:#64748b;margin-left:8px">Rejected</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:0%;background:#94a3b8;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#94a3b8;font-weight:600">0%</span>
+    </div>
+  </div>
+</div>
+
+<div class="domain-card" style="border-left-color:#dc2626">
+  <div class="dc-header">
+    <span class="dc-title" style="color:#dc2626">RAPL</span>
+    <span style="font-size:0.78em;color:#64748b">88 TCs</span>
+    <span style="font-size:0.78em;color:#2563eb;font-weight:700">&nbsp;38 open</span>
+    <span style="font-size:0.78em;color:#94a3b8">&nbsp;/ 50 rej</span>
+    <span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">NIO (IO/Primecode)</span>&nbsp;<span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP</span>
+    <span style="margin-left:auto"><span style="color:#b45309;font-weight:700;font-size:0.8em">P3 - Medium</span></span>
+  </div>
+  <div class="dc-body">
+    <div style="margin-bottom:8px">NIO Primecode owns RAPL PID; distributed to CBBs via HPM 0x14. Path: imh0-to-nio. CBB loop 4-to-2. Platform RAPL ZBB (single socket NWP). 30 TCs already updated.</div>
+    <div style="display:flex;gap:8px;align-items:center;font-size:0.8em;flex-wrap:wrap">
+      <span style="color:#64748b">Open</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:43%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#2563eb;font-weight:700">43%</span>
+      <span style="color:#64748b;margin-left:8px">Rejected</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:56%;background:#94a3b8;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#94a3b8;font-weight:600">56%</span>
+    </div>
+  </div>
+</div>
+
+<div class="domain-card" style="border-left-color:#be123c">
+  <div class="dc-header">
+    <span class="dc-title" style="color:#be123c">Power Control</span>
+    <span style="font-size:0.78em;color:#64748b">32 TCs</span>
+    <span style="font-size:0.78em;color:#2563eb;font-weight:700">&nbsp;32 open</span>
+    <span style="font-size:0.78em;color:#94a3b8">&nbsp;/ 0 rej</span>
+    <span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">NIO (IO/Primecode)</span>&nbsp;<span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP</span>
+    <span style="margin-left:auto"><span style="color:#b45309;font-weight:700;font-size:0.8em">P3 - Medium</span></span>
+  </div>
+  <div class="dc-body">
+    <div style="margin-bottom:8px">NIO Primecode owns PMAX, SIMPL, SVID. Path change imh-to-nio required. RACL ZBB (single VCCIN).</div>
+    <div style="display:flex;gap:8px;align-items:center;font-size:0.8em;flex-wrap:wrap">
+      <span style="color:#64748b">Open</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:100%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#2563eb;font-weight:700">100%</span>
+      <span style="color:#64748b;margin-left:8px">Rejected</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:0%;background:#94a3b8;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#94a3b8;font-weight:600">0%</span>
+    </div>
+  </div>
+</div>
+
+<div class="domain-card" style="border-left-color:#374151">
+  <div class="dc-header">
+    <span class="dc-title" style="color:#374151">Telemetry</span>
+    <span style="font-size:0.78em;color:#64748b">13 TCs</span>
+    <span style="font-size:0.78em;color:#2563eb;font-weight:700">&nbsp;13 open</span>
+    <span style="font-size:0.78em;color:#94a3b8">&nbsp;/ 0 rej</span>
+    <span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">NIO (IO/Primecode)</span>&nbsp;<span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP</span>
+    <span style="margin-left:auto"><span style="color:#059669;font-weight:700;font-size:0.8em">P4 - Low</span></span>
+  </div>
+  <div class="dc-body">
+    <div style="margin-bottom:8px">PEM/PLR/PMT on NIO Primecode. Path imh-to-nio. Structure identical.</div>
+    <div style="display:flex;gap:8px;align-items:center;font-size:0.8em;flex-wrap:wrap">
+      <span style="color:#64748b">Open</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:100%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#2563eb;font-weight:700">100%</span>
+      <span style="color:#64748b;margin-left:8px">Rejected</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:0%;background:#94a3b8;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#94a3b8;font-weight:600">0%</span>
+    </div>
+  </div>
+</div>
+
+<div class="domain-card" style="border-left-color:#78350f">
+  <div class="dc-header">
+    <span class="dc-title" style="color:#78350f">Fabric DVFS</span>
+    <span style="font-size:0.78em;color:#64748b">34 TCs</span>
+    <span style="font-size:0.78em;color:#2563eb;font-weight:700">&nbsp;8 open</span>
+    <span style="font-size:0.78em;color:#94a3b8">&nbsp;/ 26 rej</span>
+    <span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">NIO (IO/Primecode)</span>&nbsp;<span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP</span>
+    <span style="margin-left:auto"><span style="color:#059669;font-weight:700;font-size:0.8em">P4 - Low</span></span>
+  </div>
+  <div class="dc-body">
+    <div style="margin-bottom:8px"><strong>NIO (imh2) owns fabric DVFS</strong> (IMH2 mem/IO fabric frequency). IMH mem/IO fabrics ZBB at fixed 2 GHz on NWP — no active DVFS. CBB CCF ring frequency (GVFSM) is a separate CBB-native feature covered under CBB CCF PM.</div>
+    <div style="display:flex;gap:8px;align-items:center;font-size:0.8em;flex-wrap:wrap">
+      <span style="color:#64748b">Open</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:23%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#2563eb;font-weight:700">23%</span>
+      <span style="color:#64748b;margin-left:8px">Rejected</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:76%;background:#94a3b8;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#94a3b8;font-weight:600">76%</span>
+    </div>
+  </div>
+</div>
+
+<div class="domain-card" style="border-left-color:#374151">
+  <div class="dc-header">
+    <span class="dc-title" style="color:#374151">PM Interfaces</span>
+    <span style="font-size:0.78em;color:#64748b">7 TCs</span>
+    <span style="font-size:0.78em;color:#2563eb;font-weight:700">&nbsp;7 open</span>
+    <span style="font-size:0.78em;color:#94a3b8">&nbsp;/ 0 rej</span>
+    <span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">NIO (IO/Primecode)</span>&nbsp;<span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP</span>
+    <span style="margin-left:auto"><span style="color:#059669;font-weight:700;font-size:0.8em">P4 - Low</span></span>
+  </div>
+  <div class="dc-body">
+    <div style="margin-bottom:8px">TPMI/OS2P/PECI exposed via NIO die. Path change imh-to-nio. Register structure identical to DMR.</div>
+    <div style="display:flex;gap:8px;align-items:center;font-size:0.8em;flex-wrap:wrap">
+      <span style="color:#64748b">Open</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:100%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#2563eb;font-weight:700">100%</span>
+      <span style="color:#64748b;margin-left:8px">Rejected</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:0%;background:#94a3b8;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#94a3b8;font-weight:600">0%</span>
+    </div>
+  </div>
+</div>
+
+<div class="domain-card" style="border-left-color:#0e7490">
+  <div class="dc-header">
+    <span class="dc-title" style="color:#0e7490">Thermal</span>
+    <span style="font-size:0.78em;color:#64748b">123 TCs</span>
+    <span style="font-size:0.78em;color:#2563eb;font-weight:700">&nbsp;114 open</span>
+    <span style="font-size:0.78em;color:#94a3b8">&nbsp;/ 9 rej</span>
+    <span style="background:#7c3aed;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">Both dies</span>&nbsp;<span style="background:#0e7490;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">HSLE</span>
+    <span style="margin-left:auto"><span style="color:#dc2626;font-weight:700;font-size:0.8em">P1 - Highest</span></span>
+  </div>
+  <div class="dc-body">
+    <div style="margin-bottom:8px">NIO owns thermal policy (PROCHOT/TCC/THERMTRIP); CBB has per-module thermal registers. LPDDR6 PHY always-on. Both dies. Path: imh-to-nio for NIO-side registers.</div>
+    <div style="display:flex;gap:8px;align-items:center;font-size:0.8em;flex-wrap:wrap">
+      <span style="color:#64748b">Open</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:92%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#2563eb;font-weight:700">92%</span>
+      <span style="color:#64748b;margin-left:8px">Rejected</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:7%;background:#94a3b8;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#94a3b8;font-weight:600">7%</span>
+    </div>
+  </div>
+</div>
+
+<div class="domain-card" style="border-left-color:#7c3aed">
+  <div class="dc-header">
+    <span class="dc-title" style="color:#7c3aed">Platform PM (PV)</span>
+    <span style="font-size:0.78em;color:#64748b">213 TCs</span>
+    <span style="font-size:0.78em;color:#2563eb;font-weight:700">&nbsp;89 open</span>
+    <span style="font-size:0.78em;color:#94a3b8">&nbsp;/ 124 rej</span>
+    <span style="background:#7c3aed;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">Both dies</span>&nbsp;<span style="background:#b45309;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">Silicon/XOS</span>
+    <span style="margin-left:auto"><span style="color:#dc2626;font-weight:700;font-size:0.8em">P1 - High</span></span>
+  </div>
+  <div class="dc-body">
+    <div style="margin-bottom:8px">PV-ported TCs with [PV] prefix; command_line in free_tag_2; require silicon XOS execution. Cover both CBB and NIO behaviors.</div>
+    <div style="display:flex;gap:8px;align-items:center;font-size:0.8em;flex-wrap:wrap">
+      <span style="color:#64748b">Open</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:41%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#2563eb;font-weight:700">41%</span>
+      <span style="color:#64748b;margin-left:8px">Rejected</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:58%;background:#94a3b8;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#94a3b8;font-weight:600">58%</span>
+    </div>
+  </div>
+</div>
+
+<div class="domain-card" style="border-left-color:#6b21a8">
+  <div class="dc-header">
+    <span class="dc-title" style="color:#6b21a8">PM Cross Products</span>
+    <span style="font-size:0.78em;color:#64748b">34 TCs</span>
+    <span style="font-size:0.78em;color:#2563eb;font-weight:700">&nbsp;30 open</span>
+    <span style="font-size:0.78em;color:#94a3b8">&nbsp;/ 4 rej</span>
+    <span style="background:#7c3aed;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">Both dies</span>&nbsp;<span style="background:#7c3aed;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP+HSLE</span>
+    <span style="margin-left:auto"><span style="color:#b45309;font-weight:700;font-size:0.8em">P3 - Medium</span></span>
+  </div>
+  <div class="dc-body">
+    <div style="margin-bottom:8px">Cross-die interactions. PKGC/RACL/Platform RAPL cross-products excluded. RAPL x MC6, thermal x P-state, reset are key surviving cross-products.</div>
+    <div style="display:flex;gap:8px;align-items:center;font-size:0.8em;flex-wrap:wrap">
+      <span style="color:#64748b">Open</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:88%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#2563eb;font-weight:700">88%</span>
+      <span style="color:#64748b;margin-left:8px">Rejected</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:11%;background:#94a3b8;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#94a3b8;font-weight:600">11%</span>
+    </div>
+  </div>
+</div>
+
+<div class="domain-card" style="border-left-color:#92400e">
+  <div class="dc-header">
+    <span class="dc-title" style="color:#92400e">PKGC</span>
+    <span style="font-size:0.78em;color:#64748b">87 TCs</span>
+    <span style="font-size:0.78em;color:#2563eb;font-weight:700">&nbsp;19 open</span>
+    <span style="font-size:0.78em;color:#94a3b8">&nbsp;/ 68 rej</span>
+    <span style="background:#7c3aed;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">Both dies</span>&nbsp;<span style="background:#0e7490;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">HSLE</span>
+    <span style="margin-left:auto"><span style="color:#b45309;font-weight:700;font-size:0.8em">P3 - Med-Low</span></span>
+  </div>
+  <div class="dc-body">
+    <div style="margin-bottom:8px">NIO Primecode coordinates PKGC; CBB PMA executes the C-state. PkgC6 ZBB (68 rejected). 19 open scope HSLE/Simics debug only.</div>
+    <div style="display:flex;gap:8px;align-items:center;font-size:0.8em;flex-wrap:wrap">
+      <span style="color:#64748b">Open</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:21%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#2563eb;font-weight:700">21%</span>
+      <span style="color:#64748b;margin-left:8px">Rejected</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:78%;background:#94a3b8;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#94a3b8;font-weight:600">78%</span>
+    </div>
+  </div>
+</div>
+
+<div class="domain-card" style="border-left-color:#1e40af">
+  <div class="dc-header">
+    <span class="dc-title" style="color:#1e40af">AIPM</span>
+    <span style="font-size:0.78em;color:#64748b">32 TCs</span>
+    <span style="font-size:0.78em;color:#2563eb;font-weight:700">&nbsp;8 open</span>
+    <span style="font-size:0.78em;color:#94a3b8">&nbsp;/ 24 rej</span>
+    <span style="background:#7c3aed;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 6px;font-weight:600">Both dies</span>&nbsp;<span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP</span>
+    <span style="margin-left:auto"><span style="color:#059669;font-weight:700;font-size:0.8em">P4 - Low</span></span>
+  </div>
+  <div class="dc-body">
+    <div style="margin-bottom:8px">MIO trunk clock gating (NIO) + CBB module clock gating. LPDDR6 PHY always-on (no SSR depth change). Both dies involved.</div>
+    <div style="display:flex;gap:8px;align-items:center;font-size:0.8em;flex-wrap:wrap">
+      <span style="color:#64748b">Open</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:25%;background:#2563eb;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#2563eb;font-weight:700">25%</span>
+      <span style="color:#64748b;margin-left:8px">Rejected</span>
+      <div style="background:#f1f5f9;border-radius:3px;height:7px;width:120px">
+        <div style="height:7px;width:75%;background:#94a3b8;border-radius:3px;min-width:2px"></div>
+      </div>
+      <span style="color:#94a3b8;font-weight:600">75%</span>
+    </div>
+  </div>
+</div>
+
+<h2>Environment Decision Framework</h2>
+<table>
+<thead><tr><th>Environment</th><th>Best For</th><th>Domains (NWP)</th><th>Rationale</th></tr></thead>
+<tbody>
+<tr>
+  <td><span style="background:#2563eb;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP</span></td>
+  <td>Register structure, TPMI write/readback, fuse/BIOS knob verification, mailbox encoding</td>
+  <td>RAPL, SST (register), Power Control, PM Interfaces, Telemetry, AIPM, Fabric DVFS</td>
+  <td>No timing dependency; Primecode/PCode init models registers correctly; fast iteration; firmware init bugs surfaced here</td>
+</tr>
+<tr>
+  <td><span style="background:#0e7490;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">HSLE</span></td>
+  <td>FSM execution, MSR residency counter increment, thermal state machine, C-state sequencing, CCF GV transitions</td>
+  <td>Thermal, C-States (PNC), PKGC (debug), CBB CCF PM, P-State (FIT/ICCP behavior)</td>
+  <td>Needs RTL clock model for counter increment; CBB PMA GVFSM and thermal FSM require RTL; full firmware execution</td>
+</tr>
+<tr>
+  <td><span style="background:#7c3aed;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">VP+HSLE</span></td>
+  <td>TPMI register structure in VP; behavioral effect (frequency change, ICCP convergence) in HSLE</td>
+  <td>P-State / HWP, PM Cross Products, SST (TRL enforcement)</td>
+  <td>Split: register init/readback in VP; frequency transition PID behavior and ICCP convergence need HSLE</td>
+</tr>
+<tr>
+  <td><span style="background:#b45309;color:#fff;border-radius:4px;font-size:0.7em;padding:2px 7px;font-weight:600;white-space:nowrap">Silicon/XOS</span></td>
+  <td>PV-ported platform TCs, real power/thermal measurement, VR SVID telemetry, full OS stack</td>
+  <td>Platform PM (PV), CBB CCF VF Curves (voltage accuracy), SVID power reporting</td>
+  <td>Analog FIVR voltage, real current measurement, platform board interactions, XOS driver stack required</td>
+</tr>
+</tbody></table>
+
+<h2>Content Change Concentration</h2>
+
+<div class="warn-box">
+<strong>Highest-ROI action -- imh0 to nio path change:</strong>
+NIO-primary and Both-die TCs share the <code>sv.socket0.imh0.punit.*</code> path bug.
+Bulk REST API update across 140 NIO-primary + 489 Both-die TCs = <strong>629 TCs need path review</strong>.
+Priority: open NIO/Both TCs only (estimated 350+ open TCs).
+</div>
+
+<div class="ok-box">
+<strong>CBB paths are stable -- no path change needed:</strong>
+215 CBB-primary TCs use <code>sv.socket0.cbb{0,1}.*</code> paths identical between DMR and NWP.
+Only the CBB count (4-to-2) and NWP-specific VF curve / ICCP calibration values need updating.
+These are the lowest-friction TCs to adapt.
+</div>
+
+<div class="ok-box">
+<strong>ZBB scope reduction complete:</strong>
+334 TCs (39%) already rejected. PKGC/SST-BF/CP/PP/Platform RAPL/RACL rejections done.
+510 open TCs = validated NWP-applicable scope.
+</div>
+
+</main>
+<footer>NWP PM Content Analysis v2 (CBB/NIO corrected) -- Generated 2026-06-17 from Phoenix folder 22022534050 (excl. deprecated 22022561851) -- Verified via Co-Design spec tool</footer>
+</body>
+</html>

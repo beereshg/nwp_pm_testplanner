@@ -1,0 +1,54 @@
+================================================================================
+ PSS TEST CASE SUMMARY
+ Diamond Rapids -- Power Management PSS Validation
+================================================================================
+
++------------------+--------------------------------------+-------------------------+----------------------------+-------------------------------------------------------------+
+| HSD              | Test Case Name                       | Python Script           | Run File                   | Comment                                                     |
++------------------+--------------------------------------+-------------------------+----------------------------+-------------------------------------------------------------+
+| 16030715615      | TPMI register verification - CBB     | tpmi_verify_cbb.py      | tpmi_cbb_run.csh           | Checks opc_hwp_capability, opc_hwp_controls, opc_epb,      |
+|                  |                                      |                         |                            | opc_hwp_request_pkg, per-core opc_hwp_request on CBB TPMI  |
++------------------+--------------------------------------+-------------------------+----------------------------+-------------------------------------------------------------+
+| 16030715617      | TPMI register verification - IMH IO  | tpmi_verify_imh_io.py   | tpmi_imh_io_run.csh        | Checks opc_hwp_capability, opc_hwp_controls,               |
+|                  |                                      |                         |                            | hw_feedback_config, opc_power_info, opc_pl1/pl2,           |
+|                  |                                      |                         |                            | pm_last_wake, hw_feedback_notification_log on IMH IO        |
++------------------+--------------------------------------+-------------------------+----------------------------+-------------------------------------------------------------+
+| 16030715619      | TPMI register verification - IMH MEM | tpmi_verify_imh_mem.py  | tpmi_imh_mem_run.csh       | Checks opc_power_info, opc_pl3, opc_dram_pl1,              |
+|                  |                                      |                         |                            | opc_memory_channel_power, pm_last_wake, Q-channel,         |
+|                  |                                      |                         |                            | CLKREQ status on IMH MEM die                               |
++------------------+--------------------------------------+-------------------------+----------------------------+-------------------------------------------------------------+
+| 16030715600      | BIOS Configurations of DVFS settings | dvfs_bios_config.py     | dvfs_bios_config_run.csh   | Reads ufs_header, ufs_control, ufs_control_fabric_1,       |
+|                  |                                      |                         |                            | ufs_adv_control_1/2, ufs_status from all dies (IMH+CBB).   |
+|                  |                                      |                         |                            | Cross-checks opc_hwp_capability.highest vs ufs max_ratio   |
++------------------+--------------------------------------+-------------------------+----------------------------+-------------------------------------------------------------+
+| 16030715609      | Out of Boundary Frequency Check      | oob_freq_check.py       | oob_freq_run.csh           | Writes opc_hwp_controls above cap_hi and below cap_lo;     |
+|                  |                                      |                         |                            | verifies PCode clamps actual ratio to allowed range.        |
+|                  |                                      |                         |                            | Restores original controls after test                      |
++------------------+--------------------------------------+-------------------------+----------------------------+-------------------------------------------------------------+
+| 16030715607      | TPMI-driven FabricGV                 | tpmi_fabric_gv.py       | tpmi_fabric_gv_run.csh     | Drives opc_hwp_controls to max then min; waits for PCode   |
+|                  |                                      |                         |                            | response; reads ufs_status.current_ratio and               |
+|                  |                                      |                         |                            | ufs_status_fabric_1.current_ratio across all dies          |
++------------------+--------------------------------------+-------------------------+----------------------------+-------------------------------------------------------------+
+| 16030715604      | PEGA-driven FabricGV                 | pega_fabric_gv.py       | pega_fabric_gv_run.csh     | Sends pega_mailbox.pega_pstate(iagv="rand", meshgv="rand", |
+|                  |                                      |                         |                            | memgv="rand", iogv="rand"); verifies fabric ratio change   |
+|                  |                                      |                         |                            | on all dies; sends rearm=1 to restore normal PCode op      |
++------------------+--------------------------------------+-------------------------+----------------------------+-------------------------------------------------------------+
+| (standalone)     | HGS state dump                       | hgs_read.py             | hgs_run.csh                | Reads full HGS state: CPUID.6 bits, fuses, pcode state,   |
+|                  |                                      |                         |                            | TPMI hw_feedback_config, MSR 0x17D0/17D1, HFI table.      |
+|                  |                                      |                         |                            | Dual-env: emulation (Simics) + post-silicon (IPC/SVOS)     |
++------------------+--------------------------------------+-------------------------+----------------------------+-------------------------------------------------------------+
+
+NFS script deploy path:
+  /nfs/site/disks/ive_dmr_prednv_009/mps/
+  (Samba: \\samba.zsc15.intel.com\nfs\site\disks\ive_dmr_prednv_009\mps)
+
+BIOS knob required for all tests:
+  ProcessorHWPMEnable = 1  -- see setup_bios_knobs.csh for IFWI preparation
+
+Environment support:
+  All scripts detect access environment automatically:
+    IS_SIMICS  -> 'simics'  (HSLE emulation via .csh run file)
+    IS_SVOS    -> 'svos'    (post-silicon SVOS)
+    IS_POST_SI -> 'ipc'/'ipccli'/'itp'  (post-silicon ITP/DAP)
+
+================================================================================

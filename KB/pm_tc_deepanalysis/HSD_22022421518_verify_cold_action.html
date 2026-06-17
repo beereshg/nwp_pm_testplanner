@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [IMH Thermal Management] Verify Cold Action</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [IMH Thermal Management] Verify Cold Action</h1>
+      <p>Segment: FV | Source: HSD_22022421518_verify_cold_action.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [IMH Thermal Management] Verify Cold Action</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421518</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[IMH Thermal Management] Verify Cold Action</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; IMH Thermal Management</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies that PrimeCode IMH thermal management correctly performs a &quot;cold action&quot; — the recovery sequence when all thermal throttle conditions have cleared. After the conditions `THERMAL_STRIKES_LEFT == 0`, `IMH_DIE_TEMP_MAX &gt; (eff_tj_max - EARLY_THROTTLE_OFFSET + OFFSET_AT_MAX_THROTTLE)`, and `IMH_DIE_TEMP_MAX &gt;= (eff_tj_max - EARLY_THROTTLE_OFFSET)` all become false, PrimeCode must release the IMH throttle ceiling and restore nominal fabric frequency. On NWP, the IMH PrimeCode PID-based thermal management (Mem Fabric + IO Fabric loops) is supported. The primary adaptation is updating `thermalManagement.py` for NWP topology and confirming NWP-specific thermal trip constants.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>IMH PrimeCode thermal management (PID-based cold/warm/hot N-strike→PID) is present on NWP</li>
+<li>Cold action recovery (`THERMAL_STRIKES_LEFT` counter, `EARLY_THROTTLE_OFFSET`, `OFFSET_AT_MAX_THROTTLE`) is the same algorithmic path on NWP</li>
+<li>NWP has a single IMH (`sv.socket0.imh0`); DMR had multiple; path scope changes but logic is identical</li>
+<li>`thermalManagement.py.thermTest` adapts to NWP with updated topology config</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP platform with IMH thermal stress capability (high-bandwidth memory/IO workload)</li>
+<li>PythonSv access to `sv.socket0.imh0` PTPCFSMS/PMSB registers</li>
+<li>`thermalManagement.py` with NWP config</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run `thermalManagement.py.thermTest` with NWP config</td>
+<td>NWP IMH topology; single IMH (`imh0`)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Apply high-bandwidth workload to push IMH temp above thermal trip conditions</td>
+<td>Same mechanism</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify PrimeCode thermal throttle triggers: `THERMAL_STRIKES_LEFT` decrements; fabric throttle asserts</td>
+<td>Read NWP IMH registers via PythonSv</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Reduce workload → IMH temp drops below `eff_tj_max - EARLY_THROTTLE_OFFSET`</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify cold action: PrimeCode releases fabric frequency ceiling</td>
+<td>Read fabric ratio limit; verify returns to P0</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify `IA32_PACKAGE_THERM_STATUS.THERMAL_MONITOR_STATUS` clears after recovery</td>
+<td>Same package MSR</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>After all thermal trigger conditions clear, PrimeCode releases the IMH thermal throttle</li>
+<li>Fabric frequency (Mem Fabric + IO Fabric) returns to unconstrained limit</li>
+<li>`THERMAL_MONITOR_STATUS` = 0 after recovery</li>
+<li>`THERMAL_STRIKES_LEFT` counter returns to maximum after sufficient cold dwell time</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>IMH count</td>
+<td>Multiple (IMH0, IMH1)</td>
+<td>Single (`imh0`)</td>
+<td>Only one IMH to monitor</td>
+</tr>
+<tr>
+<td>Thermal PID</td>
+<td>Kp=0.17, Ki=0.06 (DMR-specific)</td>
+<td>NWP-specific PID constants</td>
+<td>Verify NWP PID tuning in PM HAS</td>
+</tr>
+<tr>
+<td>Script XML</td>
+<td>`dmr.xml` / `thermalManagement.py`</td>
+<td>NWP config</td>
+<td>Update config</td>
+</tr>
+<tr>
+<td>`EARLY_THROTTLE_OFFSET`, `OFFSET_AT_MAX_THROTTLE`</td>
+<td>DMR-specific fuse values</td>
+<td>NWP-specific</td>
+<td>Verify from NWP PM HAS</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+# Monitor IMH thermal state on NWP (single IMH)
+ptpcfsms = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms
+
+# Package thermal monitor status
+pkg_therm = ptpcfsms.perf_limit_reasons.read()
+print(f&quot;Package PLR: 0x{pkg_therm:08X}&quot;)
+
+# IMH die temperature (PMT)
+pkg_temp = ptpcfsms.package_temperature_pmt.read()
+print(f&quot;IMH package temp: {pkg_temp}&quot;)
+
+# Thermal status flag
+try:
+    therm_status = ptpcfsms.thermal_constrained_time_pmt.read()
+    print(f&quot;Thermal constrained time: {therm_status}&quot;)
+except Exception as e:
+    print(f&quot;Thermal status: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**NWP PID tuning constants** — `EARLY_THROTTLE_OFFSET` and `OFFSET_AT_MAX_THROTTLE` may differ from DMR fuse values</td>
+<td>Medium</td>
+<td>Verify from NWP PM HAS; update expected values in test</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**Cold dwell time** — duration required for `THERMAL_STRIKES_LEFT` to replenish may differ on NWP</td>
+<td>Low</td>
+<td>Read from NWP config; same algorithmic approach</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADAPT — NWP constant verification required**</p>
+<p>IMH cold action recovery is the same mechanism on NWP. Adapt `thermalManagement.py` for NWP single-IMH topology and verify NWP-specific thermal constants.</p>
+<p>Required adaptations:</p>
+<p>1. Update `thermalManagement.py` config to NWP (single IMH)</p>
+<p>2. Verify NWP `EARLY_THROTTLE_OFFSET` and `OFFSET_AT_MAX_THROTTLE` fuse values</p>
+<p>3. Update expected cold action trigger conditions with NWP-specific values</p>
+<p>**Priority**: Medium — Cold action recovery is a functional correctness test for thermal throttle lifecycle</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: RAPL Perf Limit Reasons - Fine &amp; Coarse</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: RAPL Perf Limit Reasons - Fine &amp; Coarse</h1>
+      <p>Segment: FV | Source: HSD_22022422036_rapl_perf_limit_reasons_fine_coarse.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: RAPL Perf Limit Reasons - Fine &amp; Coarse</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422036</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>RAPL Perf limit reasons - Fine &amp; Coarse</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PLR (Perf Limit Reasons) — RAPL bits in fine and coarse PLR registers</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **RAPL Perf Limit Reasons (PLR)** — both fine-grained and coarse-grained bits when RAPL is throttling. Reference: DMR PLR HAS.</p>
+<p>PLR Registers (from test steps):</p>
+<ul>
+<li>`@sv.socket0.cbb0.base.tpmi.plr_mailbox_interface`</li>
+<li>`@sv.socket0.cbb0.base.tpmi.plr_mailbox_data`</li>
+</ul>
+<p>On NWP: 2 CBBs. Verify PLR RAPL bits on both `cbb0` and `cbb1`. Tags: `DMR_PO`, `plc.feature.p2`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>PLR RAPL Bits (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>PLR Bit</th>
+<th>Trigger</th>
+<th>Level</th>
+</tr></thead><tbody>
+<tr>
+<td>RAPL_PL1</td>
+<td>Power &gt; PL1 → RAPL throttling</td>
+<td>Coarse</td>
+</tr>
+<tr>
+<td>RAPL_PL2</td>
+<td>Power &gt; PL2 burst limit</td>
+<td>Coarse</td>
+</tr>
+<tr>
+<td>FAST_RAPL</td>
+<td>Fast RAPL algorithm active</td>
+<td>Fine</td>
+</tr>
+<tr>
+<td>RAPL_TAU</td>
+<td>Tau window expiry limiting</td>
+<td>Fine</td>
+</tr>
+</tbody></table>
+<h3>PLR Access (NWP Mailbox)</h3>
+<pre><code>
+# NWP PLR RAPL bits via mailbox (both CBBs)
+for cbb_idx in range(2):
+    plr_iface = sv.socket0.getbypath(f&quot;cbb{cbb_idx}.base.tpmi.plr_mailbox_interface&quot;)
+    plr_data  = sv.socket0.getbypath(f&quot;cbb{cbb_idx}.base.tpmi.plr_mailbox_data&quot;)
+    
+    # Write mailbox interface to request PLR RAPL bits
+    plr_iface.write(&lt;rapl_plr_mailbox_command&gt;)
+    plr_bits = plr_data.read()
+    print(f&quot;CBB{cbb_idx} PLR RAPL bits: 0x{plr_bits:08x}&quot;)
+</code></pre>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run cpu_rapl PMx</td>
+<td>`python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Trigger PL1 throttle (workload &gt; PL1)</td>
+<td>Set low PL1 limit</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read PLR RAPL bits on cbb0 and cbb1</td>
+<td>Via PLR mailbox; RAPL_PL1 bit set</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Trigger PL2 throttle</td>
+<td>Burst power &gt; PL2 limit</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Read PLR RAPL bits</td>
+<td>RAPL_PL2 bit set on both CBBs</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Trigger Fast RAPL</td>
+<td>Large power transient</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Read PLR fine bits</td>
+<td>FAST_RAPL bit set</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Verify bits clear when RAPL not throttling</td>
+<td>PLR bits = 0 at idle</td>
+</tr>
+</tbody></table>
+<h3>Pass Criteria</h3>
+<ul>
+<li>PLR RAPL_PL1 bit set on both cbb0 and cbb1 when PL1 throttling</li>
+<li>PLR RAPL_PL2 bit set during PL2 excursion</li>
+<li>PLR FAST_RAPL bit set during Fast RAPL</li>
+<li>All RAPL PLR bits clear at idle (no throttle)</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; PLR RAPL bits via mailbox on both cbb0 and cbb1**</p>
+<p>1. `python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</p>
+<p>2. Trigger each RAPL mode; read PLR mailbox on both `cbb0` and `cbb1`</p>
+<p>3. Reference: DMR PLR HAS §RAPL PLR bits</p>
+<p>**Priority**: High — `plc.feature.p2`; PLR RAPL bits are the primary diagnostic indicator for RAPL-caused throttle — critical for performance analysis</p>
+    </div>
+  </div>
+</body>
+</html>

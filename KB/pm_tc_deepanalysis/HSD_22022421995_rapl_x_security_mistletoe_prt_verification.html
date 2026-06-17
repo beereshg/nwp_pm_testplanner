@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: RAPL x Security (Mistletoe PRT) - Verification of Energy Fuzzing</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: RAPL x Security (Mistletoe PRT) - Verification of Energy Fuzzing</h1>
+      <p>Segment: FV | Source: HSD_22022421995_rapl_x_security_mistletoe_prt_verification.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: RAPL x Security (Mistletoe PRT) - Verification of Energy Fuzzing</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421995</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>RAPL X Security (Mistletoe PRT) - Verification of Energy Fuzzing</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Energy reporting under SGX (Mistletoe PRT / energy fuzzing countermeasure)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **RAPL Energy Reporting while SGX feature is enabled** (Mistletoe PRT — energy side-channel mitigation):</p>
+<ul>
+<li>SGX enables &quot;energy fuzzing&quot; to prevent side-channel attacks via energy MSR timing</li>
+<li>Verify energy reporting remains correct (not completely broken) with SGX and energy fuzzing active</li>
+<li>Intent: Verification Strategy — confirm energy with security enabled behaves per spec</li>
+</ul>
+<p>Tags: `plc.feature.p2`, `pm.xproducts.security`, `PMSS_NWP_READINESS_CHECK`</p>
+<p>**NWP SGX Note**: If SGX is not enabled on NWP, this test is not fully applicable. The PMSS_NWP_READINESS_CHECK tag indicates NWP candidacy; if SGX is available, test energy fuzzing behavior. If not, mark as platform-dependent.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Configure BIOS for SGX enabled (if NWP supports SGX)</td>
+<td>`EnableSgx 0x1`, `EccModeSel 0x1`, etc.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Verify SGX active</td>
+<td>`cpuid 0x12` → EAX bit 0 (SGX)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Run cpu_rapl PMx with security profile</td>
+<td>`python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Run automated RAPL content with SGX enabled</td>
+<td>Energy status MSR 0x611 under SGX workload</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify energy reporting functional</td>
+<td>Energy increments; no freeze</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify Mistletoe PRT energy fuzzing active</td>
+<td>Random noise on energy readings expected per spec</td>
+</tr>
+</tbody></table>
+<h3>PMx Command</h3>
+<pre><code>
+python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3
+</code></pre>
+<h3>Energy Fuzzing Behavior (expected with Mistletoe PRT)</h3>
+<ul>
+<li>Small random offsets added to energy MSR per SGX security specification</li>
+<li>Energy reporting still increases monotonically overall</li>
+<li>Power limit enforcement still functional despite fuzzing</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>Energy status MSR (0x611) increments (monotonically on average) with SGX enabled</li>
+<li>RAPL power limits still enforced with SGX active</li>
+<li>Energy fuzzing noise within expected bounds per security spec</li>
+<li>No catastrophic RAPL failure under SGX configuration</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; verify SGX availability on NWP; if not available, mark platform-dependent**</p>
+<p>1. `python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</p>
+<p>2. Enable SGX if available on NWP (check BIOS and CPUID 0x12)</p>
+<p>3. Verify energy reporting functional with Mistletoe PRT energy fuzzing active</p>
+<p>4. If NWP doesn&#x27;t support SGX: document as platform-dependent; test energy reporting only</p>
+<p>**Priority**: Low — security × RAPL interaction; requires SGX availability on NWP platform</p>
+    </div>
+  </div>
+</body>
+</html>

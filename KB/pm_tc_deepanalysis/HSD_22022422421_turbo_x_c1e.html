@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: Turbo X C1e</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: Turbo X C1e</h1>
+      <p>Segment: FV | Source: HSD_22022422421_turbo_x_c1e.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: Turbo X C1e</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422421</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>Turbo X C1e</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Pstate Stack</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Turbo × C1E cross-product validation</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **Turbo × C1E** cross-product — interaction between Turbo Mode and C1E (Enhanced Halt — frequency and voltage reduction on halt). C1E is a lightweight idle state that coexists with Turbo.</p>
+<p>C1E is a standard core idle state, functional on NWP. The cross-product tests that Turbo is correctly granted or adjusted when some cores are in C1E.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>C1E is functional on NWP (not ZBB)</li>
+<li>`DMR_PO` + `plc.ti_gate.b0` + `plc.feature.p1` + `pm.xproducts.pm` + `PMSS_NWP_READINESS_CHECK` tags</li>
+<li>`pm.xproducts.pm` explicitly marks this as a PM cross-product test</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>C1E in NWP Context</h3>
+<p>C1E: core executes `HLT` instruction → PCode reduces frequency/voltage. Core remains ready but at lower power.</p>
+<p>On NWP (non-SMT): C1E per physical core. No thread-level C1E aggregation needed.</p>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Enable C1E: `PowerManagement.C1E = 1` BIOS knob</td>
+<td>Standard BIOS config</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Enable Turbo</td>
+<td>`TurboMode = 0x1`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Run turbo PMx</td>
+<td>`python runPmx.py -x nwp.xml -p turbo -tM 60`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Stress subset of cores; let others idle to C1E</td>
+<td>Mixed active/idle workload</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify active cores receive Turbo</td>
+<td>`IA32_PERF_STATUS` shows turbo ratio</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify C1E cores properly halt</td>
+<td>Power reduction on halted cores</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify no instability on C1E entry/exit</td>
+<td>No hang or crash on wake</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>Turbo granted to active cores while idle cores in C1E</li>
+<li>C1E frequency reduction occurs on halted cores</li>
+<li>Active cores maintain turbo during C1E partial idle condition</li>
+<li>No power management errors during transitions</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; C1E standard feature on NWP**</p>
+<p>Required adaptations:</p>
+<p>1. `python runPmx.py -x nwp.xml -p turbo -tM 60`</p>
+<p>2. NWP non-SMT: C1E per physical core (no per-thread distinction)</p>
+<p>3. 2 CBBs × 48 cores = 96 cores for mixed active/C1E testing</p>
+<p>**Priority**: High — `DMR_PO` + `plc.feature.p1` + `pm.xproducts.pm`; Turbo × C1E cross-product</p>
+    </div>
+  </div>
+</body>
+</html>

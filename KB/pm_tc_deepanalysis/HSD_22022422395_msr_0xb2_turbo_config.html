@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: MSR 0xB2 TURBO_CONFIG</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: MSR 0xB2 TURBO_CONFIG</h1>
+      <p>Segment: FV | Source: HSD_22022422395_msr_0xb2_turbo_config.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: MSR 0xB2 TURBO_CONFIG</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422395</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>MSR 0xB2 TURBO_CONFIG</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Pstate Stack</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>MSR 0xB2 turbo config register; ITD (Intel Turbo Differentiation) offset</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **MSR 0xB2** (TURBO_CONFIG register), including:</p>
+<ul>
+<li>Expected value = 0x2 for DMR — **NWP expected value may differ**</li>
+<li>ITD (Intel Turbo Differentiation) offset: calculated offset must = 0 after disabling ITD</li>
+</ul>
+<p>The test is DMR-specific in the expected value (0x2). On NWP, the MSR 0xB2 register exists but the expected value must be determined from NWP spec/HAS.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>MSR 0xB2 present on NWP (standard Pstate register)</li>
+<li>`Ready_for_testing` + `plc.feature.p1` + `PMSS_NWP_READINESS_CHECK` tags</li>
+<li>Expected value requires NWP-specific validation</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>MSR 0xB2 Fields</h3>
+<table class="md-table"><thead><tr>
+<th>Bit</th>
+<th>Field</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td>[7:0]</td>
+<td>Package Turbo Ratio Limit</td>
+<td>P0n ratio at turbo</td>
+</tr>
+<tr>
+<td>[15:8]</td>
+<td>Group 1 Turbo Ratio Limit</td>
+<td>Multi-core turbo</td>
+</tr>
+<tr>
+<td>[63:32]</td>
+<td>ITD fields</td>
+<td>Intel Turbo Differentiation</td>
+</tr>
+</tbody></table>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Read MSR 0xB2 baseline</td>
+<td>`rdmsr 0xB2` or `baseaccess.rdmsr(0xB2)`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Verify baseline value matches NWP spec</td>
+<td>Expected value TBD (DMR = 0x2)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Disable ITD (`EETurboDisable` BIOS knob)</td>
+<td>Set EETurboDisable = 1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify ITD offset = 0 in MSR 0xB2</td>
+<td>ITD offset bits clear</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Run turbo PMx</td>
+<td>`python runPmx.py -x nwp.xml -p turbo -tM 60`</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>MSR 0xB2 value matches NWP specification (verify from HAS)</li>
+<li>ITD offset = 0 after `EETurboDisable`</li>
+<li>Turbo PMx passes with MSR 0xB2 configuration</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT with NWP calibration — verify expected MSR 0xB2 value from NWP spec**</p>
+<p>Required adaptations:</p>
+<p>1. `python runPmx.py -x nwp.xml -p turbo -tM 60`</p>
+<p>2. Query NWP HAS/spec for MSR 0xB2 expected value (may differ from DMR = 0x2)</p>
+<p>3. Verify ITD feature availability on NWP (ITD may be EE/performance-tuning feature)</p>
+<p>**Priority**: Medium — `plc.feature.p1`; MSR 0xB2 turbo config bring-up check</p>
+    </div>
+  </div>
+</body>
+</html>

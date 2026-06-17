@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: Guaranteed Ratio Resolving</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: Guaranteed Ratio Resolving</h1>
+      <p>Segment: FV | Source: HSD_22022422296_guaranteed_ratio_resolving.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: Guaranteed Ratio Resolving</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422296</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>Guaranteed Ratio resolving</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Pstate Stack</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>P1 Guaranteed Ratio resolution considering Active Cores (SST-PP) and SST-BF</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Skip_ZBB**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Skip_ZBB**</p>
+<p>This test verifies the **full Guaranteed Ratio (P1) resolution** accounting for:</p>
+<p>1. Base fused P1 ratio (`IA_P1_RATIO` fuse)</p>
+<p>2. Flex Ratio clip (when enabled)</p>
+<p>3. **Active Core count via SST-PP** (SST Performance Profile)</p>
+<p>4. **Core-specific Class of Service via SST-BF** (SST Base Frequency)</p>
+<p>The command is `runPmx.py -x dmr.xml -p sst_pp -tM 60 --retry_count 2`, which uses the SST-PP plug-in.</p>
+<p>**SST-PP and SST-BF are both ZBB on NWP.** The full guaranteed ratio resolution algorithm that accounts for SST-PP active-core-count tables and SST-BF per-core CoS cannot be validated on NWP without these features. Additionally, the test is tagged `To_be_ported`, indicating it needs explicit porting work.</p>
+<p>**Justification:**</p>
+<ul>
+<li>`sst_pp` plug-in requires SST-PP functionality — **ZBB on NWP**</li>
+<li>SST-BF (per-core Class of Service) — **ZBB on NWP**</li>
+<li>Full P1 resolution algorithm depends on both SST-PP and SST-BF</li>
+<li>`To_be_ported` tag: explicit acknowledgment that porting is needed</li>
+</ul>
+<p>---</p>
+<h2>Section B: Partial NWP Coverage (Non-SST Path)</h2>
+<p>The **base P1 resolution** (without SST-PP/SST-BF) is still valid on NWP:</p>
+<pre><code>
+NWP P1 = min(IA_P1_RATIO_fuse, FLEX_RATIO) [without SST-PP active-core table]
+</code></pre>
+<p>This simpler P1 resolution is covered by TC 22022422287 (Flex Ratio) and the MSR-based P-state TCs.</p>
+<h3>NWP P1 Non-SST Validation</h3>
+<pre><code>
+# NWP Base P1 Guaranteed Ratio (without SST-PP/BF)
+
+try:
+    platform_info = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.platform_info.read()
+    p1_ratio = (platform_info &gt;&gt; 8) &amp; 0xFF
+    print(f&quot;Guaranteed P1 Ratio: {p1_ratio}&quot;)
+
+    # Cross-check with fused P1
+    p1_fuse = sv.socket0.imh0.fuses.punit.ia_p1_ratio.read()
+    flex_ratio = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.flex_ratio.read()
+    expected = min(p1_fuse, flex_ratio) if flex_ratio &gt; 0 else p1_fuse
+    print(f&quot;Fused P1: {p1_fuse}, Flex Ratio: {flex_ratio}&quot;)
+    print(f&quot;Expected P1: {expected}, Actual: {p1_ratio}&quot;)
+    print(&quot;PASS&quot; if p1_ratio == expected else &quot;FAIL&quot;)
+except Exception as e:
+    print(f&quot;P1 resolution: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section C: Action Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Owner</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Skip full SST-PP/SST-BF P1 resolution — both ZBB on NWP</td>
+<td>Test team</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Validate base P1 resolution (no SST) via TC 22022422287 + MSR TCs</td>
+<td>NWP PM FV team</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Create NWP-specific P1 resolution TC without SST-PP dependency</td>
+<td>Future work — tag with NWP P1 non-SST</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Port when SST features enabled on future NWP stepping</td>
+<td>Long-term</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: SKIP — SST-PP and SST-BF are ZBB on NWP; create NWP-specific P1 TC**</p>
+<p>The full P1 resolution algorithm cannot be tested without SST-PP and SST-BF. Base P1 coverage exists via other TCs.</p>
+<p>**Priority**: N/A — ZBB skip; base P1 coverage exists via TC 22022422287 and MSR TCs</p>
+    </div>
+  </div>
+</body>
+</html>

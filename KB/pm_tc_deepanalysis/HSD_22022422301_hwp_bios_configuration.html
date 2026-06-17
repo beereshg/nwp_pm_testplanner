@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: HWP BIOS Configuration</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: HWP BIOS Configuration</h1>
+      <p>Segment: FV | Source: HSD_22022422301_hwp_bios_configuration.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: HWP BIOS Configuration</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422301</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>HWP Bios configuration</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Pstate Stack</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>HWP BIOS knob verification (HWPMEnable, Interrupt, APSrocketing)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **HWP BIOS knobs** are available and functional without causing hangs:</p>
+<ul>
+<li>`ProcessorHWPMEnable` = 1 (HWP enabled), 0x2 (HWP native mode variant)</li>
+<li>`ProcessorHWPMInterrupt` = 1/0 (HWP interrupt enable/disable)</li>
+<li>`ProcessorAPSrocketing` = 1/0 (APS rocketing/turbo algorithm enable)</li>
+</ul>
+<p>Uses `flexcon` with `DMRSV.ini` config file and `flexconPM` module.</p>
+<p>On NWP, the same HWP BIOS knobs exist. Primary adaptation: replace `DMRSV.ini` with `NWPSV.ini` for NWP platform.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>HWP BIOS knobs present on NWP (`ProcessorHWPMEnable`, etc.)</li>
+<li>`PMSS_NWP_READINESS_CHECK` tag: evaluated for NWP</li>
+<li>Flexcon config needs NWP adaptation (`DMRSV.ini` → `NWPSV.ini`)</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>BIOS Knob Combinations</h3>
+<table class="md-table"><thead><tr>
+<th>Config</th>
+<th>HWPMEnable</th>
+<th>HWPMInterrupt</th>
+<th>APSrocketing</th>
+<th>Mode</th>
+</tr></thead><tbody>
+<tr>
+<td>A</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>HWP native + interrupts + rocketing</td>
+</tr>
+<tr>
+<td>B</td>
+<td>0x2</td>
+<td>0x0</td>
+<td>0x0</td>
+<td>HWP OOB mode, no interrupts</td>
+</tr>
+</tbody></table>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Boot with Config A; run flexcon</td>
+<td>`python flexcon.py -i NWPSV.ini --onlyspecifiedmodules -m flexconPM`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Verify no hangs; all knobs accepted</td>
+<td>Same verification</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Reboot with Config B; run flexcon again</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify OOB mode knobs functional</td>
+<td>`ProcessorHWPMEnable = 0x2` = OOB mode</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>All BIOS knob combinations accepted without hang</li>
+<li>HWP mode correctly set per BIOS knob</li>
+<li>`flexcon` PM module passes on NWP with NWP config</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `DMRSV.ini` → `NWPSV.ini`; HWP BIOS knobs same on NWP**</p>
+<p>Required adaptations:</p>
+<p>1. Replace `DMRSV.ini` with `NWPSV.ini` in flexcon command</p>
+<p>2. Verify NWP flexcon PM module (`-m flexconPM`) supports NWP registers</p>
+<p>3. Verify BIOS knob names match NWP BIOS</p>
+<p>**Priority**: Medium — no `DMR_PO`; HWP BIOS baseline configuration verification</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: RAPL Perf Status</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: RAPL Perf Status</h1>
+      <p>Segment: FV | Source: HSD_22022422038_rapl_perf_status.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: RAPL Perf Status</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422038</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>RAPL Perf status</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>RAPL perf status counter — increments when throttled below PL1/PL2/Fast RAPL</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies the **RAPL Perf Status counter** increments whenever the system is throttled below PL1, PL2, or Fast RAPL limits. Registers (directly NWP paths):</p>
+<ul>
+<li>CSR: `@sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_rapl_perf_status`</li>
+<li>TPMI: `@sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_perf_status`</li>
+</ul>
+<p>Tags: `DMR_PO`, `plc.feature.p2`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP RAPL Perf Status Registers</h3>
+<table class="md-table"><thead><tr>
+<th>Register</th>
+<th>NWP Path</th>
+</tr></thead><tbody>
+<tr>
+<td>CSR perf status</td>
+<td>`sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_rapl_perf_status`</td>
+</tr>
+<tr>
+<td>TPMI perf status</td>
+<td>`sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_perf_status`</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run cpu_rapl PMx</td>
+<td>`python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read RAPL perf status at idle (no throttle)</td>
+<td>Baseline counter value</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Set PL1 below current power (trigger PL1 throttle)</td>
+<td>Counter should increment</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read RAPL perf status under PL1 throttle</td>
+<td>Counter &gt; baseline</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Trigger PL2 throttle</td>
+<td>Counter increments during PL2 excursion</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Trigger Fast RAPL</td>
+<td>Counter increments during Fast RAPL</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Restore PL1 to TDP (no throttle)</td>
+<td>Counter stops incrementing</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Verify CSR and TPMI counters agree</td>
+<td>Both should show same count</td>
+</tr>
+</tbody></table>
+<h3>Perf Status Counter Behavior</h3>
+<pre><code>
+# NWP RAPL perf status verification
+csr_ps = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_rapl_perf_status
+tpmi_ps = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_perf_status
+
+baseline_csr = csr_ps.read()
+# Trigger RAPL throttle (set low PL1)
+import time; time.sleep(1)
+throttled_csr = csr_ps.read()
+assert throttled_csr &gt; baseline_csr, &quot;Perf status should increment during RAPL throttle&quot;
+assert csr_ps.read() == tpmi_ps.read(), &quot;CSR and TPMI should agree&quot;
+</code></pre>
+<h3>Pass Criteria</h3>
+<ul>
+<li>RAPL perf status counter increments during PL1/PL2/Fast RAPL throttle</li>
+<li>Counter does NOT increment at idle (no throttle)</li>
+<li>CSR and TPMI perf status registers agree (same value)</li>
+<li>Counter does not overflow or wrap unexpectedly</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — Register paths already show NWP `imh0`; verify counter on both CSR and TPMI**</p>
+<p>1. `python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</p>
+<p>2. Verify `package_rapl_perf_status` (CSR) and `socket_rapl_perf_status` (TPMI) increment under throttle</p>
+<p>3. Confirm CSR and TPMI agree; counter stops when throttle cleared</p>
+<p>**Priority**: High — `plc.feature.p2`; RAPL perf status is the primary OS-visible throttle counter — used by Linux/Windows power management monitoring</p>
+    </div>
+  </div>
+</body>
+</html>

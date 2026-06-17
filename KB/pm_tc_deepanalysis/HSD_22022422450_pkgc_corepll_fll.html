@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HSD 22022422450: COREPLL (FLL)</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>HSD 22022422450: COREPLL (FLL)</h1>
+      <p>Segment: FV | Source: HSD_22022422450_pkgc_corepll_fll.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>HSD 22022422450: COREPLL (FLL)</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>[22022422450](https://hsdes.intel.com/appstore/article/#/22022422450)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Package C-States</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Clock Actions</td>
+</tr>
+<tr>
+<td>**Environment**</td>
+<td>virtual_platform</td>
+</tr>
+<tr>
+<td>**Status**</td>
+<td>open</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>bg3</td>
+</tr>
+<tr>
+<td>**TPF Parent**</td>
+<td>[2202242049](https://hsdes.intel.com/appstore/article/#/2202242049)</td>
+</tr>
+<tr>
+<td>**KB Article**</td>
+<td>[KB/pm_features/core_c_states/pkgc.md](KB/pm_features/core_c_states/pkgc.md)</td>
+</tr>
+<tr>
+<td>**Script**</td>
+<td>pkgc.py</td>
+</tr>
+</tbody></table>
+<h3>Version History</h3>
+<table class="md-table"><thead><tr>
+<th>Version</th>
+<th>Date</th>
+<th>Changes</th>
+<th>Trigger</th>
+</tr></thead><tbody>
+<tr>
+<td>v1</td>
+<td>2026-05-29</td>
+<td>Initial LLM-driven enrichment with negative test derivation</td>
+<td>`enrich batch TPF 2202242049`</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Test Case</h2>
+<h3>Intent</h3>
+<p>Verify Core PLL (FLL - Frequency Locked Loop) is properly disabled during Package C6 entry.</p>
+<p>When system enters PC6, the COREPLL should be gated (disabled) to save power.</p>
+<p>The PLL lock status can be checked via `sv.sockets.cbbs.computes.core_pmas.core_pmsb_top.core_pma_pmsb.pma_debug.pll_lock`.</p>
+<p>**DMR Behavior**: During PC6 entry, PUnit coordinates module idle → all cores C6 → fabric idle → PLL gating.</p>
+<p>PLL re-locks on PC6 exit before cores can resume.</p>
+<h3>Pre-Conditions</h3>
+<p>1. Boot SVOS with PkgC enabled via BIOS (DMR configuration)</p>
+<p>2. System/model booted to OS</p>
+<p>3. PkgC entry possible (all break events disabled)</p>
+<p>4. PythonSV environment available</p>
+<p>5. Only check enabled cores</p>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>Interface</th>
+<th>Expected</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Boot system with PkgC enabled</td>
+<td>BIOS</td>
+<td>System boots</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Disable all break events to force PC6</td>
+<td>PythonSV</td>
+<td>Break events disabled</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Wait for system to enter PC6</td>
+<td>Idle</td>
+<td>PC6 entry</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read `core_pma_pmsb.pma_debug.pll_lock`</td>
+<td>CSR</td>
+<td>PLL unlocked (gated)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Generate wake event</td>
+<td>Traffic</td>
+<td>PC6 exit</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Re-read `pll_lock`</td>
+<td>CSR</td>
+<td>PLL locked (active)</td>
+</tr>
+</tbody></table>
+<h3>Pass/Fail Criteria</h3>
+<p>**PASS (DMR):**</p>
+<ul>
+<li>During PC6: `pll_lock = 0` for all enabled cores (PLL gated)</li>
+<li>After PC6 exit: `pll_lock = 1` (PLL re-locked)</li>
+</ul>
+<p>**FAIL:**</p>
+<ul>
+<li>PLL remains locked during PC6 (power waste)</li>
+<li>PLL fails to re-lock on exit (hang)</li>
+</ul>
+<p>---</p>
+<h2>Section A: NWP Architecture Delta</h2>
+<p>**Disposition: Skip (derive negative test)**</p>
+<p>PkgC6 is **fused off** on NWP (FUSE_PKG_C_STATE=0). The system will never enter PC6,</p>
+<p>so Core PLL will never be gated at package level. This test cannot execute as designed.</p>
+<p>**However**, this test is valuable for deriving **negative test content**:</p>
+<ul>
+<li>Verify COREPLL remains LOCKED even when OS requests deepest idle (MC6)</li>
+<li>Verify no unexpected PLL gating occurs during Module C6</li>
+</ul>
+<h3>DMR to NWP Delta Analysis</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>PkgC6 entry</td>
+<td>Supported</td>
+<td>**Blocked** (fuse=0)</td>
+<td>Test N/A</td>
+</tr>
+<tr>
+<td>COREPLL gating trigger</td>
+<td>PC6 entry</td>
+<td>**Never** (no PC6)</td>
+<td>PLL stays locked</td>
+</tr>
+<tr>
+<td>Module C6 PLL behavior</td>
+<td>Gated per-module</td>
+<td>Same (per-module)</td>
+<td>Module-level gating still works</td>
+</tr>
+<tr>
+<td>Deepest idle state</td>
+<td>PC6</td>
+<td>MC6</td>
+<td>Test scope changes</td>
+</tr>
+<tr>
+<td>pll_lock during idle</td>
+<td>0 (gated)</td>
+<td>**1 (locked)**</td>
+<td>Negative assertion</td>
+</tr>
+</tbody></table>
+<h3>Negative Test Derivation</h3>
+<p>**NWP Negative Test: COREPLL_remains_locked_during_MC6**</p>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>Expected (NWP)</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Boot with PkgC disabled (fuse)</td>
+<td>System boots</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Force all cores to MC6</td>
+<td>All cores in Module C6</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read `pll_lock`</td>
+<td>**pll_lock = 1** (locked, not gated)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify no package-level gating</td>
+<td>PKGC_CURRENT_STATE != PC6</td>
+</tr>
+</tbody></table>
+<p>**Rationale**: Confirms PkgC6 path is disabled; PLL gating only occurs at module level, not package.</p>
+<p>---</p>
+<h2>Section B: Interactions</h2>
+<h3>Swimlane Data</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Actor</th>
+<th>Action</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>OS</td>
+<td>Request deepest idle (MWAIT C6S-P)</td>
+<td>MWAIT</td>
+</tr>
+<tr>
+<td>2</td>
+<td>uCode</td>
+<td>Propagate to PCode</td>
+<td>Q-channel</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PCode</td>
+<td>Check FUSE_PKG_C_STATE</td>
+<td>Fuse</td>
+</tr>
+<tr>
+<td>4</td>
+<td>PCode</td>
+<td>**Block PC6 (fuse=0)**</td>
+<td>Internal</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Module</td>
+<td>Enter MC6 (module-level)</td>
+<td>Q-channel</td>
+</tr>
+<tr>
+<td>6</td>
+<td>PLL</td>
+<td>**Remain locked** (no package gating)</td>
+<td>Hardware</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Test</td>
+<td>Read pll_lock = 1</td>
+<td>CSR</td>
+</tr>
+</tbody></table>
+<h3>Sequence Data</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>From</th>
+<th>To</th>
+<th>Message</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>OS</td>
+<td>uCode</td>
+<td>MWAIT C6S-P (EAX=0x25)</td>
+<td>CPU</td>
+</tr>
+<tr>
+<td>2</td>
+<td>uCode</td>
+<td>PCode</td>
+<td>PkgC request</td>
+<td>Q-channel</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PCode</td>
+<td>Fuse</td>
+<td>Read FUSE_PKG_C_STATE</td>
+<td>Fuse</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Fuse</td>
+<td>PCode</td>
+<td>**Return 0 (disabled)**</td>
+<td>Fuse</td>
+</tr>
+<tr>
+<td>5</td>
+<td>PCode</td>
+<td>Module</td>
+<td>Allow MC6 only</td>
+<td>Q-channel</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Test</td>
+<td>PLL</td>
+<td>Read pll_lock</td>
+<td>CSR</td>
+</tr>
+<tr>
+<td>7</td>
+<td>PLL</td>
+<td>Test</td>
+<td>**Return 1 (locked)**</td>
+<td>CSR</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section C: Interface Coverage Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>Interface</th>
+<th>DMR Coverage</th>
+<th>NWP Coverage</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>pma_debug.pll_lock</td>
+<td>Yes</td>
+<td>**Negative**</td>
+<td>Verify locked during MC6</td>
+</tr>
+<tr>
+<td>MWAIT C6S-P</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>OS still requests</td>
+</tr>
+<tr>
+<td>Q-channel</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Module-level still works</td>
+</tr>
+<tr>
+<td>FUSE_PKG_C_STATE</td>
+<td>N/A</td>
+<td>**Negative**</td>
+<td>Verify = 0</td>
+</tr>
+<tr>
+<td>PKGC_CURRENT_STATE</td>
+<td>Yes</td>
+<td>**Negative**</td>
+<td>Verify never PC6</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: NWP Specification References</h2>
+<ul>
+<li>**NWP PM MAS S6.2**: FUSE_PKG_C_STATE=0 (PkgC6 disabled)</li>
+<li>**PNC PM HAS S8.14**: Package C-state PLL gating architecture</li>
+<li>**KB Article**: [pkgc.md](KB/pm_features/core_c_states/pkgc.md)</li>
+<li>**Register**: sv.sockets.cbbs.computes.core_pmas.core_pmsb_top.core_pma_pmsb.pma_debug.pll_lock</li>
+</ul>
+<p>---</p>
+<h2>Section E: NWP Risk Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr></thead><tbody>
+<tr>
+<td>Test executed expecting PC6</td>
+<td>Medium</td>
+<td>Low</td>
+<td>Skip with documented rationale</td>
+</tr>
+<tr>
+<td>PLL unexpectedly gated</td>
+<td>Low</td>
+<td>High</td>
+<td>Add negative assertion</td>
+</tr>
+<tr>
+<td>Module C6 PLL behavior regressed</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Separate MC6 test coverage</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendations</h2>
+<p>1. **Skip original test** - PC6 entry not possible on NWP</p>
+<p>2. **Derive negative test**: Verify COREPLL remains locked (pll_lock=1) during MC6</p>
+<p>3. **Add fuse verification**: Confirm FUSE_PKG_C_STATE=0 as pre-condition</p>
+<p>4. **Verify PKGC_CURRENT_STATE**: Never reaches PC6 encoding</p>
+<p>5. **Separate MC6 coverage**: Ensure module-level PLL gating tested in MC6 TCs</p>
+<p>---</p>
+<h2>User Notes</h2>
+<p>&gt; Instructions for LLM: Read all notes chronologically. Apply corrections/clarifications</p>
+<p>&gt; to relevant sections. Do not modify notes - append new entries only.</p>
+<p>*(No user notes yet - add feedback to refine this analysis)*</p>
+    </div>
+  </div>
+</body>
+</html>

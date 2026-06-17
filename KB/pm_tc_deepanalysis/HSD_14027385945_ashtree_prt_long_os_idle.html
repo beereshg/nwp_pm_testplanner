@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: AshTree PRT Long OS Idle</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: AshTree PRT Long OS Idle</h1>
+      <p>Segment: FV | Source: HSD_14027385945_ashtree_prt_long_os_idle.inference.md | Generated: 2026-06-17 21:14:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: AshTree PRT Long OS Idle</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>14027385945</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>AshTree PRT Long OS Idle</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-05-28</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Core C-States</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>AshTree PRT Long OS Idle validates TSC monotonicity during extended OS idle (no PEGA injection, no traffic) — the &quot;deep idle&quot; scenario where all cores are at CC6 or MC6 for extended periods. TSC continuity across C6 entry/exit (CTC freeze + restore by PMA) is an architectural requirement fully applicable to NWP. The adaptation is limited to updating PMX XML from `dmr.xml` to `nwp.xml`.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>Long OS idle exercises MC6 (module C6) — supported on NWP; MLC flushed state</li>
+<li>TSC continuity after MC6 exit is a PMA/uCode protocol requirement identical in DMR and NWP</li>
+<li>No PEGA or traffic, so the test is self-contained; NWP topology change is via XML only</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon at SVOS or Linux</li>
+<li>PMX framework with `nwp.xml`; no PEGA injection configured</li>
+<li>TSC polling script ready</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Boot NWP at SVOS (OS idle state)</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run long idle PMX module with NWP config</td>
+<td>`-x nwp.xml -p long_os_idle -tM 720 -M 10`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Monitor TSC via MSR 0x10 on all cores</td>
+<td>Loop over 2 CBBs (not 4)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Check TSC monotonicity throughout idle</td>
+<td>No backward jump after CC6/MC6 exits</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Run minimum 12 hours</td>
+<td>Same duration requirement</td>
+</tr>
+</tbody></table>
+<p>**NWP PMX command:**</p>
+<pre><code>
+runPmx.py -x nwp.xml -p long_os_idle -tM 720 -M 10 --retry_count 2
+</code></pre>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>TSC (MSR 0x10) strictly monotonically increasing across all C6/MC6 exit events</li>
+<li>MSR 0x3FD (CC6 residency) increments consistently during idle periods</li>
+<li>No firmware MCA or platform hang during 12h idle run</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<h3>MC6 Scope</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>MC6</td>
+<td>Supported</td>
+<td>Supported</td>
+<td>Core idle progression to MC6 tested on NWP</td>
+</tr>
+<tr>
+<td>PkgC6</td>
+<td>Supported</td>
+<td>ZBB</td>
+<td>Long idle will reach MC6/PC0 max (not PC6) on NWP</td>
+</tr>
+<tr>
+<td>Ring C6</td>
+<td>Supported</td>
+<td>ZBB</td>
+<td>CCF idle depth limited to Ring C3 on NWP</td>
+</tr>
+<tr>
+<td>CBBs</td>
+<td>4</td>
+<td>2</td>
+<td>TSC polling loop reduced</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>Complete Register/Signal Check Table (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Category</th>
+<th>Register</th>
+<th>Field</th>
+<th>Expected</th>
+<th>Verify On</th>
+</tr></thead><tbody>
+<tr>
+<td>TSC</td>
+<td>MSR `0x10`</td>
+<td>Full 64-bit</td>
+<td>Monotonically increasing</td>
+<td>Per core</td>
+</tr>
+<tr>
+<td>CC6 residency</td>
+<td>MSR `0x3FD`</td>
+<td>Full</td>
+<td>Large value (long idle)</td>
+<td>Per core</td>
+</tr>
+<tr>
+<td>MC6 state</td>
+<td>`CORE_ACODE_CR_ACODE_STATUS`</td>
+<td>MC6 indicator</td>
+<td>Set during idle</td>
+<td>Per module</td>
+</tr>
+<tr>
+<td>CTC sync</td>
+<td>CTC snapshot</td>
+<td>—</td>
+<td>Consistent with TSC after C6 exit</td>
+<td>Per core</td>
+</tr>
+</tbody></table>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+# Poll TSC during long idle on NWP (2 CBBs)
+for cbb_idx in range(2):      # NWP has 2 CBBs (not 4)
+    for mod_idx in range(6):  # 6 modules per CBB on NWP
+        print(f&quot;cbb{cbb_idx}.compute{mod_idx}: monitor MSR 0x10 across MC6 exits&quot;)
+
+# Check CC6 residency after idle soak
+# sv.socket0.cbb0.compute0.module0.msr_read(0x3FD)  # CC6 residency
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**PkgC6 ZBB** — long idle max depth is MC6 + PC0, not PC6</td>
+<td>Low</td>
+<td>Reduces scope slightly but TSC test still valid</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**Ring C6 ZBB** — CCF stays at Ring C3 max</td>
+<td>Low</td>
+<td>Adjust expected CCF idle depth; Ring C3 still a valid deep CCF state</td>
+</tr>
+<tr>
+<td>3</td>
+<td>**12h silicon time** — schedule with 14027385944 for back-to-back runs</td>
+<td>Medium</td>
+<td>Coordinate silicon access</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADAPT — Update PMX XML to nwp.xml**</p>
+<p>Minimal adaptation needed. Long OS idle is one of the simplest TSC monotonicity tests. Change `dmr.xml` → `nwp.xml`. Acknowledge PkgC6/Ring C6 ZBB reduces max idle depth but does not invalidate the TSC monotonicity requirement under CC6/MC6.</p>
+<p>Required adaptations:</p>
+<p>1. Replace `-x dmr.xml` with `-x nwp.xml`</p>
+<p>2. Update expected max idle depth: MC6/PC0 (not PC6)</p>
+<p>**Priority**: High — long-duration deep idle coverage; validates uCode TSC restore after extended C6</p>
+    </div>
+  </div>
+</body>
+</html>

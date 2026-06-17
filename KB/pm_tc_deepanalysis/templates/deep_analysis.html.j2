@@ -1,0 +1,120 @@
+{# Deep Analysis HTML Template — Jinja2 #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Deep Analysis: {{ title }}</title>
+<style>
+{{ css }}
+</style>
+</head>
+<body>
+
+{# ── Header ── #}
+<div class="header">
+  <h1>Deep Analysis: {{ title }}</h1>
+  <div class="sub">
+    <span><strong>HSD:</strong> <a href="{{ hsd_url }}" target="_blank" rel="noopener noreferrer">{{ hsd_id }}</a></span>
+    <span><strong>Generated:</strong> {{ generated_at }}</span>
+    <span><strong>Feature:</strong> {{ feature }} &gt; {{ sub_feature }}</span>
+    <span><strong>Env:</strong> {{ val_env }}</span>
+    <span><strong>Owner:</strong> {{ owner }}</span>
+  </div>
+</div>
+
+{# ── Tabs ── #}
+<div class="main">
+  <div class="tabs">
+    {% for tab in tabs %}
+    {% if tab.id == 'response' and hsd_script_content %}
+    <button class="tab{% if loop.first %} active{% endif %}" data-tab="{{ tab.id }}">Script Source</button>
+    {% else %}
+    <button class="tab{% if loop.first %} active{% endif %}" data-tab="{{ tab.id }}">{{ tab.label }}</button>
+    {% endif %}
+    {% endfor %}
+  </div>
+
+  {# ── Test Case Panel ── #}
+  <section id="tc" class="panel active">
+    <h2>Test Case Overview</h2>
+    <div class="meta-grid">
+      {% for item in meta_items %}
+      {% if item.label in ['NWP Scope', 'Test Cycle', 'Script', 'HSD Script'] %}
+      <div class="meta-item">
+        <span class="meta-label">{{ item.label }}</span>
+        <span class="meta-value">{{ item.value }}</span>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+
+    <h3>Refined Intent</h3>
+    <div class="intent-box tc-legacy-intent">{{ refined_intent_html }}</div>
+
+    <h3>Refined Test Steps</h3>
+    {% if steps_sections.preconditions %}
+    <div class="tc-section tc-preconditions">
+      <div class="tc-section-label">Pre-Conditions</div>
+      {{ steps_sections.preconditions }}
+    </div>
+    {% endif %}
+    {% if steps_sections.steps %}
+    <div class="tc-section tc-steps">
+      <div class="tc-section-label">Execution Steps</div>
+      {{ steps_sections.steps }}
+    </div>
+    {% endif %}
+    {% if steps_sections.passfail %}
+    <div class="tc-section tc-passfail">
+      <div class="tc-section-label">Verification</div>
+      {{ steps_sections.passfail }}
+    </div>
+    {% endif %}
+
+    <h3>Source File</h3>
+    <pre>{{ source_file }}</pre>
+  </section>
+
+  {# ── Analysis Sections A–F ── #}
+  {% for sec in analysis_sections %}
+  <section id="{{ sec.id }}" class="panel">
+    <h2>{{ sec.heading }}</h2>
+    {{ sec.body_html }}
+  </section>
+  {% endfor %}
+
+  {# ── Full Response / Script Source ── #}
+  <section id="response" class="panel">
+    {% if hsd_script_content %}
+    <h2>Script Source: {{ hsd_script_name }}</h2>
+    <div class="script-path">
+      <strong>Path:</strong> <code>{{ hsd_script_path }}</code>
+    </div>
+    <pre class="script-source"><code class="language-python">{{ hsd_script_content }}</code></pre>
+    {% else %}
+    <h2>Model Response</h2>
+    {% if empty_response %}
+    <div class="notice">Model response section is still empty in this file.</div>
+    {% endif %}
+    {{ response_html }}
+    {% endif %}
+  </section>
+</div>
+
+<script>
+const tabs = Array.from(document.querySelectorAll('.tab'));
+const panels = Array.from(document.querySelectorAll('.panel'));
+for (const tab of tabs) {
+  tab.addEventListener('click', () => {
+    for (const t of tabs) t.classList.remove('active');
+    for (const p of panels) p.classList.remove('active');
+    tab.classList.add('active');
+    const panel = document.getElementById(tab.dataset.tab);
+    if (panel) panel.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+</script>
+</body>
+</html>

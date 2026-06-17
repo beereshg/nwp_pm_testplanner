@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: CState Entry Actions: Verify Flow C6A</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: CState Entry Actions: Verify Flow C6A</h1>
+      <p>Segment: FV | Source: HSD_14020647414_cstate_entry_actions_verify_flow_c6a.inference.md | Generated: 2026-06-17 21:14:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: CState Entry Actions: Verify Flow C6A</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>14020647414</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>CState Entry Actions: Verify Flow C6A</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Core C-States</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>C6A (Autonomous C6) entry flow — register state verification</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies the **C6A (Autonomous C6) entry flow** by checking key registers after core enters C6A. C6A = hardware-autonomous entry (no OS involvement), minimal power state. Functional on NWP.</p>
+<p>Tags: `logs`, `cmdline`, `DMR_PO`, `plc.feature.p1`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>C6A Entry Pass/Fail Criteria (from test steps)</h3>
+<table class="md-table"><thead><tr>
+<th>Signal</th>
+<th>Expected After C6A Entry</th>
+</tr></thead><tbody>
+<tr>
+<td>`core_cstate`</td>
+<td>C6</td>
+</tr>
+<tr>
+<td>PICLET FSM</td>
+<td>`PICLET_ENABLED`</td>
+</tr>
+<tr>
+<td>SRL</td>
+<td>`SRL_ACTIVE`</td>
+</tr>
+<tr>
+<td>`BGF_RUN`</td>
+<td>0 (bypassed)</td>
+</tr>
+<tr>
+<td>`CORE_PWR_GOOD`</td>
+<td>0 (power off)</td>
+</tr>
+<tr>
+<td>`PLL_LOCK`</td>
+<td>0 (PLL off)</td>
+</tr>
+<tr>
+<td>Target Volt</td>
+<td>0 (voltage collapsed)</td>
+</tr>
+<tr>
+<td>Target Freq</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Target PS</td>
+<td>7 (deepest power state)</td>
+</tr>
+</tbody></table>
+<p>*C6A: Autonomous — core decides to enter C6 based on hardware idle detection.*</p>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Boot SVOS with C6 enabled via fuses/BIOS</td>
+<td>C6A functional on NWP</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run cstates PMx</td>
+<td>`python runPmx.py -x nwp.xml -p cstates -H 1 -M 5`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>OR standalone</td>
+<td>`python /usr/lib/python3/dist-packages/newport/pm/Idle_PM/cstates/ccx_residency_test.py`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Idle a specific core (no workload on that thread)</td>
+<td>Core should autonomously enter C6A</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Sample core state registers (fast polling or trace)</td>
+<td>Check all signals above match C6A criteria</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Trigger work to exit C6A</td>
+<td>Resume C0; verify exit signals</td>
+</tr>
+</tbody></table>
+<h3>NWP PythonSV Register Paths</h3>
+<pre><code>
+# NWP C6A entry verification (path structure needs NWP package validation)
+# Example for one core in cbb0:
+core_pma = sv.socket0.cbb0.compute0.pma0
+core_pma.core_pmsb_top.core_pma_pmsb.gvctrl_status_core.show()  # core_cstate, BGF_RUN
+# Verify PICLET, SRL, PLL_LOCK via appropriate NWP PMSB registers
+</code></pre>
+<h3>Pass Criteria</h3>
+<ul>
+<li>All signals match expected C6A state table above</li>
+<li>No premature exit from C6A without work trigger</li>
+<li>Entry is autonomous (no explicit OS C-state request needed)</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; adapt core PMSB paths to NWP hierarchy; verify C6A entry signals**</p>
+<p>**Priority**: High — `plc.feature.p1`; C6A entry flow verification is fundamental to idle power validation on NWP</p>
+    </div>
+  </div>
+</body>
+</html>

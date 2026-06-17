@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: PMAX DFX INJECT Register Verification</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: PMAX DFX INJECT Register Verification</h1>
+      <p>Segment: FV | Source: HSD_22022421792_pmax_dfx_inject_register_verification.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: PMAX DFX INJECT Register Verification</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421792</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Silicon Only] PMAX DFX INJECT Register Verification</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>PMAX</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PMAX DFX injection — TAP-based spoof of FTPmaxDetect wire to Punit (fast threshold wire 0/1)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>The `PMAX_DFX_DETECT_INJECT` uCR provides TAP-based injection to spoof `FTPmaxDetectXXnnnH[0]` and `[1]` pulses (Fast Threshold PMAX wires). This is a DFX hook for low-level PMAX trigger simulation independent of external hardware.</p>
+<p>Command: `pmax_pmx.py` (dedicated PMAX PMx script).</p>
+<p>Tags: `plc.feature.p2`, `NGA_MAIN`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Adapted Command (NWP)</h3>
+<pre><code>
+python pmax_pmx.py  # dedicated PMAX PMx script
+</code></pre>
+<h3>DFX Inject Flow</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Access `PMAX_DFX_DETECT_INJECT` uCR via TAP/GPSB</td>
+<td>TAP network access</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Spoof `FTPmaxDetectXXnnnH[0]` pulse (wire 0)</td>
+<td>100ns PMAX event</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify Punit sees PMAX event via wire 0</td>
+<td>`pmax_log` in `package_therm_status`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Clear inject</td>
+<td>`pmax_log` clears</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Spoof `FTPmaxDetectXXnnnH[1]` pulse (wire 1)</td>
+<td>Test second fast threshold wire</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify Punit response to wire 1</td>
+<td>Same throttle response</td>
+</tr>
+</tbody></table>
+<h3>NWP Note</h3>
+<ul>
+<li>`PMAX_DFX_DETECT_INJECT` uCR accessed via NWP TAP network</li>
+<li>NWP single IMH0 — no IMH1 fast threshold wires</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>DFX inject via both wires triggers Punit PMAX response</li>
+<li>100ns pulse duration spoofed correctly</li>
+<li>`pmax_log` reflects each injection</li>
+<li>`pmax_pmx.py` DFX inject test passes</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — NWP TAP access same; single IMH0 (no IMH1 DFX wires); `pmax_pmx.py` needs NWP target verification**</p>
+<p>**Priority**: High — `NGA_MAIN`, `plc.feature.p2`; DFX inject is the primary PMAX verification mechanism in post-silicon test environments without external PMAX hardware</p>
+    </div>
+  </div>
+</body>
+</html>

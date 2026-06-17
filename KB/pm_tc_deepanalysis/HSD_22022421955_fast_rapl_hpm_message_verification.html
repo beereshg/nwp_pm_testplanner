@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: Fast RAPL - HPM Message Verification</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: Fast RAPL - HPM Message Verification</h1>
+      <p>Segment: FV | Source: HSD_22022421955_fast_rapl_hpm_message_verification.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: Fast RAPL - HPM Message Verification</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421955</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>Fast rapl - hpm message verification</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Fast RAPL HPM message — verify FAST_RAPL_BIT in HPM message to CBBs</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies the **FAST RAPL bit in the RAPL HPM Message** from iMH Punit to CBBs:</p>
+<ul>
+<li>Run workload to exercise Fast RAPL</li>
+<li>Verify `FAST_RAPL_BIT` is set in the HPM message to CBBs when fast RAPL is active</li>
+</ul>
+<p>On NWP: imh0 sends HPM messages to cbb0 and cbb1 during RAPL. The `FAST_RAPL_BIT` field must be correct in the HPM message for both CBBs. Tags: `DMR_PO`, `plc.feature.p2`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP HPM Message Path</h3>
+<table class="md-table"><thead><tr>
+<th>Message</th>
+<th>Path</th>
+</tr></thead><tbody>
+<tr>
+<td>HPM RAPL message</td>
+<td>`imh0 Punit → cbb0 Punit`, `imh0 Punit → cbb1 Punit`</td>
+</tr>
+<tr>
+<td>FAST_RAPL_BIT</td>
+<td>In HPM message payload; verify when Fast RAPL triggered</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run Fast RAPL PMx</td>
+<td>`python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run workload to drive power above PL1 (triggers Fast RAPL)</td>
+<td>PTU or CPU stress</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Capture HPM message to cbb0</td>
+<td>Check `FAST_RAPL_BIT` field in message</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Capture HPM message to cbb1</td>
+<td>Verify same bit set for both CBBs</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify FAST_RAPL_BIT = 1 when Fast RAPL active</td>
+<td>HPM debug log or register</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify FAST_RAPL_BIT = 0 when RAPL not in fast mode</td>
+<td>Bit correctly deasserted</td>
+</tr>
+</tbody></table>
+<h3>NWP Fast RAPL Trigger Condition</h3>
+<ul>
+<li>Fast RAPL engages when power exceeds PL1 threshold rapidly</li>
+<li>iMH (imh0) Punit decides Fast RAPL and communicates via HPM to both CBBs</li>
+<li>NWP: single iMH → HPM message verification simpler (only imh0 source)</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>`FAST_RAPL_BIT=1` in HPM message to cbb0 AND cbb1 when Fast RAPL active</li>
+<li>`FAST_RAPL_BIT=0` when Fast RAPL not active</li>
+<li>HPM message sent to both CBBs (not just cbb0)</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; verify FAST_RAPL_BIT in HPM messages to both cbb0 and cbb1**</p>
+<p>1. `python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</p>
+<p>2. NWP: single `imh0` source; verify HPM to `cbb0` and `cbb1` both carry FAST_RAPL_BIT correctly</p>
+<p>3. Trigger Fast RAPL by exceeding PL1 with workload</p>
+<p>**Priority**: Medium — `plc.feature.p2`; FAST_RAPL_BIT in HPM validates the communication path from iMH to CBBs for fast power management decisions</p>
+    </div>
+  </div>
+</body>
+</html>

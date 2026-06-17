@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [ITD] Fuse Checkout</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [ITD] Fuse Checkout</h1>
+      <p>Segment: FV | Source: HSD_22022421521_fuse_checkout.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [ITD] Fuse Checkout</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421521</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[ITD] Fuse checkout</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; ITD (Integrated Temperature Diode / Thermal Determination)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test is a basic bring-up validation that ITD (Integrated Temperature/Thermal Decision) fuses are programmed to non-zero values. ITD is supported on NWP. The fuse register paths are in `imh0.fuses.punit` and the register names are the same. The primary adaptation is updating the `runPmx.py` command from `dmr.xml` to `nwp.xml`, and noting that TC is in WIP state (2 IPs still need functional validation beyond this fuse checkout). The NWP adaptation is minimal — it is a direct bring-up prerequisite.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>ITD is supported on NWP; fuses are expected to be programmed on production parts</li>
+<li>Fuse paths `imh0.fuses.punit.pcode_itd_*` are in the same PTPCFSMS/fuses register space on NWP</li>
+<li>`dmr.xml` → `nwp.xml` is the only script-level adaptation needed</li>
+<li>`PMSS_NWP_READINESS_CHECK` tag: explicit NWP readiness classification</li>
+<li>WIP note in test steps means this is an evolving test; NWP team should track completion</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon platform (ITD fuses are programmed by manufacturing)</li>
+<li>PythonSv access to `sv.socket0.imh0.fuses.punit.*`</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run ITD thermal test module with NWP config</td>
+<td>`python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read `pcode_itd_cutoff_tj` fuse — verify non-zero</td>
+<td>`sv.socket0.imh0.fuses.punit.pcode_itd_cutoff_tj.read()`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read `pcode_itd_min_override_temp` fuse — verify non-zero</td>
+<td>`sv.socket0.imh0.fuses.punit.pcode_itd_min_override_temp.read()`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read `pcode_cfc_itd_slope` fuse — verify non-zero</td>
+<td>`sv.socket0.imh0.fuses.punit.pcode_cfc_itd_slope.read()`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Read `pcode_cfc_itd_slope_2` fuse — verify non-zero</td>
+<td>`sv.socket0.imh0.fuses.punit.pcode_cfc_itd_slope_2.read()`</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Read `pcode_cfc_itd_cutoff_v` fuse — verify non-zero</td>
+<td>`sv.socket0.imh0.fuses.punit.pcode_cfc_itd_cutoff_v.read()`</td>
+</tr>
+<tr>
+<td>7</td>
+<td>(WIP) Additional fuses TBD — track with TC owner (22022421521 marked WIP)</td>
+<td>Monitor TC status; add to NWP fuse checkout script as test evolves</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>All five ITD fuses read non-zero values</li>
+<li>`itd.pre_test(SockNum)` (from `pm.focus import itd`) completes without errors</li>
+<li>WIP note: 2 additional IPs remain for functional ITD validation (tracked separately)</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>XML config file</td>
+<td>`dmr.xml`</td>
+<td>`nwp.xml`</td>
+<td>**Critical** — must update `runPmx.py` command</td>
+</tr>
+<tr>
+<td>ITD fuse register path</td>
+<td>`imh0.fuses.punit.pcode_itd_*`</td>
+<td>Same on NWP</td>
+<td>Direct reuse</td>
+</tr>
+<tr>
+<td>ITD CFC slope fuses</td>
+<td>Present on DMR</td>
+<td>Present on NWP</td>
+<td>Same fuse names</td>
+</tr>
+<tr>
+<td>WIP status</td>
+<td>2 IPs pending functional validation</td>
+<td>Same WIP tracked for NWP</td>
+<td>Check with TC owner for NWP closure</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>PythonSv Fuse Read Commands (NWP)</h3>
+<pre><code>
+# ITD fuse checkout — NWP single IMH
+fuses = sv.socket0.imh0.fuses.punit
+
+itd_fuses = [
+    &quot;pcode_itd_cutoff_tj&quot;,
+    &quot;pcode_itd_min_override_temp&quot;,
+    &quot;pcode_cfc_itd_slope&quot;,
+    &quot;pcode_cfc_itd_slope_2&quot;,
+    &quot;pcode_cfc_itd_cutoff_v&quot;,
+]
+
+print(&quot;=== ITD Fuse Checkout (NWP imh0) ===&quot;)
+all_pass = True
+for fuse_name in itd_fuses:
+    try:
+        fuse_obj = getattr(fuses, fuse_name)
+        val = fuse_obj.read()
+        status = &quot;PASS&quot; if val != 0 else &quot;FAIL (zero)&quot;
+        if val == 0:
+            all_pass = False
+        print(f&quot;  {fuse_name}: 0x{val:08X} [{status}]&quot;)
+    except Exception as e:
+        print(f&quot;  {fuse_name}: ERROR — {e}&quot;)
+        all_pass = False
+
+print(f&quot;\nOverall: {&#x27;PASS&#x27; if all_pass else &#x27;FAIL&#x27;}&quot;)
+</code></pre>
+<h3>runPmx.py Command (NWP)</h3>
+<pre><code>
+# Run ITD thermal test module (NWP config)
+python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3
+</code></pre>
+<h3>ITD pre-test (from pm.focus)</h3>
+<pre><code>
+from pm.focus import itd
+SockNum = 0
+itd.pre_test(SockNum)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**TC is WIP** — additional fuses and 2 IPs still pending functional validation on DMR; same gap exists for NWP</td>
+<td>Medium</td>
+<td>Track TC owner (22022421521) for updates; add fuses to NWP fuse checkout script when TC is finalized</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**ITD fuse names on NWP** — fuse names assumed same as DMR from known PTPCFSMS architecture; validate during NWP bring-up</td>
+<td>Low</td>
+<td>Verify with NWP EV team</td>
+</tr>
+<tr>
+<td>3</td>
+<td>**`pm.focus.itd` NWP support** — `itd.pre_test(SockNum)` function must support NWP (may auto-detect via SV topology)</td>
+<td>Low</td>
+<td>Verify import path on NWP test system</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT with single command adaptation; track WIP completion**</p>
+<p>This is a direct port from DMR to NWP. Only `dmr.xml` → `nwp.xml` is needed. Fuse register paths are identical. The WIP state of the TC means the test will expand over time — NWP team should track TC owner updates.</p>
+<p>Required adaptations:</p>
+<p>1. Change `runPmx.py -x dmr.xml` → `python runPmx.py -x nwp.xml`</p>
+<p>2. Monitor TC 22022421521 for WIP completion (additional fuses and 2 remaining IPs)</p>
+<p>3. Verify `pm.focus import itd` works in NWP PythonSv environment</p>
+<p>**Priority**: High — PMSS_NWP_READINESS_CHECK; ITD fuse checkout is a bring-up prerequisite for all subsequent ITD functional tests</p>
+    </div>
+  </div>
+</body>
+</html>

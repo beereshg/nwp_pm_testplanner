@@ -1,0 +1,1380 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Deep Analysis: Core P-States request using PEGA interface</title>
+<style>
+/* Deep Analysis HTML — extracted stylesheet */
+:root {
+  --accent: #0071c5;
+  --accent-light: #e8f4fd;
+  --bg: #ffffff;
+  --section-bg: #f6f8fa;
+  --border: #d0d7de;
+  --tab-inactive: #e1e4e8;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  color: #1f2328;
+  background: var(--bg);
+  line-height: 1.55;
+}
+
+/* Header */
+.header { border-bottom: 3px solid var(--accent); padding-bottom: 0.8rem; margin-bottom: 0.5rem; }
+.header h1 { font-size: 1.35rem; color: var(--accent); }
+.header .sub { margin-top: 0.5rem; font-size: 0.82rem; color: #57606a; display: flex; gap: 1.2rem; flex-wrap: wrap; }
+.header .sub a { color: var(--accent); text-decoration: none; }
+.header .sub a:hover { text-decoration: underline; }
+
+/* Tabs */
+.tabs {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  border-bottom: 2px solid var(--border);
+  padding: 0.5rem 0 0;
+  margin-bottom: 0.5rem;
+}
+.tab {
+  background: var(--tab-inactive);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #57606a;
+  transition: all 0.15s;
+}
+.tab:hover { background: var(--accent-light); color: var(--accent); }
+.tab.active {
+  background: var(--bg);
+  color: var(--accent);
+  border-color: var(--border);
+  border-bottom: 2px solid var(--bg);
+  margin-bottom: -2px;
+}
+
+/* Panels */
+.panel { display: none; padding: 1.2rem 0; animation: fadeIn 0.2s ease-in; }
+.panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.panel h2 {
+  font-size: 1.25rem;
+  margin: 0 0 1rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid var(--accent);
+  color: var(--accent);
+}
+.panel h3 { font-size: 1rem; margin: 1.2rem 0 0.6rem; color: #24292f; }
+.panel p { margin: 0.5rem 0; }
+.panel ul, .panel ol { margin: 0.5rem 0 0.8rem 1.4rem; }
+.panel table { width: 100%; border-collapse: collapse; margin: 0.7rem 0 1rem; font-size: 0.86rem; }
+.panel th, .panel td { border: 1px solid var(--border); padding: 0.45rem 0.55rem; text-align: left; vertical-align: top; }
+.panel th { background: var(--accent-light); font-weight: 700; }
+.panel code { background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 4px; padding: 1px 4px; font-family: Consolas, 'Cascadia Code', monospace; font-size: 0.82em; }
+
+/* Metadata grid */
+.meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.6rem;
+  margin: 0.8rem 0 1.2rem;
+}
+.meta-item {
+  background: var(--section-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+}
+.meta-label { font-size: 0.72rem; font-weight: 600; color: #57606a; text-transform: uppercase; letter-spacing: 0.04em; }
+.meta-value { font-size: 0.9rem; margin-top: 0.15rem; }
+
+/* Intent and steps */
+.intent-box {
+  background: var(--accent-light);
+  border-left: 4px solid var(--accent);
+  padding: 0.8rem 1.1rem;
+  border-radius: 0 6px 6px 0;
+  margin: 0.5rem 0 1rem;
+  line-height: 1.6;
+}
+.tc-legacy-intent {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-left: 4px solid #6610f2;
+  border-radius: 0 8px 8px 0;
+}
+.tc-legacy-steps {
+  background: #1e1e2e;
+  color: #cdd6f4;
+  border: 1px solid #313244;
+  border-radius: 8px;
+  padding: 16px 18px;
+  font-family: Consolas, 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 0.84rem;
+  line-height: 1.65;
+  overflow-x: auto;
+}
+.tc-legacy-steps p { margin: 6px 0; }
+.tc-legacy-steps ul, .tc-legacy-steps ol { margin: 6px 0 10px 22px; }
+.tc-legacy-steps li { margin: 3px 0; }
+.tc-legacy-steps strong { color: #89b4fa; font-weight: 700; }
+.tc-legacy-steps code { background: #313244; border: 1px solid #45475a; color: #a6e3a1; padding: 1px 5px; border-radius: 3px; font-size: 0.95em; }
+.tc-legacy-steps table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: .85em; }
+.tc-legacy-steps th, .tc-legacy-steps td { padding: 6px 10px; border: 1px solid #45475a; text-align: left; }
+.tc-legacy-steps th { background: #313244; color: #89b4fa; font-weight: 700; }
+.tc-legacy-steps tr:nth-child(even) { background: #181825; }
+
+/* Split test-step sections */
+.tc-section {
+  background: #1e1e2e;
+  color: #cdd6f4;
+  border: 1px solid #313244;
+  border-radius: 8px;
+  padding: 14px 18px 14px 18px;
+  margin-bottom: 12px;
+  font-family: Consolas, 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 0.84rem;
+  line-height: 1.65;
+  overflow-x: auto;
+  border-left: 4px solid #585b70;
+}
+.tc-section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #313244;
+}
+.tc-section p { margin: 5px 0; }
+.tc-section ul, .tc-section ol { margin: 5px 0 8px 22px; }
+.tc-section li { margin: 3px 0; }
+.tc-section strong { color: #89b4fa; font-weight: 700; }
+.tc-section code { background: #313244; border: 1px solid #45475a; color: #a6e3a1; padding: 1px 5px; border-radius: 3px; font-size: 0.95em; }
+
+/* Pre-Conditions: amber accent */
+.tc-preconditions { border-left-color: #f9e2af; }
+.tc-preconditions .tc-section-label { color: #f9e2af; }
+
+/* Execution Steps: blue accent */
+.tc-steps { border-left-color: #89b4fa; }
+.tc-steps .tc-section-label { color: #89b4fa; }
+
+/* Verification / Pass-Fail: green accent */
+.tc-passfail { border-left-color: #a6e3a1; }
+.tc-passfail .tc-section-label { color: #a6e3a1; }
+
+/* Code blocks */
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: Consolas, 'Cascadia Code', monospace;
+  font-size: 0.82rem;
+  background: var(--section-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.8rem;
+  overflow-x: auto;
+  margin: 0.6rem 0;
+}
+
+/* Notice */
+.notice { background: #fff7ed; border: 1px solid #fdba74; color: #9a3412; border-radius: 6px; padding: 10px; margin-bottom: 10px; font-size: 13px; }
+
+/* Script Source display */
+.script-path {
+  background: var(--section-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+}
+.script-path code {
+  background: #e8f4fd;
+  border: 1px solid #b3d7f5;
+  color: #0071c5;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: Consolas, 'Cascadia Code', monospace;
+  font-size: 0.9em;
+  word-break: break-all;
+}
+.script-source {
+  background: #1e1e2e;
+  color: #cdd6f4;
+  border: 1px solid #313244;
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  font-family: Consolas, 'Cascadia Code', 'Fira Code', monospace;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  overflow-x: auto;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.script-source code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+</style>
+</head>
+<body>
+
+
+<div class="header">
+  <h1>Deep Analysis: Core P-States request using PEGA interface</h1>
+  <div class="sub">
+    <span><strong>HSD:</strong> <a href="https://hsdes.intel.com/appstore/article-one/#/article/22021970005" target="_blank" rel="noopener noreferrer">22021970005</a></span>
+    <span><strong>Generated:</strong> 2026-05-28 23:20:57</span>
+    <span><strong>Feature:</strong> PState Stack &gt; Core P-States</span>
+    <span><strong>Env:</strong> emulation.hsle,xos</span>
+    <span><strong>Owner:</strong> jscanlo1</span>
+  </div>
+</div>
+
+
+<div class="main">
+  <div class="tabs">
+    
+    
+    <button class="tab active" data-tab="tc">Test Case</button>
+    
+    
+    
+    <button class="tab" data-tab="seca">A: Execution Path</button>
+    
+    
+    
+    <button class="tab" data-tab="secb">B: Interactions</button>
+    
+    
+    
+    <button class="tab" data-tab="secc">C: Coverage</button>
+    
+    
+    
+    <button class="tab" data-tab="secd">D: Spec Refs</button>
+    
+    
+    
+    <button class="tab" data-tab="sece">E: Risk Assessment</button>
+    
+    
+    
+    <button class="tab" data-tab="secf">F: Recommendations</button>
+    
+    
+    
+    <button class="tab" data-tab="response">Script Source</button>
+    
+    
+  </div>
+
+  
+  <section id="tc" class="panel active">
+    <h2>Test Case Overview</h2>
+    <div class="meta-grid">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <div class="meta-item">
+        <span class="meta-label">NWP Scope</span>
+        <span class="meta-value">Runnable_On_N-1</span>
+      </div>
+      
+      
+      
+      <div class="meta-item">
+        <span class="meta-label">Test Cycle</span>
+        <span class="meta-value">Newport Product.trunk.pss_0p8.pss.val.NWP_MCP HSLE XOS</span>
+      </div>
+      
+      
+      
+      <div class="meta-item">
+        <span class="meta-label">Script</span>
+        <span class="meta-value">nwp_pss_scripts/nwp_pega_pstate.py</span>
+      </div>
+      
+      
+      
+      <div class="meta-item">
+        <span class="meta-label">HSD Script</span>
+        <span class="meta-value">pm\pss\mailbox\pega_mailbox.py</span>
+      </div>
+      
+      
+    </div>
+
+    <h3>Refined Intent</h3>
+    <div class="intent-box tc-legacy-intent"><p>Inject core P-states via PEGA mailbox interface — U2P mailbox (CBB) for core/ring ratio, AUX mailbox (IMH) for mem/IO ratio. Sweep fixed ratios and random mode. Verify frequency transitions using UFS_STATUS.current_ratio (TPMI) and MSR 0x198 IA32_PERF_STATUS.</p></div>
+
+    <h3>Refined Test Steps</h3>
+    
+    <div class="tc-section tc-preconditions">
+      <div class="tc-section-label">Pre-Conditions</div>
+      <ul>
+<li>Platform booted to HSLE or XOS</li>
+<li>Ingredients: Primecode, Pcode, Ocode (TPMI), BIOS configured</li>
+<li>All cores in C0 (no deep C-states active)</li>
+<li>PEGA mailbox accessible; no conflicting PM activity</li>
+</ul>
+<p>Configuration (HSD nodes):</p>
+<ul>
+<li>sv.socket0.cbb{0-1}.base.tpmi.ufs_status</li>
+<li>sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.ufs_status</li>
+<li>sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.ufs_status_fabric_1</li>
+<li>NWP topology: 2 CBBs (cbb0-cbb1), 1 NIO</li>
+</ul>
+    </div>
+    
+    
+    <div class="tc-section tc-steps">
+      <div class="tc-section-label">Execution Steps</div>
+      <p>Step 1 — Baseline:</p>
+<p>Read UFS_STATUS.current_ratio from all CBB and IMH nodes.</p>
+<p>Read MSR 0x198 IA32_PERF_STATUS.core_ratio_100mhz from all cores.</p>
+<p>Record baseline values.</p>
+<p>Step 2 — CBB PEGA P-state sweep:</p>
+<p>For each target ratio in [8, 12, 16, 20, 24, 28, 32]:</p>
+<p>a. Write PEGA CMD1 (CORE_RATIO[7:0]=ratio, RING_RATIO[23:16]=ratio) via U2P mailbox</p>
+<p>b. Write PEGA CMD2 (CORE_VALID[0]=1, RING_VALID[2]=1) via U2P mailbox</p>
+<p>c. Write PEGA CMD0 (Command[29:28]=0x2 P-state, Run_Busy[31]=1) via U2P mailbox</p>
+<p>d. Wait for run_busy to clear</p>
+<p>e. Read UFS_STATUS.current_ratio — verify it changed from previous</p>
+<p>f. Read MSR 0x198 — verify core ratios reflect new P-state</p>
+<p>Step 3 — IMH PEGA P-state sweep:</p>
+<p>For each memgv in [8, 12, 15]:</p>
+<p>a. Write PEGA CMD1 (MEM_VALID[1]=1) via AUX mailbox</p>
+<p>b. Write PEGA CMD2 (MEM_RATIO[15:8]=memgv) via AUX mailbox</p>
+<p>c. Write PEGA CMD0 (Command=0x2, Run_Busy=1) via AUX mailbox</p>
+<p>d. Wait for completion</p>
+<p>e. Read IMH UFS_STATUS.current_ratio — verify it changed</p>
+<p>Step 4 — Random mode:</p>
+<p>Set iagv=rand, meshgv=rand, rearm=rand, act2=rand.</p>
+<p>Write PEGA CMD0/CMD1/CMD2 with random flags on all CBBs.</p>
+<p>Wait, then read UFS_STATUS — verify current_ratio is non-zero.</p>
+<p>Pass/Fail Criteria (HSD):</p>
+<p>PASS: UFS_STATUS.current_ratio changes after each PEGA injection</p>
+<p>FAIL: UFS_STATUS unchanged after injection, or mailbox timeout</p>
+<p>Coverage Assessment: PythonSV logs, Solar logs, Primecode trackers, Pcode trackers Extended Coverage: FabricGV with CXL traffic, FabricGV with Mem traffic</p>
+<p>HAS/MAS References:</p>
+<ul>
+<li>Core P-State HAS (Wave3 Common): https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Core_Pstates/Core_Pstate_HAS.html</li>
+<li>DMR CBB PEGA HAS: https://docs.intel.com/documents/pm_doc/src/DMR_CBB/Features/PEGA/PEGA.html</li>
+<li>TPMI HAS — UFS_STATUS: https://docs.intel.com/documents/pm_doc/src/server/arch_common/TPMI/TPMI.html</li>
+</ul>
+<h3>NWP Project Relevance</h3>
+<p><strong>Test Classification:</strong> Regression (DMR-inherited) <strong>Feature Status:</strong> Expected to work <strong>Test Purpose:</strong> Inject core P-states via PEGA mailbox interface — U2P mailbox (CBB) for core/ring ratio, AUX mailbox (IMH) for mem/IO ratio. Sweep fixed ratios and random mode. Verify frequency transitions using UFS_ <strong>Negative Test Aspect:</strong> None <strong>NWP Delta:</strong> Topology differences from DMR (2 CBB + 1 NIO); same PState Stack behavior expected</p>
+    </div>
+    
+    
+
+    <h3>Source File</h3>
+    <pre>HSD_22021970005_PState_Stack_Core_P-States.inference.md</pre>
+  </section>
+
+  
+  
+  <section id="seca" class="panel">
+    <h2>Section A: Critical Execution Path</h2>
+    <ol>
+<li>Step 1 — Baseline:</li>
+<li>Step 2 — CBB PEGA P-state sweep:</li>
+<li>Step 3 — IMH PEGA P-state sweep:</li>
+<li>Step 4 — Random mode:</li>
+</ol>
+  </section>
+  
+  <section id="secb" class="panel">
+    <h2>Section B: Component Interaction Diagram</h2>
+    <pre><code>sequenceDiagram
+    participant OS as Host OS
+    participant FW as PCode/OCode
+    participant HW as Hardware
+
+    OS-&gt;&gt;FW: Send command via interface
+    FW-&gt;&gt;HW: Configure registers
+    HW--&gt;&gt;FW: Acknowledge
+    FW--&gt;&gt;OS: Return status</code></pre>
+  </section>
+  
+  <section id="secc" class="panel">
+    <h2>Section C: Interface Coverage Assessment</h2>
+    <table><thead><tr>
+<th>Interface</th>
+<th>Covered</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>CSR</td>
+<td>Yes</td>
+<td>Primary interface</td>
+</tr>
+<tr>
+<td>MSR</td>
+<td>Yes</td>
+<td>Primary interface</td>
+</tr>
+<tr>
+<td>PEGA</td>
+<td>Yes</td>
+<td>Primary interface</td>
+</tr>
+<tr>
+<td>TPMI_IB</td>
+<td>Yes</td>
+<td>Primary interface</td>
+</tr>
+<tr>
+<td>U2P</td>
+<td>Yes</td>
+<td>Primary interface</td>
+</tr>
+<tr>
+<td>0x198 IA32_PERF_STATUS</td>
+<td>Yes</td>
+<td>Register access</td>
+</tr>
+<tr>
+<td>TPMI: ufs_status.current_ratio</td>
+<td>Yes</td>
+<td>TPMI interface</td>
+</tr>
+</tbody></table>
+  </section>
+  
+  <section id="secd" class="panel">
+    <h2>Section D: NWP Specification References</h2>
+    <ul>
+<li><strong>NWP PM HAS</strong>: [NWP HAS - PM Features](https://docs.intel.com/documents/custom-xeon/newport-docs/has/Overview/NWP_HAS.html#pm-features)</li>
+<li><strong>NWP PM MAS</strong>: [NWP IMH SoC PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)</li>
+<li><strong>DMR PM HAS</strong>: [DMR SoC PM HAS](https://docs.intel.com/documents/pm_doc/src/server/DMR/SOC_PM_HAS/DMR_SOC_PM_HAS.html)</li>
+<li><strong>Feature HAS</strong>: [PNC PM HAS §4-6 - P-States/HWP](https://docs.intel.com/documents/pm_doc/src/server/GNR/Features/LNC/GNR_LNC_PStates.html)</li>
+<li><strong>DMR CBB HAS</strong>: [DMR CBB PM HAS - HWP](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/PM%20HAS/cbb_pm_has.html#hwp)</li>
+<li><strong>Intel® 64 and IA-32 SDM</strong>: MSR definitions, CPUID enumeration</li>
+</ul>
+  </section>
+  
+  <section id="sece" class="panel">
+    <h2>Section E: NWP Risk Assessment</h2>
+    <table><thead><tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr></thead><tbody>
+<tr>
+<td>Topology change</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Verify on multi-die config</td>
+</tr>
+<tr>
+<td>Interface delta</td>
+<td>Low</td>
+<td>Low</td>
+<td>Compare with DMR baseline</td>
+</tr>
+<tr>
+<td>Timing sensitivity</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Allow tolerance margins</td>
+</tr>
+</tbody></table>
+  </section>
+  
+  <section id="secf" class="panel">
+    <h2>Section F: Recommendations</h2>
+    <ol>
+<li>Verify test works on NWP multi-die topology</li>
+<li>Check for any interface changes from DMR</li>
+<li>Update HAS references to NWP specifications</li>
+<li>Add negative test coverage if missing</li>
+<li>Consider additional stress test variants</li>
+</ol>
+<p>--- <em>Generated from metadata on 2026-05-28 23:20:51</em></p>
+  </section>
+  
+
+  
+  <section id="response" class="panel">
+    
+    <h2>Script Source: pm\pss\mailbox\pega_mailbox.py</h2>
+    <div class="script-path">
+      <strong>Path:</strong> <code>C:\github\frameworks.validation.pythonsv.projects.diamondrapids\pm\pss\mailbox\pega_mailbox.py</code>
+    </div>
+    <pre class="script-source"><code class="language-python">#!/usr/bin/env python3
+
+"""
+pega_mailbox.py
+
+https://docs.intel.com/documents/primecode/has/DMR/PEGA_IMH.html
+https://docs.intel.com/documents/pm_doc/src/DMR_CBB/Features/PEGA/PEGA.html
+"""
+
+import time
+import namednodes
+from svtools.common import baseaccess
+base = baseaccess.getglobalbase()
+sv = namednodes.sv.get_manager( ['socket'] )
+sv.get_all(stop_on_error=True)
+
+try:
+    import cli # pyright: ignore[reportMissingImports]
+except ModuleNotFoundError:
+    print("PM_INFO :: Could not import CLI.")
+
+ACCESS_METHOD = baseaccess.getaccess()
+
+if hasattr(baseaccess.CFG.diamondrapids, "emulation"):
+    ACCESS_METHOD = "emulation"
+
+_pega_dict = {
+    "READ_PEGA_CMD0"  : 0x21,
+    "WRITE_PEGA_CMD0" : 0x22,
+    "READ_PEGA_CMD1"  : 0x23,
+    "WRITE_PEGA_CMD1" : 0x24,
+    "READ_PEGA_CMD2"  : 0x25,
+    "WRITE_PEGA_CMD2" : 0x26,
+    "READ_PEGA_CMD3"  : 0x27,
+    "WRITE_PEGA_CMD3" : 0x28
+}
+
+_cstate_dict = {
+    "c1"  : 0x0,
+    "c3"  : 0x1,
+    "c6"  : 0x2,
+    "c7"  : 0x3,
+    "c8"  : 0x4,
+    "c9"  : 0x5,
+    "c10" : 0x6,
+    "c0"  : 0xF
+}
+
+
+def pega_pstate(*, iagv = 0, meshgv = 0, memgv = 0, iogv = 0, rearm = 0, act2 = 0):
+    """ Injects a PEGA P-State command to Primecode & Pcode
+
+    iagv (optional): Ratio to set all of the cores to, or "rand"
+    meshgv (optional): Ratio to set the CBB mesh domains to, or "rand"
+    memgv (optional): Ratio to set the IMH Memory mesh domain to, or "rand"
+    iogv (optional): Ratio to set the IMH IO mesh domain to, or "rand"
+    rearm (optional): Time in ms for the PEGA command to re-inject, or "rand"
+    act2 (optional): Time in ms for the PEGA command to be released, or "rand"
+    """
+
+    if memgv != 0 or iogv != 0:
+        _imh_pstate(memgv = memgv, iogv = iogv, rearm = rearm, act2 = act2)
+    if iagv != 0 or meshgv != 0:
+        _cbb_pstate(iagv = iagv, meshgv = meshgv, rearm = rearm, act2 = act2)
+
+    return 0
+
+
+def pega_cstate(*, socket=0, cbb=0, cstate="C6", cores="all", modules="all", rearm=0, act2=0):
+    # PEGA Cmd 1 Data Register for C States
+
+    # ┌─────────┬────────┬─────────┬──────────────────────────────────────────────────────────┐
+    # │  Bits   │ Access │ Default │                         Description                      │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │  2:0    │   RW   │    0    │ LP_ID                                                    │
+    # │         │        │         │ Core to inject C-state to.                               │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │  7:3    │   RW   │    0    │ MODULE_ID                                                │
+    # │         │        │         │ Module ID to inject C-states to.                         │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │  9:8    │   RW   │    0    │ CLSTR_ID                                                 │
+    # │         │        │         │ Cluster ID of the Module to inject C-states to.          │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 10:10   │   RW   │    0    │ RANDOM_CSTATE_TARGET                                     │
+    # │         │        │         │ Random value will be used instead of target C-states     │
+    # │         │        │         │ specified in core_cstate.                                │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 11:11   │   RW   │    0    │ RANDOM_SUBSTATE_TARGET                                   │
+    # │         │        │         │ Random value will be used instead of target substates    │
+    # │         │        │         │ specified in core_substate.                              │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 12:12   │   RW   │    0    │ ALL_BIGCORES                                             │
+    # │         │        │         │ Apply the values provided in this command to all big     │
+    # │         │        │         │ cores. (Ignore FID fields)                               │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 13:13   │   RW   │    0    │ ALL_ATOMS                                                │
+    # │         │        │         │ Apply the values provided in this command to all atom    │
+    # │         │        │         │ cores. (Ignore FID fields). Note: This field is not      │
+    # │         │        │         │ used in DMR-CBB.                                         │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 14:14   │   RW   │    0    │ SELECT_ALL_MODULE_CORES                                  │
+    # │         │        │         │ If set, Pcode will issue PEGA C-state command for all    │
+    # │         │        │         │ cores within the selected module. Pcode will ignore      │
+    # │         │        │         │ LP_ID field if this is set.                              │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 15:15   │   RW   │    0    │ RESERVED                                                 │
+    # │         │        │         │ Reserved for knob bits.                                  │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 19:16   │   RW   │    0    │ CORE_CSTATE                                              │
+    # │         │        │         │ Target C-State to be injected by PEGA to valid threads   │
+    # │         │        │         │ in selected core. Encodings are the same as              │
+    # │         │        │         │ THREAD_WISH_STATE field in the THREAD_STATUS CR.         │
+    # │         │        │         │                                                          │
+    # │         │        │         │ Value Definition:                                        │
+    # │         │        │         │   0: CC1    1: CC3    2: CC6    3: CC7                   │
+    # │         │        │         │   4: CC8    5: CC9    6: CC10   15: CC0                  │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 23:20   │   RW   │    0    │ CORE_SUBSTATE                                            │
+    # │         │        │         │ Target substate to be injected by PEGA to valid threads  │
+    # │         │        │         │ in selected core. Encodings are the same as              │
+    # │         │        │         │ THREAD_WISH_SUB_STATE field in the THREAD_STATUS CR      │
+    # │         │        │         │ (except for GT substates).                               │
+    # │         │        │         │                                                          │
+    # │         │        │         │ Sub-State definition depends on core C-state.            │
+    # │         │        │         │ Value Definition:                                        │
+    # │         │        │         │   0: TC1: KEEP_VR, TC7: GRADUAL_LLC_SHUTDOWN             │
+    # │         │        │         │   1: TC1: LOOSE_VR (C1E), TC7: CLOSE_LLC_AT_ONCE (C7S)   │
+    # └─────────┴────────┴─────────┴──────────────────────────────────────────────────────────┘
+
+    data = 0
+
+    if cores == "all" and modules == "all":
+        data = data | (0x1 << 12) # ALL_BIGCORES
+    elif cores == "all" and modules != "all":
+        data = data | (modules << 3)
+        data = data | (0x1 << 14) # SELECT_ALL_MODULE_CORES
+    else:
+        data = data | (cores)
+        data = data | (modules << 3)
+    if cstate.lower() in _cstate_dict:
+        data = data | (_cstate_dict[cstate.lower()] << 16) # Set C-state from dictionary
+    elif cstate.lower() == "rand":
+        data = data | (0x1 << 10) # Random cstate target
+        data = data | (0x1 << 11) # Random sub-state target
+
+    u2p_mailbox(socket=socket, cbb=cbb, command=_pega_dict["WRITE_PEGA_CMD1"], data=data)
+
+    # PEGA Cmd 0 Data Register
+    #
+    # ┌─────────┬────────┬─────────┬──────────────────────────────────────────────────────────┐
+    # │  Bits   │ Access │ Default │                         Description                      │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │  7:0    │  RWV   │    0    │ Rearm Latency                                            │
+    # │         │        │         │ Latency to wait after one command before executing it    │
+    # │         │        │         │ again. When command has 2nd action enabled this is the   │
+    # │         │        │         │ time from when the 2nd action is issued until the 1st    │
+    # │         │        │         │ action is issued again. Units specified in               │
+    # │         │        │         │ rearm_latency_units field. Value of zero indicates that  │
+    # │         │        │         │ rearming action is disabled.                             │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 15:8    │  RWV   │    0    │ Action2 Latency                                          │
+    # │         │        │         │ Latency to wait after initial event before injecting     │
+    # │         │        │         │ the second action associated with this event (unforce    │
+    # │         │        │         │ P-state for P-state). Units specified in                 │
+    # │         │        │         │ wake_latency_units field. Value of zero indicates that   │
+    # │         │        │         │ 2nd action is disabled.                                  │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 17:16   │  RWV   │    0    │ Rearm Latency Units                                      │
+    # │         │        │         │ Units for rearm timeout.                                 │
+    # │         │        │         │ Value Definition:                                        │
+    # │         │        │         │   0: units of 640 ns (0.64 us)                           │
+    # │         │        │         │   1: units of 10240 ns (~10.2 us)                        │
+    # │         │        │         │   2: units of 163840 ns (~164 us)                        │
+    # │         │        │         │   3: units of 2621440 ns (~2.6 ms)                       │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 19:18   │  RWV   │    0    │ Action2 Latency Units                                    │
+    # │         │        │         │ Unit for 2nd action timeout.                             │
+    # │         │        │         │ Value Definition:                                        │
+    # │         │        │         │   0: units of 640 ns (0.64 us)                           │
+    # │         │        │         │   1: units of 10240 ns (~10.2 us)                        │
+    # │         │        │         │   2: units of 163840 ns (~164 us)                        │
+    # │         │        │         │   3: units of 2621440 ns (~2.6 ms)                       │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 20:20   │  RWV   │    0    │ Random Rearm Latency                                     │
+    # │         │        │         │ Use random 8 bit value instead of the value specified    │
+    # │         │        │         │ in rearm_latency field. Units are still specified in     │
+    # │         │        │         │ rearm_latency_units field. Note that rearm latency       │
+    # │         │        │         │ should still be non-zero to indicate that action2 is     │
+    # │         │        │         │ enabled.                                                 │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 21:21   │  RWV   │    0    │ Random Action2 Latency                                   │
+    # │         │        │         │ If set, use random 8 bit value instead of the value      │
+    # │         │        │         │ specified in action2_latency field. Units are still      │
+    # │         │        │         │ specified in action2_latency_units field. Note that      │
+    # │         │        │         │ action2 latency should still be non-zero to indicate     │
+    # │         │        │         │ that action2 is enabled.                                 │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 27:22   │   RO   │    0    │ Reserved                                                 │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 30:28   │  RWV   │    0    │ Command                                                  │
+    # │         │        │         │ A. Type of PEGA command to trigger (User writes)         │
+    # │         │        │         │ Value Definition:                                        │
+    # │         │        │         │   0: No command                                          │
+    # │         │        │         │   1: invalid (was C-state injection)                     │
+    # │         │        │         │   2: P-state injection                                   │
+    # │         │        │         │   others: Invalid                                        │
+    # │         │        │         │ B. Error Code (Updated by Primecode as return status)    │
+    # │         │        │         │ Value Definition:                                        │
+    # │         │        │         │   0: No Error                                            │
+    # │         │        │         │   1: Invalid Command                                     │
+    # │         │        │         │ On an invalid command, this field will updated to 0x1    │
+    # │         │        │         │ and all other fields will be cleared. Additionally the   │
+    # │         │        │         │ Mailbox Interface return status will indicate            │
+    # │         │        │         │ INVALID_PARAMETERS                                       │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 31:31   │  RWV   │    0    │ Run_Busy                                                 │
+    # │         │        │         │ Set by user to activate PEGA after setting up the other  │
+    # │         │        │         │ registers - this will trigger PCode to perform the       │
+    # │         │        │         │ requested PEGA action. This bit will be cleared by       │
+    # │         │        │         │ PCode after sampling is complete and completion code     │
+    # │         │        │         │ has been set. User should not change PEGA registers      │
+    # │         │        │         │ until PCode has cleared run_busy or they risk breaking   │
+    # │         │        │         │ atomicity of the command and/or having a command         │
+    # │         │        │         │ dropped. This will not be protected against in HW.       │
+    # │         │        │         │ Writing CMD0 with run_busy == 0 will result in an        │
+    # │         │        │         │ INVALID_PARAMETER error response. In this case, the      │
+    # │         │        │         │ Data field will be preserved for help in debugging       │
+    # │         │        │         │ the cause.                                               │
+    # └─────────┴────────┴─────────┴──────────────────────────────────────────────────────────┘
+
+    data = 0
+
+    if isinstance(rearm, (int, float)) and rearm >= 0:
+        rearm_lat, rearm_units = calc_units(rearm)
+        data = data | (rearm_lat << 0)    # Rearm Latency
+        data = data | (rearm_units << 16) # Rearm units
+    elif str(rearm).lower() == "rand":
+        data = data | (1 << 0)  # Latency must be non-zero even if random
+        data = data | (1 << 20) # Random Rearm Latency
+    if isinstance(act2, (int, float)) and act2 >= 0:
+        act2_lat, act2_units = calc_units(act2)
+        data = data | (act2_lat << 8)    # Action2 Latency
+        data = data | (act2_units << 18) # Action2 Latency Units
+    elif str(act2).lower() == "rand":
+        data = data | (1 << 8)  # Latency must be non-zero even if random
+        data = data | (1 << 21) # Random Action2 Latency
+
+    data = data | (0x1 << 28) # Set C-state injection
+    data = data | (0x1 << 31) # Set Run Busy
+
+    u2p_mailbox(socket=socket, cbb=cbb, command=_pega_dict["WRITE_PEGA_CMD0"], data=data)
+
+    return 0
+
+
+def _imh_pstate(*, memgv = 0, iogv = 0, rearm = 0, act2 = 0):
+    """ Injects PEGA pstate to the IMH die """
+
+    # Module    Control
+    #      0    IO Mesh frequency
+    #      1    Memory Mesh frequency
+
+    # IMH PEGA Cmd 1 Data Register for P States
+    # ┌─────────┬────────┬─────────┬──────────────────────────────────────────────────────────┐
+    # │  Bits   │ Access │ Default │                         Description                      │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │  7:0    │   RW   │    0    │ module_mask                                              │
+    # │         │        │         │ Mask of modules to inject P-states. If bit n is set      │
+    # │         │        │         │ then the target P-state value for module n will be       │
+    # │         │        │         │ sent to that module. If bit n is cleared then the        │
+    # │         │        │         │ target module is excluded from this injection.           │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 15:8    │   RW   │    0    │ random_state_target                                      │
+    # │         │        │         │ Mask of modules for which random value will be used      │
+    # │         │        │         │ instead of target P-state specified per module. Note     │
+    # │         │        │         │ that bits set here will still be qualified based on      │
+    # │         │        │         │ module_mask in order to determine whether a particular   │
+    # │         │        │         │ module should be targeted or not.                        │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 16:16   │   RW   │    0    │ random_module_mask                                       │
+    # │         │        │         │ Use random value instead of the value specified in       │
+    # │         │        │         │ module_mask field.                                       │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 31:17   │   RW   │    0    │ Reserved                                                 │
+    # └─────────┴────────┴─────────┴──────────────────────────────────────────────────────────┘
+
+    data = 0
+
+    if isinstance(iogv, int) and iogv >= 0:
+        data = data | (0x1 << 0) # module_mask for io mesh
+
+    if isinstance(memgv, int) and memgv >= 0:
+        data = data | (0x1 << 1) # module_mask for memory mesh
+
+    if str(iogv).lower() == "rand":
+        data = data | (0x1 << 0) # module_mask for io mesh
+        data = data | (0x1 << 8) # random_state_target for io mesh
+
+    if str(memgv).lower() == "rand":
+        data = data | (0x1 << 1) # module_mask for memory mesh
+        data = data | (0x1 << 9) # random_state_target for memory mesh
+
+
+    aux_mailbox(command=_pega_dict["WRITE_PEGA_CMD1"], data=data)
+
+    # IMH PEGA Cmd 2 Data Register for P States
+    # Note: On DMR, Primecode treats the values for Module 2 and 3 as reserved and ignore those fields
+    #
+    # ┌─────────┬────────┬─────────┬──────────────────────────────────────────────────────────┐
+    # │  Bits   │ Access │ Default │                         Description                      │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │  7:0    │   RW   │    0    │ MODULE0_RATIO                                            │
+    # │         │        │         │ Target ratio to be injected for module 0                 │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 15:8    │   RW   │    0    │ MODULE1_RATIO                                            │
+    # │         │        │         │ Target ratio to be injected for module 1                 │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 23:16   │   RW   │    0    │ MODULE2_RATIO                                            │
+    # │         │        │         │ Target ratio to be injected for module 2                 │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 31:24   │   RW   │    0    │ MODULE3_RATIO                                            │
+    # │         │        │         │ Target ratio to be injected for module 3                 │
+    # └─────────┴────────┴─────────┴──────────────────────────────────────────────────────────┘
+
+    data = 0
+
+    if isinstance(iogv, int) and 0 <= iogv <= 0xFF: # MODULE0_RATIO
+        data = data | (iogv << 0)
+
+    if isinstance(memgv, int) and 0 <= memgv <= 0xFF: # MODULE1_RATIO
+        data = data | (memgv << 8)
+
+    aux_mailbox(command=_pega_dict["WRITE_PEGA_CMD2"], data=data)
+
+    # IMH PEGA Cmd 3 Data Register for P States
+    # Note: On DMR, Primecode treats the values for Module 4 through 7 as reserved and ignore those fields
+    #
+    # ┌─────────┬────────┬─────────┬──────────────────────────────────────────────────────────┐
+    # │  Bits   │ Access │ Default │                         Description                      │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │  7:0    │   RW   │    0    │ MODULE4_RATIO                                            │
+    # │         │        │         │ Target ratio to be injected for module 4                 │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 15:8    │   RW   │    0    │ MODULE5_RATIO                                            │
+    # │         │        │         │ Target ratio to be injected for module 5                 │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 23:16   │   RW   │    0    │ MODULE6_RATIO                                            │
+    # │         │        │         │ Target ratio to be injected for module 6                 │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 31:24   │   RW   │    0    │ MODULE7_RATIO                                            │
+    # │         │        │         │ Target ratio to be injected for module 7                 │
+    # └─────────┴────────┴─────────┴──────────────────────────────────────────────────────────┘
+
+    # We can skip this step, as primecode will ignore anything we set here
+    # data = 0
+
+    # aux_mailbox(command=_pega_dict["WRITE_PEGA_CMD3"], data=data)
+
+    # PEGA Cmd 0 Data Register
+    #
+    # ┌─────────┬────────┬─────────┬──────────────────────────────────────────────────────────┐
+    # │  Bits   │ Access │ Default │                         Description                      │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │  7:0    │  RWV   │    0    │ Rearm Latency                                            │
+    # │         │        │         │ Latency to wait after one command before executing it    │
+    # │         │        │         │ again. When command has 2nd action enabled this is the   │
+    # │         │        │         │ time from when the 2nd action is issued until the 1st    │
+    # │         │        │         │ action is issued again. Units specified in               │
+    # │         │        │         │ rearm_latency_units field. Value of zero indicates that  │
+    # │         │        │         │ rearming action is disabled.                             │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 15:8    │  RWV   │    0    │ Action2 Latency                                          │
+    # │         │        │         │ Latency to wait after initial event before injecting     │
+    # │         │        │         │ the second action associated with this event (unforce    │
+    # │         │        │         │ P-state for P-state). Units specified in                 │
+    # │         │        │         │ wake_latency_units field. Value of zero indicates that   │
+    # │         │        │         │ 2nd action is disabled.                                  │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 17:16   │  RWV   │    0    │ Rearm Latency Units                                      │
+    # │         │        │         │ Units for rearm timeout.                                 │
+    # │         │        │         │ Value Definition:                                        │
+    # │         │        │         │   0: units of 640 ns (0.64 us)                           │
+    # │         │        │         │   1: units of 10240 ns (~10.2 us)                        │
+    # │         │        │         │   2: units of 163840 ns (~164 us)                        │
+    # │         │        │         │   3: units of 2621440 ns (~2.6 ms)                       │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 19:18   │  RWV   │    0    │ Action2 Latency Units                                    │
+    # │         │        │         │ Unit for 2nd action timeout.                             │
+    # │         │        │         │ Value Definition:                                        │
+    # │         │        │         │   0: units of 640 ns (0.64 us)                           │
+    # │         │        │         │   1: units of 10240 ns (~10.2 us)                        │
+    # │         │        │         │   2: units of 163840 ns (~164 us)                        │
+    # │         │        │         │   3: units of 2621440 ns (~2.6 ms)                       │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 20:20   │  RWV   │    0    │ Random Rearm Latency                                     │
+    # │         │        │         │ Use random 8 bit value instead of the value specified    │
+    # │         │        │         │ in rearm_latency field. Units are still specified in     │
+    # │         │        │         │ rearm_latency_units field. Note that rearm latency       │
+    # │         │        │         │ should still be non-zero to indicate that action2 is     │
+    # │         │        │         │ enabled.                                                 │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 21:21   │  RWV   │    0    │ Random Action2 Latency                                   │
+    # │         │        │         │ If set, use random 8 bit value instead of the value      │
+    # │         │        │         │ specified in action2_latency field. Units are still      │
+    # │         │        │         │ specified in action2_latency_units field. Note that      │
+    # │         │        │         │ action2 latency should still be non-zero to indicate     │
+    # │         │        │         │ that action2 is enabled.                                 │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 27:22   │   RO   │    0    │ Reserved                                                 │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 30:28   │  RWV   │    0    │ Command                                                  │
+    # │         │        │         │ A. Type of PEGA command to trigger (User writes)         │
+    # │         │        │         │ Value Definition:                                        │
+    # │         │        │         │   0: No command                                          │
+    # │         │        │         │   1: invalid (was C-state injection)                     │
+    # │         │        │         │   2: P-state injection                                   │
+    # │         │        │         │   others: Invalid                                        │
+    # │         │        │         │ B. Error Code (Updated by Primecode as return status)    │
+    # │         │        │         │ Value Definition:                                        │
+    # │         │        │         │   0: No Error                                            │
+    # │         │        │         │   1: Invalid Command                                     │
+    # │         │        │         │ On an invalid command, this field will updated to 0x1    │
+    # │         │        │         │ and all other fields will be cleared. Additionally the   │
+    # │         │        │         │ Mailbox Interface return status will indicate            │
+    # │         │        │         │ INVALID_PARAMETERS                                       │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 31:31   │  RWV   │    0    │ Run_Busy                                                 │
+    # │         │        │         │ Set by user to activate PEGA after setting up the other  │
+    # │         │        │         │ registers - this will trigger PCode to perform the       │
+    # │         │        │         │ requested PEGA action. This bit will be cleared by       │
+    # │         │        │         │ PCode after sampling is complete and completion code     │
+    # │         │        │         │ has been set. User should not change PEGA registers      │
+    # │         │        │         │ until PCode has cleared run_busy or they risk breaking   │
+    # │         │        │         │ atomicity of the command and/or having a command         │
+    # │         │        │         │ dropped. This will not be protected against in HW.       │
+    # │         │        │         │ Writing CMD0 with run_busy == 0 will result in an        │
+    # │         │        │         │ INVALID_PARAMETER error response. In this case, the      │
+    # │         │        │         │ Data field will be preserved for help in debugging       │
+    # │         │        │         │ the cause.                                               │
+    # └─────────┴────────┴─────────┴──────────────────────────────────────────────────────────┘
+
+    data = 0
+
+    if isinstance(rearm, (int, float)) and rearm >= 0:
+        rearm_lat, rearm_units = calc_units(rearm)
+        data = data | (rearm_lat << 0)    # Rearm Latency
+        data = data | (rearm_units << 16) # Rearm units
+    elif str(rearm).lower() == "rand":
+        data = data | (1 << 0)  # Latency must be non-zero even if random
+        data = data | (1 << 20) # Random Rearm Latency
+    if isinstance(act2, (int, float)) and act2 >= 0:
+        act2_lat, act2_units = calc_units(act2)
+        data = data | (act2_lat << 8)    # Action2 Latency
+        data = data | (act2_units << 18) # Action2 Latency Units
+    elif str(act2).lower() == "rand":
+        data = data | (1 << 8)  # Latency must be non-zero even if random
+        data = data | (1 << 21) # Random Action2 Latency
+
+    data = data | (0x2 << 28) # Set P-state injection
+    data = data | (0x1 << 31) # Set Run Busy
+
+    aux_mailbox(command=_pega_dict["WRITE_PEGA_CMD0"], data=data)
+
+    return 0
+
+
+def _cbb_pstate(*, iagv = None, meshgv = None, rearm = 0, act2 = 0):
+    """ Injects PEGA pstate to the CBB die """
+
+    # PEGA Cmd 1 Data Register for P States (PARAM1 == 0)
+    #
+    # ┌─────────┬────────┬─────────┬──────────────────────────────────────────────────────────┐
+    # │  Bits   │ Access │ Default │                         Description                      │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │  7:0    │   RW   │    0    │ CORE_RATIO                                               │
+    # │         │        │         │ Target ratio to be injected by PEGA for all cores        │
+    # │         │        │         │ specified in PP_MASK.                                    │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 15:8    │   RW   │    0    │ RESERVED                                                 │
+    # │         │        │         │ Reserved. Client: Target ratio to be injected by PEGA    │
+    # │         │        │         │ for GT                                                   │
+    # │         │        │         │ OPEN: what are the units for GT ratio injection?         │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 23:16   │   RW   │    0    │ RING_RATIO                                               │
+    # │         │        │         │ Target ratio to be injected by PEGA for the ring.        │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 31:24   │   RW   │    0    │ RESERVED                                                 │
+    # │         │        │         │ Reserved. Client: Target ratio to be injected by PEGA    │
+    # │         │        │         │ for GT                                                   │
+    # └─────────┴────────┴─────────┴──────────────────────────────────────────────────────────┘
+
+    data = 0
+
+    if isinstance(iagv, int) and 0 <= iagv <= 0xff:
+        data = data | (iagv << 0) # CORE_RATIO
+    if isinstance(meshgv, int) and 0 <= meshgv <= 0xff:
+        data = data | (meshgv << 16) # RING_RATIO
+
+    u2p_mailbox(command=_pega_dict["WRITE_PEGA_CMD1"], data=data)
+
+    # PEGA Cmd 2 Data Register for P States
+    #
+    # ┌─────────┬────────┬─────────┬──────────────────────────────────────────────────────────┐
+    # │  Bits   │ Access │ Default │                         Description                      │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │  4:0    │   RW   │    0    │ PP_MASK                                                  │
+    # │         │        │         │ Contains the valid bits for all 4 domains:               │
+    # │         │        │         │   Bit 0 - CORE_VALID: use value specified in Big Core    │
+    # │         │        │         │           Ratio field; else do not override.             │
+    # │         │        │         │   Bit 1 - RESERVED: Client: use value specified in       │
+    # │         │        │         │           Media Ratio field; else do not override.       │
+    # │         │        │         │   Bit 2 - RING_VALID: use value specified in Ring        │
+    # │         │        │         │           Ratio field; else do not override.             │
+    # │         │        │         │   Bit 3 - RESERVED: Client: use value specified in       │
+    # │         │        │         │           GT field; else do not override.                │
+    # │         │        │         │   Bit 4 - RESERVED: Client: use value specified in       │
+    # │         │        │         │           Atom Core Ratio field; else do not override.   │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │  5:5    │   RW   │    0    │ CORE_RANDOM_RATIO                                        │
+    # │         │        │         │ Use a random value instead of specified ratio for the    │
+    # │         │        │         │ corresponding domain. Note that this will still be       │
+    # │         │        │         │ qualified with domain_mask to determine which domains    │
+    # │         │        │         │ should have their ratios overridden.                     │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │  6:6    │   RW   │    0    │ RESERVED                                                 │
+    # │         │        │         │ Client: Use a random value instead of specified ratio    │
+    # │         │        │         │ for the corresponding domain. Note that this will still  │
+    # │         │        │         │ be qualified with domain_mask to determine which         │
+    # │         │        │         │ domains should have their ratios overridden.             │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │  7:7    │   RW   │    0    │ RING_RANDOM_RATIO                                        │
+    # │         │        │         │ Use a random value instead of specified ratio for the    │
+    # │         │        │         │ corresponding domain. Note that this will still be       │
+    # │         │        │         │ qualified with domain_mask to determine which domains    │
+    # │         │        │         │ should have their ratios overridden.                     │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │  8:8    │   RW   │    0    │ RESERVED                                                 │
+    # │         │        │         │ Client: Use a random value instead of specified ratio    │
+    # │         │        │         │ for the corresponding domain. Note that this will still  │
+    # │         │        │         │ be qualified with domain_mask to determine which         │
+    # │         │        │         │ domains should have their ratios overridden.             │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │  9:9    │   RW   │    0    │ RESERVED                                                 │
+    # │         │        │         │ Client: Use a random value instead of specified ratio    │
+    # │         │        │         │ for the corresponding domain. Note that this will still  │
+    # │         │        │         │ be qualified with domain_mask to determine which         │
+    # │         │        │         │ domains should have their ratios overridden.             │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 10:10   │   RW   │    0    │ RANDOM_DOMAIN_VALID                                      │
+    # │         │        │         │ Use random value instead of value specified in           │
+    # │         │        │         │ domain-level valids (bits 4:0)                           │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 12:11   │   RW   │    0    │ IA_PCPS_NUM_OF_POINTS                                    │
+    # │         │        │         │ 0 - Disable Per Core P-States (PCPS)                     │
+    # │         │        │         │ 1 - Fixed point                                          │
+    # │         │        │         │ 2 - Toggle 2 points                                      │
+    # │         │        │         │ If [IA Random Ratio] bit is set to 1, no further         │
+    # │         │        │         │ action is needed. If [IA Random Ratio] bit is set to 0,  │
+    # │         │        │         │ user must write the PEGA PCPS Table. PCPS table will     │
+    # │         │        │         │ override the values written in PDPS table for Big        │
+    # │         │        │         │ Cores/Atoms                                              │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 14:13   │   RW   │    0    │ IA_PDPS_NUM_OF_POINTS                                    │
+    # │         │        │         │ 0 - Disable Per Domain P-States (PDPS)                   │
+    # │         │        │         │ 1 - Fixed point                                          │
+    # │         │        │         │ 2 - Toggle 2 points                                      │
+    # │         │        │         │ User must write the PEGA PDPS Table if this field is     │
+    # │         │        │         │ not 0                                                    │
+    # └─────────┴────────┴─────────┴──────────────────────────────────────────────────────────┘
+
+    data = 0
+
+    if isinstance(iagv, int):
+        data = data | (1 << 0) # PP_MASK bit 0
+    if isinstance(meshgv, int):
+        data = data | (1 << 2) # PP_MASK bit 2
+    if str(iagv).lower() == "rand":
+        data = data | (1 << 0) # PP_MASK bit 0
+        data = data | (1 << 5) # CORE_RANDOM_RATIO
+        data = data | (1 << 10) # RANDOM_DOMAIN_VALID
+    if str(meshgv).lower() == "rand":
+        data = data | (1 << 2) # PP_MASK bit 2
+        data = data | (1 << 7) # RING_RANDOM_RATIO
+        data = data | (1 << 10) # RANDOM_DOMAIN_VALID
+
+    u2p_mailbox(command=_pega_dict["WRITE_PEGA_CMD2"], data=data)
+
+    # PEGA Cmd 3 Is not used on CBB
+
+    # data = 0
+    # u2p_mailbox(command=_pega_dict["WRITE_PEGA_CMD3"], data=data)
+
+    # PEGA Cmd 0 Data Register
+    #
+    # ┌─────────┬────────┬─────────┬──────────────────────────────────────────────────────────┐
+    # │  Bits   │ Access │ Default │                         Description                      │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │  7:0    │  RWV   │    0    │ Rearm Latency                                            │
+    # │         │        │         │ Latency to wait after one command before executing it    │
+    # │         │        │         │ again. When command has 2nd action enabled this is the   │
+    # │         │        │         │ time from when the 2nd action is issued until the 1st    │
+    # │         │        │         │ action is issued again. Units specified in               │
+    # │         │        │         │ rearm_latency_units field. Value of zero indicates that  │
+    # │         │        │         │ rearming action is disabled.                             │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 15:8    │  RWV   │    0    │ Action2 Latency                                          │
+    # │         │        │         │ Latency to wait after initial event before injecting     │
+    # │         │        │         │ the second action associated with this event (ie wake    │
+    # │         │        │         │ for C-state, unforce P-state for P-state). Units         │
+    # │         │        │         │ specified in wake_latency_units field. Value of zero     │
+    # │         │        │         │ indicates that 2nd action is disabled.                   │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 17:16   │  RWV   │    0    │ Rearm Latency Units                                      │
+    # │         │        │         │ Units for rearm timeout.                                 │
+    # │         │        │         │ Value Definition:                                        │
+    # │         │        │         │   0: units of 640 ns (0.64 us)                           │
+    # │         │        │         │   1: units of 10240 ns (~10.2 us)                        │
+    # │         │        │         │   2: units of 163840 ns (~164 us)                        │
+    # │         │        │         │   3: units of 2621440 ns (~2.6 ms)                       │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 19:18   │  RWV   │    0    │ Action2 Latency Units                                    │
+    # │         │        │         │ Unit for 2nd action timeout.                             │
+    # │         │        │         │ Value Definition:                                        │
+    # │         │        │         │   0: units of 640 ns (0.64 us)                           │
+    # │         │        │         │   1: units of 10240 ns (~10.2 us)                        │
+    # │         │        │         │   2: units of 163840 ns (~164 us)                        │
+    # │         │        │         │   3: units of 2621440 ns (~2.6 ms)                       │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 20:20   │  RWV   │    0    │ Random Rearm Latency                                     │
+    # │         │        │         │ Use random 8 bit value instead of the value specified    │
+    # │         │        │         │ in rearm_latency field. Units are still specified in     │
+    # │         │        │         │ rearm_latency_units field. Note that rearm latency       │
+    # │         │        │         │ should still be non-zero to indicate that action2 is     │
+    # │         │        │         │ enabled.                                                 │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 21:21   │  RWV   │    0    │ Random Action2 Latency                                   │
+    # │         │        │         │ If set, use random 8 bit value instead of the value      │
+    # │         │        │         │ specified in action2_latency field. Units are still      │
+    # │         │        │         │ specified in action2_latency_units field. Note that      │
+    # │         │        │         │ action2 latency should still be non-zero to indicate     │
+    # │         │        │         │ that action2 is enabled.                                 │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 27:22   │   RO   │    0    │ Reserved                                                 │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 30:28   │  RWV   │    0    │ Command                                                  │
+    # │         │        │         │ A. Type of PEGA command to trigger (User writes)         │
+    # │         │        │         │ Value Definition:                                        │
+    # │         │        │         │   0: No command                                          │
+    # │         │        │         │   1: C-state injection                                   │
+    # │         │        │         │   2: P-state injection                                   │
+    # │         │        │         │   others: Invalid                                        │
+    # │         │        │         │ B. Error Code (Pcode writes)                             │
+    # │         │        │         │ Value Definition:                                        │
+    # │         │        │         │   0: No Error                                            │
+    # │         │        │         │   1: Invalid Command, this field will updated to 0x1     │
+    # │         │        │         │       and all other fields will be cleared.              │
+    # │         │        │         │       Additionally the Mailbox Interface return status   │
+    # │         │        │         │       will indicate INVALID_PARAMETERS.                  │
+    # ├─────────┼────────┼─────────┼──────────────────────────────────────────────────────────┤
+    # │ 31:31   │  RWV   │    0    │ Run_Busy                                                 │
+    # │         │        │         │ Set by user to activate PEGA after setting up the other  │
+    # │         │        │         │ registers - this will trigger PCode to perform the       │
+    # │         │        │         │ requested PEGA action. This bit will be cleared by       │
+    # │         │        │         │ PCode after sampling is complete and completion code     │
+    # │         │        │         │ has been set. User should not change PEGA registers      │
+    # │         │        │         │ until PCode has cleared run_busy or they risk breaking   │
+    # │         │        │         │ atomicity of the command and/or having a command         │
+    # │         │        │         │ dropped. This will not be protected against in HW.       │
+    # │         │        │         │ Writing CMD0 with run_busy == 0 will result in an        │
+    # │         │        │         │ INVALID_PARAMETER error response. In this case, the      │
+    # │         │        │         │ Data field will be preserved for help in debugging       │
+    # │         │        │         │ the cause.                                               │
+    # └─────────┴────────┴─────────┴──────────────────────────────────────────────────────────┘
+
+    data = 0
+
+    if isinstance(rearm, (int, float)) and rearm >= 0:
+        rearm_lat, rearm_units = calc_units(rearm)
+        data = data | (rearm_lat << 0)    # Rearm Latency
+        data = data | (rearm_units << 16) # Rearm units
+    elif str(rearm).lower() == "rand":
+        data = data | (1 << 0)  # Latency must be non-zero even if random
+        data = data | (1 << 20) # Random Rearm Latency
+    if isinstance(act2, (int, float)) and act2 >= 0:
+        act2_lat, act2_units = calc_units(act2)
+        data = data | (act2_lat << 8)    # Action2 Latency
+        data = data | (act2_units << 18) # Action2 Latency Units
+    elif str(act2).lower() == "rand":
+        data = data | (1 << 8)  # Latency must be non-zero even if random
+        data = data | (1 << 21) # Random Action2 Latency
+
+    data = data | (0x2 << 28) # Set P-state injection
+    data = data | (0x1 << 31) # Set Run Busy
+
+    u2p_mailbox(command=_pega_dict["WRITE_PEGA_CMD0"], data=data)
+
+    return 0
+
+
+def calc_units(latency_ms = 0):
+    """Calculate latency value and unit encoding for PEGA timing registers.
+    
+    Args:
+        latencyMs (float): Latency in milliseconds
+        
+    Returns:
+        tuple: (latency_value, unit_encoding) where:
+            - latency_value (int): 8-bit value for latency field (1-255)
+            - unit_encoding (int): 2-bit unit encoding (0-3)
+        
+    Unit Encodings:
+        0: 640 ns (0.64 us) units
+        1: 10240 ns (~10.2 us) units  
+        2: 163840 ns (~164 us) units
+        3: 2621440 ns (~2.6 ms) units
+    """
+    if latency_ms <= 0:
+        return 0, 0
+
+    # PEGA unit definitions in nanoseconds
+    unit_scales_ns = [640, 10240, 163840, 2621440]
+    max_latency_value = 255  # Maximum we can find in the 8 bits
+    min_latency_value = 1    # Bare minimum latency, 640ns
+
+    latency_ns = latency_ms * 1000000  # Convert ms to ns
+
+    # Find the most precise unit that can represent this latency
+    for unit_encoding, unit_scale_ns in enumerate(unit_scales_ns):
+        latency_value = latency_ns / unit_scale_ns
+
+        if min_latency_value <= latency_value <= max_latency_value:
+            return int(latency_value), unit_encoding
+
+    # If latency is too large for all units, clamp to maximum representable value
+    # Using the largest unit (index 3) at maximum value
+    max_representable_ns = unit_scales_ns[3] * max_latency_value
+    if latency_ns > max_representable_ns:
+        return max_latency_value, 3
+
+    # If latency is too small for the finest unit, use minimum value with finest unit
+    return min_latency_value, 0
+
+
+def aux_mailbox(*, command=0, param=0, data=0):
+    """ Helper function to do the aux mailbox injection """
+
+    for socket in namednodes.sv.sockets:
+        for imh in socket.imhs:
+            aux_mailbox_interface = imh.punit.ptpcfsms.ptpcfsms.aux_mailbox_interface
+            aux_mailbox_data = imh.punit.ptpcfsms.ptpcfsms.aux_mailbox_data
+
+            wait(aux_mailbox_interface)
+
+            print(f"PM_INFO :: Writing {socket.name}.{imh.name} Aux Mailbox Interface " \
+                  f"to 0x{(command + (param<<8) + (1 << 63)):x}")
+            print(f"PM_INFO :: Writing {socket.name}.{imh.name} Aux Mailbox Data to 0x{data:x}")
+
+            aux_mailbox_data.write(data)
+            aux_mailbox_interface.command.store(command)
+            aux_mailbox_interface.param.store(param)
+            aux_mailbox_interface.run_busy.store(1)
+            aux_mailbox_interface.flush()
+
+            wait(aux_mailbox_interface)
+
+            print(f"PM_INFO :: Reading {socket.name}.{imh.name} Aux Mailbox return code: " \
+                  f"{aux_mailbox_interface.read()}")
+    return 0
+
+
+def u2p_mailbox(*, socket=0, cbb=0, command=0, param1=0, param2=0, data=0):
+    """ Helper function to do the U2P mailbox injection """
+
+    socket_node = namednodes.sv.socket.getBySocket(socket)
+
+    u2p_mailbox_interface = \
+        socket_node.getbypath(f"cbb{cbb}").base.punit_regs.punit_gpsb.gpsb_infvnn_crs.ucode_pcode_mailbox_interface["fid_0"]
+    u2p_mailbox_data = \
+        socket_node.getbypath(f"cbb{cbb}").base.punit_regs.punit_gpsb.gpsb_infvnn_crs.ucode_pcode_mailbox_data["fid_0"]
+
+    wait(u2p_mailbox_interface)
+
+    print(f"PM_INFO :: Writing socket{socket}.cbb{cbb} U2P Mailbox Interface to 0x{(command + (param1<<8) + (param2<<16) + (1 << 31)):x}")
+    print(f"PM_INFO :: Writing socket{socket}.cbb{cbb} U2P Mailbox Data to 0x{data:x}")
+
+    u2p_mailbox_data.write(data)
+    u2p_mailbox_interface.command.store(command)
+    u2p_mailbox_interface.param1.store(param1)
+    u2p_mailbox_interface.param2.store(param2)
+    u2p_mailbox_interface.run_busy.store(1)
+    u2p_mailbox_interface.flush()
+
+    wait(u2p_mailbox_interface)
+
+    print(f"PM_INFO :: Reading socket.{socket}.cbb{cbb} U2P Mailbox return code: {u2p_mailbox_interface.read()}")
+
+    return 0
+
+
+def wait(interface = None):
+    """ Inject wait-for-cycle commands into emulation """
+    wait_time = 0
+    wait_cycles = 100000
+    wait_timeout = 20
+
+    while interface.run_busy.read():
+        if ACCESS_METHOD == "stub":
+            interface.write(0)
+        elif ACCESS_METHOD == "emulation":
+            cli.run_command(f"emu.engine.wait-for-cycle -relative {wait_cycles}")
+        elif ACCESS_METHOD == "simics":
+            cli.run_command(f"run-cycles {wait_cycles}")
+        else:
+            time.sleep(1)
+
+        wait_time += 1
+        wait_cycles += 10000
+
+        if wait_time > wait_timeout:
+            return -1
+    return 0
+</code></pre>
+    
+  </section>
+</div>
+
+<script>
+const tabs = Array.from(document.querySelectorAll('.tab'));
+const panels = Array.from(document.querySelectorAll('.panel'));
+for (const tab of tabs) {
+  tab.addEventListener('click', () => {
+    for (const t of tabs) t.classList.remove('active');
+    for (const p of panels) p.classList.remove('active');
+    tab.classList.add('active');
+    const panel = document.getElementById(tab.dataset.tab);
+    if (panel) panel.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+</script>
+</body>
+</html>

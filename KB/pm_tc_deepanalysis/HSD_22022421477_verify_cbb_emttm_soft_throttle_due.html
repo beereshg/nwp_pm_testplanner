@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [CBB Thermal Management] Verify CBB EMTTM Soft Throttle due to Self Throttle</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [CBB Thermal Management] Verify CBB EMTTM Soft Throttle due to Self Throttle</h1>
+      <p>Segment: FV | Source: HSD_22022421477_verify_cbb_emttm_soft_throttle_due.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [CBB Thermal Management] Verify CBB EMTTM Soft Throttle due to Self Throttle</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421477</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[CBB Thermal Management] Verify CBB EMTTM Soft Throttle due to Self Throttle</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; CBB Thermal Management</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies the CBB EMTTM &quot;self-throttle&quot; path: when a hot domain (e.g. CCF/Ring) exceeds its temperature target, the EMTTM PID reduces that domain&#x27;s own frequency ceiling without cross-throttling other domains. This is distinct from cross-throttle — the hot domain throttles itself. On NWP, CBB EMTTM self-throttle is implemented and is the primary thermal frequency control path for the Ring domain. The test requires adapting script config (dmr.xml → nwp.xml) and CBB monitoring scope (4→2 CBBs). The `DMR_PO` + `NGA_MAIN` tags indicate this is a priority validation test.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>CBB EMTTM self-throttle (hot domain reduces its own frequency via PID) is present on NWP</li>
+<li>Ring/CCF domain self-throttle via CBB PCode PID is the primary thermal mechanism for CCF on NWP</li>
+<li>Ring C6 is ZBB on NWP, but Ring **frequency throttling** (EMTTM) is not C-state related and is supported</li>
+<li>`NGA_MAIN` tag: this TC should be prioritized for NWP NGA automation</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon platform with CCF/Ring thermal stress capability</li>
+<li>`runPmx.py` with `nwp.xml` config</li>
+<li>PythonSv access to CBB TPMI and EMTTM registers</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Load and configure EMTTM test</td>
+<td>`nwp.xml` config; 2 CBBs</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run `emttm_test.loopSetup(); emttm_test.mainTest()`</td>
+<td>`runPmx.py -x nwp.xml -p emttm_thermal -tM 30 -M 6`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Apply Ring/CCF thermal stress to push CCF temp above eff_tj_max</td>
+<td>Same mechanism; verify on both CBBs</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify CBB EMTTM PID reduces CCF ratio ceiling (self-throttle)</td>
+<td>Loop over `range(2)` CBBs (DMR: 4); check CCF ratio limit in slow-limits PMA_CR</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify `IA32_PACKAGE_THERM_STATUS.THERMAL_MONITOR_STATUS` = 1</td>
+<td>Same package MSR</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify TPMI PLR `THERMAL` bit set</td>
+<td>`range(2)` CBBs</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Reduce thermal load; verify CCF ratio recovers and PLR clears</td>
+<td>Same acceptance criterion</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>CBB EMTTM PID lowers CCF/Ring frequency ceiling on the hot CBB when `CCF_temp &gt; eff_tj_max`</li>
+<li>`THERMAL_MONITOR_STATUS` = 1 during self-throttle event</li>
+<li>PLR THERMAL bit set; cleared after recovery</li>
+<li>Core frequency unchanged during Ring self-throttle (no cross-throttle triggered unless Ring at minimum)</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<h3>EMTTM Self-Throttle Path</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>CCF/Ring self-throttle</td>
+<td>PCode PID via `CCF_EMTTM_PID`</td>
+<td>Same on NWP</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>CBB count</td>
+<td>4</td>
+<td>2</td>
+<td>Monitoring: `range(2)`</td>
+</tr>
+<tr>
+<td>Ring C6</td>
+<td>Supported</td>
+<td>ZBB</td>
+<td>No impact on EMTTM frequency throttle (C-state vs. freq limit)</td>
+</tr>
+<tr>
+<td>SST-PP eff_tj_max</td>
+<td>Active</td>
+<td>ZBB</td>
+<td>eff_tj_max uses base fuse TjMax - TCC_offset</td>
+</tr>
+<tr>
+<td>Script XML</td>
+<td>`dmr.xml`</td>
+<td>`nwp.xml`</td>
+<td>Direct substitution</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>Register Check Table (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Category</th>
+<th>Register</th>
+<th>Field</th>
+<th>Expected</th>
+<th>Verify On</th>
+</tr></thead><tbody>
+<tr>
+<td>Ring temp</td>
+<td>`PCU_CR_DTS_TEMP_CCF`</td>
+<td>Temperature</td>
+<td>&gt; eff_tj_max (throttle trigger)</td>
+<td>Per CBB</td>
+</tr>
+<tr>
+<td>EMTTM limit</td>
+<td>CBB slow limits</td>
+<td>CCF ratio ceiling</td>
+<td>Below P1 (throttled by PID)</td>
+<td>Per CBB</td>
+</tr>
+<tr>
+<td>Package status</td>
+<td>`IA32_PACKAGE_THERM_STATUS`</td>
+<td>`THERMAL_MONITOR_STATUS[0]`</td>
+<td>1 during throttle</td>
+<td>Package</td>
+</tr>
+<tr>
+<td>PLR</td>
+<td>TPMI PLR mailbox</td>
+<td>Bit 3 (THERMAL)</td>
+<td>1 during throttle</td>
+<td>Per CBB</td>
+</tr>
+</tbody></table>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+# Monitor CBB EMTTM self-throttle on NWP (2 CBBs)
+for cbb_idx in range(2):  # NWP has 2 CBBs
+    cbb = sv.socket0.getbypath(f&quot;cbb{cbb_idx}&quot;)
+    try:
+        # TPMI PLR thermal bit
+        plr = cbb.getbypath(&quot;base.tpmi.plr_mailbox_interface&quot;).read()
+        thermal = (plr &gt;&gt; 3) &amp; 1
+        print(f&quot;CBB{cbb_idx}: PLR THERMAL={thermal}&quot;)
+
+        # Ring/CCF temperature (DTS)
+        ring_temp = cbb.getbypath(&quot;base.punit.ptpcfsms.dts_temp_ccf&quot;).read()
+        print(f&quot;CBB{cbb_idx}: Ring/CCF temp={ring_temp}&quot;)
+    except Exception as e:
+        print(f&quot;CBB{cbb_idx}: {e}&quot;)
+
+# Package thermal monitor
+ptpcfsms = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms
+print(f&quot;Package PLR: 0x{ptpcfsms.perf_limit_reasons.read():08X}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**Silicon required** — Ring thermal self-throttle needs real thermal excursion; VP simulation may not be accurate</td>
+<td>Medium</td>
+<td>NGA_MAIN tag → prioritize for silicon NGA</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**eff_tj_max without SST-PP** — test may need to account for simplified eff_tj_max formula (no SST-PP on NWP) when computing expected throttle trigger point</td>
+<td>Low</td>
+<td>Update test expected temperature computation</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT with minor adaptation — high-priority NGA target**</p>
+<p>Ring/CCF EMTTM self-throttle is the primary thermal mechanism for NWP CBB and should be prioritized for NGA automation (`NGA_MAIN` tag). The adaptation is minimal: XML config + CBB loop count.</p>
+<p>Required adaptations:</p>
+<p>1. `runPmx.py -x dmr.xml` → `-x nwp.xml`</p>
+<p>2. CBB monitoring loop: `range(2)`</p>
+<p>3. Update eff_tj_max formula in test: remove SST-PP branch</p>
+<p>**Priority**: Critical — NGA_MAIN; fundamental EMTTM self-throttle path validation</p>
+    </div>
+  </div>
+</body>
+</html>

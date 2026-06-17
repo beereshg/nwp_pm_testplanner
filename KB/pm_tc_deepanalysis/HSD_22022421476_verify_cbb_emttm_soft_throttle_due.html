@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [CBB Thermal Management] Verify CBB EMTTM Soft Throttle due to Cross Throttle</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [CBB Thermal Management] Verify CBB EMTTM Soft Throttle due to Cross Throttle</h1>
+      <p>Segment: FV | Source: HSD_22022421476_verify_cbb_emttm_soft_throttle_due.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [CBB Thermal Management] Verify CBB EMTTM Soft Throttle due to Cross Throttle</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421476</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[CBB Thermal Management] Verify CBB EMTTM Soft Throttle due to Cross Throttle</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; CBB Thermal Management</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies that EMTTM triggers a &quot;soft&quot; (frequency-reduction) cross-throttle: when a hot domain cannot throttle itself (e.g. non-throttlable IP or already at min ratio), EMTTM reduces the frequency of a cooler, throttlable domain to relieve heat across die boundaries. On NWP, CBB EMTTM with cross-throttle support is present. The test requires adapting from `dmr.xml` to `nwp.xml` and updating CBB scope from 4 to 2. The `DMR_PO` tag indicates this was validated at silicon PO level on DMR.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>CBB EMTTM cross-throttle (cooler domain throttled when hotter non-throttlable IP exceeds target) is implemented on NWP PCode</li>
+<li>`runPmx.py -p emttm_thermal` is the test driver; XML config substitution is sufficient</li>
+<li>NWP has 2 CBBs with the same cross-throttle domains (CCF/Ring, Inf, D2D); no ZBB impact</li>
+<li>Silicon required (DMR_PO); cannot be run on VP without thermal injection capability</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon platform with CBB thermal stress capability</li>
+<li>`runPmx.py` with `nwp.xml` config</li>
+<li>PythonSv access to NWP TPMI PLR and CBB EMTTM registers</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Load EMTTM test module</td>
+<td>Same import path</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run `emttm_test.loopSetup()`</td>
+<td>NWP config (2 CBBs)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Execute `emttm_test.mainTest()`</td>
+<td>`nwp.xml` instead of `dmr.xml`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Heat a non-throttlable domain (e.g. CCF/Ring beyond eff_tj_max)</td>
+<td>Same thermal stress mechanism</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify cross-throttle triggers: a cooler, throttlable domain (e.g. Big Core) gets frequency reduced</td>
+<td>Loop over `range(2)` CBBs (DMR: 4); check GPSS core ratio limit</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify `IA32_PACKAGE_THERM_STATUS.THERMAL_MONITOR_STATUS` = 1</td>
+<td>Same — package MSR read</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify PLR thermal bit set at TPMI mailbox</td>
+<td>Loop over both CBBs; bit 3 of PLR mailbox</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Reduce thermal load → verify cross-throttle clears</td>
+<td>Same acceptance criterion</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>Cross-throttle: cooler domain frequency reduced when non-throttlable domain is hot at its minimum</li>
+<li>`THERMAL_MONITOR_STATUS` = 1 during cross-throttle event</li>
+<li>TPMI PLR `THERMAL` bit set on the CBB where cross-throttle occurs</li>
+<li>Frequency recovers after thermal condition clears</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<h3>Cross-Throttle Domain Mapping</h3>
+<table class="md-table"><thead><tr>
+<th>Domain (from CBB EMTTM HAS)</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>CCF / Ring</td>
+<td>Self-throttle domain</td>
+<td>Same on NWP</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>Big Core</td>
+<td>Cross-throttle target</td>
+<td>Same on NWP</td>
+<td>No change; 48 cores/CBB</td>
+</tr>
+<tr>
+<td>Inf / D2D</td>
+<td>Cross-throttle targets</td>
+<td>Same on NWP</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>CBB count</td>
+<td>4</td>
+<td>2</td>
+<td>Verification loop: `range(2)`</td>
+</tr>
+<tr>
+<td>Script XML</td>
+<td>`dmr.xml`</td>
+<td>`nwp.xml`</td>
+<td>Direct substitution</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>Register Check Table (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Category</th>
+<th>Register</th>
+<th>Field</th>
+<th>Expected</th>
+<th>Verify On</th>
+</tr></thead><tbody>
+<tr>
+<td>Thermal throttle</td>
+<td>`IA32_PACKAGE_THERM_STATUS`</td>
+<td>`THERMAL_MONITOR_STATUS[0]`</td>
+<td>1 during cross-throttle</td>
+<td>Package MSR</td>
+</tr>
+<tr>
+<td>PLR</td>
+<td>TPMI PLR mailbox `cbb{i}`</td>
+<td>Bit 3 (THERMAL)</td>
+<td>1 during throttle</td>
+<td>Per CBB (2 CBBs)</td>
+</tr>
+<tr>
+<td>CCF ratio</td>
+<td>CBB slow limits</td>
+<td>CCF ratio ceiling</td>
+<td>Below P1 (throttled)</td>
+<td>Per CBB</td>
+</tr>
+<tr>
+<td>Core ratio</td>
+<td>GPSS core ratio</td>
+<td>Core ceiling</td>
+<td>Below P1 (cross-throttled)</td>
+<td>Per CBB</td>
+</tr>
+</tbody></table>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+# Monitor cross-throttle status on NWP CBBs
+for cbb_idx in range(2):  # NWP has 2 CBBs
+    try:
+        # PLR THERMAL bit
+        plr = sv.socket0.getbypath(f&quot;cbb{cbb_idx}.base.tpmi.plr_mailbox_interface&quot;).read()
+        thermal = (plr &gt;&gt; 3) &amp; 1
+        print(f&quot;CBB{cbb_idx}: PLR THERMAL={thermal}&quot;)
+    except Exception as e:
+        print(f&quot;CBB{cbb_idx}: {e}&quot;)
+
+# Package thermal monitor status
+pkg_therm = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.perf_limit_reasons.read()
+print(f&quot;Package perf_limit_reasons: 0x{pkg_therm:08X}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**Silicon-only test** — real cross-throttle requires genuine thermal excursion on non-throttlable domain; VP injection may not be accurate</td>
+<td>Medium</td>
+<td>Plan for silicon-only execution</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**Cross-throttle domain configuration** — NWP may have different non-throttlable domain list than DMR; verify against NWP CBB EMTTM HAS</td>
+<td>Low</td>
+<td>Expected to be same; verify during bring-up</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADAPT — config + loop update required; silicon-only**</p>
+<p>CBB EMTTM cross-throttle is the same mechanism on NWP. Primary adaptations: XML config substitution and CBB loop update. This test requires silicon execution.</p>
+<p>Required adaptations:</p>
+<p>1. `runPmx.py -x dmr.xml` → `-x nwp.xml`</p>
+<p>2. CBB monitoring loop: `range(2)`</p>
+<p>3. Confirm NWP cross-throttle domain config matches DMR in `nwp.xml`</p>
+<p>**Priority**: High — Cross-throttle is a key EMTTM safety mechanism validated at PO</p>
+    </div>
+  </div>
+</body>
+</html>

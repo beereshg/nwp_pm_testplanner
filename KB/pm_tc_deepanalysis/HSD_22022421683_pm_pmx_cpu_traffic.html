@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: pm_pmx_cpu_traffic</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: pm_pmx_cpu_traffic</h1>
+      <p>Segment: FV | Source: HSD_22022421683_pm_pmx_cpu_traffic.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: pm_pmx_cpu_traffic</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421683</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>pm_pmx_cpu_traffic</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-05-28</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL &gt; PMX Cross-Product (CPU Traffic)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test validates Socket RAPL power limiting while the system is under CPU traffic stress, confirming that the RAPL control loop correctly tracks and enforces PL1/PL2 limits even under sustained compute load. The PMX framework drives cpu_traffic workload while the cpu_rapl module monitors power limiting convergence. The test checks that energy status increments accurately and that RAPL throttling engages correctly when limits are reached.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>Socket RAPL and the PMX framework are both supported on NWP (PMSS_NWP_READINESS_CHECK tagged)</li>
+<li>NWP has 2 CBBs × 48 cores = 96 cores; cpu_traffic workload applies at whatever scale NWP PMX supports</li>
+<li>The only required adaptation is substituting `nwp.xml` for `dmr.xml` in the PMX invocation</li>
+<li>Platform RAPL (Psys) is ZBB on NWP — any Psys assertions in the cross-product must be excluded</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon or VP at SVOS boot</li>
+<li>PMX framework installed; `nwp.xml` present with cpu_rapl and cpu_traffic module definitions</li>
+<li>PythonSv / namednodes accessible for register validation</li>
+<li>BIOS knobs `TurboPowerLimitLock` and `TurboPowerLimitCsrLock` **disabled** (to allow dynamic limit writes)</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Launch PMX with cpu_traffic + cpu_rapl modules</td>
+<td>`python runPmx.py -x nwp.xml -p cpu_rapl -p cpu_traffic -tM 6 -M 3` — change `dmr.xml` → `nwp.xml`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Confirm PMX-reported power under traffic exceeds default PL1 baseline</td>
+<td>Same pass criterion</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify RAPL throttling engages: perf_limit_reasons shows `rapl_pl1` or `rapl_pl2`</td>
+<td>Read `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.perf_limit_reasons`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify energy status increments monotonically during workload</td>
+<td>Read `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_energy_status` before and after</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Confirm power drops back below PL1 after RAPL engages, within 5× tau</td>
+<td>Same criterion as DMR</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Exclude Psys assertions</td>
+<td>Skip any Platform RAPL (Psys) checks — ZBB on NWP</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>PMX reports PASS (no RAPL errors, no platform hang)</li>
+<li>Energy status is monotonically increasing during traffic</li>
+<li>`perf_limit_reasons.rapl_pl1` or `rapl_pl2` bit is set while traffic holds power above the limit</li>
+<li>Power converges to PL1 within 5× tau after RAPL engages</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<h3>Topology</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>CBBs</td>
+<td>4</td>
+<td>2</td>
+<td>cpu_traffic load is distributed across fewer CBBs; PMX load may be proportionally lower</td>
+</tr>
+<tr>
+<td>Cores/CBB</td>
+<td>32</td>
+<td>48</td>
+<td>More cores per CBB; total 96 cores available for traffic</td>
+</tr>
+<tr>
+<td>PMX XML</td>
+<td>`dmr.xml`</td>
+<td>`nwp.xml`</td>
+<td>Mandatory — NWP PMX module definitions are in nwp.xml</td>
+</tr>
+<tr>
+<td>Platform RAPL</td>
+<td>Supported</td>
+<td>ZBB</td>
+<td>Exclude Psys from any assertion checks</td>
+</tr>
+<tr>
+<td>SMT</td>
+<td>Yes</td>
+<td>No</td>
+<td>Single-threaded cores on NWP; cpu_traffic workload may behave differently</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>Register Check Table (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Category</th>
+<th>Register</th>
+<th>Field</th>
+<th>Expected</th>
+<th>Verify On</th>
+</tr></thead><tbody>
+<tr>
+<td>RAPL PL1</td>
+<td>`sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_pl1_control`</td>
+<td>`power_limit_1`</td>
+<td>≤ fused TDP</td>
+<td>IMH</td>
+</tr>
+<tr>
+<td>RAPL PL2</td>
+<td>`sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_pl2_control`</td>
+<td>`power_limit_2`</td>
+<td>≤ 1.25× TDP typical</td>
+<td>IMH</td>
+</tr>
+<tr>
+<td>Energy status</td>
+<td>`sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_energy_status`</td>
+<td>`total_energy_consumed`</td>
+<td>Monotonically increasing</td>
+<td>IMH</td>
+</tr>
+<tr>
+<td>Perf limit</td>
+<td>`sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.perf_limit_reasons`</td>
+<td>`rapl_pl1`/`rapl_pl2`</td>
+<td>Set during traffic above limit</td>
+<td>IMH</td>
+</tr>
+</tbody></table>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+# NWP RAPL cross-product with CPU traffic
+rapl = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms
+
+# Capture energy before and after workload
+e_before = rapl.socket_rapl_energy_status.read()
+# (run workload / PMX for N seconds)
+e_after = rapl.socket_rapl_energy_status.read()
+assert e_after &gt; e_before, &quot;Energy status did not increment&quot;
+
+# Check RAPL throttling engaged
+plr = rapl.perf_limit_reasons.read()
+print(f&quot;perf_limit_reasons = 0x{plr:08x}&quot;)
+# Bit for rapl_pl1/rapl_pl2 should be set if power exceeded limit
+
+# Check PL1/PL2 values
+rapl.socket_rapl_pl1_control.show()
+rapl.socket_rapl_pl2_control.show()
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**nwp.xml module coverage** — confirm cpu_traffic and cpu_rapl PMX modules are defined in `nwp.xml`</td>
+<td>High</td>
+<td>Blocker if module missing; file NWP PMX gap HSD</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**No TCD steps** — HSD test_steps contains only the template placeholder, no actual flow</td>
+<td>Medium</td>
+<td>Test relies on PMX infrastructure; PMX pass/fail criterion is sufficient</td>
+</tr>
+<tr>
+<td>3</td>
+<td>**Platform RAPL ZBB** — any Psys checks in cross-product framework must be gated</td>
+<td>Low</td>
+<td>Easy exclusion; PMX framework may handle this via nwp.xml config</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADAPT — Change `-x dmr.xml` to `-x nwp.xml`**</p>
+<p>Socket RAPL × CPU traffic is fully valid on NWP. The only required change is the PMX XML path. No algorithm changes needed; the RAPL control loop and energy reporting work identically on NWP at the IMH level.</p>
+<p>Required adaptations:</p>
+<p>1. Replace `dmr.xml` with `nwp.xml` in PMX invocation</p>
+<p>2. Exclude any Psys / Platform RAPL assertions (ZBB on NWP)</p>
+<p>3. Verify `nwp.xml` contains cpu_rapl and cpu_traffic module definitions</p>
+<p>**Priority**: High — PMSS_NWP_READINESS_CHECK tagged; p2 priority</p>
+    </div>
+  </div>
+</body>
+</html>

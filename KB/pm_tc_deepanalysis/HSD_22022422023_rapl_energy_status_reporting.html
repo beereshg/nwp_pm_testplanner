@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: RAPL Energy Status Reporting</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: RAPL Energy Status Reporting</h1>
+      <p>Segment: FV | Source: HSD_22022422023_rapl_energy_status_reporting.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: RAPL Energy Status Reporting</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422023</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>RAPL Energy status reporting</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>RAPL energy status accuracy at idle and under workload</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **RAPL energy status reporting** accuracy:</p>
+<p>1. Check energy status at idle — measured power should match expected idle power</p>
+<p>2. Run workload — energy status should match expected workload power</p>
+<p>3. Simics setup references OakStream telemetry inject for VCCIN Iout (silicon: SVID IMON telemetry)</p>
+<p>NWP register paths are directly shown in test steps (already NWP `imh0` paths):</p>
+<ul>
+<li>CSR: `sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_energy_status_cfg`</li>
+<li>TPMI: `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_energy_status`</li>
+</ul>
+<p>Tags: `DMR_PO`, `plc.feature.p2`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP Energy Status Registers</h3>
+<table class="md-table"><thead><tr>
+<th>Register</th>
+<th>NWP Path</th>
+</tr></thead><tbody>
+<tr>
+<td>CSR energy status</td>
+<td>`sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_energy_status_cfg`</td>
+</tr>
+<tr>
+<td>TPMI energy status</td>
+<td>`sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_energy_status`</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps (Simics → Silicon Adaptation)</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Silicon Path</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>System at idle; read energy status</td>
+<td>CSR + TPMI registers above</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Compute idle power from energy delta/time</td>
+<td>`power_W = (E2 - E1) / (t2 - t1) * energy_unit`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Compare to expected idle power</td>
+<td>Should be within ±X% tolerance</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Run workload (PTU TDP)</td>
+<td>`./ptu -ct 3` across 96 cores</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Read energy status under workload</td>
+<td>Same CSR + TPMI registers</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Compute workload power; compare to expected</td>
+<td>Power should approach TDP</td>
+</tr>
+</tbody></table>
+<h3>Silicon Telemetry Adaptation</h3>
+<ul>
+<li>**Simics** (OakStream): `oakstream.mb.mcp0.vccin1-&gt;mbvr_injection_state = TRUE; mbvr_iout_inject_val = 50.0`</li>
+<li>**NWP Silicon**: Actual SVID IMON telemetry from VR hardware — no injection needed; measure real energy</li>
+<li>NWP: use SVID `IMON_TELEMETRY` register from VR or from Punit SVID_VR_STATUS for cross-reference</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>Idle energy status matches expected idle power (within ±10% or per spec tolerance)</li>
+<li>Workload energy status matches expected TDP power (within tolerance)</li>
+<li>CSR and TPMI energy status registers agree</li>
+<li>Energy status increments monotonically (no regression)</li>
+</ul>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<pre><code>
+import time
+
+# Read energy status at idle (NWP)
+e1 = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_energy_status.read()
+t1 = time.time()
+time.sleep(1)
+e2 = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_energy_status.read()
+t2 = time.time()
+# Power unit from socket_rapl_power_unit register
+power_unit_J = &lt;read from socket_rapl_power_unit&gt;
+idle_power_W = (e2 - e1) * power_unit_J / (t2 - t1)
+print(f&quot;Idle power: {idle_power_W:.1f} W&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — Register paths already show NWP `imh0`; adapt Simics inject → use real SVID IMON on silicon**</p>
+<p>1. `python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</p>
+<p>2. NWP silicon: use real SVID IMON telemetry (not Simics injection)</p>
+<p>3. Verify CSR and TPMI energy status agree; measure idle and workload power accuracy</p>
+<p>**Priority**: High — `plc.feature.p2`; energy status reporting accuracy is fundamental to RAPL power management and telemetry</p>
+    </div>
+  </div>
+</body>
+</html>

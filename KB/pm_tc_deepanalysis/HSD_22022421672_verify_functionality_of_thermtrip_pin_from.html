@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Thermtrip] Verify Functionality of Thermtrip Pin from Various Sources</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Thermtrip] Verify Functionality of Thermtrip Pin from Various Sources</h1>
+      <p>Segment: FV | Source: HSD_22022421672_verify_functionality_of_thermtrip_pin_from.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Thermtrip] Verify Functionality of Thermtrip Pin from Various Sources</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421672</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Thermtrip] Verify functionality of thermtrip pin from various sources</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>ThermTrip pin — multiple trigger sources (DTS, CATTRIP, external)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies that the **THERMTRIP pin** can be triggered from **multiple independent sources** (compute die DTS overtemp, CGU DTS, external thermtrip input, etc.) and that each source correctly asserts the THERMTRIP pin. NWP has the same source architecture (DTS per die, CGU, external).</p>
+<p>Tags: `Ready_for_testing`, `plc.feature.p1`, `PMSS_NWP_READINESS_CHECK`</p>
+<p>Fuse requirements map directly to NWP fuse hierarchy: `sv.socket0.imh0.fuses.punit.*` for fuse fields.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Thermtrip Sources on NWP</h3>
+<table class="md-table"><thead><tr>
+<th>Source</th>
+<th>NWP Enable Fuse</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td>Compute die DTS CATTRIP</td>
+<td>`hwrs_eb_fuse_dword0_cattrip_enable=0x1`</td>
+<td>CBB core overheat</td>
+</tr>
+<tr>
+<td>Compute die DTS THERMTRIP</td>
+<td>`hwrs_eb_fuse_dword0_thermtrip_enable=0x1`</td>
+<td>CBB primary thermtrip</td>
+</tr>
+<tr>
+<td>YY-THERMTRIP</td>
+<td>`hwrs_eb_fuse_dword0_yythermtrip_enable`</td>
+<td>Secondary source</td>
+</tr>
+<tr>
+<td>CGU DTS</td>
+<td>`dts_cgu.dtsenable=0x1`, `dtsenableovrd=0x1`</td>
+<td>CGU thermal monitoring</td>
+</tr>
+</tbody></table>
+<h3>NWP Fuse Paths</h3>
+<pre><code>
+# Enable fuses (NWP paths)
+sv.socket0.imh0.fuses.punit.hwrs_eb_fuse_dword0_cattrip_enable.write(0x1)
+sv.socket0.imh0.fuses.punit.hwrs_eb_fuse_dword0_thermtrip_enable.write(0x1)
+
+# Enable DTS for all CBBs
+for cbb_idx in range(2):
+    sv.socket0.getbypath(f&quot;cbb{cbb_idx}.&lt;dts_path&gt;.dtsenable&quot;).write(0x1)
+    sv.socket0.getbypath(f&quot;cbb{cbb_idx}.&lt;dts_path&gt;.dtsenableovrd&quot;).write(0x1)
+</code></pre>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Set thermtrip enable fuses for all sources to test</td>
+<td>Per-source fuse at `imh0.fuses.punit.*`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Enable DTS on all compute dies and CGU</td>
+<td>`dtsenable=1`, `dtsenableovrd=1`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Run thermtrip PMx</td>
+<td>`python runPmx.py -x nwp.xml -p therm_trip -tM 30 -M 6`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>For each source: inject thermtrip condition</td>
+<td>Source-specific injection</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify THERMTRIP pin asserts</td>
+<td>`ipc.power_status()` → False</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Power cycle; repeat for next source</td>
+<td>Cover all sources</td>
+</tr>
+</tbody></table>
+<h3>NWP: 2 CBBs</h3>
+<ul>
+<li>Verify thermtrip from cbb0 DTS asserts pin</li>
+<li>Verify thermtrip from cbb1 DTS asserts pin</li>
+<li>Verify thermtrip from CGU/IO die DTS asserts pin</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>Each independent source (compute DTS, CGU, external) can independently assert THERMTRIP pin</li>
+<li>`ipc.power_status()` False confirms assertion</li>
+<li>All sources verified; no false-negative paths</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; adapt fuse paths to NWP; test both CBBs (cbb0, cbb1)**</p>
+<p>1. `python runPmx.py -x nwp.xml -p therm_trip -tM 30 -M 6`</p>
+<p>2. NWP: `sv.socket0.imh0.fuses.punit.*` for thermtrip enable fuses</p>
+<p>3. 2 CBBs: cover both compute dies as sources</p>
+<p>4. CGU and external sources applicable on NWP</p>
+<p>**Priority**: High — `plc.feature.p1`; multi-source thermtrip coverage is critical safety validation</p>
+    </div>
+  </div>
+</body>
+</html>

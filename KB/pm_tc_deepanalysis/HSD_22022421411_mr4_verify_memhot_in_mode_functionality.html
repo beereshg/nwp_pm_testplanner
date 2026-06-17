@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Memhot] MR4 Verify Memhot_In Mode Functionality</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Memhot] MR4 Verify Memhot_In Mode Functionality</h1>
+      <p>Segment: FV | Source: HSD_22022421411_mr4_verify_memhot_in_mode_functionality.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Memhot] MR4 Verify Memhot_In Mode Functionality</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421411</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Memhot] MR4 Verify Memhot_In mode functionality</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Memory Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Memhot_In (MEMHOT_IN GPIO) — external thermal event throttles all MCs via Punit</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>When the platform asserts the **xxMEMHOT_IN** pin (external thermal event from platform), it propagates through the Punit to all MCs causing bandwidth throttling. This test verifies MEMHOT_IN mode with MR4-based CLTT.</p>
+<p>NWP Punit register: `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.mh_mainctl_cfg` (from `sv.sockets.imhs.uncore.punit.ptpcfsms.ptpcfsms.mh_mainctl_cfg`).</p>
+<p>Tags: `DMR_PO`, `NGA_MAIN`, `plc.ti_gate.b0`, `plc.feature.p1`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Memhot_In Configuration</h3>
+<table class="md-table"><thead><tr>
+<th>Register</th>
+<th>Field</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td>`mh_mainctl_cfg`</td>
+<td>`mh_sense_en`</td>
+<td>Enable MEMHOT sense input</td>
+</tr>
+<tr>
+<td>`mh_mainctl_cfg`</td>
+<td>`unidir_memhot_in_en`</td>
+<td>Enable unidirectional MEMHOT_IN propagation</td>
+</tr>
+<tr>
+<td>`mh_mainctl_cfg`</td>
+<td>`unidir_memhot_in_to_memhot0_en`</td>
+<td>Propagate MEMHOT_IN to MH network 0</td>
+</tr>
+</tbody></table>
+<h3>NWP Register Path</h3>
+<pre><code>
+# NWP Memhot control register (single imh0)
+mh_cfg = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.mh_mainctl_cfg
+mh_cfg.show()  # Show all Memhot config fields
+</code></pre>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run `runPmx.py` memhot_mr4 plugin</td>
+<td>`python runPmx.py -x nwp.xml -p memhot_mr4 -tM 60 -M 5 --retry_count 2`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Set `mh_mainctl_cfg.unidir_memhot_in_en = 1`</td>
+<td>Enable MEMHOT_IN sense</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Assert MEMHOT_IN (external pin or inject)</td>
+<td>Simulated MEMHOT_IN assertion</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify throttle level applied to all MCs</td>
+<td>`memhot_ext_thrt` configured bandwidth</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify Punit sees MEMHOT_IN</td>
+<td>`mh_mainctl_cfg.mh_sense_en` active</td>
+</tr>
+<tr>
+<td>6</td>
+<td>De-assert MEMHOT_IN</td>
+<td>Throttle should clear</td>
+</tr>
+</tbody></table>
+<h3>Pass Criteria</h3>
+<ul>
+<li>MEMHOT_IN → Punit → all MCs throttled at configured level</li>
+<li>`mh_mainctl_cfg.mh_sense_en` = 1 required for propagation</li>
+<li>Throttle clears when MEMHOT_IN de-asserted</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; `sv.sockets.imhs.*` → `sv.socket0.imh0.*`; Memhot mechanism same on NWP**</p>
+<p>**Priority**: High — `NGA_MAIN`, `plc.feature.p1`; MEMHOT_IN propagation is critical for platform-level thermal emergency response</p>
+    </div>
+  </div>
+</body>
+</html>

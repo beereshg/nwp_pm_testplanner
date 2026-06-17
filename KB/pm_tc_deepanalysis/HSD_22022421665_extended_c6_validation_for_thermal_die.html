@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Thermal Reporting][BEAT] Extended C6 Validation for Thermal Die Level PLR</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Thermal Reporting][BEAT] Extended C6 Validation for Thermal Die Level PLR</h1>
+      <p>Segment: FV | Source: HSD_22022421665_extended_c6_validation_for_thermal_die.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Thermal Reporting][BEAT] Extended C6 Validation for Thermal Die Level PLR</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421665</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Thermal Reporting][BEAT] Extended C6 validation for Thermal Die Level PLR</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>TPMI PERF_LIMIT_REASONS thermal bits while in Core C6 (EMTTM and PROCHOT)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **thermal PLR bits in TPMI PERF_LIMIT_REASONS** while cores are in C6 state:</p>
+<ul>
+<li>EMTTM (Enhanced Multi-Temperature Thermal Management) → PLR bit 3</li>
+<li>PROCHOT → PLR bit 4</li>
+<li>Verify frequency clipping to expected value when conditions met</li>
+<li>Core C6 is maintained; verify PLR bits set while idle</li>
+</ul>
+<p>**Core C6** on NWP is functional (not ZBB — only Pkg C6 and Ring C6/MC6 are ZBB). The test uses core-level C6.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>`Ready_for_testing` + `plc.feature.p1` + `NGA_MAIN` + `PMSS_NWP_READINESS_CHECK` tags</li>
+<li>TPMI PLR + thermal PLR while in C6 applicable on NWP</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Thermal PLR Bits (TPMI PERF_LIMIT_REASONS)</h3>
+<table class="md-table"><thead><tr>
+<th>Bit</th>
+<th>Condition</th>
+<th>Trigger</th>
+</tr></thead><tbody>
+<tr>
+<td>[3]</td>
+<td>EMTTM</td>
+<td>Thermal throttle via EMTTM</td>
+</tr>
+<tr>
+<td>[4]</td>
+<td>PROCHOT</td>
+<td>PROCHOT# assertion</td>
+</tr>
+</tbody></table>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Enable TPMI, EMTTM; disable PROCHOT lock</td>
+<td>BIOS or OS config</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Force cores to C6 (disable wake events)</td>
+<td>`stress-ng --io 0` or idle</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Assert EMTTM thermal condition</td>
+<td>Reduce fan speed or inject thermal</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify PLR bit 3 (EMTTM) set while in C6</td>
+<td>TPMI PERF_LIMIT_REASONS read</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify frequency clipped to expected thermal floor</td>
+<td>`IA32_PERF_STATUS`</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Assert PROCHOT#; verify PLR bit 4</td>
+<td>Platform PROCHOT signal</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Release conditions; verify PLR bits clear</td>
+<td>Thermal → normal</td>
+</tr>
+</tbody></table>
+<h3>NWP TPMI PLR Read</h3>
+<pre><code>
+# NWP TPMI PERF_LIMIT_REASONS (2 CBBs)
+for cbb_idx in range(2):
+    cbb = getattr(sv.socket0, f&#x27;cbb{cbb_idx}&#x27;)
+    try:
+        plr = cbb.base.tpmi.perf_limit_reasons.read()
+        emttm_bit = (plr &gt;&gt; 3) &amp; 1
+        prochot_bit = (plr &gt;&gt; 4) &amp; 1
+        print(f&quot;CBB{cbb_idx} PLR: 0x{plr:08X}  EMTTM={emttm_bit}  PROCHOT={prochot_bit}&quot;)
+    except Exception as e:
+        print(f&quot;CBB{cbb_idx} PLR: {e}&quot;)
+</code></pre>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>While in Core C6: PLR bits 3 (EMTTM) and 4 (PROCHOT) set when conditions active</li>
+<li>Frequency clipping to expected thermal floor</li>
+<li>PLR bits clear on condition removal</li>
+<li>Core C6 maintained during thermal condition (cores wake only on interrupt)</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — thermalManagement.py; Core C6 + TPMI PLR applicable on NWP**</p>
+<p>Note: Do not use Pkg C6 (ZBB on NWP). Test explicitly uses core-level C6 (&quot;Extended C6&quot;).</p>
+<p>Required adaptations:</p>
+<p>1. NWP: 2 CBBs; verify TPMI PLR per CBB</p>
+<p>2. Verify NWP TPMI PERF_LIMIT_REASONS register path</p>
+<p>**Priority**: Medium — `plc.feature.p1` + `NGA_MAIN`; BEAT thermal PLR in C6 cross-product</p>
+    </div>
+  </div>
+</body>
+</html>

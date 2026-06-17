@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [TPMI/PMT] Verify Thermal Monitor Filtering TPMI Register</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [TPMI/PMT] Verify Thermal Monitor Filtering TPMI Register</h1>
+      <p>Segment: FV | Source: HSD_22022421585_verify_thermal_monitor_filtering_tpmi_register.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [TPMI/PMT] Verify Thermal Monitor Filtering TPMI Register</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421585</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[TPMI/PMT] Verify Thermal Monitor Filtering TPMI Register</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; TPMI/PMT</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PMT PCS Index 20 (extension) — Thermal Monitor Filtering</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test is an extension of TC 22022421578 (Package Thermal Status TPMI) — it verifies the **Thermal Monitor Filtering TPMI register** that controls a time delay (Tau value) for the Thermal Monitor Status assertion. The filtering algorithm is:</p>
+<pre><code>
+if (PKG_MAX_TEMPERATURE &gt;= EFFECTIVE_TJ_MAX):
+    RAW_THERMAL_MONITOR_STATUS = 1
+else:
+    RAW_THERMAL_MONITOR_STATUS = 0
+
+CURRENT_THERMAL_MONITOR_STATUS = EWMA_FILTER(RAW_THERMAL_MONITOR_STATUS, TAU)
+</code></pre>
+<p>The Tau value (filter time constant) is set in the Thermal Monitor Filtering TPMI register and controls how quickly the status bit responds to temperature crossing. The command uses a custom script `thermalManagement.py` / `Demo_DMR_TMF.py`. On NWP, same filtering mechanism exists. Primary adaptation: update script for NWP (XML reference), validate register path.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>Thermal Monitor Filtering via Tau value is present on NWP</li>
+<li>Same EWMA (Exponentially Weighted Moving Average) filtering algorithm</li>
+<li>`PMSS_NWP_READINESS_CHECK` tag: evaluated for NWP</li>
+<li>Custom script needs NWP adaptation (`Demo_DMR_TMF.py` → NWP equivalent)</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon with thermal reporting active</li>
+<li>Tau value programmable via TPMI write</li>
+<li>`thermalManagement.py` module available (or `pm.Active_pm.Thermal_Management.CPU_Thermal_Management.Demo_DMR_TMF.py` adapted for NWP)</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Read current Tau value from Thermal Monitor Filtering TPMI register</td>
+<td>`sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.thermal_monitor_filter.read()`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Program a known Tau value</td>
+<td>TPMI write; same register on NWP</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Trigger temperature crossing (inject temp above EFFECTIVE_TJ_MAX)</td>
+<td>NWP DTS override mechanism</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify thermal monitor status asserts with expected delay derived from Tau</td>
+<td>Poll `PACKAGE_THERM_STATUS.THERMAL_MONITOR_STATUS`; measure time to assert</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Compare measured delay to expected delay from Tau formula</td>
+<td>`Tau_seconds = (Tau_value * slow_loop_period)` or per TPMI HAS formula</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Restore temperature and verify status de-asserts with same Tau delay</td>
+<td>Same filter applies on de-assertion</td>
+</tr>
+</tbody></table>
+<h3>Filtering Formula</h3>
+<pre><code>
+# Per DMR TPMI HAS (same on NWP):
+if CURRENT_THERMAL_MONITOR_STATUS == 1:
+    # Once asserted, stay asserted for Tau slow loops before de-asserting
+    FILTER_COUNTDOWN = TAU
+elif RAW_THERMAL_MONITOR_STATUS == 0 and FILTER_COUNTDOWN &gt; 0:
+    FILTER_COUNTDOWN -= 1
+    if FILTER_COUNTDOWN == 0:
+        CURRENT_THERMAL_MONITOR_STATUS = 0
+</code></pre>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>Thermal Monitor Status assertion delayed by Tau × slow_loop_period after temp crossing</li>
+<li>Different Tau values produce proportionally different delays</li>
+<li>Filter behavior consistent with TPMI HAS specification</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>Thermal Monitor Filtering TPMI</td>
+<td>`ptpcioregs.thermal_monitor_filter`</td>
+<td>Same on NWP</td>
+<td>Direct reuse</td>
+</tr>
+<tr>
+<td>Tau formula</td>
+<td>Per DMR TPMI HAS</td>
+<td>Same algorithm on NWP</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>Custom script</td>
+<td>`Demo_DMR_TMF.py`</td>
+<td>NWP equivalent needed</td>
+<td>Script uses `dmr` in filename; adapt for NWP</td>
+</tr>
+<tr>
+<td>Slow loop period</td>
+<td>~1 second (approx)</td>
+<td>Same on NWP</td>
+<td>Same timing</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<pre><code>
+import time
+
+# NWP Thermal Monitor Filtering Validation
+
+# Read Tau value from TPMI
+try:
+    tmf = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.thermal_monitor_filter.read()
+    print(f&quot;THERMAL_MONITOR_FILTER (Tau): 0x{tmf:08X}&quot;)
+    tau_value = tmf &amp; 0xFF  # Tau typically in bits [7:0]
+    print(f&quot;Tau value: {tau_value}&quot;)
+except Exception as e:
+    print(f&quot;THERMAL_MONITOR_FILTER: {e}&quot;)
+
+# Poll thermal monitor status over time
+try:
+    for i in range(20):
+        status = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_therm_status.thermal_monitor_status.read()
+        temp = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature.read()
+        print(f&quot;t={i}: TM_STATUS={status}, TEMP={temp}&quot;)
+        time.sleep(1)
+except Exception as e:
+    print(f&quot;Poll: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADAPT — port `Demo_DMR_TMF.py` script to NWP; register path same**</p>
+<p>Thermal Monitor Filtering is architecturally identical on NWP. The custom script name references DMR and needs NWP adaptation.</p>
+<p>Required adaptations:</p>
+<p>1. Port `pm.Active_pm.Thermal_Management.CPU_Thermal_Management.Demo_DMR_TMF.py` to NWP variant</p>
+<p>2. `sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.thermal_monitor_filter` — same path on NWP</p>
+<p>3. Verify NWP slow loop period for Tau delay calculation</p>
+<p>**Priority**: Low-Medium — PMT filtering verification; extends TC 22022421578</p>
+    </div>
+  </div>
+</body>
+</html>

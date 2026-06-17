@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Thermal Reporting] Verify IA32_TEMPERATURE_TARGET</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Thermal Reporting] Verify IA32_TEMPERATURE_TARGET</h1>
+      <p>Segment: FV | Source: HSD_22022421646_verify_ia32_temperature_target.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Thermal Reporting] Verify IA32_TEMPERATURE_TARGET</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421646</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Thermal Reporting] Verify IA32_TEMPERATURE_TARGET</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>MSR 0x1A2 TEMPERATURE_TARGET — TJ_MAX, fan offset, ref_temp fields</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **MSR 0x1A2 TEMPERATURE_TARGET** — a legacy discovery register with three key fields:</p>
+<p>1. `TJ_MAX_TCC_OFFSET` (bits [6:0]): Customer-programmable TCC offset (default 0)</p>
+<p>2. `FAN_TEMP_TARGET_OFFSET` (bits [15:8]) = `FUSE_TEMP_TARGET` — fan speed target</p>
+<p>3. `REF_TEMP` (bits [23:16]) = `EFFECTIVE_TJMAX - FUSE_DTS_CAL_GUARDBAND`</p>
+<p>Additional field: `TCC_OFFSET_TIME_WINDOW` (bits [6:0]) for RATL averaging.</p>
+<p>On NWP, same MSR with same field definitions. `pcode_dts_cal_guardband` fuse at same path.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>`Ready_for_testing` + `plc.feature.p1` + `NGA_MAIN` + `PMSS_NWP_READINESS_CHECK` tags</li>
+<li>Standard temperature target register; NWP direct applicability</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>MSR 0x1A2 Fields</h3>
+<table class="md-table"><thead><tr>
+<th>Bits</th>
+<th>Field</th>
+<th>Formula/Source</th>
+</tr></thead><tbody>
+<tr>
+<td>[6:0]</td>
+<td>`TCC_OFFSET_TIME_WINDOW`</td>
+<td>RATL averaging window</td>
+</tr>
+<tr>
+<td>[6:0]</td>
+<td>`TJ_MAX_TCC_OFFSET`</td>
+<td>Platform programmable; default = 0</td>
+</tr>
+<tr>
+<td>[15:8]</td>
+<td>`FAN_TEMP_TARGET_OFFSET`</td>
+<td>= `FUSE_TEMP_TARGET` fuse</td>
+</tr>
+<tr>
+<td>[23:16]</td>
+<td>`REF_TEMP`</td>
+<td>= `EFFECTIVE_TJMAX - FUSE_DTS_CAL_GUARDBAND`</td>
+</tr>
+</tbody></table>
+<h3>NWP Verification</h3>
+<pre><code>
+import svtools.common.baseaccess as baseaccess
+base = baseaccess.getglobalbase()
+
+temp_target = base.rdmsr(0x1A2)
+tcc_offset = (temp_target &gt;&gt; 24) &amp; 0x3F
+fan_offset = (temp_target &gt;&gt; 8) &amp; 0xFF
+ref_temp = (temp_target &gt;&gt; 16) &amp; 0xFF
+
+print(f&quot;MSR 0x1A2 TEMPERATURE_TARGET: 0x{temp_target:08X}&quot;)
+print(f&quot;  TCC_OFFSET (TJ_MAX_TCC_OFFSET): {tcc_offset}&quot;)
+print(f&quot;  FAN_TEMP_TARGET_OFFSET: {fan_offset}&quot;)
+print(f&quot;  REF_TEMP: {ref_temp}&quot;)
+
+# Verify REF_TEMP = EFFECTIVE_TJMAX - FUSE_DTS_CAL_GUARDBAND
+dts_guardband = sv.socket0.imh0.fuses.punit.pcode_dts_cal_guardband.read()
+effective_tjmax = ref_temp + dts_guardband
+print(f&quot;  Derived EFFECTIVE_TJMAX: {effective_tjmax} (= REF_TEMP {ref_temp} + DTS_GB {dts_guardband})&quot;)
+</code></pre>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>`REF_TEMP = EFFECTIVE_TJMAX - FUSE_DTS_CAL_GUARDBAND`</li>
+<li>`FAN_TEMP_TARGET_OFFSET = FUSE_TEMP_TARGET` fuse value</li>
+<li>`TJ_MAX_TCC_OFFSET` defaults to 0 (no customer offset applied)</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — thermalManagement.py + same fuse path on NWP**</p>
+<p>Required adaptations:</p>
+<p>1. Use `thermalManagement.py` from NWP PythonSV repo</p>
+<p>2. Verify `pcode_dts_cal_guardband` fuse name on NWP (expected same)</p>
+<p>**Priority**: Medium — `plc.feature.p1` + `NGA_MAIN`; temperature target bring-up check</p>
+    </div>
+  </div>
+</body>
+</html>

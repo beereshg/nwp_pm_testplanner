@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [IMH DTS &amp; Telemetry] Verify Memory DTS Functionality</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [IMH DTS &amp; Telemetry] Verify Memory DTS Functionality</h1>
+      <p>Segment: FV | Source: HSD_22022421508_verify_memory_dts_functionality.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [IMH DTS &amp; Telemetry] Verify Memory DTS Functionality</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421508</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[IMH DTS &amp; Telemetry] Verify Memory DTS Functionality</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>DTS — Memory (DDR PHY) thermal sensors via MC_E &amp; MC_W Resource Controllers</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **Memory DTS** functionality. From test step IP table:</p>
+<table class="md-table"><thead><tr>
+<th>IP Stack</th>
+<th>No. of DTS</th>
+<th>IMH RS location</th>
+<th>DTS location</th>
+<th>Comment</th>
+</tr></thead><tbody>
+<tr>
+<td>Memory</td>
+<td>4</td>
+<td>inside DDR PHY in SOC</td>
+<td>one DTS per 2 DDR channels; 3 RS in each DDR channel</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>Flow:</p>
+<p>1. Read DTS temperature in Memory IP (DDR PHY)</p>
+<p>2. Read temperature in corresponding Resource Controller — **MC_E &amp; MC_W**</p>
+<p>3. Read temperature in PUNIT telemetry</p>
+<p>4. Compare all — should match</p>
+<p>Tags: `DMR_PO`, `NGA_MAIN`, `plc.feature.p1`, `PMSS_NWP_READINESS_CHECK`</p>
+<p>NWP has DDR memory channels in iMH die. MC_E and MC_W are the two memory controller RC halves. 4 DTS sensors (1 per 2 DDR channels) = covers all DDR PHY thermal zones.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Memory DTS Architecture (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Parameter</th>
+<th>DMR</th>
+<th>NWP</th>
+</tr></thead><tbody>
+<tr>
+<td>Memory DTS count</td>
+<td>4</td>
+<td>4 (verify from NWP HAS — same expected)</td>
+</tr>
+<tr>
+<td>DTS granularity</td>
+<td>1 per 2 DDR channels</td>
+<td>1 per 2 DDR channels</td>
+</tr>
+<tr>
+<td>RS per channel</td>
+<td>3 RS per DDR channel</td>
+<td>Same expected</td>
+</tr>
+<tr>
+<td>RCs</td>
+<td>MC_E, MC_W</td>
+<td>MC_E, MC_W</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run dts_telemetry PMx</td>
+<td>`python runPmx.py -x nwp.xml -p dts_telemetry -tM 60 --retry_count 2`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read Memory DTS (all 4 instances, per DDR PHY)</td>
+<td>`sv.socket0.imh0.&lt;ddr_phy_N&gt;.dts.temperature.read()`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read MC_E RC temperature</td>
+<td>`sv.socket0.imh0.mc_e.&lt;telem_reg&gt;.read()`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read MC_W RC temperature</td>
+<td>`sv.socket0.imh0.mc_w.&lt;telem_reg&gt;.read()`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Read PUNIT telemetry</td>
+<td>`sv.socket0.imh0.punit.&lt;mem_telem_reg&gt;.read()`</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Compare all — DTS ≈ MC_E/MC_W ≈ PUNIT telem</td>
+<td>All 4 DTS checked</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Stress memory (bandwidth workload)</td>
+<td>Verify DTS and telemetry track under load</td>
+</tr>
+</tbody></table>
+<h3>NWP Notes</h3>
+<ul>
+<li>NWP: single `imh0`; MC_E covers east DDR channels; MC_W covers west DDR channels</li>
+<li>4 Memory DTS total (1 per 2 DDR channels)</li>
+<li>Both MC_E and MC_W RCs must be verified (different DDR channel groups)</li>
+<li>`NGA_MAIN` tag → tested in NGA automation</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>All 4 Memory DTS, MC_E RC, MC_W RC, and PUNIT telemetry agree</li>
+<li>Telemetry updates under memory bandwidth stress</li>
+<li>MC_E and MC_W independently report correct temperatures for their channel groups</li>
+</ul>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<pre><code>
+# NWP Memory DTS read (example pattern)
+for dts_idx in range(4):  # 4 Memory DTS instances
+    dts_temp = sv.socket0.imh0.getbypath(f&quot;&lt;ddr_phy_{dts_idx}_dts&gt;&quot;).temperature.read()
+    print(f&quot;Memory DTS[{dts_idx}] = {dts_temp}&quot;)
+
+# MC_E and MC_W telemetry
+mc_e_temp = sv.socket0.imh0.mc_e.&lt;telem_reg&gt;.read()
+mc_w_temp = sv.socket0.imh0.mc_w.&lt;telem_reg&gt;.read()
+punit_mem_temp = sv.socket0.imh0.punit.&lt;mem_telem&gt;.read()
+</code></pre>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; 4 Memory DTS in imh0; both MC_E and MC_W RC paths**</p>
+<p>1. `python runPmx.py -x nwp.xml -p dts_telemetry -tM 60 --retry_count 2`</p>
+<p>2. NWP: 4 Memory DTS in `sv.socket0.imh0.*` DDR PHY blocks</p>
+<p>3. Verify chain: Memory DTS (×4) → MC_E RC + MC_W RC → PUNIT telemetry</p>
+<p>4. Stress test with memory bandwidth workload</p>
+<p>**Priority**: High — `plc.feature.p1`, `NGA_MAIN`; Memory DTS is critical for DDR thermal throttling decisions (memory thermal management)</p>
+    </div>
+  </div>
+</body>
+</html>

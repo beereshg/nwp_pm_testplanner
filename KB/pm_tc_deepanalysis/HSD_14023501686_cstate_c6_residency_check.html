@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: CState C6 Residency Check</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: CState C6 Residency Check</h1>
+      <p>Segment: FV | Source: HSD_14023501686_cstate_c6_residency_check.inference.md | Generated: 2026-06-17 21:14:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: CState C6 Residency Check</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>14023501686</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>CState C6 residency check</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Core C-States</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>C6 residency check across all C6 flavors (C6A, C6S, C6S-P)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test checks **C6 residency** in all C6 flavors: C6A (Autonomous C6), C6S (C6 with cache flush), C6S-P (C6S Predictive). All are functional on NWP.</p>
+<p>Requires NGA default flow working first. Tags: `DMR_PO`, `NGA_MAIN`, `plc.feature.p1`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Ensure NGA default flow working</td>
+<td>Flexcon checks pass with `NWPSV.ini`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run cstates PMx</td>
+<td>`python runPmx.py -x nwp.xml -p cstates -H 1 -M 5`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>OR standalone</td>
+<td>`python /usr/lib/python3/dist-packages/newport/pm/Idle_PM/cstates/ccx_residency_test.py`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Idle system (run with light workload to promote idle)</td>
+<td>Allow all 96 cores to enter C6</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Read C6 residency counters for each flavor</td>
+<td>Per core; check all 96 cores have C6 residency</td>
+</tr>
+</tbody></table>
+<h3>C6 Residency Counter Paths (NWP)</h3>
+<pre><code>
+# NWP C6 residency check (example for cbb0, first module)
+# Exact paths depend on NWP PythonSV hierarchy
+for cbb in range(2):
+    for module in sv.socket0.getbypath(f&quot;cbb{cbb}&quot;).computes:
+        for core_pma in module.pmas:
+            residency = core_pma.pmsb.&lt;c6_residency_counter&gt;.read()
+            print(f&quot;cbb{cbb} {module.target_info.name}: C6 residency = {residency}&quot;)
+</code></pre>
+<h3>Pass Criteria</h3>
+<ul>
+<li>C6A residency counter &gt; 0 for all 96 cores during idle</li>
+<li>C6S residency counter &gt; 0 (with cache flush)</li>
+<li>C6S-P residency counter &gt; 0 (predictive)</li>
+<li>No hung cores (zero residency after sufficient idle time indicates issue)</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; standalone script `diamondrapids` → `newport`; verify all 96 cores (2 CBBs × 48) show C6 residency**</p>
+<p>**Priority**: High — `NGA_MAIN`, `plc.feature.p1`; C6 residency is the primary idle power efficiency metric for NWP server deployment</p>
+    </div>
+  </div>
+</body>
+</html>

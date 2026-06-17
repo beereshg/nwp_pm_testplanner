@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [GPIO Interface] Verify XX_MEMTRIP_N Output Pin Assertion</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [GPIO Interface] Verify XX_MEMTRIP_N Output Pin Assertion</h1>
+      <p>Segment: FV | Source: HSD_22022421483_verify_xx_memtrip_n_output_pin.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [GPIO Interface] Verify XX_MEMTRIP_N Output Pin Assertion</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421483</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[GPIO Interface] Verify XX_MEMTRIP_N output pin assertion</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; GPIO Interface</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies that `XX_MEMTRIP_N` (memory trip output pin, active low) is correctly asserted by the CPU when memory temperature reaches a critical level — a higher-severity condition than MemHot. `XX_MEMTRIP_N` communicates catastrophic memory temperature to the platform, which should respond by reducing power delivery or initiating a shutdown. On NWP, the MemTrip GPIO output is supported. The primary adaptation is confirming NWP board infrastructure for pin measurement and the NWP-specific MemTrip threshold values.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>`XX_MEMTRIP_N` output GPIO is present on NWP; `ENABLE_XXMEMTRIP_N_FUSE` = 1 (from TC 22022421480)</li>
+<li>MemTrip is a higher severity event than MemHot; same pin assertion mechanism but different threshold</li>
+<li>`NGA_MAIN` tag: silicon test requiring real memory thermal stress or injection</li>
+<li>NWP single IMH: monitors memory temperatures and asserts MemTrip output</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon platform with MEMTRIP_N pin observable</li>
+<li>`ENABLE_XXMEMTRIP_N_FUSE` = 1 on `imh0`</li>
+<li>Controlled thermal environment (MemTrip is catastrophic — use safe thermal injection if possible)</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Confirm `ENABLE_XXMEMTRIP_N_FUSE` = 1 on `imh0`</td>
+<td>Single IMH check</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Configure MemTrip threshold (if programmable) to a testable value</td>
+<td>NWP MemTrip threshold register</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Trigger MemTrip condition (thermal injection or DIMM stress)</td>
+<td>Same mechanism; extreme care with real DIMM heating</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify `XX_MEMTRIP_N` asserts (pin goes low)</td>
+<td>Board-level measurement; NWP platform</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify `PTPCFSMS_GPIO_BUMP_STATUS[XXMEMTRIP_N_STATUS]` software status</td>
+<td>NWP PTPCFSMS register</td>
+</tr>
+<tr>
+<td>6</td>
+<td>System should respond to MemTrip (platform shutdown or power reduction)</td>
+<td>Verify platform response within expected latency</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>Memory temp ≥ MemTrip threshold → `XX_MEMTRIP_N` asserts (pin = low)</li>
+<li>Software status register reflects assertion</li>
+<li>Platform responds within specification</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>MemTrip threshold</td>
+<td>DMR-specific fuse</td>
+<td>NWP-specific fuse</td>
+<td>Verify from NWP PM HAS</td>
+</tr>
+<tr>
+<td>IMH count</td>
+<td>Multiple</td>
+<td>Single</td>
+<td>Only imh0 monitors and asserts</td>
+</tr>
+<tr>
+<td>Risk</td>
+<td>High (catastrophic temp event)</td>
+<td>Same</td>
+<td>Requires controlled thermal injection</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+# Check MEMTRIP_N status on NWP
+ptpcfsms = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms
+
+try:
+    memtrip_status = ptpcfsms.gpio_bump_status.xxmemtrip_n_status.read()
+    print(f&quot;MEMTRIP_N status: {memtrip_status} (0=asserted/critical)&quot;)
+except Exception as e:
+    print(f&quot;MemTrip status: {e}&quot;)
+
+# MemTrip threshold (fuse-based)
+try:
+    memtrip_fuse = sv.socket0.imh0.fuses.punit.pcode_memtrip_temp.read()
+    print(f&quot;MemTrip threshold fuse: {memtrip_fuse}&quot;)
+except Exception as e:
+    print(f&quot;MemTrip fuse: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**Catastrophic event risk** — MemTrip represents critical DIMM overtemperature; triggering for real risks DIMM damage</td>
+<td>High</td>
+<td>Use thermal injection (lower threshold artificially) or VP simulation</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**Board test point required** — same as MemHot; MEMTRIP_N pin must be observable on NWP board</td>
+<td>High</td>
+<td>Coordinate with platform team</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADAPT — safety precautions required; NGA_MAIN priority**</p>
+<p>MemTrip output assertion is the same mechanism on NWP. MemTrip threshold is a fuse value that can be temporarily lowered for test purposes. Requires board test point infrastructure.</p>
+<p>Required adaptations:</p>
+<p>1. Identify NWP MemTrip threshold fuse and adjust for safe test execution</p>
+<p>2. Confirm NWP board MEMTRIP_N pin test point</p>
+<p>3. Single IMH scope: `sv.socket0.imh0`</p>
+<p>**Priority**: High — NGA_MAIN; critical thermal safety signal validation</p>
+    </div>
+  </div>
+</body>
+</html>

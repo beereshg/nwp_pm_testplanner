@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: PMX ccx_test</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: PMX ccx_test</h1>
+      <p>Segment: FV | Source: HSD_14020458242_pmx_ccx_test.inference.md | Generated: 2026-06-17 21:14:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: PMX ccx_test</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>14020458242</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>PMX ccx_test</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-05-28</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Core C-States</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>PMX ccx_test is a self-checking PMX test module that exercises the full C-state state machine (C0/C1/C6 entries, exits, residency counters) under concurrent PM activity. Core C-states are fully supported on NWP with 2 CBBs and 48 cores per CBB; the test adapts by substituting `nwp.xml` for `dmr.xml` and reducing loop bounds from 4 CBBs to 2.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>Core C-states (C0/C1/C1E/C6) are on NWP critical path — all sub-states present</li>
+<li>PMX framework supports NWP via `nwp.xml` configuration</li>
+<li>ccx_residency_test.py validates state machine integrity independent of CBB count; NWP requires only topology config change</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon or VP platform at SVOS</li>
+<li>PMX tool installed; `nwp.xml` available</li>
+<li>NGA default flow running; FlexCon checks passing</li>
+<li>Pre-test self-check steps validated independently</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Configure NGA flow (FlexCon default)</td>
+<td>Same — NWP supports NGA flow</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run PMX ccx_test with NWP config</td>
+<td>Change `-x dmr.xml` → `-x nwp.xml`: `runPmx.py -x nwp.xml -p cstates -H 1 -M 5`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Alternatively run directly</td>
+<td>`python /usr/lib/python3/dist-packages/nwp/pm/Idle_PM/cstates/ccx_residency_test.py`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Validate residency counters</td>
+<td>Check MSR 0x3FD (CC6), 0x778 (CC1) for non-zero counts on all active cores</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Check self-checking pass/fail output</td>
+<td>All PMX tests are self-checking — PASS reported in log</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>PMX reports PASS for all ccx_test sub-tests</li>
+<li>CC6/CC1 residency counters increment correctly on both CBBs (cbb0, cbb1)</li>
+<li>No firmware MCA or hang during C-state transitions</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<h3>Topology</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>CBB count</td>
+<td>4</td>
+<td>2</td>
+<td>Loop bounds in test reduced; `-x nwp.xml` handles automatically</td>
+</tr>
+<tr>
+<td>Cores/CBB</td>
+<td>32</td>
+<td>48</td>
+<td>More cores per CBB — residency test covers larger domain per CBB</td>
+</tr>
+<tr>
+<td>Module count</td>
+<td>8 per CBB</td>
+<td>6 per CBB</td>
+<td>Module iteration in ccx_residency_test.py must use NWP module count</td>
+</tr>
+<tr>
+<td>PkgC6</td>
+<td>Supported</td>
+<td>ZBB</td>
+<td>ccx_test scoped to CC6 (core) — PkgC6 not exercised</td>
+</tr>
+</tbody></table>
+<h3>Environment</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>SVOS/PMX</td>
+<td>Supported</td>
+<td>Supported</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>Virtual Platform</td>
+<td>Available</td>
+<td>Available</td>
+<td>Intent-check on VP before silicon</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>Complete Register/Signal Check Table (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Category</th>
+<th>Register</th>
+<th>Field</th>
+<th>Expected</th>
+<th>Verify On</th>
+</tr></thead><tbody>
+<tr>
+<td>C6 Residency</td>
+<td>MSR `0x3FD`</td>
+<td>Full value</td>
+<td>Non-zero after C6 exercise</td>
+<td>Per core</td>
+</tr>
+<tr>
+<td>C1 Residency</td>
+<td>MSR `0x778`</td>
+<td>Full value</td>
+<td>Non-zero after C1 exercise</td>
+<td>Per core</td>
+</tr>
+<tr>
+<td>Core Status</td>
+<td>`CORE_PMA_CR_CORE_STATUS`</td>
+<td>—</td>
+<td>CC0 after wakeup</td>
+<td>Per core</td>
+</tr>
+<tr>
+<td>C-State Enable</td>
+<td>MSR `0xE2`</td>
+<td>`C1_AUTO_DEMOTE_EN`, `C6_ENABLE`</td>
+<td>Both set per BIOS knobs</td>
+<td>Per socket</td>
+</tr>
+</tbody></table>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+# Check C6 and C1 residency on all NWP cores (2 CBBs, 48 cores each)
+for cbb_idx in range(2):
+    for mod_idx in range(6):        # 6 modules per CBB on NWP
+        for core_idx in range(8):   # 8 cores per module
+            path = f&quot;cbb{cbb_idx}.compute{mod_idx}.module{core_idx}&quot;
+            core = sv.socket0.getbypath(path)
+            # MSR reads via namednodes (if exposed) or via tool
+            print(f&quot;{path}: check CC6/CC1 residency counters&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**PMX nwp.xml availability** — ccx_test requires NWP-specific XML config</td>
+<td>High</td>
+<td>Verify `nwp.xml` includes cstates PMX module; create if missing</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**Module count mismatch** — ccx_residency_test.py may hardcode DMR module count</td>
+<td>Medium</td>
+<td>Check script for `range(8)` module loops; adjust to NWP `range(6)`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>**VP vs silicon** — intent check on VP before silicon run</td>
+<td>Low</td>
+<td>Standard pre-silicon checkout flow</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADAPT — Minor XML config and module count adjustment**</p>
+<p>Change `-x dmr.xml` to `-x nwp.xml` and verify ccx_residency_test.py module loop bounds match NWP (6 modules/CBB, not 8). The core state machine logic and residency counter checks are identical between DMR and NWP.</p>
+<p>Required adaptations:</p>
+<p>1. Substitute `nwp.xml` for `dmr.xml` in PMX command line</p>
+<p>2. Verify/update ccx_residency_test.py module iteration to use NWP topology</p>
+<p>3. Validate on VP before silicon run</p>
+<p>**Priority**: High — foundational C-state test; validates state machine integrity for all other C-state TCs</p>
+    </div>
+  </div>
+</body>
+</html>

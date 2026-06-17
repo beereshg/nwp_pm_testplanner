@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bug 14025764036 — [X1 A0 PO] CBB DVFS ccf_pma hang during PH4 reset</title>
+<link rel="stylesheet" href="../templates/bug_analysis.css">
+</head>
+<body>
+
+<a href="dmr_pm_retrospective.html" class="back-link">← Dashboard</a>
+
+<h1>
+  <span class="badge badge-hw">HW</span>
+  HSD 14025764036
+</h1>
+
+<div class="card">
+  <dl class="metadata-grid">
+    <dt>Title</dt>
+    <dd>[X1 A0 PO] CBB DVFS ccf_pma hang during PH4 reset</dd>
+
+    <dt>HSD Link</dt>
+    <dd><a href="https://hsdes.intel.com/appstore/article-one/#/14025764036" target="_blank">14025764036</a></dd>
+
+    <dt>Status</dt>
+    <dd>rejected.cannot_reproduce</dd>
+
+    <dt>Priority</dt>
+    <dd><span class="badge badge-priority-4">4-low</span></dd>
+
+    <dt>Owner</dt>
+    <dd>wstathis</dd>
+
+    <dt>Component</dt>
+    <dd>hw.power</dd>
+
+    <dt>Defect Die</dt>
+    <dd>base</dd>
+
+    <dt>Conclusion</dt>
+    <dd>no_root_cause.rejected</dd>
+  </dl>
+</div>
+
+<h2>Classification</h2>
+<div class="card">
+  <table>
+    <tr>
+      <th>Dimension</th><th>Value</th><th>Confidence</th>
+    </tr>
+    <tr>
+      <td>Root Cause Type</td>
+      <td><span class="badge badge-hw">HW</span></td>
+      <td>
+        <span class="confidence conf-medium">
+          <span class="confidence-bar"><span class="confidence-fill" style="width:40%"></span></span>
+          40%
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>Feature</td>
+      <td>Power/RAPL</td>
+      <td>
+        <span class="confidence conf-high">
+          <span class="confidence-bar"><span class="confidence-fill" style="width:80%"></span></span>
+          80%
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>Sub-Feature</td>
+      <td>VR</td>
+      <td>—</td>
+    </tr>
+  </table>
+  <p style="margin-top:0.5rem;font-size:0.85rem;color:var(--text-secondary);">
+    <strong>Reasoning:</strong> keyword 'eco' in title/desc → HW
+  </p>
+</div>
+
+
+<h2>Root Cause Summary</h2>
+<div class="card">
+  <p>Summary:</p>
+<p>========</p>
+<p>Seeing CBB DVFS by ccf_pma hang during boot PH4. Initial debug showed the DVFS may be caused PROCHOT or PMAX flow.</p>
+<p>Impact:</p>
+<p>========</p>
+<p>Reset hang during PH4</p>
+<p>Details:</p>
+<p>========</p>
+<p>Seen on SC00901159H0010</p>
+<p>[PM_PSTATE_TRANSITION]:Pm:WP Registers Mismatches:Found 12 domains in P-state transition (different RV, TV, CV) : PMAX_CCF PMAX_D2D D2D_UCIE_FIVR D2D_UCIE_FIVR.VOLTAGE RING_FIVR_2 RING_FIVR_2.VOLTAGE RING_FIVR_5 RING_FIVR_5 RING_FIVR_5 RING_FIVR_5.VOLTAGE RING_FIVR_5.VOLTAGE</p>
+</div>
+
+
+
+<h2>Root Cause Description</h2>
+<div class="card">
+  
+  <div class="extracted-content">
+    <h4 style="margin:0 0 0.5rem;color:var(--text-secondary);font-size:0.8rem;">Extracted from HSD</h4>
+    <p>The CBB CCF PMA hangs during PH4 reset due to a DVFS (Dynamic Voltage Frequency Scaling) workpoint mismatch. During boot PH4, the CCF PMA initiates a GV (Geyserville) transition but the requested voltage (RV) and current voltage (CV) diverge across multiple FIVR domains (PMAX_CCF, PMAX_D2D, D2D_UCIE_FIVR, RING_FIVR_2, RING_FIVR_5). Initial debug suggests PROCHOT or PMAX flow may be forcing the DVFS to initial/safe values while CCF PMA is mid-transition.</p>
+  </div>
+  
+  
+  <div class="llm-enriched" style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+    <h4 style="margin:0 0 0.5rem;color:var(--accent-purple);font-size:0.8rem;">🔍 LLM-Enriched Analysis</h4>
+    <p>Per the Power/RAPL KB, PMax provides ~500ns instant hardware protection via fast_throttle wires that clamp to Psafe frequency. During PH4 reset, if PMax triggers (or PROCHOT fires), PCode forces all FIVR domains to safe initial voltages. However, the CCF PMA operates in NonAutoGV mode (per PState Stack KB — CCF does not autonomously select workpoints; it responds to <code>CCF_WP</code> written by PCode). If PMax/PROCHOT forces a voltage change while CCF PMA is executing a GV transition, the WP register mismatch (RV ≠ CV) causes the PMA FSM to stall waiting for voltage convergence that never arrives. The WP Registers Mismatch table shows PMAX_CCF and PMAX_D2D with RV=0x1fff0000 but CV=0x0, and RING_FIVR domains with 1-LSB mismatches (0x16c vs 0x16d), suggesting a race between PMax safe-state clamping and the normal GV flow.</p>
+  </div>
+  
+</div>
+
+
+
+<h2>Fix Description</h2>
+<div class="card">
+  
+  <div class="extracted-content">
+    <h4 style="margin:0 0 0.5rem;color:var(--text-secondary);font-size:0.8rem;">Extracted from HSD</h4>
+    <p>No fix applied — rejected as <code>cannot_reproduce</code>. The issue was only seen during the first week of boot (WW35.4) and could not be reproduced after PM WAs were removed. Several experiments were proposed but not conclusively executed: (1) disable PMAX/PROCHOT to isolate the trigger, (2) switch CCF PMA to legacy drainless GV mode (<code>CCF_UCLK_GV_CFG.legacy_gv_enable=1</code>), (3) use chicken switch <code>gv_same_wp_trig</code> to suppress GV when WP is unchanged, (4) use <code>ccf_pma_override_ctl</code> to manually unstick the FSM.</p>
+  </div>
+  
+  
+  <div class="llm-enriched" style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+    <h4 style="margin:0 0 0.5rem;color:var(--accent-teal);font-size:0.8rem;">🔧 LLM-Enriched Fix Analysis</h4>
+    <p>The root issue is likely a race condition between PMax/PROCHOT safe-state enforcement and the CCF PMA GV FSM during reset PH4. Per the RAPL KB, PMax operates at ~500ns timescale with hard/soft Vtrip thresholds, while the GV transition takes microseconds. If the bug reappears, the fix should ensure PMax safe-state clamping atomically completes before CCF PMA initiates the next GV transition, or the CCF PMA should detect WP stale/mismatch and reset its FSM. The <code>ccf_pma_debug</code> register and PMSB/GPSB trace would confirm whether the hang is in the voltage settling phase or the frequency change phase.</p>
+  </div>
+  
+</div>
+
+
+
+<h2>Component Interaction Diagrams</h2>
+<div class="card">
+  
+  <h3 style="color:var(--accent-red);">Root Cause Interaction</h3>
+  <div class="mermaid">
+graph TD
+    A[PH4 Reset Boot] -->|triggers DVFS init| B[PCode WP Calc]
+    B -->|writes CCF_WP| C(CCF PMA - NonAutoGV)
+    C -->|starts GV transition| D(FIVR Domains)
+    E{PMax/PROCHOT Trigger} -->|fast_throttle ~500ns| F[PMax Safe-State Clamp]
+    F -->|forces FIVR to Psafe values| D
+    D -->|RV != CV mismatch| G[CCF PMA FSM Stall]
+    G -->|voltage never converges| H[PH4 Reset Hang]
+    style E fill:#ff6b6b,stroke:#c92a2a,color:#fff
+    style G fill:#ff6b6b,stroke:#c92a2a,color:#fff
+    style H fill:#ff6b6b,stroke:#c92a2a,color:#fff
+  </div>
+  
+  
+  <h3 style="color:var(--accent-teal);margin-top:1.5rem;">Fix Interaction</h3>
+  <div class="mermaid">
+graph TD
+    A[PH4 Reset Boot] -->|triggers DVFS init| B[PCode WP Calc]
+    B -->|writes CCF_WP| C(CCF PMA - NonAutoGV)
+    E{PMax/PROCHOT Trigger} -->|fast_throttle| F[PMax Safe-State Clamp]:::fix
+    F -->|atomic completion before GV| C
+    C -->|starts GV after PMax settled| D(FIVR Domains)
+    D -->|RV == CV| G[GV Complete]
+    G -->|boot continues| H[PH4 Reset Success]
+    classDef fix fill:#51cf66,stroke:#2b8a3e,color:#fff
+    style G fill:#51cf66,stroke:#2b8a3e,color:#fff
+    style H fill:#51cf66,stroke:#2b8a3e,color:#fff
+  </div>
+  
+</div>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true, theme:'dark', themeVariables:{primaryColor:'#313244',primaryTextColor:'#cdd6f4',primaryBorderColor:'#585b70',lineColor:'#a6adc8',secondaryColor:'#45475a',tertiaryColor:'#1e1e2e'}});</script>
+
+
+
+<h2>Source Code References</h2>
+<div class="card">
+  <ul>
+    
+    <li><code>source/pcode/flows/workpoint_calc/</code></li>
+    
+    <li><code>source/pcode/drivers/fivr.</code></li>
+    
+    <li><code>src/flow/pstates/</code></li>
+    
+    <li><code>src/flow/prochot/</code></li>
+    
+    <li><code>CCF_UCLK_GV_CFG</code></li>
+    
+    <li><code>ccf_pma_override_ctl</code></li>
+    
+    <li><code>ccf_pma_debug</code></li>
+    
+  </ul>
+</div>
+
+
+<h2>Feature Mapping</h2>
+<div class="card">
+  <ul>
+    <li><strong>Primary Feature:</strong> Power/RAPL</li>
+    <li><strong>Sub-Feature:</strong> VR</li>
+    <li><strong>Component Path:</strong> hw.power</li>
+  </ul>
+</div>
+
+
+
+
+<h2>Key Registers</h2>
+<div class="card">
+  <ul>
+    
+    <li><code>sv.socket0.cbb0.base.ccf_pma.ccf_pmc_regs.ccf_uclk_gv_cfg.gv_same_wp_trig</code></li>
+    
+    <li><code>sv.socket0.cbb0.base.ccf_pma.ccf_pmc_regs.ccf_uclk_gv_cfg.gv_same_wp_trig.description</code></li>
+    
+  </ul>
+</div>
+
+
+<h2>Timeline</h2>
+<div class="card">
+  <div class="timeline">
+    
+    <div class="timeline-item">
+      <span class="timeline-date">2025-08-19 01:25:13</span><br>Submitted
+    </div>
+    
+    
+    
+    <div class="timeline-item">
+      <span class="timeline-date">2025-09-05 09:51:39</span><br>Closed
+    </div>
+    
+    
+    <div class="timeline-item">
+      <strong>17</strong> days open
+    </div>
+    
+  </div>
+</div>
+
+
+
+
+
+
+
+<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border);font-size:0.75rem;color:var(--text-muted);">
+  Generated by DMR PM Bug Retrospective Pipeline at 2026-05-28T06:44:02+00:00
+</footer>
+
+</body>
+</html>

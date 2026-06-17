@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: HWP OOB Mode HWP Autonomous P-State Selection (APS)</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: HWP OOB Mode HWP Autonomous P-State Selection (APS)</h1>
+      <p>Segment: FV | Source: HSD_22022422332_hwp_oob_mode_hwp_autonomous_p.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: HWP OOB Mode HWP Autonomous P-State Selection (APS)</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422332</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>HWP OOB Mode HWP Autonomous P-state Selection (APS)</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Pstate Stack</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>HWP OOB Mode — APS algorithm with PECI-sourced EPP</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test is the **OOB Mode equivalent of TC 22022422298** (HWP APS in native mode). In OOB mode, the APS algorithm is the same closed-loop utilization-based algorithm, but EPP is provided via PECI rather than OS. Key metrics are identical:</p>
+<ul>
+<li>Instantaneous Utilization (C0%)</li>
+<li>FreqUtil = Frequency × C0%</li>
+<li>InstantaneousIdleN</li>
+<li>EPP = PECI-sourced in OOB mode</li>
+</ul>
+<p>On NWP, OOB mode APS with PECI EPP is the same mechanism.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>HWP APS in OOB mode applicable on NWP</li>
+<li>`Ready_for_testing` + `plc.feature.p2` + `PMSS_NWP_READINESS_CHECK` tags</li>
+<li>Same APS algorithm as TC 22022422298; only EPP source differs (PECI not OS)</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>OOB APS vs Native APS Differences</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>Native Mode (TC 22022422298)</th>
+<th>OOB Mode (This TC)</th>
+</tr></thead><tbody>
+<tr>
+<td>EPP source</td>
+<td>OS (`IA32_HWP_REQUEST.EPP`)</td>
+<td>PECI (BMC/management)</td>
+</tr>
+<tr>
+<td>HWP request</td>
+<td>Per-core OS writes</td>
+<td>Package-level PECI writes</td>
+</tr>
+<tr>
+<td>APS algorithm</td>
+<td>Same</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>Frequency selection</td>
+<td>Same utilization-based</td>
+<td>Same utilization-based</td>
+</tr>
+</tbody></table>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Boot with OOB mode: `ProcessorHWPMEnable = 0x2`</td>
+<td>Same BIOS knob</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Set PECI EPP = 0 (Performance)</td>
+<td>Use PECI tool/BMC</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Run hwpm_aps_check in OOB mode</td>
+<td>`python runPmx.py -x nwp.xml -p hwpm_aps_check -tM 60`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify high C0% → high turbo frequency (EPP=0 aggressive)</td>
+<td>Per-core `IA32_PERF_STATUS`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Change PECI EPP to 128 (Balanced Power)</td>
+<td>Dynamic PECI EPP change</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify APS frequency adapts to new EPP bucket</td>
+<td>Same verification</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify PECI min/max performance override takes effect</td>
+<td>`IA32_HWP_CAPABILITIES` respected</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>OOB APS frequency follows PECI EPP bucket</li>
+<li>APS utilization-based selection active in OOB mode</li>
+<li>Frequency within PECI-specified min/max bounds</li>
+<li>Dynamic PECI EPP changes reflected within APS slow loop interval</li>
+<li>No MCAs during OOB mode APS operation</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; OOB APS is same algorithm as native APS TC**</p>
+<p>The OOB APS test is directly applicable on NWP with XML and PECI tooling adaptation.</p>
+<p>Required adaptations:</p>
+<p>1. `python runPmx.py -x nwp.xml -p hwpm_aps_check -tM 60`</p>
+<p>2. Verify PECI access infrastructure on NWP (BMC or PECI debug utility)</p>
+<p>3. OOB mode: `ProcessorHWPMEnable = 0x2` BIOS setting required</p>
+<p>**Priority**: Medium — `Ready_for_testing` + `plc.feature.p2`; OOB APS validates server management EPP control path</p>
+    </div>
+  </div>
+</body>
+</html>

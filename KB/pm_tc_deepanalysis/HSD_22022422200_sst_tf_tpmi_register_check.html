@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HSD 22022422200: SST-TF - TPMI Register Check</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>HSD 22022422200: SST-TF - TPMI Register Check</h1>
+      <p>Segment: FV | Source: HSD_22022422200_sst_tf_tpmi_register_check.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>HSD 22022422200: SST-TF - TPMI Register Check</h1>
+<p>&gt; **Version**: v1</p>
+<p>&gt; **Generated**: 2026-05-29</p>
+<p>&gt; **HSD Status**: open</p>
+<p>&gt; **Feature**: SST / SST-TF (Turbo Frequency)</p>
+<p>&gt; **Family**: Newport</p>
+<p>&gt; **Val Environment**: silicon</p>
+<p>&gt; **Priority Tag**: DMR_PO, plc.feature.p1, PMSS_NWP_READINESS_CHECK</p>
+<p>&gt; **Owner**: mmaltese</p>
+<p>---</p>
+<h2>Test Case</h2>
+<h3>Test Intent</h3>
+<p>This test validates that **SST-TF TPMI registers are correctly populated after boot/reset**. PrimeCode programs SST_TF_INFO_0..8 registers at reset Phase 5 from SST-TF fuse arrays. This test reads back every SST-TF TPMI register and compares each field against the source fuse values and BIOS configuration. It is the **foundational enablement gate** — all SST-TF/PCT functional tests depend on correct TPMI register population.</p>
+<p>Key behavioural rule from HSD TCD: `sst_tf_info_0.feature_supported` will be `0x0` even if `pcode_sst_tf_enable == 0x1` if either:</p>
+<ul>
+<li>Turbo is disabled by fuse (`pcode_turbo_disable == 0x1`), or</li>
+<li>Turbo is disabled by BIOS (`io_firm_config.turbo_mode_disable == 0x1`)</li>
+</ul>
+<p>Note: the `sst_tf_info_0.feature_supported` write for BIOS disable occurs at CPL3 (runtime, after boot), not at reset Phase 5. Fuse-based turbo disable during runtime will **not** update `sst_tf_info_0`.</p>
+<h3>Pre-Conditions</h3>
+<p>1. Platform booted to SVOS</p>
+<p>2. SST-TF fuses present (SST_TF_ENABLE, SST_TF_CONFIG arrays)</p>
+<p>3. Turbo not disabled by fuse or BIOS (for positive check)</p>
+<p>4. PythonSV installed with TPMI register access capability</p>
+<p>5. `runPmx.py` test framework available with NWP XML config</p>
+<h3>Test Steps (from HSD TCD)</h3>
+<p>1. Boot platform to SVOS with default BIOS settings</p>
+<p>2. Run `validateTF.test_tpmi_regs` method (via `runPmx.py -p sst_tf` or standalone script)</p>
+<p>3. For each applicable PP level, read all SST-TF TPMI registers:</p>
+<ul>
+<li>`SST_TF_INFO_0`: `feature_supported`, LP_CLIP_RATIO_0..5 (per CDYN level)</li>
+<li>`SST_TF_INFO_1`: HP core-count-per-bucket (TRL bucket boundaries)</li>
+<li>`SST_TF_INFO_2..7`: HP TRL ratios per bucket per CDYN level (6 CDYN × 3 buckets)</li>
+<li>`SST_TF_INFO_8`: HP bucket core-counts for CLOS resolution (feature_revision &gt;= 2)</li>
+</ul>
+<p>4. Compare each register field against source fuse values</p>
+<p>5. Verify `SST_PP_CONTROL.feature_state[1]` reflects BIOS SST-TF enable setting</p>
+<h3>Pass/Fail Criteria</h3>
+<ul>
+<li>**Pass**: All SST-TF TPMI registers match fuse values; `feature_supported = 1` when turbo enabled; LP clip ratios and HP TRL ratios all match fused values per PP level and CDYN level</li>
+<li>**Fail**: Any register field mismatch; `feature_supported` incorrect for turbo enable/disable state; missing or corrupted register values</li>
+</ul>
+<p>---</p>
+<h2>Section A: NWP Architecture Delta</h2>
+<h3>Disposition: Runnable_On_N-1</h3>
+<p>SST-TF is **supported on NWP** as the underlying mechanism for PCT (1 of only 2 active SST features). The TPMI register programming flow in PrimeCode (`sstTfInfoInit()`) is identical. The test uses `runPmx.py` which requires only XML config change.</p>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact on This Test</th>
+</tr></thead><tbody>
+<tr>
+<td>CBB count</td>
+<td>4 CBBs</td>
+<td>2 CBBs</td>
+<td>TPMI registers read from 2 CBBs instead of 4; iteration range changes</td>
+</tr>
+<tr>
+<td>SST-TF TPMI registers</td>
+<td>SST_TF_INFO_0..8 per PP level</td>
+<td>Same register set, same offsets</td>
+<td>No register layout change</td>
+</tr>
+<tr>
+<td>CDYN levels</td>
+<td>6 (SSE, AVX2, AVX3, TMUL, AMX, +1)</td>
+<td>6 (same)</td>
+<td>No change to LP clip or HP TRL array dimensions</td>
+</tr>
+<tr>
+<td>HP TRL buckets</td>
+<td>3</td>
+<td>3</td>
+<td>No change to bucket count</td>
+</tr>
+<tr>
+<td>SST_TF_INFO_8</td>
+<td>Present (feature_revision &gt;= 2)</td>
+<td>Same (inherited)</td>
+<td>Verify NWP OSXML provides the SST_TF_INFO_8 register offset</td>
+</tr>
+<tr>
+<td>PP levels</td>
+<td>Multiple active PP levels (SST-PP)</td>
+<td>**Single PP level** (SST-PP ZBB&#x27;d)</td>
+<td>Only PP level 0 needs validation; simplifies multi-level check</td>
+</tr>
+<tr>
+<td>Fuse array names</td>
+<td>SST_TF_CONFIG_[0..4] arrays</td>
+<td>Same naming (NWP inherits DMR fuse definitions)</td>
+<td>Fuse value comparison unchanged</td>
+</tr>
+<tr>
+<td>PrimeCode init function</td>
+<td>`sst_tpmi_general.cpp::sstTfInfoInit()`</td>
+<td>Same function, same version</td>
+<td>No code path change</td>
+</tr>
+<tr>
+<td>`feature_supported` logic</td>
+<td>`SST_TF_ENABLE &amp;&amp; !TURBO_DISABLE`</td>
+<td>Same logic</td>
+<td>Conditional check unchanged</td>
+</tr>
+<tr>
+<td>Test command</td>
+<td>`runPmx.py -x dmr.xml -p sst_tf`</td>
+<td>`runPmx.py -x nwp.xml -p sst_tf`</td>
+<td>XML config swap only</td>
+</tr>
+<tr>
+<td>Test script path</td>
+<td>`graniterapids/pm/sst/sst_tf/sst_tf_validate.py`</td>
+<td>Same script (platform-generic), needs NWP XML</td>
+<td>Confirm `validateTF.test_tpmi_regs` works with NWP topology</td>
+</tr>
+</tbody></table>
+<h3>NWP SST-TF TPMI Register Map</h3>
+<table class="md-table"><thead><tr>
+<th>Register</th>
+<th>Per PP Level</th>
+<th>Content</th>
+<th>Fuse Source</th>
+</tr></thead><tbody>
+<tr>
+<td>`SST_TF_INFO_0`</td>
+<td>Yes</td>
+<td>`feature_supported`, LP_CLIP_RATIO_0..5</td>
+<td>SST_TF_ENABLE, SST_TF_CONFIG_LP_CLIP_RATIO</td>
+</tr>
+<tr>
+<td>`SST_TF_INFO_1`</td>
+<td>Yes</td>
+<td>HP core-count-per-bucket (3 buckets)</td>
+<td>SST_TF_CONFIG_TRL_CORES</td>
+</tr>
+<tr>
+<td>`SST_TF_INFO_2`</td>
+<td>Yes</td>
+<td>HP TRL ratios: CDYN 0 (SSE), buckets 0..2</td>
+<td>SST_TF_CONFIG_TRL_RATIOS_CDYN_INDEX0</td>
+</tr>
+<tr>
+<td>`SST_TF_INFO_3`</td>
+<td>Yes</td>
+<td>HP TRL ratios: CDYN 1 (AVX2), buckets 0..2</td>
+<td>SST_TF_CONFIG_TRL_RATIOS_CDYN_INDEX1</td>
+</tr>
+<tr>
+<td>`SST_TF_INFO_4`</td>
+<td>Yes</td>
+<td>HP TRL ratios: CDYN 2 (AVX3), buckets 0..2</td>
+<td>SST_TF_CONFIG_TRL_RATIOS_CDYN_INDEX2</td>
+</tr>
+<tr>
+<td>`SST_TF_INFO_5`</td>
+<td>Yes</td>
+<td>HP TRL ratios: CDYN 3 (TMUL), buckets 0..2</td>
+<td>SST_TF_CONFIG_TRL_RATIOS_CDYN_INDEX3</td>
+</tr>
+<tr>
+<td>`SST_TF_INFO_6`</td>
+<td>Yes</td>
+<td>HP TRL ratios: CDYN 4 (AMX), buckets 0..2</td>
+<td>SST_TF_CONFIG_TRL_RATIOS_CDYN_INDEX4</td>
+</tr>
+<tr>
+<td>`SST_TF_INFO_7`</td>
+<td>Yes</td>
+<td>HP TRL ratios: CDYN 5, buckets 0..2</td>
+<td>SST_TF_CONFIG_TRL_RATIOS_CDYN_INDEX5</td>
+</tr>
+<tr>
+<td>`SST_TF_INFO_8`</td>
+<td>Yes</td>
+<td>HP bucket core-counts for CLOS resolution</td>
+<td>SST_TF_CONFIG_TRL_CORES (feature_revision &gt;= 2)</td>
+</tr>
+</tbody></table>
+<h3>Adapted Command (NWP)</h3>
+<pre><code>
+python runPmx.py -x nwp.xml -p sst_tf -tM 60 -M 5 --retry_count 2
+</code></pre>
+<p>---</p>
+<h2>Section B: Interactions</h2>
+<h3>Swimlane Data</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Actor</th>
+<th>Action</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>PrimeCode (NIO)</td>
+<td>Reset Phase 5: read SST_TF_ENABLE fuse per PP level</td>
+<td>[Fuse read]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>PrimeCode (NIO)</td>
+<td>Read TURBO_DISABLE fuse; compute `tf_supported = SST_TF_ENABLE &amp;&amp; !TURBO_DISABLE`</td>
+<td>[Fuse read]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PrimeCode (NIO)</td>
+<td>Write SST_TF_INFO_0 per PP level: `feature_supported`, LP_CLIP_RATIO_0..5 from SST_TF_CONFIG_LP_CLIP_RATIO fuse arrays</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>PrimeCode (NIO)</td>
+<td>Write SST_TF_INFO_1: HP core-count-per-bucket from SST_TF_CONFIG_TRL_CORES fuses</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>PrimeCode (NIO)</td>
+<td>Write SST_TF_INFO_2..7: HP TRL ratios per bucket × CDYN from SST_TF_CONFIG_TRL_RATIOS fuses</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>PrimeCode (NIO)</td>
+<td>Write SST_TF_INFO_8: HP bucket core-counts (feature_revision &gt;= 2)</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>PrimeCode (NIO)</td>
+<td>Lock read-only TPMI registers</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>8</td>
+<td>BIOS</td>
+<td>CPL3: if turbo disabled by BIOS knob, write SST_TF_INFO_0.feature_supported = 0</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>9</td>
+<td>PCode (CBB×2)</td>
+<td>Init: TrlManager reads IO_SST_TF_INFO_0..8 from TPMI IO space → loads HP/LP CLOS TRL tables</td>
+<td>[TPMI IO read]</td>
+</tr>
+<tr>
+<td>10</td>
+<td>PCode (CBB×2)</td>
+<td>Slow loop: SstManager checks SST_PP_CONTROL.feature_state[1] for SST-TF enable</td>
+<td>[TPMI IO read]</td>
+</tr>
+<tr>
+<td>11</td>
+<td>OS/Test</td>
+<td>Run `validateTF.test_tpmi_regs` via `runPmx.py -p sst_tf`</td>
+<td>[Test logic]</td>
+</tr>
+<tr>
+<td>12</td>
+<td>OS/Test</td>
+<td>Read SST_TF_INFO_0..8 TPMI registers per PP level per CBB dielet</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>13</td>
+<td>OS/Test</td>
+<td>Read source fuse values: SST_TF_ENABLE, SST_TF_CONFIG arrays</td>
+<td>[Fuse read]</td>
+</tr>
+<tr>
+<td>14</td>
+<td>OS/Test</td>
+<td>Compare each TPMI register field against source fuse; verify feature_supported matches turbo enable state</td>
+<td>[Test logic]</td>
+</tr>
+<tr>
+<td>15</td>
+<td>OS/Test</td>
+<td>Read SST_PP_CONTROL.feature_state[1] — verify SST-TF enabled</td>
+<td>[TPMI MMIO]</td>
+</tr>
+</tbody></table>
+<h3>Sequence Data</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>From</th>
+<th>To</th>
+<th>Message</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>PrimeCode (NIO)</td>
+<td>Fuse Controller</td>
+<td>Read SST_TF_ENABLE, TURBO_DISABLE fuses</td>
+<td>[Fuse read]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>PrimeCode (NIO)</td>
+<td>TPMI SRAM</td>
+<td>Write SST_TF_INFO_0: feature_supported + LP_CLIP_RATIO_0..5</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PrimeCode (NIO)</td>
+<td>TPMI SRAM</td>
+<td>Write SST_TF_INFO_1: HP core-count-per-bucket</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>PrimeCode (NIO)</td>
+<td>TPMI SRAM</td>
+<td>Write SST_TF_INFO_2..7: HP TRL ratios (6 CDYN × 3 buckets)</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>PrimeCode (NIO)</td>
+<td>TPMI SRAM</td>
+<td>Write SST_TF_INFO_8: HP bucket core-counts</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>BIOS</td>
+<td>TPMI SRAM</td>
+<td>CPL3: override SST_TF_INFO_0.feature_supported = 0 if turbo disabled</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>PCode (CBB)</td>
+<td>TPMI SRAM</td>
+<td>Read IO_SST_TF_INFO_0..8 → load TRL tables</td>
+<td>[TPMI IO read]</td>
+</tr>
+<tr>
+<td>8</td>
+<td>PCode (CBB)</td>
+<td>TPMI SRAM</td>
+<td>Read SST_PP_CONTROL.feature_state[1] → detect SST-TF enable</td>
+<td>[TPMI IO read]</td>
+</tr>
+<tr>
+<td>9</td>
+<td>OS/Test</td>
+<td>TPMI SRAM</td>
+<td>Read SST_TF_INFO_0..8 per PP level</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>10</td>
+<td>OS/Test</td>
+<td>Fuse Controller</td>
+<td>Read SST_TF_CONFIG fuse arrays (golden reference)</td>
+<td>[Fuse read]</td>
+</tr>
+<tr>
+<td>11</td>
+<td>OS/Test</td>
+<td>OS/Test</td>
+<td>Compare TPMI register values vs fuse values → pass/fail</td>
+<td>[Test logic]</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section C: Interface Coverage Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>Interface</th>
+<th>Register / Address</th>
+<th>Covered by Test</th>
+<th>Coverage Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>**SST_TF_INFO_0**</td>
+<td>`feature_supported`, LP_CLIP_RATIO_0..5</td>
+<td>✅ Read + compared</td>
+<td>Core validation — feature enable and LP clip ratios</td>
+</tr>
+<tr>
+<td>**SST_TF_INFO_1**</td>
+<td>HP core-count-per-bucket</td>
+<td>✅ Read + compared</td>
+<td>TRL bucket boundaries</td>
+</tr>
+<tr>
+<td>**SST_TF_INFO_2..7**</td>
+<td>HP TRL ratios per CDYN (6 regs)</td>
+<td>✅ Read + compared</td>
+<td>Full HP TRL matrix: 6 CDYN × 3 buckets</td>
+</tr>
+<tr>
+<td>**SST_TF_INFO_8**</td>
+<td>HP bucket core-counts (feat_rev &gt;= 2)</td>
+<td>✅ Read + compared</td>
+<td>Newer register — verify NWP has feature_revision &gt;= 2</td>
+</tr>
+<tr>
+<td>**SST_PP_CONTROL.feature_state[1]**</td>
+<td>SST-TF enable bit</td>
+<td>✅ Read</td>
+<td>Confirms SST-TF is active</td>
+</tr>
+<tr>
+<td>**SST_TF_ENABLE fuse**</td>
+<td>Per-PP-level enable</td>
+<td>✅ Read (golden ref)</td>
+<td>Source truth for feature_supported</td>
+</tr>
+<tr>
+<td>**TURBO_DISABLE fuse**</td>
+<td>Global turbo disable</td>
+<td>✅ Read (golden ref)</td>
+<td>Affects feature_supported derivation</td>
+</tr>
+<tr>
+<td>**io_firm_config.turbo_mode_disable**</td>
+<td>BIOS turbo disable</td>
+<td>⚠️ Implicit</td>
+<td>TCD documents the interaction but test may not explicitly verify BIOS disable → feature_supported=0 path</td>
+</tr>
+<tr>
+<td>**SST_CLOS_ASSOC**</td>
+<td>Per-core CLOS assignment</td>
+<td>❌ Not checked</td>
+<td>Covered by other SST-TF tests (PCT functional tests)</td>
+</tr>
+<tr>
+<td>**MSR 0x1AD**</td>
+<td>PRIMARY_TURBO_RATIO_LIMIT</td>
+<td>❌ Not checked</td>
+<td>Updated from SST_PP_INFO_4 by PCode; separate test</td>
+</tr>
+<tr>
+<td>**IO_SST_TF_INFO_0..8** (PCode IO)</td>
+<td>PCode&#x27;s TPMI IO space copies</td>
+<td>❌ Not accessible from OS</td>
+<td>Internal to PCode — only verifiable via PCode debug</td>
+</tr>
+<tr>
+<td>**SST_TF_INFO_0 CPL3 update**</td>
+<td>feature_supported cleared at CPL3 for BIOS turbo disable</td>
+<td>⚠️ Timing-sensitive</td>
+<td>Write occurs at CPL3, not Phase 5 — test runs post-boot so sees final state</td>
+</tr>
+</tbody></table>
+<h3>Coverage Gaps</h3>
+<p>1. **BIOS turbo disable path**: TCD documents that `feature_supported` is cleared at CPL3 (not Phase 5) when BIOS disables turbo. Test should explicitly verify this path with turbo disabled by BIOS knob.</p>
+<p>2. **Multi-PP-level validation**: On NWP, only PP level 0 is relevant (SST-PP ZBB&#x27;d). Test should confirm no spurious data in other PP level slots.</p>
+<p>3. **Per-CBB consistency**: NWP has 2 CBBs — test should verify both CBBs have identical SST-TF TPMI values (same NIO programs both).</p>
+<p>4. **Warm reset persistence**: TPMI registers should survive warm reset (NVM-backed). Test should verify post-warm-reset values match cold boot.</p>
+<p>---</p>
+<h2>Section D: NWP Specification References</h2>
+<table class="md-table"><thead><tr>
+<th>Type</th>
+<th>Document</th>
+<th>Section</th>
+<th>Relevance</th>
+</tr></thead><tbody>
+<tr>
+<td>HAS</td>
+<td>[Intel SST HAS — SST-TF Registers](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html#sst-tf-registers)</td>
+<td>SST-TF register definitions</td>
+<td>Authoritative register layout: SST_TF_INFO_0..8 field definitions</td>
+</tr>
+<tr>
+<td>HAS</td>
+<td>[Intel SST HAS (Wave3 Common)](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html)</td>
+<td>§3 SST-TF</td>
+<td>SST-TF architecture — CLOS model, TRL tables, feature enable logic</td>
+</tr>
+<tr>
+<td>HAS</td>
+<td>[SST TPMI HAS (Wave3 Common)](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/IC_SST_TPMI.html)</td>
+<td>Register offsets</td>
+<td>TPMI register memory map for SST</td>
+</tr>
+<tr>
+<td>HAS</td>
+<td>[PCT HAS (Arch Common)](https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html)</td>
+<td>§2 PCT + SST-TF</td>
+<td>PCT uses SST-TF registers; confirms SST_TF_INFO_10 (DLCP)</td>
+</tr>
+<tr>
+<td>MAS</td>
+<td>[NWP IMH SoC PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)</td>
+<td>§3 SST-TF (PCT profile)</td>
+<td>NWP feature support confirmation — SST-TF active</td>
+</tr>
+<tr>
+<td>FAS</td>
+<td>[Primecode SST FHAS (DMR)](https://docs.intel.com/documents/primecode/fhas/DMR/SST/SST.html)</td>
+<td>TPMI register init</td>
+<td>PrimeCode `sstTfInfoInit()` flow</td>
+</tr>
+<tr>
+<td>Source</td>
+<td>`src/flow/sst/sst_tpmi_general/v2_0/sst_tpmi_general.cpp`</td>
+<td>`sstTfInfoInit()`</td>
+<td>PrimeCode function that writes SST_TF_INFO_0..8</td>
+</tr>
+<tr>
+<td>Source</td>
+<td>`src/flow/sst/sst_tpmi_compute/v1_0/sst_tpmi_compute.cpp`</td>
+<td>`getTrlRatioForSstTfInit()`</td>
+<td>Fuse accessor for TRL ratios</td>
+</tr>
+<tr>
+<td>Source</td>
+<td>PCode `source/pcode/flows/trls/trl_manager.cpp`</td>
+<td>`load_hp_clos_trl()`, `load_lp_clos_trl()`</td>
+<td>PCode TRL table loading from TPMI IO</td>
+</tr>
+<tr>
+<td>KB</td>
+<td>[KB/pm_features/sst/tf.md](../../KB/pm_features/sst/tf.md)</td>
+<td>Full KB article</td>
+<td>HW/FW/OS touchpoints, execution flow, NWP delta</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section E: NWP Risk Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**LP clip ratio programming error** — DMR sightings: &quot;pCode not programming LP ratios correctly with SST TF enabled&quot; (A0); &quot;Modules assigned as LP resolving wrong ratios&quot; (X4); &quot;LAVA attribute SSTTF_CFG0_CDYN4_LP_CLIP_FREQ wrong for specific SKUs&quot;</td>
+<td>Medium</td>
+<td>High — LP_CLIP_RATIO fields in SST_TF_INFO_0 would not match fuse, directly caught by this test</td>
+<td>Cross-check SST_TF_INFO_0 LP clip values against raw fuse reads for all 6 CDYN levels</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**SST_TF_INFO_8 missing on NWP** — this register is gated by `feature_revision &gt;= 2`. If NWP OSXML does not define the SST_TF_INFO_8 offset, PrimeCode will skip the write and PCode&#x27;s `load_hp_clos_trl()` will read stale/zero data</td>
+<td>Low</td>
+<td>High — HP TRL bucket resolution would fail silently</td>
+<td>Verify NWP OSXML provides SST_TF_INFO_8 register; check `feature_revision_default_value` in TPMI mailbox RDL</td>
+</tr>
+<tr>
+<td>3</td>
+<td>**TRL bucket count mismatch** — DMR sighting: &quot;PP3_SST_TF bucket-2 core count greater than PP3 online core count&quot;</td>
+<td>Low</td>
+<td>Medium — bucket boundaries in SST_TF_INFO_1 would not match physical core count</td>
+<td>Compare SST_TF_INFO_1 HP core-count-per-bucket against actual online core count (96 on NWP)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>**BIOS turbo disable race** — TCD documents that `sst_tf_info_0.feature_supported` write for BIOS turbo disable happens at CPL3, not Phase 5. If test reads before CPL3 completes, stale value may be seen</td>
+<td>Low</td>
+<td>Medium — transient pass for a functionally broken state</td>
+<td>Ensure test runs after CPL3 is complete (post-OS boot); add check for `io_firm_config.turbo_mode_disable` coherence</td>
+</tr>
+<tr>
+<td>5</td>
+<td>**TPMI register access breaks GPSB** — DMR sighting: &quot;Reading CBB TPMI via PYSV breaks GPSB access&quot;</td>
+<td>Low</td>
+<td>Medium — test infrastructure issue, not silicon bug</td>
+<td>Use validated TPMI access path; avoid concurrent GPSB operations</td>
+</tr>
+<tr>
+<td>6</td>
+<td>**Per-CBB register inconsistency** — NWP has 2 CBBs programmed by same NIO. If NIO programs only one CBB&#x27;s TPMI, the other will have stale/zero values</td>
+<td>Very Low</td>
+<td>High — half the platform would have wrong SST-TF config</td>
+<td>Read and compare SST_TF_INFO registers from both CBB0 and CBB1</td>
+</tr>
+<tr>
+<td>7</td>
+<td>**Fuse mismatch on early NWP silicon** — DMR sighting: &quot;Q9UC VIS QDF has incorrect fuses on PP level 4 CDYN index 1&quot;. Early NWP steppings may have fuse programming errors</td>
+<td>Low</td>
+<td>Medium — test correctly detects this as a fuse issue, not firmware bug</td>
+<td>Flag fuse value mismatches with clear messaging so triage distinguishes fuse vs FW bugs</td>
+</tr>
+</tbody></table>
+<h3>DMR Bug History (SST-TF TPMI Domain)</h3>
+<table class="md-table"><thead><tr>
+<th>Sighting</th>
+<th>Title</th>
+<th>Relevance to This TC</th>
+</tr></thead><tbody>
+<tr>
+<td>DMR A0</td>
+<td>pCode not programming LP ratios correctly with SST TF enabled</td>
+<td>**Direct** — LP_CLIP_RATIO in SST_TF_INFO_0 is a primary check target</td>
+</tr>
+<tr>
+<td>DMR X4</td>
+<td>Modules assigned as LP resolving wrong ratios with SST TF</td>
+<td>**Direct** — wrong LP ratios would be caught by fuse comparison</td>
+</tr>
+<tr>
+<td>DMR PM</td>
+<td>LAVA attribute SSTTF_CFG0_CDYN4_LP_CLIP_FREQ wrong for specific SKUs</td>
+<td>**Direct** — SKU-specific fuse errors detected by this test</td>
+</tr>
+<tr>
+<td>DMR X4</td>
+<td>PP3_SST_TF bucket-2 core count &gt; PP3 online core count</td>
+<td>**Direct** — SST_TF_INFO_1 bucket validation</td>
+</tr>
+<tr>
+<td>DMR A0 X4</td>
+<td>Q9UC VIS QDF incorrect fuses on PP level 4 CDYN index 1</td>
+<td>**Related** — fuse programming error on specific QDF</td>
+</tr>
+<tr>
+<td>DMR X1 PO</td>
+<td>Reading CBB TPMI via PYSV breaks GPSB access</td>
+<td>**Infrastructure** — test execution risk</td>
+</tr>
+<tr>
+<td>DMR X4</td>
+<td>pCode not resolving correctly resolved_module_mask TPMI register</td>
+<td>**Related** — TPMI register population issue</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendations</h2>
+<p>1. **ADOPT with config change** — swap `dmr.xml` → `nwp.xml` in `runPmx.py` command. SST-TF TPMI register programming is architecturally identical on NWP. The `validateTF.test_tpmi_regs` method is platform-generic.</p>
+<p>2. **Verify per-CBB consistency** — NWP has 2 CBBs (vs DMR&#x27;s 4). Read SST_TF_INFO registers from both CBB0 and CBB1 and confirm identical values, since both are programmed by the same NIO.</p>
+<p>3. **Simplify PP-level iteration** — since SST-PP is ZBB&#x27;d on NWP, only PP level 0 contains valid data. Test may skip multi-PP-level checks or explicitly verify other PP level slots are empty/zero.</p>
+<p>4. **Confirm SST_TF_INFO_8 availability** — verify NWP OSXML defines the SST_TF_INFO_8 register offset. If `feature_revision &lt; 2` on NWP, this register may not exist and the test should skip its check.</p>
+<p>5. **Add BIOS turbo disable negative test** — per TCD, `feature_supported` should be 0 when BIOS disables turbo. Add a variant that toggles the BIOS `turbo_mode_disable` knob and verifies `SST_TF_INFO_0.feature_supported = 0`.</p>
+<p>6. **Update core iteration for 96 cores** — verify SST_TF_INFO_1 HP bucket core-counts are consistent with NWP&#x27;s 96-core topology (2 CBBs × 48 cores).</p>
+<p>**Priority**: **High** — tagged `DMR_PO`, `plc.feature.p1`. This is the SST-TF enablement gate test. All PCT functional tests (frequency verification, CLOS assignment, TRL resolution) depend on correct TPMI register population. Must pass before running any SST-TF/PCT functional test.</p>
+    </div>
+  </div>
+</body>
+</html>

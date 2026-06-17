@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: AshTree PRT_PEGA CStates / PStates</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: AshTree PRT_PEGA CStates / PStates</h1>
+      <p>Segment: FV | Source: HSD_14027385944_ashtree_prt_pega_cstates_pstates.inference.md | Generated: 2026-06-17 21:14:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: AshTree PRT_PEGA CStates / PStates</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>14027385944</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>AshTree PRT_PEGA CStates / PStates</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-05-28</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Core C-States</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>AshTree PRT validates TSC (Time Stamp Counter) monotonicity during concurrent C-state and P-state transitions under PEGA injection stress (38M+ INTx/sec). TSC monotonicity is an architectural requirement that applies identically to NWP. The test adapts by substituting `nwp.xml` for `dmr.xml`, reducing PMX CPU traffic/PEGA scope from 4 CBBs to 2 CBBs, and removing MeshGV-specific frequency checks (MeshGV is not in NWP). The 12-hour duration requirement is unchanged.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>TSC monotonicity is a fundamental architectural guarantee — NWP must pass this test</li>
+<li>C-state + P-state concurrent stress (via PEGA + cpu_traffic) exercises C6/C1E exit interrupt handling</li>
+<li>NWP has 2 CBBs (not 4) and 48 cores/CBB (not 32); PMX topology handled via `nwp.xml`</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon at SVOS (silicon preferred; VP for intent check)</li>
+<li>PMX framework with `nwp.xml`; PEGA injection enabled</li>
+<li>PTAT monitoring tool available</li>
+<li>12-hour test window allocated</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Boot NWP at SVOS</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Start PTAT monitoring</td>
+<td>`/usr/local/ptat/ptat -mon -filter 0x0f -id` — unchanged</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Run PMX with PEGA cross-product</td>
+<td>`-x nwp.xml` (not `dmr.xml`); `-tM 720 -M 10 --retry_count 2` unchanged</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Concurrently poll TSC on all cores</td>
+<td>MSR 0x10 reads; check monotonicity throughout</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Run for minimum 12 hours</td>
+<td>Same duration</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Collect log; check TSC monotonicity</td>
+<td>No backward jumps in MSR 0x10</td>
+</tr>
+</tbody></table>
+<p>**NWP PMX command:**</p>
+<pre><code>
+runPmx.py -x nwp.xml -p cpu_traffic -p pega_cross -tM 720 -M 10 --retry_count 2
+</code></pre>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>MSR 0x10 (TSC) is strictly monotonically increasing on ALL active cores throughout 12h run</li>
+<li>No firmware MCA, watchdog, or platform hang</li>
+<li>PTAT reports consistent thermal monitoring data</li>
+<li>PMX PASS reported at end of run</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<h3>TSC Scope</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>CBBs</td>
+<td>4</td>
+<td>2</td>
+<td>TSC polling loop: `range(2)` not `range(4)`</td>
+</tr>
+<tr>
+<td>Cores/CBB</td>
+<td>32</td>
+<td>48</td>
+<td>More cores polled per CBB — more comprehensive per-CBB TSC coverage</td>
+</tr>
+<tr>
+<td>MeshGV</td>
+<td>Present</td>
+<td>**Absent**</td>
+<td>Skip MeshGV frequency check in TSC validation; DVFS still tested at core level</td>
+</tr>
+<tr>
+<td>PkgC6</td>
+<td>Supported</td>
+<td>ZBB</td>
+<td>PkgC6 C-state contributions to TSC excluded</td>
+</tr>
+</tbody></table>
+<h3>PEGA Injection</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>PEGA interrupts</td>
+<td>38M+/sec</td>
+<td>Same rate expected</td>
+<td>NWP PEGA supports same injection rate</td>
+</tr>
+<tr>
+<td>pega_cross PMX module</td>
+<td>DMR-tuned</td>
+<td>May need NWP update</td>
+<td>Verify `pega_cross` module addresses NWP interrupt targets correctly</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>Complete Register/Signal Check Table (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Category</th>
+<th>Register</th>
+<th>Field</th>
+<th>Expected</th>
+<th>Verify On</th>
+</tr></thead><tbody>
+<tr>
+<td>TSC</td>
+<td>MSR `0x10`</td>
+<td>Full 64-bit</td>
+<td>Strictly increasing; no backward jump</td>
+<td>Per core, periodic polling</td>
+</tr>
+<tr>
+<td>CC6 residency</td>
+<td>MSR `0x3FD`</td>
+<td>Full</td>
+<td>Incrementing (C6 exercised)</td>
+<td>Per core</td>
+</tr>
+<tr>
+<td>CC1 residency</td>
+<td>MSR `0x778`</td>
+<td>Full</td>
+<td>Incrementing (C1E exercised)</td>
+<td>Per core</td>
+</tr>
+<tr>
+<td>APIC</td>
+<td>Local APIC Timer</td>
+<td>Count</td>
+<td>Consistent with TSC pace</td>
+<td>Per core</td>
+</tr>
+</tbody></table>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+import time
+
+# TSC monotonicity spot-check on NWP (2 CBBs, 48 cores each)
+prev_tsc = {}
+for cbb_idx in range(2):      # NWP has 2 CBBs
+    for mod_idx in range(6):
+        for core_idx in range(8):
+            key = (cbb_idx, mod_idx, core_idx)
+            # Read TSC via MSR 0x10 — use MSR tool or namednodes if exposed
+            # tsc_val = sv.socket0.getbypath(f&quot;cbb{cbb_idx}...&quot;).msr_read(0x10)
+            # assert tsc_val &gt;= prev_tsc.get(key, 0), f&quot;TSC went backward at {key}&quot;
+            prev_tsc[key] = 0  # placeholder
+            print(f&quot;cbb{cbb_idx}.compute{mod_idx}.module{core_idx}: poll MSR 0x10 for monotonicity&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**pega_cross NWP compatibility** — PMX pega_cross module may target DMR interrupt controllers</td>
+<td>High</td>
+<td>Verify PEGA injection addresses NWP APIC topology; update pega_cross if needed</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**12-hour silicon slot** — requires continuous silicon access</td>
+<td>Medium</td>
+<td>Schedule during dedicated silicon validation window</td>
+</tr>
+<tr>
+<td>3</td>
+<td>**MeshGV checks removed** — TSC validation during DVFS must exclude MeshGV</td>
+<td>Low</td>
+<td>Confirm NWP TSC validation script doesn&#x27;t reference MeshGV frequency bins</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADAPT — Update PMX XML to nwp.xml; verify pega_cross module targets NWP topology**</p>
+<p>TSC monotonicity under concurrent C-state/P-state/PEGA stress is a critical NWP validation. The main adaptation is `nwp.xml` substitution and pega_cross module NWP verification. Duration (12h) is unchanged.</p>
+<p>Required adaptations:</p>
+<p>1. Replace `-x dmr.xml` with `-x nwp.xml`</p>
+<p>2. Verify `pega_cross` PMX module supports NWP interrupt topology</p>
+<p>3. Remove MeshGV frequency bins from TSC pass/fail criteria</p>
+<p>**Priority**: High — long-running TSC monotonicity test; must run early in NWP silicon bring-up to detect latent C-state/interrupt interaction bugs</p>
+    </div>
+  </div>
+</body>
+</html>

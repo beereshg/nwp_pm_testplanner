@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: Legacy Pstate Bios Configurations</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: Legacy Pstate Bios Configurations</h1>
+      <p>Segment: FV | Source: HSD_22022422219_legacy_pstate_bios_cofigurations.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: Legacy Pstate Bios Configurations</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422219</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>Legacy Pstate Bios cofigurations</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Pstate Stack</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Legacy P-states BIOS menu verification</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies BIOS menu options for Legacy P-states (SpeedStep/GV3):</p>
+<ul>
+<li>**SpeedStep (Legacy P-states)**: Enable → `IA32_MISC_ENABLES[ENABLE_GV3] = 1`; Disable → `= 0`</li>
+<li>**Single PCTL**: Enable → `MISC_PWR_MGMT[0] = 1` + PSD ACPI coord type = SW_ANY</li>
+<li>**EIST PSD HW_ALL**: Set PSD coord type to HW_ALL</li>
+<li>**SW_ALL**: Set PSD coord type to SW_ALL</li>
+</ul>
+<p>On NWP, the same legacy P-state BIOS menu and MSR registers are present. `IA32_MISC_ENABLES` and `MISC_PWR_MGMT` are architectural MSRs.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>Legacy P-state BIOS knobs (`SpeedStep`, `MISC_PWR_MGMT`) present on NWP</li>
+<li>Same MSR interface: `IA32_MISC_ENABLES` (0x1A0), `MISC_PWR_MGMT` (0x1AA)</li>
+<li>`PMSS_NWP_READINESS_CHECK` tag: evaluated for NWP</li>
+<li>No specific `DMR_PO` tag — not DMR bring-up critical; generally applicable</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>BIOS Knob Mapping</h3>
+<table class="md-table"><thead><tr>
+<th>BIOS Option</th>
+<th>NWP Action</th>
+<th>MSR Effect</th>
+</tr></thead><tbody>
+<tr>
+<td>SpeedStep = Enable</td>
+<td>Same BIOS knob on NWP</td>
+<td>`IA32_MISC_ENABLES[16] = 1` (GV3 enable)</td>
+</tr>
+<tr>
+<td>SpeedStep = Disable</td>
+<td>Same BIOS knob on NWP</td>
+<td>`IA32_MISC_ENABLES[16] = 0`</td>
+</tr>
+<tr>
+<td>Single PCTL = Enable</td>
+<td>Same BIOS knob</td>
+<td>`MISC_PWR_MGMT[0] = 1`, PSD coord = SW_ANY</td>
+</tr>
+<tr>
+<td>EIST PSD HW_ALL</td>
+<td>Same BIOS knob</td>
+<td>PSD coord = HW_ALL</td>
+</tr>
+<tr>
+<td>SW_ALL</td>
+<td>Same BIOS knob</td>
+<td>PSD coord = SW_ALL</td>
+</tr>
+</tbody></table>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Set SpeedStep = Enable; reboot</td>
+<td>Verify `IA32_MISC_ENABLES.read() &amp; (1&lt;&lt;16) == (1&lt;&lt;16)`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Set SpeedStep = Disable; reboot</td>
+<td>Verify `IA32_MISC_ENABLES.read() &amp; (1&lt;&lt;16) == 0`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Set Single PCTL = Enable; reboot</td>
+<td>Verify `MISC_PWR_MGMT.read() &amp; 1 == 1`; PSD object = SW_ANY</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify PSD ACPI node options (HW_ALL, SW_ALL)</td>
+<td>Same ACPI structure on NWP</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Run flexcon validation</td>
+<td>`flexcon` command with NWP platform config</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>MSRs reflect BIOS knob settings after reboot</li>
+<li>PSD coordination type matches BIOS configuration</li>
+<li>No unexpected P-state behavior based on coordination type</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>`IA32_MISC_ENABLES[16]` (GV3/SpeedStep)</td>
+<td>Present</td>
+<td>Same x86 architectural MSR</td>
+<td>Direct reuse</td>
+</tr>
+<tr>
+<td>`MISC_PWR_MGMT[0]` (single PCTL)</td>
+<td>Present</td>
+<td>Same</td>
+<td>Direct reuse</td>
+</tr>
+<tr>
+<td>BIOS knob names</td>
+<td>DMR BIOS</td>
+<td>NWP BIOS may use same/different knob names</td>
+<td>Verify with NWP BIOS team</td>
+</tr>
+<tr>
+<td>PSD ACPI object</td>
+<td>Standard ACPI</td>
+<td>Same structure</td>
+<td>Direct reuse</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<pre><code>
+# NWP Legacy P-state BIOS configuration verification
+
+import pysvtools.xmlcli as xmlcli
+
+# Check IA32_MISC_ENABLES[16] (Enhanced Intel SpeedStep = GV3)
+try:
+    misc_en = sv.socket0.imh0.punit.ptpcioregs.ia32_misc_enables.read()
+    gv3 = (misc_en &gt;&gt; 16) &amp; 1
+    print(f&quot;IA32_MISC_ENABLES: 0x{misc_en:016X}&quot;)
+    print(f&quot;  GV3 (SpeedStep): {gv3} (expected = BIOS setting)&quot;)
+except Exception as e:
+    print(f&quot;IA32_MISC_ENABLES: {e}&quot;)
+
+# Check MISC_PWR_MGMT[0] (Single PCTL)
+try:
+    misc_pwr = sv.socket0.imh0.punit.ptpcioregs.misc_pwr_mgmt.read()
+    single_pctl = misc_pwr &amp; 1
+    print(f&quot;MISC_PWR_MGMT: 0x{misc_pwr:08X}&quot;)
+    print(f&quot;  Single PCTL[0]: {single_pctl}&quot;)
+except Exception as e:
+    print(f&quot;MISC_PWR_MGMT: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — BIOS knobs and MSRs are architecturally identical on NWP**</p>
+<p>Legacy P-state BIOS menu verification is applicable on NWP. Primary risk is BIOS knob naming differences.</p>
+<p>Required adaptations:</p>
+<p>1. Verify NWP BIOS knob names match DMR (SpeedStep, Single PCTL equivalent)</p>
+<p>2. `flexcon` command may need NWP platform XML or config</p>
+<p>**Priority**: Low — no `DMR_PO` tag; BIOS configuration baseline verification</p>
+    </div>
+  </div>
+</body>
+</html>

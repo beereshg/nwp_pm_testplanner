@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: SIMPL Policy 1 Verification</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: SIMPL Policy 1 Verification</h1>
+      <p>Segment: FV | Source: HSD_22022421909_simpl_policy_1_verification.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: SIMPL Policy 1 Verification</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421909</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>SIMPL Policy 1 Verification</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SIMPL - IccMax</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>SIMPL Policy 1 — verify policy is selected under medium IO + light Mem workload</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>Verifies SIMPL Policy 1 selection by driving appropriate workload. Source TC note: *&quot;DMR supports only Policy 0 and currently we do not have a means to override fuses and check the other policies. Revisit the test case with IMH2.&quot;*</p>
+<p>**NWP consideration**: NWP has single IMH (no IMH2), so same limitation applies — if NWP silicon also only activates Policy 0 by fuse default, this TC may be limited to verifying that Policy 1 is NOT selected (confirming Policy 0 stability). Test should proceed with available NWP SIMPL support and be escalated to SIMPL feature team if Policy 1 is unreachable.</p>
+<p>Tags: `plc.ti_gate.b0`, `plc.feature.p2`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP Command</h3>
+<pre><code>
+import pm.Active_PM.Power.simpl.simpl_pmx as simpl_pmx
+simpl_pmx.main(&quot;simpl_pmx.py --policy1&quot;.split())
+</code></pre>
+<h3>Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Change UFS ratios for IO/Mem to max SIMPL ratio</td>
+<td>Fuse override if available</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Start medium IO + light Mem workload</td>
+<td>Drive IO fabric with moderate traffic</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify UFS Status reflects ratio change</td>
+<td>TPMI/PCuData registers</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read `current_policy`</td>
+<td>`sv.socket0.imh0.pcudata.patch_persistent.current_policy`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify Policy 1 is active</td>
+<td>`current_policy` = 1</td>
+</tr>
+</tbody></table>
+<h3>NWP Register Paths</h3>
+<pre><code>
+# NWP: sv.socket0.imh0 only
+current = sv.socket0.imh0.pcudata.patch_persistent.current_policy
+print(f&quot;SIMPL current_policy: {current}&quot;)  # Expected: 1 if Policy 1 reachable
+# BW counters
+io_bw  = sv.socket0.imh0.pcudata.simpl_bw_counter_io
+mem_bw = sv.socket0.imh0.pcudata.simpl_bw_counter_mem
+</code></pre>
+<h3>Pass Criteria</h3>
+<ul>
+<li>`current_policy` = 1 under specified workload</li>
+<li>BW counters reflect workload distribution</li>
+<li>If Policy 1 unreachable: escalate to SIMPL feature team; mark as &quot;Blocked — Policy 1 requires fuse override&quot;</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT with caution — Source TC notes Policy 1 may be unreachable without fuse override on DMR; same limitation likely on NWP; attempt TC and document whether Policy 1 is achievable on NWP silicon; `simpl_pmx.py --policy1`**</p>
+<p>**Priority**: Medium — Policy 1 may require fuse override; coordinate with SIMPL feature team for NWP Policy 1 test vector</p>
+    </div>
+  </div>
+</body>
+</html>

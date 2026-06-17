@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: AVX License PreGrant and Level BIOS Knob Checks</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: AVX License PreGrant and Level BIOS Knob Checks</h1>
+      <p>Segment: FV | Source: HSD_22022422259_avx_license_pregrant_and_level_bios.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: AVX License PreGrant and Level BIOS Knob Checks</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422259</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>AVX License PreGrant and Level BIOS Knob checks</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Pstate Stack</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>ICCP — AVX License Pre-Grant and AVX Level BIOS knobs</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **AVX License Pre-Grant** and **AVX ICCP Level** BIOS knobs:</p>
+<p>1. `AvxLicensePreGrant = 0x1` (Enabled) — pre-grants AVX license before any code requests it</p>
+<p>2. `AvxIccpLevel = 0x3` (256 Heavy) — sets the AVX license level (default = 128 Heavy; test must set to non-default)</p>
+<p>The test uses `flexcon` and checks that the calculated offset for ITD equals 0 after disabling ITD (pass criterion mentioned in steps). On NWP, the same ICCP/AVX license mechanism exists.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>ICCP AVX license mechanism is present on NWP</li>
+<li>`Ready_for_testing` tag: confirmed ready for silicon validation</li>
+<li>`PMSS_NWP_READINESS_CHECK` tag: evaluated for NWP</li>
+<li>Same BIOS knobs expected on NWP BIOS</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>BIOS Knobs</h3>
+<table class="md-table"><thead><tr>
+<th>Knob</th>
+<th>Test Value</th>
+<th>Default</th>
+<th>Function</th>
+</tr></thead><tbody>
+<tr>
+<td>`AvxLicensePreGrant`</td>
+<td>0x1 (Enabled)</td>
+<td>0x0</td>
+<td>Pre-grant AVX license to all cores at boot</td>
+</tr>
+<tr>
+<td>`AvxIccpLevel`</td>
+<td>0x3 (256 Heavy)</td>
+<td>0x2 (128 Heavy)</td>
+<td>AVX ICCP license level selection</td>
+</tr>
+</tbody></table>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Set BIOS knobs: `AvxLicensePreGrant = 0x1`, `AvxIccpLevel = 0x3`</td>
+<td>Same BIOS knobs on NWP</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Reboot NWP silicon</td>
+<td>Standard reboot</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify knobs persisted (post-reboot read)</td>
+<td>`xmlcli` or BIOS read-back</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify AVX license pre-grant effective</td>
+<td>Check PCode ICCP AVX license registers</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify AvxIccpLevel = 0x3 (256 Heavy) programmed</td>
+<td>Register cross-check</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Run flexcon validation</td>
+<td>`flexcon` command; verify ICCP state</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Check ITD offset = 0 after disabling ITD (pass criterion)</td>
+<td>Same verification</td>
+</tr>
+</tbody></table>
+<h3>ICCP AVX License Registers (NWP)</h3>
+<pre><code>
+# NWP AVX License Pre-Grant verification
+# ICCP license state registers in PCode/iMH
+
+try:
+    # Read ICCP AVX license pregrant status
+    iccp_cfg = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.iccp_avx_pregrant_cfg.read()
+    print(f&quot;ICCP AVX PreGrant config: 0x{iccp_cfg:08X}&quot;)
+except Exception as e:
+    print(f&quot;ICCP AVX cfg: {e}&quot;)
+
+# Verify license level
+try:
+    avx_license_level = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.avx_license_level.read()
+    print(f&quot;AVX License Level: 0x{avx_license_level:02X} (expected 0x3 = 256 Heavy)&quot;)
+except Exception as e:
+    print(f&quot;AVX License Level: {e}&quot;)
+</code></pre>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>BIOS knobs programmed correctly post-reboot</li>
+<li>ICCP AVX license pre-granted to all cores (`AvxLicensePreGrant = 1`)</li>
+<li>AVX license level = 0x3 (256 Heavy) as configured</li>
+<li>ITD offset = 0 after disabling ITD (flexcon pass criterion)</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>BIOS knobs</td>
+<td>`AvxLicensePreGrant`, `AvxIccpLevel`</td>
+<td>Same on NWP BIOS</td>
+<td>Verify knob names match</td>
+</tr>
+<tr>
+<td>ICCP mechanism</td>
+<td>DMR ICCP</td>
+<td>NWP ICCP (same architecture)</td>
+<td>Direct reuse</td>
+</tr>
+<tr>
+<td>flexcon</td>
+<td>DMR platform config</td>
+<td>NWP platform config</td>
+<td>May need NWP flexcon config</td>
+</tr>
+<tr>
+<td>AVX license levels</td>
+<td>128-Heavy=2, 256-Heavy=3</td>
+<td>Same encoding</td>
+<td>Direct reuse</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — verify BIOS knob names and flexcon NWP config**</p>
+<p>AVX License Pre-Grant and Level BIOS knob verification is directly applicable on NWP.</p>
+<p>Required adaptations:</p>
+<p>1. Verify NWP BIOS has `AvxLicensePreGrant` and `AvxIccpLevel` knobs with same names</p>
+<p>2. `flexcon` command may need NWP platform specification</p>
+<p>3. Verify ICCP AVX register paths on NWP (`sv.socket0.imh0.*`)</p>
+<p>**Priority**: Medium — `Ready_for_testing`; ICCP AVX license BIOS knob bring-up verification</p>
+    </div>
+  </div>
+</body>
+</html>

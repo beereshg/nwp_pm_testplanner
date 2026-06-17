@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Prochot Flow] Verify Prochot IMH Entry and Exit Flow</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Prochot Flow] Verify Prochot IMH Entry and Exit Flow</h1>
+      <p>Segment: FV | Source: HSD_22022421553_verify_prochot_imh_entry_and_exit.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Prochot Flow] Verify Prochot IMH Entry and Exit Flow</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421553</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Prochot Flow] Verify Prochot IMH Entry and Exit Flow</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PROCHOT entry/exit for IMH — UFS ratio control and PROCHOT throttle</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies **PROCHOT flow through IMH**:</p>
+<p>1. Use IMH `ufs_control.min_ratio` to set ratio above Pm (≥ 800 MHz)</p>
+<p>2. Verify via `ufs_status.current_ratio`</p>
+<p>3. Inject PROCHOT</p>
+<p>4. Verify IMH ratio drops</p>
+<p>5. Remove PROCHOT and verify recovery</p>
+<p>On NWP (single iMH — `imh0`): same flow with NWP register paths. DMR Simics paths adapt to NWP silicon PythonSV.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>`Ready_for_testing` + `plc.feature.p1` + `PMSS_NWP_READINESS_CHECK` tags</li>
+<li>IMH PROCHOT flow directly applicable on NWP (single iMH)</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP IMH Register Paths</h3>
+<table class="md-table"><thead><tr>
+<th>Register</th>
+<th>NWP Path</th>
+</tr></thead><tbody>
+<tr>
+<td>`ufs_control.min_ratio`</td>
+<td>`sv.socket0.imh0.punit.ufs_control.min_ratio`</td>
+</tr>
+<tr>
+<td>`ufs_status.current_ratio`</td>
+<td>`sv.socket0.imh0.punit.ufs_status.current_ratio`</td>
+</tr>
+<tr>
+<td>PROCHOT inject</td>
+<td>`sv.socket0.imh0.punit.prochot_trigger`</td>
+</tr>
+</tbody></table>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Set IMH min_ratio above Pm</td>
+<td>`sv.socket0.imh0.punit.ufs_control.min_ratio.write(N)` where N &gt; Pm ratio</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Run prochot_thermal PMx</td>
+<td>`python runPmx.py -x nwp.xml -p prochot_thermal -tM 20 -M 5`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify ufs_status.current_ratio &gt; Pm (≥ 800 MHz ratio)</td>
+<td>Pre-PROCHOT state</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Inject PROCHOT</td>
+<td>`sv.socket0.imh0.punit.prochot_trigger.write(1)`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify IMH ratio drops (ufs_status.current_ratio = Pm)</td>
+<td>PROCHOT active</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Release PROCHOT; verify ratio recovery</td>
+<td>`prochot_trigger.write(0)` → ratio recovers</td>
+</tr>
+</tbody></table>
+<h3>NWP Single iMH Note</h3>
+<p>DMR has imh0 (root primary) and optionally imh1. NWP has single `imh0` only. No secondary iMH PROCHOT path needed.</p>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>IMH current_ratio above Pm before PROCHOT</li>
+<li>IMH current_ratio drops to Pm on PROCHOT injection</li>
+<li>IMH current_ratio recovers on PROCHOT release</li>
+<li>No iMH stability issues during PROCHOT flow</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; IMH PROCHOT flow same; NWP single iMH**</p>
+<p>1. `python runPmx.py -x nwp.xml -p prochot_thermal -tM 20 -M 5`</p>
+<p>2. NWP: `sv.socket0.imh0.*` (no imh1)</p>
+<p>3. Adapt OakStream Simics PROCHOT inject to NWP silicon PythonSV register path</p>
+<p>**Priority**: Medium — `plc.feature.p1`; IMH PROCHOT throttle entry/exit verification</p>
+    </div>
+  </div>
+</body>
+</html>

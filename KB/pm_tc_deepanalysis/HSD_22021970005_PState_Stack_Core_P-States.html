@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NWP PSS Analysis</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>NWP PSS Analysis</h1>
+      <p>Segment: PSS | Source: HSD_22021970005_PState_Stack_Core_P-States.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>NWP PSS Analysis</h1>
+<h2>Metadata</h2>
+<ul>
+<li>HSD ID: 22021970005</li>
+<li>Title: Core P-States request using PEGA interface</li>
+<li>Feature: PState Stack</li>
+<li>Sub Feature: Core P-States</li>
+<li>Script: nwp_pss_scripts/nwp_pega_pstate.py</li>
+<li>HSD Script: pm\pss\mailbox\pega_mailbox.py</li>
+<li>TC Owner: jscanlo1</li>
+<li>TR Owner: akurathi</li>
+<li>Validation Environment: emulation.hsle,xos</li>
+<li>Test Cycle: Newport Product.trunk.pss_0p8.pss.val.NWP_MCP HSLE XOS</li>
+<li>NWP Scope: Runnable_On_N-1</li>
+</ul>
+<h2>HSD Hierarchy</h2>
+<ul>
+<li>Test Plan: [22021969837 - Legacy P-States](https://hsdes.intel.com/appstore/article/#/22021969837)</li>
+<li>Test Case Definition: [22021969881 - Functionality Checks](https://hsdes.intel.com/appstore/article/#/22021969881)</li>
+<li>Test Case: [22021970005 - Core P-States request using PEGA interface](https://hsdes.intel.com/appstore/article/#/22021970005)</li>
+<li>Test Result: [22022027525 - [PSS][CORE_PSTATES] Core P-States request using PEGA interface](https://hsdes.intel.com/appstore/article/#/22022027525)</li>
+</ul>
+<h2>KB References</h2>
+<ul>
+<li>KB Article: [KB/pm_features/pstate_stack/core_p_states.md](../../../KB/pm_features/pstate_stack/core_p_states.md)</li>
+</ul>
+<h2>Model Response</h2>
+<h2>Refined Intent</h2>
+<p>Inject core P-states via PEGA mailbox interface — U2P mailbox (CBB) for core/ring ratio, AUX mailbox (IMH) for mem/IO ratio. Sweep fixed ratios and random mode. Verify frequency transitions using UFS_STATUS.current_ratio (TPMI) and MSR 0x198 IA32_PERF_STATUS.</p>
+<h2>Refined Test Steps</h2>
+<p>Pre-Conditions:</p>
+<ul>
+<li>Platform booted to HSLE or XOS</li>
+<li>Ingredients: Primecode, Pcode, Ocode (TPMI), BIOS configured</li>
+<li>All cores in C0 (no deep C-states active)</li>
+<li>PEGA mailbox accessible; no conflicting PM activity</li>
+</ul>
+<p>Configuration (HSD nodes):</p>
+<ul>
+<li>sv.socket0.cbb{0-1}.base.tpmi.ufs_status</li>
+<li>sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.ufs_status</li>
+<li>sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.ufs_status_fabric_1</li>
+<li>NWP topology: 2 CBBs (cbb0-cbb1), 1 NIO</li>
+</ul>
+<p>Step 1 — Baseline:</p>
+<p>Read UFS_STATUS.current_ratio from all CBB and IMH nodes.</p>
+<p>Read MSR 0x198 IA32_PERF_STATUS.core_ratio_100mhz from all cores.</p>
+<p>Record baseline values.</p>
+<p>Step 2 — CBB PEGA P-state sweep:</p>
+<p>For each target ratio in [8, 12, 16, 20, 24, 28, 32]:</p>
+<p>a. Write PEGA CMD1 (CORE_RATIO[7:0]=ratio, RING_RATIO[23:16]=ratio) via U2P mailbox</p>
+<p>b. Write PEGA CMD2 (CORE_VALID[0]=1, RING_VALID[2]=1) via U2P mailbox</p>
+<p>c. Write PEGA CMD0 (Command[29:28]=0x2 P-state, Run_Busy[31]=1) via U2P mailbox</p>
+<p>d. Wait for run_busy to clear</p>
+<p>e. Read UFS_STATUS.current_ratio — verify it changed from previous</p>
+<p>f. Read MSR 0x198 — verify core ratios reflect new P-state</p>
+<p>Step 3 — IMH PEGA P-state sweep:</p>
+<p>For each memgv in [8, 12, 15]:</p>
+<p>a. Write PEGA CMD1 (MEM_VALID[1]=1) via AUX mailbox</p>
+<p>b. Write PEGA CMD2 (MEM_RATIO[15:8]=memgv) via AUX mailbox</p>
+<p>c. Write PEGA CMD0 (Command=0x2, Run_Busy=1) via AUX mailbox</p>
+<p>d. Wait for completion</p>
+<p>e. Read IMH UFS_STATUS.current_ratio — verify it changed</p>
+<p>Step 4 — Random mode:</p>
+<p>Set iagv=rand, meshgv=rand, rearm=rand, act2=rand.</p>
+<p>Write PEGA CMD0/CMD1/CMD2 with random flags on all CBBs.</p>
+<p>Wait, then read UFS_STATUS — verify current_ratio is non-zero.</p>
+<p>Pass/Fail Criteria (HSD):</p>
+<p>PASS: UFS_STATUS.current_ratio changes after each PEGA injection</p>
+<p>FAIL: UFS_STATUS unchanged after injection, or mailbox timeout</p>
+<p>Coverage Assessment: PythonSV logs, Solar logs, Primecode trackers, Pcode trackers</p>
+<p>Extended Coverage: FabricGV with CXL traffic, FabricGV with Mem traffic</p>
+<p>HAS/MAS References:</p>
+<ul>
+<li>Core P-State HAS (Wave3 Common): https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Core_Pstates/Core_Pstate_HAS.html</li>
+<li>DMR CBB PEGA HAS: https://docs.intel.com/documents/pm_doc/src/DMR_CBB/Features/PEGA/PEGA.html</li>
+<li>TPMI HAS — UFS_STATUS: https://docs.intel.com/documents/pm_doc/src/server/arch_common/TPMI/TPMI.html</li>
+</ul>
+<h3>NWP Project Relevance</h3>
+<p>**Test Classification:** Regression (DMR-inherited)</p>
+<p>**Feature Status:** Expected to work</p>
+<p>**Test Purpose:** Inject core P-states via PEGA mailbox interface — U2P mailbox (CBB) for core/ring ratio, AUX mailbox (IMH) for mem/IO ratio. Sweep fixed ratios and random mode. Verify frequency transitions using UFS_</p>
+<p>**Negative Test Aspect:** None</p>
+<p>**NWP Delta:** Topology differences from DMR (2 CBB + 1 NIO); same PState Stack behavior expected</p>
+<h2>Section A: Critical Execution Path</h2>
+<p>1. Step 1 — Baseline:</p>
+<p>2. Step 2 — CBB PEGA P-state sweep:</p>
+<p>3. Step 3 — IMH PEGA P-state sweep:</p>
+<p>4. Step 4 — Random mode:</p>
+<h2>Section B: Component Interaction Diagram</h2>
+<pre><code>
+sequenceDiagram
+    participant OS as Host OS
+    participant FW as PCode/OCode
+    participant HW as Hardware
+
+    OS-&gt;&gt;FW: Send command via interface
+    FW-&gt;&gt;HW: Configure registers
+    HW--&gt;&gt;FW: Acknowledge
+    FW--&gt;&gt;OS: Return status
+</code></pre>
+<h2>Section C: Interface Coverage Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>Interface</th>
+<th>Covered</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>CSR</td>
+<td>Yes</td>
+<td>Primary interface</td>
+</tr>
+<tr>
+<td>MSR</td>
+<td>Yes</td>
+<td>Primary interface</td>
+</tr>
+<tr>
+<td>PEGA</td>
+<td>Yes</td>
+<td>Primary interface</td>
+</tr>
+<tr>
+<td>TPMI_IB</td>
+<td>Yes</td>
+<td>Primary interface</td>
+</tr>
+<tr>
+<td>U2P</td>
+<td>Yes</td>
+<td>Primary interface</td>
+</tr>
+<tr>
+<td>0x198 IA32_PERF_STATUS</td>
+<td>Yes</td>
+<td>Register access</td>
+</tr>
+<tr>
+<td>TPMI: ufs_status.current_ratio</td>
+<td>Yes</td>
+<td>TPMI interface</td>
+</tr>
+</tbody></table>
+<h2>Section D: NWP Specification References</h2>
+<ul>
+<li>**NWP PM HAS**: [NWP HAS - PM Features](https://docs.intel.com/documents/custom-xeon/newport-docs/has/Overview/NWP_HAS.html#pm-features)</li>
+<li>**NWP PM MAS**: [NWP IMH SoC PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)</li>
+<li>**DMR PM HAS**: [DMR SoC PM HAS](https://docs.intel.com/documents/pm_doc/src/server/DMR/SOC_PM_HAS/DMR_SOC_PM_HAS.html)</li>
+<li>**Feature HAS**: [PNC PM HAS §4-6 - P-States/HWP](https://docs.intel.com/documents/pm_doc/src/server/GNR/Features/LNC/GNR_LNC_PStates.html)</li>
+<li>**DMR CBB HAS**: [DMR CBB PM HAS - HWP](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/PM%20HAS/cbb_pm_has.html#hwp)</li>
+<li>**Intel® 64 and IA-32 SDM**: MSR definitions, CPUID enumeration</li>
+</ul>
+<h2>Section E: NWP Risk Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr></thead><tbody>
+<tr>
+<td>Topology change</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Verify on multi-die config</td>
+</tr>
+<tr>
+<td>Interface delta</td>
+<td>Low</td>
+<td>Low</td>
+<td>Compare with DMR baseline</td>
+</tr>
+<tr>
+<td>Timing sensitivity</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Allow tolerance margins</td>
+</tr>
+</tbody></table>
+<h2>Section F: Recommendations</h2>
+<p>1. Verify test works on NWP multi-die topology</p>
+<p>2. Check for any interface changes from DMR</p>
+<p>3. Update HAS references to NWP specifications</p>
+<p>4. Add negative test coverage if missing</p>
+<p>5. Consider additional stress test variants</p>
+<p>---</p>
+<p>*Generated from metadata on 2026-05-28 23:20:51*</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NWP PSS Analysis</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>NWP PSS Analysis</h1>
+      <p>Segment: PSS | Source: HSD_22021970096_SST_Fuse.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>NWP PSS Analysis</h1>
+<h2>Metadata</h2>
+<ul>
+<li>HSD ID: 22021970096</li>
+<li>Title: [DMR][PM][SST-TF][SLE] Fuse Values Sanity Checks</li>
+<li>Feature: SST</li>
+<li>Sub Feature: Fuse</li>
+<li>Script: nwp_pss_scripts/pss_sst_cp.py</li>
+<li>HSD Script: (none)</li>
+<li>TC Owner: isaxena</li>
+<li>TR Owner: bg3</li>
+<li>Validation Environment: virtual_platform</li>
+<li>Test Cycle: Newport Product.trunk.pss_1p0.pss.val.NWP_VP</li>
+<li>NWP Scope: Runnable_On_N-1</li>
+</ul>
+<h2>HSD Hierarchy</h2>
+<ul>
+<li>Test Case Definition: [22021969914 - [SST-TF] Pre-Flight Checks](https://hsdes.intel.com/appstore/article/#/22021969914)</li>
+<li>Test Case: [22021970096 - [DMR][PM][SST-TF][SLE] Fuse Values Sanity Checks](https://hsdes.intel.com/appstore/article/#/22021970096)</li>
+<li>Test Result: [22022027571 - [PSS][SST] Fuse Values Sanity Checks](https://hsdes.intel.com/appstore/article/#/22022027571)</li>
+</ul>
+<h2>KB References</h2>
+<ul>
+<li>KB Article: [KB/pm_features/sst/fuse.md](../../../KB/pm_features/sst/fuse.md)</li>
+</ul>
+<h2>Model Response</h2>
+<h2>Refined Intent</h2>
+<p>SST-TF fuse sanity: verify SST-TF fuse values are within expected design spec ranges and follow logical ordering (monotonic constraints). LP_CLIP_RATIO decreases with increasing CDYN, NUM_CORE increases with bucket, TRL RATIO decreases with bucket and CDYN.</p>
+<h2>Refined Test Steps</h2>
+<p>Pre-Conditions:</p>
+<ul>
+<li>Platform booted with SST-TF fuses programmed</li>
+</ul>
+<p>Step 1 — Verify LP_CLIP_RATIO ordering:</p>
+<p>Read SST_TF_CONFIG_&lt;PP_LEVEL&gt;_LP_CLIP_RATIO_CDYN_INDEX&lt;CDYN&gt;.</p>
+<p>Fuse values with increasing CDYN level must have same or lower ratio.</p>
+<p>Step 2 — Verify NUM_CORE ordering:</p>
+<p>Read SST_TF_CONFIG_&lt;PP_LEVEL&gt;_TURBO_RATIO_LIMIT_CORES_NUMCORE&lt;BUCKET&gt;.</p>
+<p>Fuse values with increasing bucket must have same or larger HP core count.</p>
+<p>Step 3 — Verify TRL RATIO ordering (by bucket):</p>
+<p>Read SST_TF_CONFIG_&lt;PP_LEVEL&gt;_TURBO_RATIO_LIMIT_RATIOS_CDYN_INDEX&lt;CDYN&gt;_RATIO&lt;BUCKET&gt;.</p>
+<p>Fuse values with increasing bucket must have same or lower ratio.</p>
+<p>Step 4 — Verify TRL RATIO ordering (by CDYN):</p>
+<p>Fuse values with increasing CDYN must have same or lower ratio (for the same bucket).</p>
+<p>Step 5 — Verify values are within valid ranges:</p>
+<p>Ratios within architectural limits (e.g., 8-60).</p>
+<p>Core counts consistent with physical topology.</p>
+<p>Pass/Fail Criteria:</p>
+<p>PASS: All fuse values within range and satisfy monotonic ordering constraints</p>
+<p>FAIL: Out-of-range values or monotonic ordering violation</p>
+<p>HAS/MAS References:</p>
+<ul>
+<li>SST TPMI HAS — fuse sanity / monotonic ordering: https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/IC_SST_TPMI.html</li>
+<li>Intel SST HAS: https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html</li>
+</ul>
+<h3>NWP Project Relevance</h3>
+<p>**Test Classification:** Regression (DMR-inherited)</p>
+<p>**Feature Status:** Expected to work</p>
+<p>**Test Purpose:** SST-TF fuse sanity: verify SST-TF fuse values are within expected design spec ranges and follow logical ordering (monotonic constraints). LP_CLIP_RATIO decreases with increasing CDYN, NUM_CORE increas</p>
+<p>**Negative Test Aspect:** None</p>
+<p>**NWP Delta:** Topology differences from DMR (2 CBB + 1 NIO); same SST behavior expected</p>
+<h2>Section A: Critical Execution Path</h2>
+<p>1. Step 1 — Verify LP_CLIP_RATIO ordering:</p>
+<p>2. Step 2 — Verify NUM_CORE ordering:</p>
+<p>3. Step 3 — Verify TRL RATIO ordering (by bucket):</p>
+<p>4. Step 4 — Verify TRL RATIO ordering (by CDYN):</p>
+<p>5. Step 5 — Verify values are within valid ranges:</p>
+<h2>Section B: Component Interaction Diagram</h2>
+<pre><code>
+sequenceDiagram
+    participant OS as Host OS
+    participant FW as PCode/OCode
+    participant HW as Hardware
+
+    OS-&gt;&gt;FW: Send command via interface
+    FW-&gt;&gt;HW: Configure registers
+    HW--&gt;&gt;FW: Acknowledge
+    FW--&gt;&gt;OS: Return status
+</code></pre>
+<h2>Section C: Interface Coverage Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>Interface</th>
+<th>Covered</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>Fuse</td>
+<td>Yes</td>
+<td>Primary interface</td>
+</tr>
+</tbody></table>
+<h2>Section D: NWP Specification References</h2>
+<ul>
+<li>**NWP PM HAS**: [NWP HAS - PM Features](https://docs.intel.com/documents/custom-xeon/newport-docs/has/Overview/NWP_HAS.html#pm-features)</li>
+<li>**NWP PM MAS**: [NWP IMH SoC PM MAS - SST](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html#sst)</li>
+<li>**DMR PM HAS**: [DMR SoC PM HAS](https://docs.intel.com/documents/pm_doc/src/server/DMR/SOC_PM_HAS/DMR_SOC_PM_HAS.html)</li>
+<li>**Feature HAS**: [DMR SST HAS](https://docs.intel.com/documents/pm_doc/src/server/DMR/Features/SST/DMR_SST.html)</li>
+<li>**DMR CBB HAS**: [DMR CBB PM HAS - SST](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/PM%20HAS/cbb_pm_has.html#sst)</li>
+<li>**Intel® 64 and IA-32 SDM**: MSR definitions, CPUID enumeration</li>
+</ul>
+<h2>Section E: NWP Risk Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr></thead><tbody>
+<tr>
+<td>Topology change</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Verify on multi-die config</td>
+</tr>
+<tr>
+<td>Interface delta</td>
+<td>Low</td>
+<td>Low</td>
+<td>Compare with DMR baseline</td>
+</tr>
+<tr>
+<td>Timing sensitivity</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Allow tolerance margins</td>
+</tr>
+</tbody></table>
+<h2>Section F: Recommendations</h2>
+<p>1. Verify test works on NWP multi-die topology</p>
+<p>2. Check for any interface changes from DMR</p>
+<p>3. Update HAS references to NWP specifications</p>
+<p>4. Add negative test coverage if missing</p>
+<p>5. Consider additional stress test variants</p>
+<p>---</p>
+<p>*Generated from metadata on 2026-05-28 23:20:51*</p>
+    </div>
+  </div>
+</body>
+</html>

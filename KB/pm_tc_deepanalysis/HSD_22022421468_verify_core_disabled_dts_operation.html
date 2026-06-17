@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [CBB DTS &amp; Telemetry] Verify Core Disabled DTS Operation</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [CBB DTS &amp; Telemetry] Verify Core Disabled DTS Operation</h1>
+      <p>Segment: FV | Source: HSD_22022421468_verify_core_disabled_dts_operation.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [CBB DTS &amp; Telemetry] Verify Core Disabled DTS Operation</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421468</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[CBB DTS &amp; Telemetry] Verify Core Disabled DTS operation</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>DTS — disabled core DTS isolation (fused-off core temperature excluded from telemetry)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies behavior when a **core DTS is bad or the core is fused off**:</p>
+<ul>
+<li>Configure the specific core &amp; DTS to be disabled</li>
+<li>Verify the disabled core&#x27;s DTS temperature is **not used** in thermal management</li>
+<li>Assumption: no need for disabled core temperature in any other flow (e.g., thermtrip, perf limit)</li>
+</ul>
+<p>In DMR: DCM (Dual Core Module) — disabling one core means both cores in the DCM may be affected (module-level disable). In NWP: single-core modules (no SMT, no DCM pairing). Disabling a core isolates only that core&#x27;s DTS.</p>
+<p>Tags: `DMR_PO`, `NGA_MAIN`, `plc.feature.p1`, `PMSS_NWP_READINESS_CHECK`</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Core Disable DTS Architecture (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+</tr></thead><tbody>
+<tr>
+<td>Module</td>
+<td>DCM (2 cores) — disabling affects module pair</td>
+<td>Single core per module — only that core disabled</td>
+</tr>
+<tr>
+<td>Fuse disable</td>
+<td>Per-DCM fuse</td>
+<td>Per-core fuse on NWP</td>
+</tr>
+<tr>
+<td>DTS isolation</td>
+<td>Disabled core DTS excluded from telemetry</td>
+<td>Same principle, single-core granularity</td>
+</tr>
+</tbody></table>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run core_dts_disable PMx</td>
+<td>`python runPmx.py -x nwp.xml -p core_dts_disable -tM 60 --retry_count 2`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Identify a core to disable (use fused-off or test override)</td>
+<td>Select a non-critical core on cbb0 or cbb1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Configure core as disabled (fuse/register override)</td>
+<td>Set disable bit for target core DTS</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Verify disabled core DTS temperature **not included** in PUNIT telemetry</td>
+<td>Telemetry should reflect remaining active cores only</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Stress active cores</td>
+<td>Disabled core DTS should not affect perf limit or thermal decision</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify system stability with disabled core DTS</td>
+<td>No false thermtrip, no perf limit from disabled DTS</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Re-enable and verify DTS resumes contribution</td>
+<td>Restore; telemetry includes all cores again</td>
+</tr>
+</tbody></table>
+<h3>NWP Adaptation Notes</h3>
+<ul>
+<li>NWP: no DCM pairing — disabling 1 core affects only that core (not a paired core)</li>
+<li>`cbb0` and `cbb1` each have 48 cores; test on one core from each CBB</li>
+<li>`runPmx.py -x nwp.xml` (not `dmr.xml`)</li>
+<li>Single `imh0` Punit processes telemetry from both CBBs</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>Disabled core DTS temperature excluded from PUNIT telemetry</li>
+<li>No false perf limit, thermtrip, or MCA from disabled DTS</li>
+<li>Re-enabled core DTS resumes proper temperature reporting</li>
+<li>Behavior correct for both cbb0 and cbb1 cores</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; NWP single-core disable (no DCM pairing)**</p>
+<p>1. `python runPmx.py -x nwp.xml -p core_dts_disable -tM 60 --retry_count 2`</p>
+<p>2. NWP: per-core disable (not per-DCM); test a core on cbb0 and cbb1</p>
+<p>3. Verify disabled DTS excluded from telemetry without affecting active core management</p>
+<p>**Priority**: Medium — `plc.feature.p1`; important for fused-off core scenarios on NWP silicon</p>
+    </div>
+  </div>
+</body>
+</html>

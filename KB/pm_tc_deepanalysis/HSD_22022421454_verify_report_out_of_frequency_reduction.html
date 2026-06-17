@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [ACP] Verify Report out of Frequency Reduction Reason</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [ACP] Verify Report out of Frequency Reduction Reason</h1>
+      <p>Segment: FV | Source: HSD_22022421454_verify_report_out_of_frequency_reduction.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [ACP] Verify Report out of Frequency Reduction Reason</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421454</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[ACP] Verify Report out of Frequency Reduction Reason</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; ACP (Autonomous Core Perimeter)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies that Pcode correctly propagates the Core Thermal Status bit from ACP telemetry to the Performance Limit Reason (PLR) reporting path. When a core reduces its frequency due to a thermal event, it signals via `PMSB_PCU_CR_ACP_PERF_LIMIT[THERMAL]` to Pcode. Pcode must update the PLR mailbox thermal bit and the Perf Limit Reason register visible to software. On NWP, this ACP→PLR thermal reason reporting path is supported. The test requires adapting loop bounds from DMR (4 CBBs × 32 cores) to NWP (2 CBBs × 48 cores) and updating the script config.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>ACP Perf Limit reporting (`PMSB_PCU_CR_ACP_PERF_LIMIT[THERMAL]`) feeds PLR on NWP</li>
+<li>PLR thermal bit visibility via TPMI PLR mailbox exists on NWP</li>
+<li>NWP core count (96 total) and CBB count (2) differ from DMR; verification scope changes</li>
+<li>`thermalManagement.py.thermTest` adapts to NWP with topology config substitution</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP platform with thermal stress capability (VP with DTS injection or silicon)</li>
+<li>PythonSv access to `sv.socket0.cbb{0,1}` PMSB and IMH TPMI registers</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run `thermalManagement.py.thermTest` with NWP config</td>
+<td>Update to NWP topology (2 CBBs × 48 cores)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Trigger thermal event on a core (workload or DTS injection)</td>
+<td>Same mechanism</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify core reduces frequency due to thermal</td>
+<td>Same; check per-core ratio limit via slow limits</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read `PMSB_PCU_CR_ACP_PERF_LIMIT[THERMAL]` for the affected core</td>
+<td>Verify register is set for the hot core; loop over `range(2)` CBBs, `range(48)` cores</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify PLR mailbox `THERMAL` bit (bit 3) is set at CBB TPMI</td>
+<td>Loop over both CBBs: `cbb{0,1}.base.tpmi.plr_mailbox_interface`</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify thermal event cleared → PLR clears</td>
+<td>Same acceptance criterion</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>`PMSB_PCU_CR_ACP_PERF_LIMIT[THERMAL]` set when core ACP reduces frequency</li>
+<li>TPMI PLR mailbox THERMAL bit (bit 3) set on the CBB hosting the throttled core</li>
+<li>PLR clears within one slow-loop cycle after thermal condition resolves</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<h3>Topology Changes</h3>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>CBB count</td>
+<td>4</td>
+<td>2</td>
+<td>PLR mailbox verified on 2 CBBs (not 4)</td>
+</tr>
+<tr>
+<td>Cores per CBB</td>
+<td>32</td>
+<td>48</td>
+<td>PMSB ACP_PERF_LIMIT read across 48 cores/CBB</td>
+</tr>
+<tr>
+<td>Script XML</td>
+<td>`dmr.xml`</td>
+<td>`nwp.xml`</td>
+<td>Direct substitution</td>
+</tr>
+</tbody></table>
+<h3>PLR Bit Assignment</h3>
+<table class="md-table"><thead><tr>
+<th>PLR Bit</th>
+<th>Meaning</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>Bit 3: THERMAL</td>
+<td>Core ACP thermal throttle active</td>
+<td>Same on NWP</td>
+<td>No change</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>Register Check Table (NWP)</h3>
+<table class="md-table"><thead><tr>
+<th>Category</th>
+<th>Register</th>
+<th>Field</th>
+<th>Expected</th>
+<th>Verify On</th>
+</tr></thead><tbody>
+<tr>
+<td>ACP perf limit</td>
+<td>`PMSB_PCU_CR_ACP_PERF_LIMIT`</td>
+<td>`THERMAL`</td>
+<td>1 during core thermal throttle</td>
+<td>Per-core, both CBBs</td>
+</tr>
+<tr>
+<td>PLR mailbox</td>
+<td>`cbb{i}.base.tpmi.plr_mailbox_interface`</td>
+<td>Bit 3 (THERMAL)</td>
+<td>1 during throttle</td>
+<td>Per CBB</td>
+</tr>
+<tr>
+<td>Package PLR</td>
+<td>`PERF_LIMIT_REASONS`</td>
+<td>`THERMAL`</td>
+<td>1 during throttle</td>
+<td>Package (TPMI)</td>
+</tr>
+</tbody></table>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+# Check PLR THERMAL bit on both CBBs
+for cbb_idx in range(2):  # NWP has 2 CBBs
+    plr = sv.socket0.getbypath(f&quot;cbb{cbb_idx}.base.tpmi.plr_mailbox_interface&quot;).read()
+    thermal_bit = (plr &gt;&gt; 3) &amp; 1
+    print(f&quot;CBB{cbb_idx} PLR THERMAL bit: {thermal_bit}&quot;)
+
+# Package-level perf limit reasons
+ptpcfsms = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms
+pkg_plr = ptpcfsms.perf_limit_reasons.read()
+print(f&quot;Package PLR: 0x{pkg_plr:08X}&quot;)
+
+# Per-core ACP perf limit check (spot check first core of each CBB)
+for cbb_idx in range(2):
+    cbb = sv.socket0.getbypath(f&quot;cbb{cbb_idx}&quot;)
+    try:
+        acp_limit = cbb.getbypath(&quot;compute0.module0.pmsb_pcu_cr_acp_perf_limit&quot;).thermal.read()
+        print(f&quot;CBB{cbb_idx} core0: ACP_PERF_LIMIT.THERMAL={acp_limit}&quot;)
+    except Exception as e:
+        print(f&quot;CBB{cbb_idx}: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**PMSB ACP_PERF_LIMIT register path** — may not be directly accessible via NWP namednodes; PLR mailbox TPMI path is the primary observable</td>
+<td>Low</td>
+<td>Use TPMI PLR mailbox as primary; PMSB path as secondary if accessible</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**PLR THERMAL bit definition** — verify bit 3 definition is same on NWP PLR mailbox (not just DMR)</td>
+<td>Low</td>
+<td>Check NWP PM HAS PLR section</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADAPT — topology update + PLR path confirmation needed**</p>
+<p>This TC is straightforward on NWP — the ACP thermal→PLR reporting path exists. Primary adaptations are the CBB/core loop bounds and script config. The PLR mailbox TPMI path is the primary observable and is accessible on NWP.</p>
+<p>Required adaptations:</p>
+<p>1. Update `thermalManagement.py.thermTest` to NWP topology (2 CBBs × 48 cores)</p>
+<p>2. Verify NWP PLR bit 3 = THERMAL (confirm in NWP PM HAS)</p>
+<p>3. Update PMSB register read to use NWP namednodes path</p>
+<p>**Priority**: Medium — PLR thermal reason reporting is important for OS-level telemetry validation</p>
+    </div>
+  </div>
+</body>
+</html>

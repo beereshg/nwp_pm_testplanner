@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: PL4 Fuses Verification</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: PL4 Fuses Verification</h1>
+      <p>Segment: FV | Source: HSD_22022421777_pl4_fuses_verification.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: PL4 Fuses Verification</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421777</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>PL4 Fuses Verification</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>PMAX</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PL4 fuses — SOCKET_PL4_POWER_DEFAULT and related fuse validation</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>PL4 is the PMAX power limit hardware fuse. This test verifies:</p>
+<p>1. `SOCKET_PL4_POWER_DEFAULT` fuse is non-zero</p>
+<p>2. Fuse value matches `socket_rapl_pl4_control.pwr_lim / 8` (pwr_unit)</p>
+<p>3. Related PL4 fuse pointers correct</p>
+<p>**NWP key difference**: DMR checks IMH0 **and** IMH1 fuses → NWP has **single IMH0 only** (remove IMH1 fuse reads).</p>
+<p>Tags: `DMR_PO`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Adapted Command (NWP)</h3>
+<pre><code>
+python flexconPM.py  # uses NWPSV.ini
+</code></pre>
+<h3>NWP PL4 Fuse Reads (imh0 only)</h3>
+<pre><code>
+# NWP: PL4 fuse verification — imh0 only (no imh1)
+# a. SOCKET_PL4_POWER_DEFAULT
+pl4_fuse = sv.socket0.imh0.fuses.punit.pcode_socket_pl4_power_default.read()
+pl4_ctrl = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_pl4_control.pwr_lim.read()
+pwr_unit = 8  # verify per NWP spec
+print(f&quot;PL4 fuse: {pl4_fuse}, PL4 ctrl / unit: {pl4_ctrl / pwr_unit}&quot;)
+assert pl4_fuse == pl4_ctrl / pwr_unit, &quot;PL4 fuse mismatch&quot;
+assert pl4_fuse != 0, &quot;PL4 fuse must be non-zero&quot;
+</code></pre>
+<h3>Pass Criteria</h3>
+<ul>
+<li>`pcode_socket_pl4_power_default` fuse is non-zero</li>
+<li>Fuse value consistent with `socket_rapl_pl4_control.pwr_lim / pwr_unit`</li>
+<li>All related PL4 pointer fuses correct for NWP</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — Remove IMH1 references (NWP has single IMH0); `DMRSV.ini` → `NWPSV.ini` for flexconPM; PL4 fuse architecture same**</p>
+<p>**Priority**: Medium — `DMR_PO`; PL4 fuse baseline is required for PMAX overcurrent protection at the correct power level</p>
+    </div>
+  </div>
+</body>
+</html>

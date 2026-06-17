@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [GPIO Interface] Verify XX_THERMTRIP_N Input/Output Pin Assertion</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [GPIO Interface] Verify XX_THERMTRIP_N Input/Output Pin Assertion</h1>
+      <p>Segment: FV | Source: HSD_22022421485_verify_xx_thermtrip_n_input_output.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [GPIO Interface] Verify XX_THERMTRIP_N Input/Output Pin Assertion</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421485</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[GPIO Interface] Verify XX_THERMTRIP_N input/output pin assertion</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; GPIO Interface (ThermTrip)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies the `XX_THERMTRIP_N` bidirectional GPIO pin — both as an **output** (CPU asserts to platform when catastrophic internal thermal runaway occurs) and as an **input** (platform asserts to CPU when external component trips catastrophic thermal shutdown). ThermTrip is the last-resort thermal safety mechanism: it causes immediate CPU shutdown. On NWP, the bidirectional ThermTrip GPIO is supported. Testing the output direction requires carefully triggering an internal thermtrip condition (typically via fuse override or simulated temp injection); testing the input direction requires asserting the pin from the platform side via board header.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>`XX_THERMTRIP_N` bidirectional pin is present on NWP; ThermTrip is a silicon safety feature</li>
+<li>Output: CPU asserts when DTS exceeds `TJ_MAX + 10°C` or HW thermtrip threshold</li>
+<li>Input: platform asserts → CPU immediately asserts shutdown response</li>
+<li>`NGA_MAIN` tag: silicon test; extreme caution required due to system shutdown impact</li>
+<li>ThermTrip causes immediate power shutdown — test requires controlled infrastructure</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon platform with `XX_THERMTRIP_N` pin observable and assertable from platform side</li>
+<li>Controlled thermal injection capability (VP preferred for output-direction test)</li>
+<li>Platform power infrastructure supports controlled shutdown and restart</li>
+</ul>
+<h3>Adapted Test Steps — Output Direction (CPU → Platform)</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>(VP only) Inject temperature above ThermTrip threshold</td>
+<td>Use VP thermal injection; do NOT attempt on live silicon with real DIMMs</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Verify `XX_THERMTRIP_N` output asserts (pin goes low)</td>
+<td>Board measurement; NWP platform</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Verify system powers off (ThermTrip causes immediate shutdown)</td>
+<td>Same; verify via platform BMC or power sequencer log</td>
+</tr>
+<tr>
+<td>4</td>
+<td>System restart and verify ThermTrip log bit set</td>
+<td>NWP log path</td>
+</tr>
+</tbody></table>
+<h3>Adapted Test Steps — Input Direction (Platform → CPU)</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Assert `XX_THERMTRIP_N` from platform side via board header (shorting to GND)</td>
+<td>NWP board header — confirm with platform team</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Verify CPU responds: immediate shutdown/reset</td>
+<td>Same; verify via BMC platform event log</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Power cycle and verify recovery</td>
+<td>Same</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>**Output**: CPU asserts `THERMTRIP_N` on catastrophic thermal event → platform powers off</li>
+<li>**Input**: Platform assertion → CPU enters immediate shutdown response</li>
+<li>System recovers cleanly after ThermTrip event</li>
+<li>ThermTrip event logged in platform event log</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>Pin type</td>
+<td>Bidirectional</td>
+<td>Same on NWP</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>ThermTrip threshold</td>
+<td>`TJ_MAX + 10°C` (DMR)</td>
+<td>NWP-specific; may vary by 1-2°C</td>
+<td>Verify from NWP PM HAS</td>
+</tr>
+<tr>
+<td>Board infrastructure</td>
+<td>OKS board header</td>
+<td>NWP AvenueCity board</td>
+<td>Confirm header location</td>
+</tr>
+<tr>
+<td>IMH count</td>
+<td>Multiple</td>
+<td>Single</td>
+<td>Simpler — only imh0 thermtrip path</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<h3>PythonSv Validation Commands (NWP)</h3>
+<pre><code>
+ptpcfsms = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms
+
+# ThermTrip status (if readable after event, before full shutdown)
+try:
+    thermtrip_status = ptpcfsms.gpio_bump_status.xxthermtrip_n_status.read()
+    print(f&quot;THERMTRIP_N status: {thermtrip_status}&quot;)
+except Exception as e:
+    print(f&quot;ThermTrip status: {e}&quot;)
+
+# Note: Full ThermTrip causes system shutdown; post-event analysis via BMC SEL log
+# BMC: ipmitool sel list | grep -i thermal
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**System shutdown required** — ThermTrip causes immediate shutdown; test disrupts the system; requires controlled lab environment</td>
+<td>High</td>
+<td>Run in isolated lab session with full system restart plan</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**VP strongly preferred for output-direction** — triggering real thermtrip on silicon risks DIMM/board damage if infrastructure fails</td>
+<td>High</td>
+<td>Use VP for output; silicon for input direction only</td>
+</tr>
+<tr>
+<td>3</td>
+<td>**Board header location** — NWP AvenueCity board THERMTRIP_N header must be confirmed</td>
+<td>Medium</td>
+<td>Coordinate with platform team</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADAPT — extreme safety precautions; NGA_MAIN priority**</p>
+<p>ThermTrip is architecturally the same on NWP. The output-direction test is best done on VP; the input-direction test requires silicon with controlled board infrastructure. Both require system restart capability in the test harness.</p>
+<p>Required adaptations:</p>
+<p>1. Use VP for output-direction (CPU → platform) ThermTrip test</p>
+<p>2. Confirm NWP board THERMTRIP_N header for input-direction test</p>
+<p>3. Ensure NGA automation includes automatic power cycle/restart after event</p>
+<p>**Priority**: High — NGA_MAIN; ThermTrip is the last-resort thermal safety validation</p>
+    </div>
+  </div>
+</body>
+</html>

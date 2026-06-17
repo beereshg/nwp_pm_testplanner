@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Thermal Interrupts] Verify THRESHOLD_2 Interrupt</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Thermal Interrupts] Verify THRESHOLD_2 Interrupt</h1>
+      <p>Segment: FV | Source: HSD_22022421633_verify_threshold_2_interrupt.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Thermal Interrupts] Verify THRESHOLD_2 Interrupt</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421633</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Thermal Interrupts] Verify THRESHOLD_2 Interrupt</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Threshold 2 thermal interrupt — core MSR 0x19b and package MSR 0x1b2</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>Verifies **THRESHOLD_2** — second programmable thermal threshold interrupt. Fields:</p>
+<ul>
+<li>`THRESHOLD_2_INT_ENABLE`: enable interrupt on threshold 2 crossing</li>
+<li>`THRESHOLD_2_REL_TEMP`: degrees below Tj_max (same field structure as THRESHOLD_1)</li>
+</ul>
+<p>Tested on both core MSR 0x19b and package MSR 0x1b2. Identical mechanism to THRESHOLD_1 with different threshold value. Directly applicable on NWP.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Set THRESHOLD_2_REL_TEMP to different value than THRESHOLD_1 (e.g., 10°C below Tj_max)</td>
+<td>Core + Package MSRs</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Enable THRESHOLD_2_INT_ENABLE</td>
+<td>Core (96 cores) + Package</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Run thermal_interrupt PMx</td>
+<td>`python runPmx.py -x nwp.xml -p thermal_interrupt -tM 60 -M 5`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Drive temperature through THRESHOLD_2 (below THRESHOLD_1)</td>
+<td>Thermal load</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify THRESHOLD_2 interrupt fires independently of THRESHOLD_1</td>
+<td>Separate interrupt</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Cross-product: enable both THRESHOLD_1 and THRESHOLD_2; verify both fire</td>
+<td>Cascaded thresholds</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>THRESHOLD_2 fires independently from THRESHOLD_1</li>
+<li>Both up and down crossings trigger interrupt</li>
+<li>Core and package THRESHOLD_2 enables functional</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; THRESHOLD_2 same mechanism as THRESHOLD_1**</p>
+<p>1. `python runPmx.py -x nwp.xml -p thermal_interrupt -tM 60 -M 5`</p>
+<p>**Priority**: Medium — `plc.feature.p1`; second programmable threshold interrupt verification</p>
+    </div>
+  </div>
+</body>
+</html>

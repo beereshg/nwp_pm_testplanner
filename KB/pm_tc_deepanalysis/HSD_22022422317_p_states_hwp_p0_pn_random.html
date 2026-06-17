@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Solar] P-States-HWP-P0_PN_random</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Solar] P-States-HWP-P0_PN_random</h1>
+      <p>Segment: FV | Source: HSD_22022422317_p_states_hwp_p0_pn_random.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Solar] P-States-HWP-P0_PN_random</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422317</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Solar] P-States-HWP-P0_PN_random</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Pstate Stack</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Solar tool — HWP mode random P-state sweep (P1..Pn)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test uses the **Solar** tool in HWP mode to stress P-states by issuing random HWP requests from P1 to Pn. The command:</p>
+<pre><code>
+/usr/bin/solar/solar.sh /hwp -hwpoints P1..Pn -r /logpath .
+</code></pre>
+<p>Solar has a config preset reference to `diamondrapids/pm/Solar/HWP/P0_Pn_random.xml` — this path needs to be updated to the NWP equivalent, or Solar auto-selects the correct preset.</p>
+<p>Solar operates at SVOS level and does not use `nwp.xml` directly.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>Solar HWP mode is platform-agnostic (SVOS-level tool)</li>
+<li>Only the config preset path references `diamondrapids` — may need NWP path</li>
+<li>`plc.feature.p2` + `PMSS_NWP_READINESS_CHECK` tags</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Boot NWP to SVOS with HWP enabled</td>
+<td>`ProcessorHWPMEnable = 1` BIOS</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Verify Solar installed</td>
+<td>`ls /usr/bin/solar/solar.sh`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Run Solar HWP random sweep</td>
+<td>`/usr/bin/solar/solar.sh /hwp -hwpoints P1..Pn -r /logpath .`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>If preset path fails, use NWP Solar config</td>
+<td>`/cfg /usr/local/python/nwp/pm/Solar/HWP/P0_Pn_random.xml` (if exists)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify Solar PASS output</td>
+<td>Check log at `/logpath/solar_*`</td>
+</tr>
+</tbody></table>
+<h3>Solar HWP Mode Parameters</h3>
+<ul>
+<li>`/hwp`: HWP mode (vs `/pstate` for legacy)</li>
+<li>`-hwpoints P1..Pn`: sweep from P1 guaranteed to Pn minimum, random order</li>
+<li>`-r`: randomize point order</li>
+</ul>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>Solar exits with PASS</li>
+<li>HWP requests from P1 to Pn all achievable on NWP</li>
+<li>No MCAs or IERR during random HWP sweep</li>
+<li>Platform stable after test</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — Solar HWP mode command is platform-agnostic; may need NWP config path**</p>
+<p>Required adaptations:</p>
+<p>1. Verify Solar deployed on NWP SVOS image</p>
+<p>2. Check if NWP Solar config exists at `/usr/local/python/nwp/pm/Solar/HWP/`; if not, Solar uses auto-discovery</p>
+<p>3. No command change needed if Solar auto-detects platform</p>
+<p>**Priority**: Low-Medium — no `DMR_PO`; Solar HWP stress sweep; complements hwpm_check TCs</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NWP PSS Analysis</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>NWP PSS Analysis</h1>
+      <p>Segment: PSS | Source: HSD_22022015520_SoC_Thermal_EMTTM.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>NWP PSS Analysis</h1>
+<h2>Metadata</h2>
+<ul>
+<li>HSD ID: 22022015520</li>
+<li>Title: IMH Thermal Throttling</li>
+<li>Feature: SoC Thermal</li>
+<li>Sub Feature: EMTTM</li>
+<li>Script: pm/pss/thermal/pm_mcp_tm2_cbb_2_max_core_pma_time_dcf_new_core_freq_reads.py</li>
+<li>HSD Script: (none)</li>
+<li>TC Owner: jinwengo</li>
+<li>TR Owner: mps</li>
+<li>Validation Environment: emulation.hsle,xos</li>
+<li>Test Cycle: Newport Product.trunk.pss_0p8.pss.val.NWP_MCP HSLE XOS</li>
+<li>NWP Scope: Runnable_On_N-1</li>
+</ul>
+<h2>HSD Hierarchy</h2>
+<ul>
+<li>Test Case Definition: [22021969872 - EMTTM](https://hsdes.intel.com/appstore/article/#/22021969872)</li>
+<li>Test Case: [22022015520 - IMH Thermal Throttling](https://hsdes.intel.com/appstore/article/#/22022015520)</li>
+<li>Test Result: [22022027632 - [PSS][EMTTM] IMH Thermal Throttling](https://hsdes.intel.com/appstore/article/#/22022027632)</li>
+</ul>
+<h2>KB References</h2>
+<ul>
+<li>KB Article: [KB/pm_features/soc_thermal/emttm.md](../../../KB/pm_features/soc_thermal/emttm.md)</li>
+</ul>
+<h2>Model Response</h2>
+<h2>Refined Intent</h2>
+<p>Inject high temperature in DTSes through RTL/PCUDATA accesses. Verify IMH thermal PID control loop engages near TjMax — IO and Memory fabric ratios throttled to Pn/Pm. NWP: EMTTM/thermal PID is active (derived from DMR, EMTTM_DISABLE=0). UFS is ZBB&#x27;d but thermal PID heavy-hammer still throttles fabrics.</p>
+<h2>Refined Test Steps</h2>
+<p>Pre-Conditions:</p>
+<ul>
+<li>Platform booted to SLE/HSLE</li>
+<li>EMTTM enabled (EMTTM_DISABLE=0)</li>
+<li>DTS sensors accessible via RTL/PCUDATA</li>
+<li>PID params: Kp=0.17, Ki=0.06 (defaults)</li>
+</ul>
+<p>Step 1 — Read baseline fabric ratios:</p>
+<p>Record current IMH Memory fabric ratio and IO fabric ratio.</p>
+<p>Read EFFECTIVE_TJ_MAX.</p>
+<p>Step 2 — Inject high temperature via DTS:</p>
+<p>Inject temperature &gt; TjMax in one of the IMH DTSes through RTL/PCUDATA accesses.</p>
+<p>Verify package temperature reflects the injected high temperature.</p>
+<p>Step 3 — Verify IMH thermal PID engagement:</p>
+<p>Check IMH Memory fabric ratio throttled to Pmin (Pm).</p>
+<p>Check IMH IO fabric ratio throttled to Pmin (Pn).</p>
+<p>Thermal PID loop drives fabric frequency ceiling down near TjMax.</p>
+<p>Step 4 — Check PLR thermal bits:</p>
+<p>Read PLR via mailbox. Verify THERMAL PLR bits are SET.</p>
+<p>Step 5 — Uninject and verify recovery:</p>
+<p>Remove DTS temperature injection.</p>
+<p>Verify temperatures recover to nominal.</p>
+<p>Verify IMH fabric ratios recover from Pmin.</p>
+<p>Verify PLR THERMAL bits clear.</p>
+<p>Pass/Fail Criteria:</p>
+<p>PASS: IMH IO and Mem ratios throttled to Pmin near TjMax; PLR THERMAL bits set during throttle and cleared after recovery</p>
+<p>FAIL: No throttling observed, or PLR bits not reflecting thermal state</p>
+<p>HAS/MAS References:</p>
+<ul>
+<li>DMR Thermal HAS — IMH PID Thermal Control: https://docs.intel.com/documents/pm_doc/src/server/DMR/PM%20Features/Thermals/DMR_Thermal.html</li>
+<li>NWP PM MAS — Thermal (EMTTM supported): https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html</li>
+</ul>
+<h3>NWP Project Relevance</h3>
+<p>**Test Classification:** Regression (DMR-inherited)</p>
+<p>**Feature Status:** Expected to work</p>
+<p>**Test Purpose:** Inject high temperature in DTSes through RTL/PCUDATA accesses. Verify IMH thermal PID control loop engages near TjMax — IO and Memory fabric ratios throttled to Pn/Pm. NWP: EMTTM/thermal PID is active</p>
+<p>**Negative Test Aspect:** None</p>
+<p>**NWP Delta:** Topology differences from DMR (2 CBB + 1 NIO); same SoC Thermal behavior expected</p>
+<h2>Section A: Critical Execution Path</h2>
+<p>1. Step 1 — Read baseline fabric ratios:</p>
+<p>2. Step 2 — Inject high temperature via DTS:</p>
+<p>3. Step 3 — Verify IMH thermal PID engagement:</p>
+<p>4. Step 4 — Check PLR thermal bits:</p>
+<p>5. Step 5 — Uninject and verify recovery:</p>
+<h2>Section B: Component Interaction Diagram</h2>
+<pre><code>
+sequenceDiagram
+    participant OS as Host OS
+    participant FW as PCode/OCode
+    participant HW as Hardware
+
+    OS-&gt;&gt;FW: Send command via interface
+    FW-&gt;&gt;HW: Configure registers
+    HW--&gt;&gt;FW: Acknowledge
+    FW--&gt;&gt;OS: Return status
+</code></pre>
+<h2>Section C: Interface Coverage Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>Interface</th>
+<th>Covered</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>CSR</td>
+<td>Yes</td>
+<td>Primary interface</td>
+</tr>
+<tr>
+<td>Fuse</td>
+<td>Yes</td>
+<td>Primary interface</td>
+</tr>
+<tr>
+<td>PCUData</td>
+<td>Yes</td>
+<td>Primary interface</td>
+</tr>
+<tr>
+<td>PLR</td>
+<td>Yes</td>
+<td>Primary interface</td>
+</tr>
+<tr>
+<td>TPMI_IB</td>
+<td>Yes</td>
+<td>Primary interface</td>
+</tr>
+<tr>
+<td>TPMI: package_temperature</td>
+<td>Yes</td>
+<td>TPMI interface</td>
+</tr>
+<tr>
+<td>TPMI: ufs_control/status</td>
+<td>Yes</td>
+<td>TPMI interface</td>
+</tr>
+</tbody></table>
+<h2>Section D: NWP Specification References</h2>
+<ul>
+<li>**NWP PM HAS**: [NWP HAS - PM Features](https://docs.intel.com/documents/custom-xeon/newport-docs/has/Overview/NWP_HAS.html#pm-features)</li>
+<li>**NWP PM MAS**: [NWP IMH SoC PM MAS - Thermal](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html#thermal)</li>
+<li>**DMR PM HAS**: [DMR SoC PM HAS](https://docs.intel.com/documents/pm_doc/src/server/DMR/SOC_PM_HAS/DMR_SOC_PM_HAS.html)</li>
+<li>**Feature HAS**: [DMR Thermal HAS](https://docs.intel.com/documents/pm_doc/src/server/DMR/Features/Thermal/DMR_Thermal.html)</li>
+<li>**DMR CBB HAS**: [DMR CBB PM HAS - DTS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/PM%20HAS/cbb_pm_has.html#dts)</li>
+<li>**Intel® 64 and IA-32 SDM**: MSR definitions, CPUID enumeration</li>
+</ul>
+<h2>Section E: NWP Risk Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr></thead><tbody>
+<tr>
+<td>Topology change</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Verify on multi-die config</td>
+</tr>
+<tr>
+<td>Interface delta</td>
+<td>Low</td>
+<td>Low</td>
+<td>Compare with DMR baseline</td>
+</tr>
+<tr>
+<td>Timing sensitivity</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Allow tolerance margins</td>
+</tr>
+</tbody></table>
+<h2>Section F: Recommendations</h2>
+<p>1. Verify test works on NWP multi-die topology</p>
+<p>2. Check for any interface changes from DMR</p>
+<p>3. Update HAS references to NWP specifications</p>
+<p>4. Add negative test coverage if missing</p>
+<p>5. Consider additional stress test variants</p>
+<p>---</p>
+<p>*Generated from metadata on 2026-05-28 23:20:51*</p>
+    </div>
+  </div>
+</body>
+</html>

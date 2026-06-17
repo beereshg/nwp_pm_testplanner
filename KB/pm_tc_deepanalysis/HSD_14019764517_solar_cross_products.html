@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: Solar Cross Products</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: Solar Cross Products</h1>
+      <p>Segment: FV | Source: HSD_14019764517_solar_cross_products.inference.md | Generated: 2026-06-17 21:14:30</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: Solar Cross Products</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>14019764517</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>Solar Cross Products</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>(blank)</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Solar PM stress tool — concurrent multi-feature stress (DVF, C-states, RAPL, etc.)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>Solar is a PM stress tool that exercises multiple PM features simultaneously. It verifies that PM features can run concurrently without conflicts per spec. Solar has DMR XML configuration; NWP requires adaptation to use NWP XML.</p>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>NWP Solar Configuration</h3>
+<pre><code>
+# Solar for NWP — adapt XML paths
+# DMR Solar XML: .../diamondrapids/pm/Solar/SOLAR_DMR_XMLS/...
+# NWP Solar XML: .../newport/pm/Solar/SOLAR_NWP_XMLS/...
+</code></pre>
+<h3>Features Stressed by Solar</h3>
+<table class="md-table"><thead><tr>
+<th>Feature</th>
+<th>NWP Status</th>
+</tr></thead><tbody>
+<tr>
+<td>DVF (frequency scaling)</td>
+<td>Functional</td>
+</tr>
+<tr>
+<td>C-states (core-level)</td>
+<td>Functional (C1E, C6A/C6S)</td>
+</tr>
+<tr>
+<td>RAPL power limiting</td>
+<td>Functional</td>
+</tr>
+<tr>
+<td>HWP/P-states</td>
+<td>Functional</td>
+</tr>
+<tr>
+<td>Thermals (PROCHOT)</td>
+<td>Functional</td>
+</tr>
+<tr>
+<td>SST-TF / PCT</td>
+<td>Functional</td>
+</tr>
+</tbody></table>
+<p>**Note**: Solar should be configured to EXCLUDE ZBB features (SST-PP, SST-BF, PkgC6, HGS).</p>
+<h3>Pass Criteria</h3>
+<ul>
+<li>Solar runs for 30+ minutes without crash, MCA, or hang</li>
+<li>All featured PM features co-exist without conflicts</li>
+<li>No unexpected throttle or frequency collapse</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — Solar XML: `SOLAR_DMR_XMLS` → `SOLAR_NWP_XMLS`; exclude ZBB features from Solar config (SST-PP, SST-BF, PkgC6, HGS); NWP 2 CBBs × 48 cores**</p>
+<p>**Priority**: High — Solar concurrent stress is the highest-value cross-product validation; verifies PM feature co-existence</p>
+    </div>
+  </div>
+</body>
+</html>

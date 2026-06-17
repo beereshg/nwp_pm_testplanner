@@ -1,0 +1,25 @@
+
+============================================================
+  Pstate_Stack
+============================================================
+Traceback (most recent call last):
+  File "C:\github\nwp_testplan\simics\sweep_all_features.py", line 63, in <module>
+    sweep_feature(s, "Pstate_Stack", [
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        ("ACP_PERF_LIMIT CBB0 (all FIDs)",              f"@{CBB0_PMSB}.acp_perf_limit.read()"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<30 lines>...
+        ("PLR MAILBOX CBB0 (high-level clipping)",       f"@{CBB0_TPMI}.plr_mailbox_data.read()"),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ])
+    ^^
+  File "C:\github\nwp_testplan\simics\sweep_all_features.py", line 54, in sweep_feature
+    RESULTS["features"][name] = [read_reg(s, label, cmd) for label, cmd in regs]
+                                 ~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\github\nwp_testplan\simics\sweep_all_features.py", line 47, in read_reg
+    print(f"  {'\u2713' if status=='ok' else '\u2717'} {label}: {value[:80]}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Python314\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2713' in position 2: character maps to <undefined>

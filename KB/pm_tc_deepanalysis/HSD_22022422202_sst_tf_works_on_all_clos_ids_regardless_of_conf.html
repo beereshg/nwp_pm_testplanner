@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: SST-TF - Works on All CLOS IDs Regardless of Configuration</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: SST-TF - Works on All CLOS IDs Regardless of Configuration</h1>
+      <p>Segment: FV | Source: HSD_22022422202_sst_tf_works_on_all_clos_ids_regardless_of_conf.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: SST-TF - Works on All CLOS IDs Regardless of Configuration</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022422202</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>SST-TF - Works on all CLOS IDs regardless of configuration</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-05-29</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SST</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>SST-TF — TRL honored across all CLOS IDs (CLOS 0–3) with arbitrary min/max configuration</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+<tr>
+<td>**HSD Status**</td>
+<td>rejected</td>
+</tr>
+<tr>
+<td>**Environment**</td>
+<td>virtual_platform (VP/Simics)</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies a key correctness invariant of SST-TF: **TRL is honored regardless of which CLOS ID cores are assigned to**, with any valid min/max CLOS configuration. The test exercises CLOS IDs 0 through 3 — covering both HP (CLOS 0) and LP (CLOS 3) and the intermediate groups — confirming that SST-TF frequency enforcement is robust to arbitrary CLOS group assignments.</p>
+<p>SST-TF is **functional on NWP** (not ZBB). NWP uses SST-TF as the underlying mechanism for PCT (Priority Core Turbo), making CLOS-based TRL enforcement a core requirement.</p>
+<p>&gt; ⚠️ **HSD Status: `rejected`** — This TC was rejected in the DMR context. For NWP enrichment, the test logic remains valid as a VP/Simics-executable CLOS coverage test. Confirm with test owner whether this TC should be re-opened for NWP before running.</p>
+<p>**DMR → NWP Architecture Delta:**</p>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>SST-TF availability</td>
+<td>Functional</td>
+<td>✅ Functional (not ZBB)</td>
+<td>Test runs as-is</td>
+</tr>
+<tr>
+<td>CLOS group count</td>
+<td>4 (CLOS 0–3)</td>
+<td>4 (CLOS 0–3)</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>HP assignment</td>
+<td>CLOS 0</td>
+<td>CLOS 0 (via PCT)</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>LP assignment</td>
+<td>CLOS 3</td>
+<td>CLOS 3 (via PCT)</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>CLOS_CONFIG registers</td>
+<td>`sst_clos_config_0..3`</td>
+<td>`sst_clos_config_0..3`</td>
+<td>Same register names</td>
+</tr>
+<tr>
+<td>CLOS_ASSOC registers</td>
+<td>`sst_clos_assoc_0..N`</td>
+<td>`sst_clos_assoc_0..N`</td>
+<td>Same; core count differs</td>
+</tr>
+<tr>
+<td>Core count</td>
+<td>128 cores (4 CBBs × 32)</td>
+<td>96 cores (2 CBBs × 48)</td>
+<td>ASSOC register coverage differs</td>
+</tr>
+<tr>
+<td>TRL bucket lookup</td>
+<td>Hash-based O(1)</td>
+<td>Hash-based O(1)</td>
+<td>Same mechanism</td>
+</tr>
+<tr>
+<td>Run target</td>
+<td>`dmr.xml`</td>
+<td>`nwp.xml`</td>
+<td>XML swap required</td>
+</tr>
+<tr>
+<td>val_environment</td>
+<td>virtual_platform</td>
+<td>virtual_platform</td>
+<td>VP/Simics run</td>
+</tr>
+</tbody></table>
+<p>Tags: `New_Content`, `plc.feature.p1`, `PMSS_NWP_READINESS_CHECK`.</p>
+<p>---</p>
+<h2>Section B: Interactions</h2>
+<h3>Adapted Command (NWP)</h3>
+<pre><code>
+python runPmx.py -x nwp.xml -p sst_tf -tM 60 -M 5 --retry_count 2
+</code></pre>
+<h3>Swimlane Data</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Actor</th>
+<th>Action</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Test</td>
+<td>Enable SST-TF: `sst_pp_control.feature_state[1] = 0x1`</td>
+<td>TPMI `SST_PP_CONTROL`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Test</td>
+<td>Configure CLOS 0: set min/max to random values (min &lt; max)</td>
+<td>TPMI `sst_clos_config_0`</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Test</td>
+<td>Configure CLOS 1: set distinct min/max values</td>
+<td>TPMI `sst_clos_config_1`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Test</td>
+<td>Configure CLOS 2: set distinct min/max values</td>
+<td>TPMI `sst_clos_config_2`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Test</td>
+<td>Configure CLOS 3: set distinct min/max values</td>
+<td>TPMI `sst_clos_config_3`</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Test</td>
+<td>Assign ALL cores to CLOS 0 via `sst_clos_assoc_0..N`</td>
+<td>TPMI `SST_CLOS_ASSOC`</td>
+</tr>
+<tr>
+<td>7</td>
+<td>PCode</td>
+<td>TrlManager detects CLOS config change; updates HP/LP CCP masks</td>
+<td>HPM `COMPUTE_CLOS_CONFIG`</td>
+</tr>
+<tr>
+<td>8</td>
+<td>PCode</td>
+<td>Workpoint calc applies HP TRL for CLOS 0 cores</td>
+<td>WP4 — `hi_prio_clos_cdyn_trl`</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Test</td>
+<td>Verify all cores achieve TRL ≤ HP CLOS TRL bucket (CLOS 0)</td>
+<td>Read core frequencies</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Test</td>
+<td>Repeat: assign ALL cores to CLOS 1</td>
+<td>TPMI `SST_CLOS_ASSOC`</td>
+</tr>
+<tr>
+<td>11</td>
+<td>PCode</td>
+<td>TrlManager updates; CLOS 1 is intermediate — no HP elevation</td>
+<td>WP4 — SST-PP TRL base</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Test</td>
+<td>Verify cores honor min ≤ freq ≤ max for CLOS 1 config</td>
+<td>Read core frequencies</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Test</td>
+<td>Repeat for CLOS 2</td>
+<td>TPMI `SST_CLOS_ASSOC`</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Test</td>
+<td>Repeat: assign ALL cores to CLOS 3 (LP)</td>
+<td>TPMI `SST_CLOS_ASSOC`</td>
+</tr>
+<tr>
+<td>15</td>
+<td>PCode</td>
+<td>TrlManager applies LP CLOS clip ratio for CLOS 3 cores</td>
+<td>WP4 — `low_prio_clos_cdyn_trl`</td>
+</tr>
+<tr>
+<td>16</td>
+<td>Test</td>
+<td>Verify all LP cores clipped to LP clip ratio</td>
+<td>Read core frequencies</td>
+</tr>
+</tbody></table>
+<h3>Sequence Data</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>From</th>
+<th>To</th>
+<th>Message</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Test</td>
+<td>TPMI</td>
+<td>Write `sst_pp_control.feature_state[1] = 1`</td>
+<td>TPMI SST write</td>
+</tr>
+<tr>
+<td>2</td>
+<td>PCode slow-loop</td>
+<td>PCode SstManager</td>
+<td>Detect TF enable change</td>
+<td>Internal slow-loop</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PCode SstManager</td>
+<td>PCode TrlManager</td>
+<td>Signal: reload HP/LP CLOS TRL tables</td>
+<td>Internal HPM</td>
+</tr>
+<tr>
+<td>4</td>
+<td>PCode TrlManager</td>
+<td>TPMI IO</td>
+<td>Read `SST_TF_INFO_0` (LP clip ratios per CDYN)</td>
+<td>IO read</td>
+</tr>
+<tr>
+<td>5</td>
+<td>PCode TrlManager</td>
+<td>TPMI IO</td>
+<td>Read `SST_TF_INFO_2..7` (HP TRL ratios per CDYN × 3 buckets)</td>
+<td>IO read</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Test</td>
+<td>TPMI</td>
+<td>Write `sst_clos_config_0..3` with distinct min/max values</td>
+<td>TPMI SST write</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Test</td>
+<td>TPMI</td>
+<td>Write `sst_clos_assoc_0..N` — all cores → CLOS X</td>
+<td>TPMI SST write</td>
+</tr>
+<tr>
+<td>8</td>
+<td>PCode</td>
+<td>TrlManager</td>
+<td>Send `HPM_MSG_COMPUTE_CLOS_CONFIG` with HP module count</td>
+<td>HPM Root→Leaf</td>
+</tr>
+<tr>
+<td>9</td>
+<td>PCode WP Calc</td>
+<td>Core FIVR</td>
+<td>Apply HP TRL (CLOS 0) or LP clip (CLOS 3) per-core</td>
+<td>WP4 frequency target</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Test</td>
+<td>Core telemetry</td>
+<td>Read actual frequencies / TRL registers</td>
+<td>TPMI / MSR read</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section C: Interface Coverage Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>Interface</th>
+<th>Register / Signal</th>
+<th>Covered?</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>SST-TF enable</td>
+<td>`sst_pp_control.feature_state[1]`</td>
+<td>✅</td>
+<td>Written in Step 1</td>
+</tr>
+<tr>
+<td>CLOS 0 config</td>
+<td>`sst_clos_config_0.min_freq` / `.max_freq`</td>
+<td>✅</td>
+<td>Programmed with random values</td>
+</tr>
+<tr>
+<td>CLOS 1 config</td>
+<td>`sst_clos_config_1.min_freq` / `.max_freq`</td>
+<td>✅</td>
+<td>Programmed with distinct values</td>
+</tr>
+<tr>
+<td>CLOS 2 config</td>
+<td>`sst_clos_config_2.min_freq` / `.max_freq`</td>
+<td>✅</td>
+<td>Programmed with distinct values</td>
+</tr>
+<tr>
+<td>CLOS 3 config</td>
+<td>`sst_clos_config_3.min_freq` / `.max_freq`</td>
+<td>✅</td>
+<td>Programmed with distinct values</td>
+</tr>
+<tr>
+<td>Core → CLOS assignment</td>
+<td>`sst_clos_assoc_0..N`</td>
+<td>✅</td>
+<td>All cores assigned per iteration</td>
+</tr>
+<tr>
+<td>HP TRL enforcement</td>
+<td>`sst_tf_info_2..7` (HP CLOS TRL)</td>
+<td>✅</td>
+<td>Validated for CLOS 0</td>
+</tr>
+<tr>
+<td>LP TRL clip</td>
+<td>`sst_tf_info_0` (LP clip ratio)</td>
+<td>✅</td>
+<td>Validated for CLOS 3</td>
+</tr>
+<tr>
+<td>Intermediate CLOS (1, 2)</td>
+<td>TRL resolution</td>
+<td>⚠️</td>
+<td>Min/max config checked; intermediate CLOS TRL behavior implementation-dependent</td>
+</tr>
+<tr>
+<td>CDYN-indexed TRL</td>
+<td>Per-CDYN ratio check</td>
+<td>⚠️</td>
+<td>Test uses SSE workload; multi-CDYN coverage via separate bucket test</td>
+</tr>
+<tr>
+<td>ODC TRL interaction</td>
+<td>`IO_ODC_TRL_RATIOS` min</td>
+<td>❌</td>
+<td>Not explicitly tested; separate ODC coverage recommended</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: NWP Specification References</h2>
+<table class="md-table"><thead><tr>
+<th>Specification</th>
+<th>Section</th>
+<th>Relevance</th>
+</tr></thead><tbody>
+<tr>
+<td>[SST HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html)</td>
+<td>SST-TF CLOS Assignment</td>
+<td>CLOS_ASSOC encoding, HP/LP TRL resolution</td>
+</tr>
+<tr>
+<td>[SST HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html)</td>
+<td>SST_CLOS_CONFIG fields</td>
+<td>min_freq, max_freq encoding per CLOS group</td>
+</tr>
+<tr>
+<td>[NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)</td>
+<td>PCT / SST-TF</td>
+<td>NWP PCT = SST-TF; CLOS groups remain active</td>
+</tr>
+<tr>
+<td>KB: `sst/tf.md`</td>
+<td>FW Touchpoints</td>
+<td>PCode TrlManager CLOS TRL load flow</td>
+</tr>
+<tr>
+<td>KB: `sst/trl.md`</td>
+<td>TRL Architecture</td>
+<td>4-table model; HP/LP CLOS bucket dimensions</td>
+</tr>
+<tr>
+<td>KB: `sst/sst_cp.md`</td>
+<td>CLOS Infrastructure</td>
+<td>NWP CLOS ordered throttling via PCT</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section E: NWP Risk Assessment</h2>
+<table class="md-table"><thead><tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr></thead><tbody>
+<tr>
+<td>HSD `rejected` — test may not be maintained</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Verify TC is still valid for NWP; confirm with bg3 before running</td>
+</tr>
+<tr>
+<td>CLOS 1 &amp; 2 TRL behavior undefined in spec</td>
+<td>Low</td>
+<td>Low</td>
+<td>Intermediate CLOS groups may resolve as SST-PP base TRL; document expected behavior per test plan</td>
+</tr>
+<tr>
+<td>NWP core count difference affects CLOS_ASSOC coverage</td>
+<td>Low</td>
+<td>Low</td>
+<td>NWP has 96 cores across 2 CBBs (vs 128); update ASSOC register sweep range</td>
+</tr>
+<tr>
+<td>HP CCP mask detection latency (slow-loop)</td>
+<td>Low</td>
+<td>Low</td>
+<td>1+ slow-loop latency before TrlManager updates; add settle delay in test</td>
+</tr>
+<tr>
+<td>VP-only (Simics) — silicon differences</td>
+<td>Medium</td>
+<td>Low</td>
+<td>Results should correlate; re-verify on silicon once available</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT with review — `dmr.xml` → `nwp.xml`; confirm TC status before running (HSD `rejected`); NWP SST-TF CLOS coverage is required for PCT validation**</p>
+<p>1. **Re-open or clone TC** for NWP if `rejected` was DMR-specific; tag with `NWP_PM_FV`</p>
+<p>2. `python runPmx.py -x nwp.xml -p sst_tf -tM 60 -M 5 --retry_count 2` on VP/Simics</p>
+<p>3. Verify all 4 CLOS groups exercised: CLOS 0 (HP) → elevated TRL; CLOS 3 (LP) → clipped; CLOS 1/2 → SST-PP base TRL</p>
+<p>4. Update `sst_clos_assoc` sweep for NWP core count (96 cores, 2 CBBs)</p>
+<p>5. Add slow-loop settle delay after CLOS_ASSOC writes before frequency check</p>
+<p>**Priority**: Medium — `plc.feature.p1`; CLOS-based TRL correctness across all CLOS IDs is a fundamental SST-TF and PCT validation requirement on NWP</p>
+    </div>
+  </div>
+</body>
+</html>

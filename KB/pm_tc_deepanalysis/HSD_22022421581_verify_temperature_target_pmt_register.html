@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [TPMI/PMT] Verify Temperature Target PMT Register</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [TPMI/PMT] Verify Temperature Target PMT Register</h1>
+      <p>Segment: FV | Source: HSD_22022421581_verify_temperature_target_pmt_register.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [TPMI/PMT] Verify Temperature Target PMT Register</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421581</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[TPMI/PMT] Verify Temperature Target PMT Register</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; TPMI/PMT</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PMT PCS Index 16 — Temperature Target</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies three fields of the **Temperature Target PMT register** (PCS index 16):</p>
+<p>1. **`TJ_MAX_TCC_OFFSET`** — customer-programmable offset, defaults to 0</p>
+<p>2. **`FAN_TEMP_TARGET_OFFSET [15:8]`** — fan engagement temperature, relative to thermal monitor trip temperature; programmed by PrimeCode from `FUSED_T_CONTROL_OFFSET`</p>
+<p>3. **`REF_TEMP [23:16]`** — `EFFECTIVE_TJMAX - FUSE_DTS_CAL_GUARDBAND`</p>
+<p>On NWP, the same Temperature Target register exists with the same field definitions. The fuse names (`FUSED_T_CONTROL_OFFSET`, `FUSE_DTS_CAL_GUARDBAND`, `EFFECTIVE_TJMAX`) are the same architecture. Primary adaptation: `dmr.xml` → `nwp.xml` and verify NWP fuse values.</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>Temperature Target PMT register is present on NWP (same TPMI interface)</li>
+<li>Same three field checks with same fuse-based expected values</li>
+<li>`DMR_PO` tag: silicon validation bring-up priority</li>
+<li>`PMSS_NWP_READINESS_CHECK` tag: evaluated for NWP</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run PMT thermal test</td>
+<td>`python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read `TJ_MAX_TCC_OFFSET` from Temperature Target register</td>
+<td>Expect 0 default; may be customer-programmed via BIOS</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read `FAN_TEMP_TARGET_OFFSET [15:8]`</td>
+<td>Verify = `FUSED_T_CONTROL_OFFSET` (from NWP fuse)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read `REF_TEMP [23:16]`</td>
+<td>Verify = `EFFECTIVE_TJMAX - FUSE_DTS_CAL_GUARDBAND`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Cross-reference with iMH fuses: `pcode_itd_cutoff_tj` as proxy for TJ_MAX (if direct fuse read available)</td>
+<td>NWP fuse read via `sv.socket0.imh0.fuses.*`</td>
+</tr>
+</tbody></table>
+<h3>Expected Values</h3>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Expected Value</th>
+<th>Source</th>
+</tr></thead><tbody>
+<tr>
+<td>`TJ_MAX_TCC_OFFSET`</td>
+<td>0 (default)</td>
+<td>BIOS programmable</td>
+</tr>
+<tr>
+<td>`FAN_TEMP_TARGET_OFFSET`</td>
+<td>`FUSED_T_CONTROL_OFFSET` fuse value</td>
+<td>NWP thermal fuse</td>
+</tr>
+<tr>
+<td>`REF_TEMP`</td>
+<td>`EFFECTIVE_TJMAX - FUSE_DTS_CAL_GUARDBAND`</td>
+<td>NWP TJ_MAX fuse minus guardband</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>All three fields match expected fuse-based values</li>
+<li>`REF_TEMP` correctly reflects NWP TJ_MAX and DTS calibration guardband</li>
+<li>`FAN_TEMP_TARGET_OFFSET` correctly programmed by PrimeCode at boot</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>Temperature Target register</td>
+<td>PMT PCS 16</td>
+<td>Same on NWP</td>
+<td>Direct reuse</td>
+</tr>
+<tr>
+<td>TJ_MAX fuse</td>
+<td>DMR-specific value</td>
+<td>NWP-specific value</td>
+<td>Read NWP fuse for expected calculation</td>
+</tr>
+<tr>
+<td>`FUSED_T_CONTROL_OFFSET`</td>
+<td>DMR fuse</td>
+<td>NWP fuse</td>
+<td>NWP thermal management fuse</td>
+</tr>
+<tr>
+<td>`FUSE_DTS_CAL_GUARDBAND`</td>
+<td>DMR guardband</td>
+<td>NWP guardband</td>
+<td>May differ by a few °C</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<pre><code>
+# NWP Temperature Target PMT Validation
+
+try:
+    temp_target = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.temperature_target.read()
+    print(f&quot;TEMPERATURE_TARGET: 0x{temp_target:08X}&quot;)
+
+    # Field extraction
+    tcc_offset = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.temperature_target.tj_max_tcc_offset.read()
+    fan_offset = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.temperature_target.fan_temp_target_offset.read()
+    ref_temp = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.temperature_target.ref_temp.read()
+
+    print(f&quot;  TJ_MAX_TCC_OFFSET: {tcc_offset} (expected 0)&quot;)
+    print(f&quot;  FAN_TEMP_TARGET_OFFSET: {fan_offset} (expected = FUSED_T_CONTROL_OFFSET)&quot;)
+    print(f&quot;  REF_TEMP: {ref_temp} (expected = EFFECTIVE_TJMAX - DTS_CAL_GUARDBAND)&quot;)
+except Exception as e:
+    print(f&quot;TEMPERATURE_TARGET: {e}&quot;)
+
+# NWP fuse cross-reference
+try:
+    tj_cutoff = sv.socket0.imh0.fuses.punit.pcode_itd_cutoff_tj.read()
+    print(f&quot;ITD_CUTOFF_TJ fuse (proxy for TJ_MAX): {tj_cutoff}&quot;)
+except Exception as e:
+    print(f&quot;TJ fuse: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; read NWP fuse values for expected calculation**</p>
+<p>Temperature Target PMT register is architecturally identical. Only fuse values differ (NWP TJ_MAX, T_CONTROL_OFFSET, DTS_CAL_GUARDBAND).</p>
+<p>Required adaptations:</p>
+<p>1. `python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2`</p>
+<p>2. Get NWP-specific `FUSED_T_CONTROL_OFFSET` and `FUSE_DTS_CAL_GUARDBAND` values</p>
+<p>3. Calculate NWP `EFFECTIVE_TJMAX` from NWP thermal HAS</p>
+<p>**Priority**: Medium — DMR_PO; foundational temperature target bring-up verification</p>
+    </div>
+  </div>
+</body>
+</html>

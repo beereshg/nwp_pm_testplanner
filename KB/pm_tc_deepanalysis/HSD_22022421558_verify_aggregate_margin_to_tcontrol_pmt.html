@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [TPMI/PMT] Verify Aggregate Margin to Tcontrol PMT Register</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [TPMI/PMT] Verify Aggregate Margin to Tcontrol PMT Register</h1>
+      <p>Segment: FV | Source: HSD_22022421558_verify_aggregate_margin_to_tcontrol_pmt.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [TPMI/PMT] Verify Aggregate Margin to Tcontrol PMT Register</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421558</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[TPMI/PMT] Verify Aggregate Margin to Tcontrol PMT Register</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management &gt; TPMI/PMT</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PMT PCS Index 10 — Aggregate Margin to Tcontrol</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test verifies the **Aggregate Margin to Tcontrol PMT register** (PCS index 10). The formula is:</p>
+<pre><code>
+MARGIN_TO_TCONTROL = (EFFECTIVE_TJ_MAX - FUSED_T_CONTROL_OFFSET + DTS_CONFIG3.TCONTROL_OFFSET) - MAX_TEMPERATURE
+</code></pre>
+<p>where `MAX_TEMPERATURE` is the hottest temperature across all package dies, collected via HPM `SOCKET_THERMAL`. On NWP, the same PMT register and calculation exist. The register paths use the root iMH as the aggregator (same single-IMH path on NWP). Key NWP adaptation: `dmr.xml` → `nwp.xml`, and the CBB register path is `cbb{0,1}` (not `cbbs` with 4 instances).</p>
+<p>**Key Justification:**</p>
+<ul>
+<li>PMT Aggregate Margin to Tcontrol is present on NWP</li>
+<li>`NGA_MAIN` tag: high priority for NGA silicon automation</li>
+<li>Same HPM SOCKET_THERMAL aggregation mechanism (2 CBBs → 1 iMH on NWP)</li>
+<li>`PMSS_NWP_READINESS_CHECK` tag: evaluated for NWP</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Pre-Conditions</h3>
+<ul>
+<li>NWP silicon with all CBBs active and thermal reporting initialized</li>
+<li>PMT enabled and readable</li>
+<li>`EFFECTIVE_TJ_MAX` known (from fuses + BIOS TCC offset)</li>
+</ul>
+<h3>Adapted Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Adaptation</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run PMT thermal test</td>
+<td>`python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read `EFFECTIVE_TJ_MAX` (per TC 14019959390)</td>
+<td>Same calculation; NWP fused TJ_MAX value</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read `PKG_MAX_TEMPERATURE` — hottest temp across dies</td>
+<td>NWP: 2 CBBs (`cbb0`, `cbb1`) + `imh0`; read from iMH aggregator</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read `T_CONTROL_OFFSET` fuse and `DTS_CONFIG3.TCONTROL_OFFSET`</td>
+<td>Same register names on NWP</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Calculate expected `MARGIN_TO_TCONTROL`</td>
+<td>`(EFFECTIVE_TJ_MAX - FUSED_T_CONTROL_OFFSET + TCONTROL_OFFSET) - MAX_TEMPERATURE`</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Read PMT register and compare</td>
+<td>`sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.margin_to_tcontrol`</td>
+</tr>
+</tbody></table>
+<h3>NWP Register Paths</h3>
+<table class="md-table"><thead><tr>
+<th>Register</th>
+<th>DMR Path</th>
+<th>NWP Path</th>
+</tr></thead><tbody>
+<tr>
+<td>Package temperature (CBB)</td>
+<td>`sv.sockets.cbbs.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature`</td>
+<td>`sv.socket0.cbb{0,1}.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature`</td>
+</tr>
+<tr>
+<td>Package temperature (iMH)</td>
+<td>`sv.sockets.imhs.uncore.pm_gen4_punit0.ptpcioregs.ptpcioregs.package_temperature`</td>
+<td>`sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature`</td>
+</tr>
+</tbody></table>
+<h3>NWP Pass Criteria</h3>
+<ul>
+<li>PMT `MARGIN_TO_TCONTROL` matches formula calculation within ±1°C tolerance</li>
+<li>Value updates on slow loop interval (~1 sec typical)</li>
+<li>Value becomes negative when temperature exceeds Tcontrol → thermal throttle expected</li>
+</ul>
+<p>---</p>
+<h2>Section C: NWP Delta Impact Analysis</h2>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>Max temp aggregation</td>
+<td>4 CBBs → iMH</td>
+<td>2 CBBs → iMH</td>
+<td>Fewer sources; same aggregation logic</td>
+</tr>
+<tr>
+<td>PMT register</td>
+<td>`ptpcioregs.margin_to_tcontrol`</td>
+<td>Same register name on NWP</td>
+<td>Direct reuse</td>
+</tr>
+<tr>
+<td>`EFFECTIVE_TJ_MAX` calculation</td>
+<td>Per TC 14019959390</td>
+<td>Same formula on NWP</td>
+<td>Verify NWP-specific TJ_MAX fuse value</td>
+</tr>
+<tr>
+<td>`sv.sockets` pattern</td>
+<td>Multi-socket/CBB iteration</td>
+<td>NWP: `sv.socket0.cbb{0,1}`</td>
+<td>Update iteration loop</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section D: Key Registers &amp; Validation Points</h2>
+<pre><code>
+# NWP: Aggregate Margin to Tcontrol PMT
+import max as max_func
+
+# Read package temperature from each source (NWP: 2 CBBs + 1 iMH)
+temps = []
+for cbb_idx in range(2):
+    cbb = getattr(sv.socket0, f&#x27;cbb{cbb_idx}&#x27;)
+    try:
+        temp = cbb.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature.read()
+        temps.append(temp)
+        print(f&quot;CBB{cbb_idx} Package Temp: {temp}&quot;)
+    except Exception as e:
+        print(f&quot;CBB{cbb_idx}: {e}&quot;)
+
+try:
+    imh_temp = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature.read()
+    temps.append(imh_temp)
+    print(f&quot;iMH0 Package Temp: {imh_temp}&quot;)
+except Exception as e:
+    print(f&quot;iMH0 temp: {e}&quot;)
+
+pkg_max_temp = max(temps) if temps else None
+print(f&quot;PKG_MAX_TEMPERATURE: {pkg_max_temp}&quot;)
+
+# Read PMT margin_to_tcontrol
+try:
+    margin = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.margin_to_tcontrol.read()
+    print(f&quot;PMT MARGIN_TO_TCONTROL: {margin}&quot;)
+except Exception as e:
+    print(f&quot;PMT MARGIN: {e}&quot;)
+</code></pre>
+<p>---</p>
+<h2>Section E: Risk Assessment &amp; Open Items</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk/Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**NWP `EFFECTIVE_TJ_MAX`** — depends on NWP-specific TJ_MAX fuse and BIOS TCC offset; verify from NWP thermal HAS</td>
+<td>Low</td>
+<td>Same formula; just different fuse values</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**`sv.sockets` iteration** — DMR test may use `sv.sockets.cbbs` iterator; NWP: use `cbb0`, `cbb1`</td>
+<td>Low</td>
+<td>Update test script CBB iteration</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; update CBB iteration to 2**</p>
+<p>PMT Aggregate Margin to Tcontrol calculation is identical. NWP adaptation is minimal.</p>
+<p>Required adaptations:</p>
+<p>1. `python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2`</p>
+<p>2. Update CBB iteration: `range(2)` for NWP (not 4)</p>
+<p>3. Verify NWP TJ_MAX fuse value for expected calculation</p>
+<p>**Priority**: High — NGA_MAIN; thermal margin reporting is a key validation metric</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Analysis: [Prochot Flow] Verify Operation of Prochot Response Power</title>
+  <style>
+    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
+    .meta h1 { margin:0; font-size:20px; }
+    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
+    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
+    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
+    p { margin:8px 0; }
+    ul { margin:8px 0 8px 20px; }
+    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
+    code { font-family: Consolas, monospace; }
+    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
+    .md-table th { background:#e8eef7; }
+    .md-pre { white-space:pre-wrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="meta">
+      <h1>Deep Analysis: [Prochot Flow] Verify Operation of Prochot Response Power</h1>
+      <p>Segment: FV | Source: HSD_22022421557_verify_operation_of_prochot_response_power.inference.md | Generated: 2026-06-17 21:14:31</p>
+    </div>
+    <div class="content">
+      <h1>Deep Analysis: [Prochot Flow] Verify Operation of Prochot Response Power</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>22022421557</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[Prochot Flow] Verify operation of Prochot Response Power</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2025-07-24</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>SoC Thermal Management</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PROCHOT response power — per-domain power ceiling during PROCHOT</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Section A: NWP Disposition &amp; Justification</h2>
+<p>**Disposition: Runnable_On_N-1**</p>
+<p>This test extends the PROCHOT CBB/IMH entry/exit flows (22022421548, 22022421553) by also validating that **PROCHOT Response Power** can be programmed to constrain the power ceiling Pcode selects for each domain during PROCHOT throttle. The revised WW46 2025 flow:</p>
+<p>1. Get PF curves for each GV domain</p>
+<p>2. Set each domain to the highest ratio in the curve (ensures throttling at any power/cDyn point)</p>
+<p>3. Get response power fuses to set response power ceiling</p>
+<p>4. Inject PROCHOT and verify each domain is throttled accordingly</p>
+<p>On NWP (single iMH, 2 CBBs × 48 cores):</p>
+<ul>
+<li>Same PROCHOT entry/exit mechanism (SVID PROCHOT line or PythonSV inject)</li>
+<li>NWP PF curves use `nwp.xml` targets</li>
+<li>`plc.feature.p1` + `PMSS_NWP_READINESS_CHECK` tags confirm portability</li>
+</ul>
+<p>---</p>
+<h2>Section B: NWP-Specific Test Procedure</h2>
+<h3>Adapted Steps</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Action</th>
+<th>NWP Details</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Read PF curves for each GV domain</td>
+<td>`python runPmx.py -x nwp.xml -p prochot_thermal -tM 20 -M 5`</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Set each domain to highest ratio</td>
+<td>Per-domain; CBBs = 2; iMH = imh0</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read PROCHOT response power fuses</td>
+<td>`sv.socket0.imh0.fuses.punit.*` response power fields</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Inject PROCHOT</td>
+<td>`sv.socket0.imh0.punit.prochot_trigger.write(1)`</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify per-domain power ceiling honored</td>
+<td>Check telemetry; each domain at or below response power ceiling</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Release PROCHOT</td>
+<td>`sv.socket0.imh0.punit.prochot_trigger.write(0)` → domains recover</td>
+</tr>
+</tbody></table>
+<h3>NWP Key Differences</h3>
+<ul>
+<li>2 CBBs (not 4): loops `for cbb in range(2):`</li>
+<li>96 total cores (48/CBB)</li>
+<li>Single iMH (`imh0`)</li>
+<li>`runPmx.py -x nwp.xml` (not `dmr.xml`)</li>
+</ul>
+<h3>Pass Criteria</h3>
+<ul>
+<li>Each GV domain power-limited to PROCHOT response power ceiling while PROCHOT active</li>
+<li>All domains recover to normal operation after PROCHOT release</li>
+<li>No system hang or unrecoverable error during PROCHOT injection</li>
+</ul>
+<p>---</p>
+<h2>Section F: Recommendation</h2>
+<p>**Recommendation: ADOPT — Extend CBB/IMH PROCHOT tests with response power ceiling validation**</p>
+<p>1. `python runPmx.py -x nwp.xml -p prochot_thermal -tM 20 -M 5`</p>
+<p>2. NWP: 2 CBBs, 48 cores/CBB, single `imh0`</p>
+<p>3. PROCHOT inject via `sv.socket0.imh0.punit.prochot_trigger`</p>
+<p>4. Response power fuses at `sv.socket0.imh0.fuses.punit.*`</p>
+<p>**Priority**: Medium — `plc.feature.p1`; completes PROCHOT flow test coverage</p>
+    </div>
+  </div>
+</body>
+</html>
