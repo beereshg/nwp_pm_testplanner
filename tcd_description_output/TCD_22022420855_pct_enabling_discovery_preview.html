@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
+  <title>TCD Preview: PCT - Enabling &amp; Discovery</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;font-size:13px;color:#1f2937;}
+    .hdr{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .hdr h1{font-size:17px;font-weight:600;}
+    .hdr .sub{font-size:11px;opacity:.82;margin-top:4px;}
+    .hdr a{color:#90caf9;}
+    .wrap{max-width:960px;margin:18px auto;padding:0 16px 40px;}
+    .notice{background:#fff8e1;border:1px solid #ffe082;border-radius:6px;
+             padding:10px 14px;margin-bottom:14px;font-size:12px;color:#7a5c00;}
+    .meta-bar{background:#fff;border:1px solid #d9e2ec;border-radius:8px;
+               padding:12px 16px;margin-bottom:14px;display:flex;gap:24px;flex-wrap:wrap;}
+    .meta-item{font-size:12px;} .meta-item b{color:#0f4c81;}
+    .tc-box{background:#fff;border:1px solid #d9e2ec;border-radius:8px;
+             padding:14px 16px;margin-bottom:14px;}
+    .tc-box h3{color:#0f4c81;font-size:13px;margin-bottom:8px;}
+    .desc-box{background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;}
+    .desc-box h3{color:rgb(0,113,197);}
+  </style>
+</head>
+<body>
+<div class="hdr">
+  <h1>TCD Preview: PCT - Enabling &amp; Discovery</h1>
+  <div class="sub">
+    <a href="https://hsdes.intel.com/appstore/article-one/#/22022420855" target="_blank">22022420855</a>
+    &nbsp;|&nbsp; Status: open
+    &nbsp;|&nbsp; Owner: bg3
+    &nbsp;|&nbsp; Parent TP: <a href="https://hsdes.intel.com/appstore/article-one/#/16030762939" target="_blank">16030762939</a>
+    &nbsp;|&nbsp; Preview: 2026-06-22 15:49
+  </div>
+</div>
+<div class="wrap">
+  <div class="notice">
+    &#9432; <b>Preview only</b> &mdash; this renders the current HSD description as-is.
+    Review carefully, then say <b>&#x201C;update HSD&#x201D;</b> to push any changes.
+  </div>
+  <div class="tc-box">
+    <h3>Test Cases under this TCD (2)</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:8px 0;"><thead><tr style="background:#e8eef7;"><th style="padding:6px 8px;text-align:left;">ID</th><th style="padding:6px 8px;text-align:left;">Title</th><th style="padding:6px 8px;text-align:left;">Status</th><th style="padding:6px 8px;text-align:left;">Val Env</th><th style="padding:6px 8px;text-align:left;">Feature</th></tr></thead><tbody><tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422100" target="_blank">22022422100</a></td><td>PCT - BIOS Menu</td><td style="color:#888">rejected</td><td>virtual_platform</td><td>SST</td></tr><tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422103" target="_blank">22022422103</a></td><td>PCT - TPMI register check</td><td style="color:#2e7d32">open</td><td>virtual_platform</td><td>SST</td></tr></tbody></table>
+  </div>
+  <div class="desc-box">
+    <div class="section" style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div class="section-header" style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">1. Architecture / Micro-architecture and Functionality</div><div class="section-content" style="padding:25px;"><h3 style="color:rgb(0,113,197);border-bottom:2px solid rgb(0,113,197);padding-bottom:8px;margin-top:20px;">Feature Overview</h3>
+<p style="margin:10px 0;line-height:1.6;">
+<b>PCT (Priority Core Turbo)</b> is a distinct Intel PM feature that uses SST-TF’s CLOS-based frequency partitioning to designate a small subset of <b>High Priority (HP) cores</b> to operate at an elevated turbo frequency (up to P0max, ~4.4&nbsp;GHz on NWP), while remaining <b>Low Priority (LP) cores</b> are clipped to approximately P1 to free the power budget for the HP cores.
+PCT is not an alias for SST-TF. It is tracked as its own feature (<a href="https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html" tabindex="-1">PCT HAS</a>, <a href="https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/IC_PCT.html" tabindex="-1">IC PCT HAS</a>) and adds: BIOS partition/core-select knobs, CLOS register programming, DLCP die-level cherry-picking, and OS discovery registers.</p><p style="margin:10px 0;line-height:1.6;">
+<b>NWP scope:</b> PCT is one of only 2 SST features active on NWP (SST-TF and PCT). SST-PP, SST-CP standalone, SST-BF, and HGS are ZBB’d (<a href="https://hsdes.intel.com/appstore/article-one/#/22021155414" tabindex="-1">HSD 22021155414</a>).
+</p>
+
+<h3 style="color:rgb(0,113,197);border-bottom:2px solid rgb(0,113,197);padding-bottom:8px;margin-top:20px;">Enabling Path</h3>
+<pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:15px;font-family:Consolas,monospace;font-size:0.9em;white-space:pre-wrap;">BIOS CPL3
+├── Check PCT capability: PCT Partition Count BIOS knob &gt; 0 (default = 4)
+│     Note: CAPID4.bit29 is GNR-only; DMR+ and NWP use Partition Count to gate PCT
+├── PrimeCode (NIO reset Phase 5):
+│     reads SST_TF fuses + PCT_Module_Mask → populates SST_TF_INFO_0/2/10
+├── BIOS programs per-CBB TPMI (NWP: cbb0 + cbb1):
+│   ├── SST_CLOS_CONFIG[0].max = SST_TF_INFO_2.RATIO_0  (HP ceiling: ~4.4 GHz)
+│   ├── SST_CLOS_CONFIG[3].max = SST_TF_INFO_0.LP_CLIP_RATIO_0  (LP ceiling: ≥P1)
+│   ├── SST_CP_CONTROL.SST_CP_PRIORITY_TYPE = 1  (Ordered Throttling)
+│   ├── SST_CLOS_ASSOC[core]: HP cores → CLOS[0]; LP cores → CLOS[3]
+│   └── SST_PP_CONTROL.feature_state[1] = 1  (SST-TF active)
+└── Override MSR 0x1AD with SST_TF_INFO_2.RATIO_0  (HP TRL broadcast)
+
+HP selection: 96 cores &divide; 4 partitions = 24 cores/partition; first 2 cores per partition = HP
+              ⇒ 8 HP cores total on NWP (CCB HSD 14026595435)</pre>
+
+<h3 style="color:rgb(0,113,197);border-bottom:2px solid rgb(0,113,197);padding-bottom:8px;margin-top:20px;">Discovery Path</h3>
+<table style="width:100%;border-collapse:collapse;font-size:0.9em;margin:10px 0;">
+<tbody><tr style="background:rgb(0,113,197);color:white;">
+  <th style="padding:8px;text-align:left;">Interface</th>
+  <th style="padding:8px;text-align:left;">Register / Address</th>
+  <th style="padding:8px;text-align:left;">What It Reveals</th>
+</tr>
+<tr style="background:rgb(248,249,250);">
+  <td style="padding:7px;border:1px solid #d1d5db;">TPMI</td>
+  <td style="padding:7px;border:1px solid #d1d5db;font-family:Consolas,monospace;">SST_HEADER.CAPABILITY_MASK</td>
+  <td style="padding:7px;border:1px solid #d1d5db;">Feature availability bitmap; PCT active bit</td>
+</tr>
+<tr>
+  <td style="padding:7px;border:1px solid #d1d5db;">TPMI</td>
+  <td style="padding:7px;border:1px solid #d1d5db;font-family:Consolas,monospace;">SST_TF_INFO_0.LP_CLIP_RATIO_0</td>
+  <td style="padding:7px;border:1px solid #d1d5db;">LP core frequency ceiling (≥P1, SKU-fused)</td>
+</tr>
+<tr style="background:rgb(248,249,250);">
+  <td style="padding:7px;border:1px solid #d1d5db;">TPMI</td>
+  <td style="padding:7px;border:1px solid #d1d5db;font-family:Consolas,monospace;">SST_TF_INFO_2.RATIO_0</td>
+  <td style="padding:7px;border:1px solid #d1d5db;">HP TRL ratio (PCT turbo frequency target)</td>
+</tr>
+<tr>
+  <td style="padding:7px;border:1px solid #d1d5db;">TPMI</td>
+  <td style="padding:7px;border:1px solid #d1d5db;font-family:Consolas,monospace;">SST_TF_INFO_10</td>
+  <td style="padding:7px;border:1px solid #d1d5db;">DLCP: PCT_Module_Mask — fused HP core positions per die</td>
+</tr>
+<tr style="background:rgb(248,249,250);">
+  <td style="padding:7px;border:1px solid #d1d5db;">TPMI</td>
+  <td style="padding:7px;border:1px solid #d1d5db;font-family:Consolas,monospace;">SST_CLOS_ASSOC_*</td>
+  <td style="padding:7px;border:1px solid #d1d5db;">Per-core CLOS assignment: HP=CLOS[0/1], LP=CLOS[2/3]</td>
+</tr>
+<tr>
+  <td style="padding:7px;border:1px solid #d1d5db;">TPMI</td>
+  <td style="padding:7px;border:1px solid #d1d5db;font-family:Consolas,monospace;">SST_CP_CONTROL.sst_cp_enable</td>
+  <td style="padding:7px;border:1px solid #d1d5db;">PCT globally enabled</td>
+</tr>
+<tr style="background:rgb(248,249,250);">
+  <td style="padding:7px;border:1px solid #d1d5db;">MSR</td>
+  <td style="padding:7px;border:1px solid #d1d5db;font-family:Consolas,monospace;">IA32_HWP_CAPABILITIES (0x771)</td>
+  <td style="padding:7px;border:1px solid #d1d5db;">highest_perf: HP cores = P0max; LP cores = LP clip</td>
+</tr>
+<tr>
+  <td style="padding:7px;border:1px solid #d1d5db;">MSR</td>
+  <td style="padding:7px;border:1px solid #d1d5db;font-family:Consolas,monospace;">0x1AD PRIMARY_TURBO_RATIO_LIMIT</td>
+  <td style="padding:7px;border:1px solid #d1d5db;">HP TRL broadcast by BIOS at boot</td>
+</tr>
+<tr style="background:rgb(248,249,250);">
+  <td style="padding:7px;border:1px solid #d1d5db;">BIOS NVRAM</td>
+  <td style="padding:7px;border:1px solid #d1d5db;font-family:Consolas,monospace;">PctHpModuleCount</td>
+  <td style="padding:7px;border:1px solid #d1d5db;">Number of HP modules configured</td>
+</tr>
+</tbody></table>
+
+<h3 style="color:rgb(0,113,197);border-bottom:2px solid rgb(0,113,197);padding-bottom:8px;margin-top:20px;">NWP vs DMR Delta</h3>
+<table style="width:100%;border-collapse:collapse;font-size:0.9em;margin:10px 0;">
+<tbody><tr style="background:rgb(0,113,197);color:white;">
+  <th style="padding:8px;text-align:left;">Aspect</th><th style="padding:8px;text-align:left;">DMR</th><th style="padding:8px;text-align:left;">NWP</th>
+</tr>
+<tr style="background:rgb(248,249,250);">
+  <td style="padding:7px;border:1px solid #d1d5db;">PCT gate</td><td style="padding:7px;border:1px solid #d1d5db;">PCT Partition Count knob</td><td style="padding:7px;border:1px solid #d1d5db;">Same (CAPID4.bit29 is GNR-only)</td>
+</tr>
+<tr>
+  <td style="padding:7px;border:1px solid #d1d5db;">CBB / core count</td><td style="padding:7px;border:1px solid #d1d5db;">4 CBBs &times; 32 cores</td><td style="padding:7px;border:1px solid #d1d5db;"><b>2 CBBs &times; 48 cores = 96 total</b></td>
+</tr>
+<tr style="background:rgb(248,249,250);">
+  <td style="padding:7px;border:1px solid #d1d5db;">HP cores</td><td style="padding:7px;border:1px solid #d1d5db;">4 (1/partition &times; 4)</td><td style="padding:7px;border:1px solid #d1d5db;"><b>8 (2/partition &times; 4)</b></td>
+</tr>
+<tr>
+  <td style="padding:7px;border:1px solid #d1d5db;">PCT target frequency</td><td style="padding:7px;border:1px solid #d1d5db;">~4.6&nbsp;GHz</td><td style="padding:7px;border:1px solid #d1d5db;"><b>~4.4&nbsp;GHz</b> (POR-1, CCB 14026595435)</td>
+</tr>
+<tr style="background:rgb(248,249,250);">
+  <td style="padding:7px;border:1px solid #d1d5db;">RAPL PL1 interface</td><td style="padding:7px;border:1px solid #d1d5db;">MSR 0x610 / 0x638</td><td style="padding:7px;border:1px solid #d1d5db;"><b>TPMI SOCKET_RAPL_PL1_CONTROL</b> (MSR deprecated)</td>
+</tr>
+<tr>
+  <td style="padding:7px;border:1px solid #d1d5db;">MADT die order</td><td style="padding:7px;border:1px solid #d1d5db;">2 IMH + 4 CBBs</td><td style="padding:7px;border:1px solid #d1d5db;">NIO + 2 CBBs → different partition→core mapping</td>
+</tr>
+</tbody></table>
+
+<p style="font-size:0.85em;color:#555;margin-top:10px;">
+References: <a href="https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html" tabindex="-1">PCT HAS</a> •
+<a href="https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html" tabindex="-1">Intel SST HAS</a> •
+<a href="https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html" tabindex="-1">NWP PM MAS</a> •
+<a href="https://hsdes.intel.com/appstore/article-one/#/14026595435" tabindex="-1">CCB HSD 14026595435</a>
+</p></div></div><div class="section" style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div class="section-header" style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">2. Interfaces and Protocols</div><div class="section-content" style="padding:25px;"><div class="info-box" style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:15px;margin:15px 0px;">Refer to KB article and NWP HAS for register interface details.<br />KB: KB/pm_features/sst/sst_main.md</div></div></div><div class="section" style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div class="section-header" style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">3. Reset, Power, and Clocking</div><div class="section-content" style="padding:25px;"><ul style="margin:10px 0px;padding-left:25px;"><li style="margin:5px 0px;line-height:1.5;">Verify feature behavior is correctly restored after warm and cold reset</li><li style="margin:5px 0px;line-height:1.5;">Confirm power domain and clock dependencies are respected</li><li style="margin:5px 0px;line-height:1.5;">Validate BIOS initialization sequence programs feature correctly</li></ul><div style="background:#fff3cd;border-left:4px solid #ffc107;padding:12px 15px;margin:15px 0;border-radius:4px;">⚠ Gap: Reset cross-product coverage should be verified in TC descriptions.</div></div></div><div class="section" style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div class="section-header" style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">4. Programming Model</div><div class="section-content" style="padding:25px;"><ul style="margin:10px 0px;padding-left:25px;"><li style="margin:5px 0px;line-height:1.5;">BIOS knob configuration as specified in TCD pre-conditions</li><li style="margin:5px 0px;line-height:1.5;">OS interface via MSR/TPMI/sysfs as applicable to this feature</li><li style="margin:5px 0px;line-height:1.5;">OOB PECI/Redfish path if feature has out-of-band configuration interface</li></ul></div></div><div class="section" style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div class="section-header" style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">5. Operational Behavior</div><div class="section-content" style="padding:25px;"><h3 style="color:rgb(0,113,197);border-bottom:2px solid rgb(0,113,197);padding-bottom:8px;margin-top:20px;">Test Cases</h3><table style="width:100%;border-collapse:collapse;margin:15px 0px;"><tbody><tr><th style="background:rgb(0,113,197);color:white;padding:10px;text-align:left;">HSD</th><th style="background:rgb(0,113,197);color:white;padding:10px;text-align:left;">Title</th><th style="background:rgb(0,113,197);color:white;padding:10px;text-align:left;">Priority</th><th style="background:rgb(0,113,197);color:white;padding:10px;text-align:left;">Status</th></tr><tr><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;"><a href="https://hsdes.intel.com/appstore/article-one/#/22022422103" tabindex="-1">22022422103</a></td><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;">PCT - TPMI register check</td><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;"></td><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;">open</td></tr><tr><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;"><a href="https://hsdes.intel.com/appstore/article-one/#/22022422100" tabindex="-1">22022422100</a></td><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;">PCT - BIOS Menu</td><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;"></td><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;"><span style="color:red">Rejected</span></td></tr></tbody></table><h3 style="color:rgb(0,113,197);border-bottom:2px solid rgb(0,113,197);padding-bottom:8px;margin-top:20px;">Pass/Fail Criteria</h3><ul style="margin:10px 0px;padding-left:25px;"><li style="margin:5px 0px;line-height:1.5;">PASS: Feature behaves per NWP HAS/MAS specification</li><li style="margin:5px 0px;line-height:1.5;">PASS: No MCA or system hang during test execution</li><li style="margin:5px 0px;line-height:1.5;">FAIL: Register values do not match expected per HAS</li><li style="margin:5px 0px;line-height:1.5;">FAIL: Feature behavior differs from DMR baseline without documented NWP delta</li></ul></div></div><div class="section" style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div class="section-header" style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">6. Corner Cases &amp; Error Handling</div><div class="section-content" style="padding:25px;"><ul style="margin:10px 0px;padding-left:25px;"><li style="margin:5px 0px;line-height:1.5;">Boundary values: minimum and maximum register fields</li><li style="margin:5px 0px;line-height:1.5;">Feature interaction with concurrent PM features</li><li style="margin:5px 0px;line-height:1.5;">Error injection: invalid configuration should be rejected gracefully</li></ul><div style="background:#fff3cd;border-left:4px solid #ffc107;padding:12px 15px;margin:15px 0;border-radius:4px;">⚠ Gap: Boundary and error injection scenarios should be detailed in individual TC descriptions.</div></div></div><div class="section" style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div class="section-header" style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">7. Security / Safety / Policy</div><div class="section-content" style="padding:25px;"><ul style="margin:10px 0px;padding-left:25px;"><li style="margin:5px 0px;line-height:1.5;">Fuse-gated disable: feature disabled via fuse should be reported correctly</li><li style="margin:5px 0px;line-height:1.5;">Lock bit enforcement: verify write-locked registers cannot be overridden</li><li style="margin:5px 0px;line-height:1.5;">OS vs BIOS vs OOB priority arbitration as per NWP HAS</li></ul><div style="background:#fff3cd;border-left:4px solid #ffc107;padding:12px 15px;margin:15px 0;border-radius:4px;">⚠ Gap: Lock bit enforcement and policy arbitration should be validated in specific TCs.</div></div></div><div class="section" style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div class="section-header" style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">8. References</div><div class="section-content" style="padding:25px;"><table style="width:100%;border-collapse:collapse;margin:15px 0px;"><tbody><tr><th style="background:rgb(0,113,197);color:white;padding:10px;text-align:left;">Type</th><th style="background:rgb(0,113,197);color:white;padding:10px;text-align:left;">Link</th><th style="background:rgb(0,113,197);color:white;padding:10px;text-align:left;">Scope</th></tr><tr><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;">NWP HAS</td><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;"><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/has/Overview/NWP_HAS.html#pm-features" tabindex="-1">NWP HAS PM Features</a></td><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;">NWP PM feature list and deltas</td></tr><tr><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;">NWP PM MAS</td><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;"><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html" tabindex="-1">NWP IMH SoC PM MAS</a></td><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;">NWP NIO PM MAS</td></tr><tr><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;">KB Article</td><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;"><a href="#" tabindex="-1">KB/pm_features/sst/sst_main.md</a></td><td style="padding:8px 10px;border-bottom:1px solid rgb(221,221,221);vertical-align:top;">Feature architecture, touchpoints, NWP delta</td></tr></tbody></table></div></div>
+  </div>
+</div>
+</body>
+</html>
