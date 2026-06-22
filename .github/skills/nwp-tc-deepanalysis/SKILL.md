@@ -493,6 +493,36 @@ python tools/html/generate_unified_html.py --status
 
 ## Part 5 — Enrichment Sections (A–F)
 
+---
+
+## Part 4A — TCD Section Content Requirements
+
+When writing or reviewing a **TCD description**, each numbered section must meet the following
+content bar. This applies to all NWP PM TCDs — the example column is scoped to PCT Enabling & Discovery.
+
+| Section | What Must Be Included | PCT Enabling & Discovery Example |
+|---------|----------------------|----------------------------------|
+| **1. Architecture / Micro-arch and Functionality** | Block diagram or logical decomposition; major functions/scenarios; key blocks in pipeline; interfaces to other blocks/FSMs; external dependencies | PCT purpose (GPU-serving HP cores), frequency hierarchy (P0max/P0half/P0n/F2/F3), DMR vs GNR differences (CAPID4 not used, default disabled), DLCP concept, cross-product rules (PCT+SST-BF mutex) |
+| **2. Interfaces and Protocols** | Inputs/outputs described; signal/interface names consistent; timing, ordering, handshake assumptions; legal and illegal transactions; side effects; backpressure/retries/timeouts | Discovery registers table: SST_HEADER.CAPABILITY_MASK, SST_TF_INFO_0/2/10, SST_CLOS_ASSOC, SST_CP_CONTROL, MSR 0x771, MSR 0x1AD, PctHpModuleCount; TPMI access protocol |
+| **3. Reset, Power, Clocking** | Reset sources/domains; default/reset values; retention vs non-retention; power state behavior; clock deps; init/bring-up sequence; bring-down/recovery | PCT CLOS state not retained across reset; PrimeCode re-reads SST_TF fuses at Phase 5 on every boot; BIOS must reprogram CLOS/ASSOC/MSR 0x1AD after each boot |
+| **4. Programming Model** | Relevant registers with meaning, reset value, access type; legal encodings; reserved values; R/W side effects; locking/privilege/security; FW/SW sequencing requirements | Enabling path step-by-step: PrimeCode Phase 5 init → BIOS CPL3 CLOS programming → MSR 0x1AD override; BIOS knobs (PCT HP Partition Count, PCT Core Selection); MADT ordering requirement |
+| **5. Operational Behavior** | Normal flow step-by-step; state machine/mode transitions; entry/exit conditions; performance/latency expectations | BIOS enables PCT before OS handoff; PCode runs standard SST-TF flow (no PCT-specific Pcode); runtime: OS/VMM affinitizes workloads to HP cores; Intel SST tool can reconfigure at runtime |
+| **6. Corner Cases & Error Handling** | Invalid inputs; unsupported combinations; error detection; error reporting/logging/status visibility; recovery/retry; undefined behavior | PCT Partition Count = 0 (disabled — fallback to conventional turbo); uneven core count (surplus PCT cores become LP); DLCP SKU with CLOS_ASSOC ignored; mutex violation (SST-BF + PCT) |
+| **7. Security / Safety / Policy** | Security assumptions; access control/lock/privilege; sensitive/safety-relevant states; abuse/misuse scenarios; safety/reliability constraints | TPMI lock bit prevents OS from overriding CLOS post-CPL3; PCT is SoC-wide (cannot be per-VM at register level); DLCP HP positions are fuse-fixed (cannot be SW-selected on DLCP SKUs) |
+| **8. References** | All cited HAS/MAS/spec/HSD links with scope annotation | PCT HAS, PCT White Paper, DMR Turbo HAS, CPUPM BIOS Knobs, NWP PM MAS, CCB HSD 14026595435, HSD 14025997048 |
+
+**Quality bar:**
+- Section 1 must not be generic ("validate X on NWP") — it must describe what the feature IS and what specific scenario is being tested
+- Section 2 must list concrete register/interface names, not just "see HAS"
+- Section 4 must include the boot-time register programming sequence in order
+- All HAS/spec citations in Section 8 must match content actually used in the body
+
+**TCD scope discipline:** A TCD titled "Enabling & Discovery" covers:
+- **Enabling**: verifying the BIOS activation path programs the correct CLOS/ASSOC/CP registers, and MSR 0x1AD reflects the HP TRL
+- **Discovery**: verifying OS/SW can read SST_HEADER.CAPABILITY_MASK, SST_TF_INFO_0/2/10, SST_CLOS_ASSOC, HWP MSR to discover PCT HP/LP assignment
+
+It does **not** cover: frequency accuracy validation, RAPL+PCT ordered throttling, DLCP module mask correctness under load — those belong in separate TCDs.
+
 ### Section B: Swimlane/Sequence (MANDATORY format)
 
 The unified HTML generator parses Section B by heading — wrong headings = plain text fallback.

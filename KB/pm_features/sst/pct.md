@@ -1,8 +1,8 @@
 # SST > PCT (Priority Core Turbo)
 
-> **Status**: Enriched — HW/FW/OS touchpoints + KPI & Timing + HP core selection algorithm + LP clip resolution + RAPL-PCT TDP convergence (2026-05-29)
+> **Status**: Enriched — HW/FW/OS touchpoints + KPI & Timing + HP core selection algorithm + LP clip resolution + RAPL-PCT TDP convergence (2026-05-29); HAS delta: GPU use case, DLCP, BIOS knobs, frequency hierarchy, DMR changes (2026-06-22)
 > **Parent**: [SST](sst_main.md)
-> **Source Confidence**: High — Architecture from [PCT HAS](https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html), [Intel SST HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html). Feature distinction from [DMR Overview HAS CBB Feature List](https://docs.intel.com/documents/arch_datacenter/DMR/Overview/DMR_Overview_HAS.html). NWP scope from [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) + [HSD 14026595435](https://hsdes.intel.com/appstore/article/#/14026595435). See [Source Notes](#source-notes).
+> **Source Confidence**: High — Architecture from [PCT HAS](https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html), [PCT White Paper](https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/IC_PCT.html), [DMR Turbo HAS](https://docs.intel.com/documents/pm_doc/src/server/DMR/PM%20Features/DMR_Turbo.html), [CPUPM BIOS Knobs Gen 3](https://docs.intel.com/documents/System-firmware-bios/Domain/ServerCpuPm/Index/CPUPM%20BIOS%20Knobs/BiosKnobs.html). NWP scope from [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) + [HSD 14026595435](https://hsdes.intel.com/appstore/article/#/14026595435).
 
 ## Baseline (DMR)
 
@@ -136,7 +136,67 @@ On NWP, the RAPL PL1 limit is read and enforced via TPMI `SOCKET_RAPL_PL1_CONTRO
 | BIOS knob exposure | ✅ Confirmed | PCT Partition Count and PCT Core Select BIOS knobs are exposed on NWP (NWP MCP query 2026-05-29). Warm reset required for changes. |
 | LP clip frequency | ⚠ Partially resolved | MCP confirms LP clip ≥ P1_Lo, fused per SKU via SST_TF_CONFIG. NWP SKU-specific LP clip ratio value still needs confirmation from BIOS FAS or TPMI dump. |
 
-## Legacy (Human-Curated Reference)
+## HAS-Derived Additions (2026-06-22)
+
+### Primary Use Case
+
+PCT targets Intel Xeon CPU+GPU/accelerator systems. CPU cores are divided into partitions, each
+associated with one GPU. GPU-serving cores need maximum turbo frequency while remaining cores run
+at lower frequency. PCT achieves P0max for HP cores **without requiring other cores to sleep in C6**
+— unlike P0half where half the cores must be in C6.
+
+### Frequency Hierarchy (from PCT HAS Table 3-2)
+
+| Name | Description | GNR Example | NWP Target |
+|------|-------------|-------------|------------|
+| P0max | Maximum turbo frequency | 4.6 GHz | ~4.4 GHz (POR-1) |
+| F3 | PCT HP frequency (≤ P0max) | 4.6 GHz | ~4.4 GHz |
+| P0half | Half-core turbo (C6 on half cores required) | 3.9 GHz | — |
+| P0n | All-core turbo | 3.6 GHz | — |
+| F2 / LP clip | LP core clip (≥ P1) | ~2.3 GHz | fused per SKU |
+| P1 | All-core guaranteed frequency | — | — |
+| Pn | Minimum core frequency | — | — |
+
+### BIOS Knobs (from CPUPM BIOS Knobs Reference Gen 3)
+
+| BIOS Knob | Options | Default (DMR/NWP) | Notes |
+|-----------|---------|-------------------|-------|
+| PCT Enable | Enable / Disable | **Disable** | Hidden if not PCT capable. GNR default = Enable |
+| PCT HP Partition Count | 1–16 | **4** (when enabled) | Max = `SST_TF_INFO_8.NUM_CORE_0 / MAX_LPIDS`. Auto=0 means disabled |
+| PCT Core Selection | 0–255 | **0** | Starting core offset within partition for HP selection. 0 = first core |
+
+> On DMR/NWP the "PCT Enable" standalone knob is eliminated; PCT is controlled entirely by PCT Partition Count (0 = disabled).
+
+### DMR vs GNR Changes (from DMR Turbo HAS §PCT)
+
+| Aspect | GNR | DMR / NWP |
+|--------|-----|-----------|
+| PCT enable fuse | `CAPID4.bit29 = 1` required | **Not used** — all parts can run PCT or non-PCT |
+| PCT default at boot | Enabled if fused | **Disabled** (Partition Count = 0 by default) |
+| PCT Enable BIOS knob | Standalone knob | **Eliminated** — use PCT Partition Count = 0 to disable |
+| Max partitions | SST_TF_INFO_1.NUM_CORE_0 | `SST_TF_INFO_8.NUM_CORE_0 / MAX_LPIDS` |
+| HP selection scope | Per-core via MADT | Per-module via MADT (modules must be adjacent in MADT) |
+| MSR 0x1AD valid value | SST_TF_INFO_2.RATIO_0 or 0xFF | SST_TF_INFO_2.RATIO_0 **only** — 0xFF invalid ([HSD 14025997048](https://hsdes.intel.com/appstore/article-one/#/14025997048)) |
+
+### Cross-Product Rules (DQ Rules from PCT HAS)
+
+- **PCT + SST-BF**: Mutually exclusive (DQ rule enforced)
+- **PCT + FCT** (Favored Core Turbo): Mutually exclusive (DQ rule enforced)
+- **PCT requires SST-TF**: `SSTTF_ENABLE` must be Enabled if `PCT_ENABLE` is Enabled
+
+### Virtualization
+
+PCT is SoC-wide. If SST-TF is active for any VM, **all non-HP cores are LP-clipped** regardless
+of VM assignment. VMM should assign HP logical cores to VMs requiring maximum frequency.
+Example (NWP): 96 cores / 4 partitions = 24 cores/partition; HP cores at indices 0,1,24,25,48,49,72,73.
+
+### DLCP (Die Level Cherry Picking) — Key Points
+
+- `PCT_Module_Mask` fuse: encodes HP module positions per CBB die, per PP level
+- `SST_TF_INFO_10`: TPMI register exposing the mask (non-zero = DLCP active)
+- On DLCP SKUs: `CLOS_ASSOC[]` is **ignored** — Pcode uses fuse mask exclusively
+- `HWP_CAPABILITY.highest_perf`: HP cores report P0max; LP cores report LP clip
+- Discovery: read `SST_TF_INFO_10`, or enumerate `IA32_HWP_CAPABILITIES (0x771)` per core, or use Linux SST tool
 
 ### Architecture Summary
 
