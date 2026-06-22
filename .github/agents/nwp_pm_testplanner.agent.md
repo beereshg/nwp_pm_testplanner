@@ -1,7 +1,11 @@
 ---
 name: 'nwp_pm_testplanner'
 description: >
-  NWP PM test plan enrichment agent 
+  NWP PM test plan enrichment agent — unified planner for FV (server.test_case),
+  PSS (server.test_result), and TCD (server.test_case_definition) enrichment.
+  Orchestrates the 3-stage pipeline: (1) HSD metadata extraction, (2) KB + Co-Design
+  MCP enrichment, (3) HTML report generation. Also handles TCD description generation
+  with preview/confirm/update workflow and 6-dimension PSS grading via Section G.
 tools: [vscode/memory, execute/getTerminalOutput, execute/runInTerminal, read/readFile, edit/editFiles, search/fileSearch, search/listDirectory, search/textSearch, co-design/codesign-ask-specs-and-wikis, co-design/codesign-get-spec-sources, co-design/codesign-ask-hsd-agent-mcp, 'intel-geni-(dev)/HSDTool', 'intel-geni-(dev)/CodeWithRegistersTool', 'intel-geni-(dev)/DebugAssistantAgentTool']
 ---
 
@@ -52,6 +56,9 @@ Determine mode from invocation context:
 | `status fv` | FV | FV counts only |
 | `status pss` | PSS | PSS counts only |
 | `grade <HSD_ID>` | grading | Apply 6-dimension grading rubric to TC/TCD — see `.github/skills/nwp-tc-grading/SKILL.md` |
+| `enrich tcd <TCD_ID>` | TCD | Enrich TCD description: fetch → KB cache → HAS/MAS → preview HTML |
+| `preview tcd <TCD_ID>` | TCD | Generate preview HTML only — no HSD update |
+| `update tcd <TCD_ID>` | TCD | Push updated description to HSD after user confirmation |
 
 ---
 
@@ -82,6 +89,9 @@ Read the unified skill:
 
 For grading workflows, also load:
 `.github/skills/nwp-tc-grading/SKILL.md`
+
+For TCD description workflows, also load:
+`.github/skills/nwp-tcd-description/SKILL.md`
 
 ### Step 1 — Detect Mode and Validate Data
 
@@ -152,6 +162,25 @@ python tools/html/generate_unified_html.py --status
 
 > **NEVER write HTML directly.** Always call the generation script.
 
+### Step 5 (TCD) — TCD Description Preview & Update
+
+For TCD description work, follow the 5-step workflow in `.github/skills/nwp-tcd-description/SKILL.md`:
+
+```powershell
+# Step 1–2: fetch TCD and enrich KB cache
+# (done inline — see skill for details)
+
+# Step 3: generate preview HTML
+python tools/html/generate_tcd_preview.py --tcd <TCD_ID> --force
+# Output: tcd_description_output/TCD_{id}_{slug}_preview.html
+
+# Step 5: update HSD (only after user confirms preview)
+# (done via PUT — see skill for script pattern)
+```
+
+**TCD KB cache:** `KB/pm_tcd_kb/{tp_id}_{tp_slug}/TCD_{tcd_id}_{slug}.md`  
+Read this before re-fetching — delta updates only.
+
 ---
 
 ## Data Sources
@@ -160,8 +189,10 @@ python tools/html/generate_unified_html.py --status
 |--------|---------|---------|
 | Master list | `nwp_pm_fv/data/nwp_pm_fv_content.json` | `nwp_pm_pss/data/nwp_master_test_plan.csv` |
 | Metadata JSON | `nwp_pm_fv/data/metadata/HSD_*_metadata.json` | `nwp_pm_pss/data/metadata/HSD_*_metadata.json` |
-| Cache files | `KB/pm_tc_kb/**/*.inference.md` | `KB/pm_tc_kb/**/*.inference.md` |
+| TC cache files | `KB/pm_tc_kb/**/*.inference.md` | `KB/pm_tc_kb/**/*.inference.md` |
+| TCD cache files | `KB/pm_tcd_kb/**/*.md` | `KB/pm_tcd_kb/**/*.md` |
 | HTML output | `KB/pm_tc_deepanalysis/*.html` | `KB/pm_tc_deepanalysis/*.html` |
+| TCD preview HTML | `tcd_description_output/TCD_*_preview.html` | — |
 | KB articles | `KB/pm_features/**/*.md` | `KB/pm_features/**/*.md` |
 
 ---
@@ -188,4 +219,5 @@ Missing HTML:     {list or "none"}
 | Task | Skill |
 |------|-------|
 | Everything (pipeline, HSD API, KB enrichment, NWP constants) | `.github/skills/nwp-tc-deepanalysis/SKILL.md` |
-| TC readiness grading (6-dimension rubric) | `.github/skills/nwp-tc-grading/SKILL.md` |
+| TC readiness grading (6-dimension rubric, Section G) | `.github/skills/nwp-tc-grading/SKILL.md` |
+| TCD description enrichment, preview, HSD update | `.github/skills/nwp-tcd-description/SKILL.md` |
