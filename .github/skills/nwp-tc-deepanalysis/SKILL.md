@@ -111,6 +111,79 @@ Core output contract:
 
 ---
 
+## Part 0A — KB Flywheel (Operating Loop)
+
+The KB files in this repo are the **first-touch knowledge layer**. Every enrichment session
+follows this loop — do not skip steps:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  1. READ KB FIRST                                               │
+│     KB/pm_features/{feature}/*.md                              │
+│     KB/pm_tc_kb/**/*.inference.md                              │
+│     KB/pm_tcd_kb/**/*.md                                       │
+│     → Quick context: architecture, NWP delta, register paths,  │
+│       prior enrichment, known open items                        │
+└────────────────┬────────────────────────────────────────────────┘
+                 │ gaps or stale sections found
+                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  2. TOUCH MCP / HAS FOR DEPTH                                  │
+│     codesign-ask-specs-and-wikis  (HAS/MAS/wikis)              │
+│     fetch_webpage  (direct HAS URL crawl)                       │
+│     HSDTool  (HSD article fetch)                               │
+│     → Resolve gaps, confirm register fields, get exact values   │
+└────────────────┬────────────────────────────────────────────────┘
+                 │ new learnings from MCP / HAS
+                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  3. PRODUCE OUTPUT (inference.md / TCD HTML / HSD description) │
+│     → Synthesize KB context + MCP depth + prompt intent        │
+│     → Better result than MCP-only because KB pre-loads NWP     │
+│       topology, ZBB table, and prior session findings           │
+└────────────────┬────────────────────────────────────────────────┘
+                 │ new learnings discovered during output
+                 ▼
+┌─────────────────────────────────────────────────────────────────┐
+│  4. WRITE LEARNINGS BACK TO KB (mandatory)                     │
+│     KB/pm_features/{feature}/*.md  ← feature-level facts       │
+│     KB/pm_tcd_kb/**/*.md           ← TCD-level context         │
+│     KB/pm_tc_kb/**/*.inference.md  ← TC-level analysis         │
+│                                                                 │
+│     Rules:                                                      │
+│     - Always include the doc/HSD/spec reference link           │
+│     - Tag the update with date: "Updated: YYYY-MM-DD"           │
+│     - Only write verified facts; mark uncertain items as ⚠     │
+│     - Next session starts from this richer KB → better output  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### What goes where
+
+| Learning type | KB target | Example |
+|--------------|-----------|---------|
+| Feature architecture, fuses, frequency hierarchy | `KB/pm_features/{feature}/*.md` | PCT frequency hierarchy table from PCT HAS |
+| DMR vs NWP delta, BIOS knobs, DQ rules | `KB/pm_features/{feature}/*.md` | DMR vs GNR CAPID4/default differences |
+| TCD context: what scenario is tested, section content | `KB/pm_tcd_kb/{tp_slug}/TCD_{id}_{slug}.md` | Enabling & Discovery scope, MADT ordering requirement |
+| Per-TC NWP analysis, register paths, PythonSV code | `KB/pm_tc_kb/{feature}/{segment}/HSD_{id}_{slug}.inference.md` | NWP CLOS loop bounds, nio.punit path |
+
+### KB write rule
+
+After **any** enrichment where MCP or HAS provides a fact not already in KB:
+
+```python
+# Append to the relevant KB file
+kb_file = Path('KB/pm_features/sst/pct.md')
+text = kb_file.read_text(encoding='utf-8')
+if 'fact-anchor-string' not in text:
+    text += '\n\n## New Section (YYYY-MM-DD)\n\n...<learned content with [Source](url)>...'
+    kb_file.write_text(text, encoding='utf-8')
+```
+
+Commit KB updates together with the enrichment output so the repo always reflects current knowledge.
+
+---
+
 ## Part 1 — Quality Guardrails
 
 1. **Reference hygiene**: only include HAS/MAS/HSD/spec links actually cited in the body. No speculative references.
