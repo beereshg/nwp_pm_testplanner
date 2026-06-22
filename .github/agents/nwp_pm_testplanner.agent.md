@@ -87,8 +87,8 @@ Pipeline 3 consumes whatever is there.
 Read the unified skill:
 `.github/skills/nwp-tc-deepanalysis/SKILL.md`
 
-For grading workflows, also load:
-`.github/skills/nwp-tc-grading/SKILL.md`
+For grading workflows (Section G), Part 8 of the unified skill covers the full rubric:
+`.github/skills/nwp-tc-deepanalysis/SKILL.md`
 
 For TCD description workflows, also load:
 `.github/skills/nwp-tcd-description/SKILL.md`
@@ -218,6 +218,5 @@ Missing HTML:     {list or "none"}
 
 | Task | Skill |
 |------|-------|
-| Everything (pipeline, HSD API, KB enrichment, NWP constants) | `.github/skills/nwp-tc-deepanalysis/SKILL.md` |
-| TC readiness grading (6-dimension rubric, Section G) | `.github/skills/nwp-tc-grading/SKILL.md` |
+| Everything — pipeline, HSD API, KB enrichment, NWP constants, PSS grading (Part 8) | `.github/skills/nwp-tc-deepanalysis/SKILL.md` |
 | TCD description enrichment, preview, HSD update | `.github/skills/nwp-tcd-description/SKILL.md` |

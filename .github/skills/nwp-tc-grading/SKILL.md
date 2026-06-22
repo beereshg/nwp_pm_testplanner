@@ -10,9 +10,18 @@ description: >
 
 # NWP TC Grading Skill
 
-> Orchestrating agent: `@nwp_pm_testplanner`
-> Repo root: `c:/github/nwp_testplan/`
-> Depends on: `nwp-tc-deepanalysis` skill (architecture constants, ZBB table)
+> **Merged into `nwp-tc-deepanalysis`.**
+> All grading logic, rubric definitions, dimension guidance, and Section G format
+> are now in **Part 8** of `.github/skills/nwp-tc-deepanalysis/SKILL.md`.
+
+Load that skill instead:
+
+```
+.github/skills/nwp-tc-deepanalysis/SKILL.md  →  Part 8 — PSS Grading (Section G)
+```
+
+Grading output writes to `## Section G: PSS Grading` in the TC inference.md,
+which automatically becomes a tab in the deep-analysis HTML.
 
 ---
 

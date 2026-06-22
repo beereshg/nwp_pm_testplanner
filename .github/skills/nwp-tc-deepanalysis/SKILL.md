@@ -700,3 +700,84 @@ Pass/Fail Criteria:
 - If the request is about improving generated FV test-case descriptions, start from `KB/pm_tc_kb/` before consulting older root scripts or ad-hoc HTML outputs.
 - Use a same-feature exemplar whenever possible, for example RAPL-to-RAPL or SST-to-SST, instead of cross-feature borrowing.
 - If Section B heading variants appear in older cache files, normalize new output toward the headings required by the active HTML generator.
+
+---
+
+## Part 8 — PSS Grading (Section G)
+
+Grading is integrated into the deep-analysis pipeline. Output goes to `## Section G: PSS Grading`
+in the inference.md — it becomes a tab in the HTML automatically. No HSD comment posting.
+
+### When to Grade
+
+- User says "grade this TC", "NWP Grade TC `<ID>`", "assess readiness", "what environment can this run in?"
+- After enriching a new TC (add Section G before generating HTML)
+
+### 6-Dimension Rubric
+
+| # | Dimension | Legal Values | Guidance |
+|---|-----------|--------------|---------|
+| 1 | **NWP Delta** | `Yes` / `No` | Does NWP topology/path differ from DMR in a way that affects this TC? |
+| 2 | **Applicable NWP** | `Yes` / `No` | Is the feature present and non-ZBB on NWP? |
+| 3 | **PSS Environment** | `VP` / `VP+HSLE` / `HSLE` / `VP_CONTENT` | Which pre-silicon environment can run this content? |
+| 4 | **Silicon Only** | `Yes` / `Partial` | Does full validation require post-silicon? |
+| 5 | **Test Content** | `DMR_L` / `DMR_M` / `NWP_N` | Origin and adaptation level |
+| 6 | **OS** | `sv-os` / `linux-os` | Execution environment |
+
+**PSS Environment rules:**
+- CCF PMA registers (`ccf_pma.*`) → `VP+HSLE` or `HSLE`
+- PUNIT-path registers (`punit_regs.*`, TPMI) → `VP` for write/readback; `VP+HSLE` for effect observation
+- MSR counter increment (residency, TSC) → `HSLE` or silicon
+- BIOS knob override needed → `VP_CONTENT`
+
+**Test Content rules:**
+- Same feature, same registers, only CBB loop change → `DMR_L`
+- Same feature, IMH→NIO path change or NWP-specific TPMI → `DMR_M`
+- Feature ZBB'd or completely new NWP-only feature → `NWP_N`
+
+### Section G Format (write to inference.md)
+
+```markdown
+## Section G: PSS Grading
+
+### Grading Table
+
+| Sl No | Dimension | Value | Rationale |
+|-------|-----------|-------|----------|
+| 1 | NWP Delta | Yes / No | <TC-specific evidence> |
+| 2 | Applicable NWP | Yes / No | <ZBB check or feature presence> |
+| 3 | PSS Environment | VP / VP+HSLE / HSLE / VP_CONTENT | <register path reasoning> |
+| 4 | Silicon Only | Yes / Partial | <timing/analog dependency> |
+| 5 | Test Content | DMR_L / DMR_M / NWP_N | <adaptation level> |
+| 6 | OS | sv-os / linux-os | <execution stack> |
+
+### Verdict
+
+**{VERDICT_LABEL}** — {2-sentence summary.}
+
+### Environment Coverage
+
+| Environment | Coverage | Notes |
+|-------------|----------|-------|
+| Simics VP | Yes/Partial/No | {what can be validated} |
+| HSLE | Yes/Partial/No | {what requires emulation} |
+| Post-Silicon | Yes/Partial/No | {silicon-only aspects} |
+
+### Key Notes
+
+| Area | Detail |
+|------|--------|
+| Reuse Level | High / Medium / Low |
+| Main Adaptation | {1-line change required} |
+| Limitation | {key pre-Si gap} |
+| Validation Strategy | {which env covers which sub-test} |
+```
+
+### After Writing Section G
+
+```powershell
+python tools/html/generate_unified_html.py --segment fv --hsd <ID> --force
+# G: PSS Grading tab appears automatically
+```
+
+> ⚠️ Grading must be LLM-reasoned per TC using actual TC content — never use a pre-written matrix.
