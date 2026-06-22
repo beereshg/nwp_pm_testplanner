@@ -148,13 +148,28 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
         'Note: MSR 0x1AD must be SST_TF_INFO_2.RATIO_0 (0xFF invalid, HSD 14025997048)</pre>')
     body4 = h3("Enabling Path") + enab_pre + enab_tbl
 
-    # --- Section 5: Operational
-    tc_block = parse_block(kb_text, "Test Cases")
-    tc_tbl   = md_table(table_lines(tc_block))
-    tc_tbl   = re.sub(r"\[(\d{10,})\]\([^)]+\)",
-        lambda m: f'<a href="https://hsdes.intel.com/appstore/article-one/#/{m.group(1)}" target="_blank">{m.group(1)}</a>',
-        tc_tbl)
-    body5 = h3("Test Cases") + (tc_tbl or "<p>No TCs in KB file.</p>")
+    # --- Section 5: Operational Behavior (normal flow, not TC table)
+    body5 = (f'<div {BOX}>'
+        '<p style="font-weight:bold;margin-bottom:8px;">Normal Operating Flow</p>'
+        '<ol style="margin:0;padding-left:20px;line-height:1.9;">'
+        '<li>BIOS activates PCT before OS handoff (if PCT Partition Count &gt; 0): '
+        'programs CLOS registers, MSR 0x1AD override.</li>'
+        '<li>OS/VMM reads <code>SST_HEADER.CAPABILITY_MASK</code> to confirm PCT is active.</li>'
+        '<li>OS/VMM discovers HP vs LP core assignment via '
+        '<code>SST_CLOS_ASSOC</code>, <code>IA32_HWP_CAPABILITIES (0x771)</code>, or Intel SST tool.</li>'
+        '<li>OS/VMM affinitizes high-priority (GPU-serving) workloads to HP cores.</li>'
+        '<li>PCode enforces CLOS-based frequency limits at runtime (standard SST-TF flow &mdash; '
+        'no PCT-specific Pcode logic).</li>'
+        '<li>Optional runtime reconfiguration: Intel SST tool can reassign HP/LP cores '
+        'or disable PCT without reboot.</li>'
+        '</ol>'
+        '</div>'
+        '<p style="margin:12px 0 4px;"><b>Entry conditions:</b> PCT Partition Count &gt; 0; '
+        'SST-TF enabled; CAPID4.bit29 not required on DMR/NWP.</p>'
+        '<p style="margin:4px 0 4px;"><b>Exit / disable:</b> Set PCT Partition Count = 0 (requires '
+        'warm reset). Or use Intel SST tool for runtime disable (no reset needed).</p>'
+        '<p style="margin:4px 0;"><b>Virtualization note:</b> PCT is SoC-wide; once SST-TF is active, '
+        'all non-HP cores are LP-clipped regardless of VM boundaries.</p>')
 
     # --- Sections 6–8 (compact)
     body6 = (f'<div {BOX}><ul style="margin:0;padding-left:20px;line-height:1.8;">'
