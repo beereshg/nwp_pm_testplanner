@@ -110,8 +110,35 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
         return f'<p style="margin:10px 0 12px;line-height:1.6;">{_h.escape(" ".join(parts))}</p>' if parts else ""
 
     # --- Section 1: Architecture
-    what_block = parse_block(kb_text, "What is PCT")
-    intro_para = text_para(what_block[:6])
+    # Support both "What is PCT" (older style) and "Architecture / Micro-arch" (new style)
+    what_block = (parse_block(kb_text, "What is PCT")
+                  or parse_block(kb_text, "Architecture")
+                  or parse_block(kb_text, "Feature Overview"))
+    intro_para = text_para(what_block[:8])
+
+    # For richer Architecture blocks, render the full block as markdown
+    if what_block and len(what_block) > 10:
+        pre_lines, table_lines_all, bullet_lines_all = [], [], []
+        in_pre = False
+        for l in what_block:
+            s = l.strip()
+            if s.startswith("```"):
+                in_pre = not in_pre
+            elif in_pre:
+                pre_lines.append(l)
+            elif s.startswith("|"):
+                table_lines_all.append(l)
+            elif s.startswith(("- ", "* ")):
+                bullet_lines_all.append(l)
+        arch_extra = ""
+        if pre_lines:
+            arch_extra += f'<pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">{_h.escape(chr(10).join(pre_lines))}</pre>'
+        if table_lines_all:
+            arch_extra += md_table(table_lines_all)
+        if bullet_lines_all:
+            arch_extra += md_bullets(bullet_lines_all)
+    else:
+        arch_extra = ""
     freq_tbl   = md_table(table_lines(parse_block(kb_text, "Frequency Hierarchy") or parse_block(kb_text, "Frequency Hierarchy")))
     kd_bullets = md_bullets(bullet_lines(parse_block(kb_text, "Key Design Points")))
     dlcp_bul   = md_bullets(bullet_lines(parse_block(kb_text, "DLCP")))
@@ -119,7 +146,7 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
     bios_tbl   = md_table(table_lines(parse_block(kb_text, "BIOS Knobs")))
     dmr_tbl    = md_table(table_lines(parse_block(kb_text, "DMR vs GNR") or parse_block(kb_text, "DMR Changes")))
 
-    body1 = (intro_para +
+    body1 = (intro_para + arch_extra +
         (h3("Frequency Hierarchy") + freq_tbl if freq_tbl else "") +
         (h3("Key Design Points") + kd_bullets if kd_bullets else "") +
         (h3("DLCP (Die Level Cherry Picking)") + dlcp_bul if dlcp_bul else "") +
