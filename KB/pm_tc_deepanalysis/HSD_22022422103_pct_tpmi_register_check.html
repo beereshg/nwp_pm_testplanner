@@ -3,48 +3,74 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
   <title>Deep Analysis: PCT - TPMI Register Check</title>
   <style>
-    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
-    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
-    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
-    .meta h1 { margin:0; font-size:20px; }
-    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
-    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
-    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
-    p { margin:8px 0; }
-    ul { margin:8px 0 8px 20px; }
-    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
-    code { font-family: Consolas, monospace; }
-    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
-    .md-table th { background:#e8eef7; }
-    .md-pre { white-space:pre-wrap; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="meta">
-      <h1>Deep Analysis: PCT - TPMI Register Check</h1>
-      <p>Segment: FV | Source: HSD_22022422103_pct_tpmi_register_check.inference.md | Generated: 2026-06-17 21:14:31</p>
-    </div>
-    <div class="content">
-      <h1>Deep Analysis: PCT - TPMI Register Check</h1>
+  <div class="header">
+    <h1>Deep Analysis: PCT - TPMI Register Check</h1>
+    <p>Segment: FV | Source: HSD_22022422103_pct_tpmi_register_check.inference.md | Generated: 2026-06-23 12:04:12</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+    <button class="tab" data-tab="tab1">A: NWP Delta</button>
+    <button class="tab" data-tab="tab2">B: Interactions</button>
+    <button class="tab" data-tab="tab3">C: Coverage</button>
+    <button class="tab" data-tab="tab4">D: Spec Refs</button>
+    <button class="tab" data-tab="tab5">E: Risk Assessment</button>
+    <button class="tab" data-tab="tab6">F: Recommendations</button>
+    <button class="tab" data-tab="tab7">G: PSS Grading</button>
+    <button class="tab" data-tab="tab8">A: NWP Disposition &amp; Justification</button>
+    <button class="tab" data-tab="tab9">B: NWP-Specific Test Procedure</button>
+    <button class="tab" data-tab="tab10">F: Recommendation</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>Deep Analysis: PCT - TPMI Register Check</h1>
 <table class="md-table"><thead><tr>
 <th>Field</th>
 <th>Value</th>
 </tr></thead><tbody>
 <tr>
 <td>**HSD ID**</td>
-<td>22022422103</td>
+<td>[22022422103](https://hsdes.intel.com/appstore/article-one/#/22022422103)</td>
 </tr>
 <tr>
 <td>**Title**</td>
-<td>PCT - TPMI register check</td>
+<td>PCT - TPMI Register Check</td>
 </tr>
 <tr>
 <td>**Date**</td>
-<td>2025-07-24</td>
+<td>2026-06-23</td>
 </tr>
 <tr>
 <td>**Target Program**</td>
@@ -55,25 +81,422 @@
 <td>DMR (Diamond Rapids)</td>
 </tr>
 <tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
 <td>**Feature**</td>
 <td>SST</td>
 </tr>
 <tr>
 <td>**Sub-Feature**</td>
-<td>PCT (Performance Core Tuning) — SST-TF-based HP/LP core frequency segmentation</td>
+<td>PCT (Priority Core Turbo) — SST-TF TPMI CLOS register boot-time validation</td>
 </tr>
 <tr>
-<td>**Feature Classification**</td>
-<td>**Silicon-heavy** (CAPID4.bit29 fuse-gated; HW enforces HP/LP TRL) with firmware orchestration (PCode/BIOS/PrimeCode/Acode)</td>
+<td>**Parent TCD**</td>
+<td>[22022420855 — PCT - Enabling &amp; Discovery](https://hsdes.intel.com/appstore/article-one/#/22022420855)</td>
 </tr>
 <tr>
 <td>**NWP Disposition**</td>
 <td>**Runnable_On_N-1**</td>
 </tr>
+<tr>
+<td>**Val Environment**</td>
+<td>virtual_platform</td>
+</tr>
+<tr>
+<td>**Framework**</td>
+<td>os-svos</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>mps</td>
+</tr>
+<tr>
+<td>**Tags**</td>
+<td>plc.feature.p1, PMSS_NWP_READINESS_CHECK</td>
+</tr>
 </tbody></table>
+<h2>Version History</h2>
+<ul>
+<li>v1 (2025-07-24): Initial — sections A, B, F only</li>
+<li>v2 (2026-06-23): Full enrichment — all sections A-G, NWP register paths, PSS grading</li>
+</ul>
 <p>---</p>
-<h2>Section A: NWP Disposition &amp; Justification</h2>
-<p>**Disposition: Runnable_On_N-1**</p>
+<h2>Test Case Intent</h2>
+<p>Verify that TPMI SST_CLOS registers are **correctly programmed by PCode at boot** to reflect the</p>
+<p>BIOS-configured HP core count. This is a register-level boot validation — no runtime workload needed.</p>
+<p>Environment: NWP silicon or emulation (PythonSV/namednodes direct TPMI access, not OS driver).</p>
+<p>**Key distinction from PV TC 16030717720 (Discovery)**: This TC reads raw TPMI registers directly;</p>
+<p>PV exercises the `sst` tool + `intel-speed-select` driver path.</p>
+<h3>Pre-Conditions</h3>
+<table class="md-table"><thead><tr>
+<th>Item</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>Platform</td>
+<td>NWP silicon or emulation with PCT enabled</td>
+</tr>
+<tr>
+<td>BIOS knobs</td>
+<td>`PctHpModuleCount` set to non-zero (multiples of 4); `PctCapableSystem` enabled</td>
+</tr>
+<tr>
+<td>FW stack</td>
+<td>PCode, PrimeCode, PythonSV, namednodes installed</td>
+</tr>
+<tr>
+<td>CAPID4</td>
+<td>`sv.socket0.nio.punit.ptpcioregs.ptpcioregs.capid4.capid4_29` = 1 (PCT fuse enabled)</td>
+</tr>
+</tbody></table>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Read `CAPID4.bit29` from NWP CAPID path</td>
+<td>= 1 (PCT capability fuse set)</td>
+<td>= 0 → PCT not fused, TC cannot run</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read `nvram.PctHpModuleCount.getValue()`</td>
+<td>Non-zero; multiple of 4</td>
+<td>Zero or invalid</td>
+</tr>
+<tr>
+<td>3</td>
+<td>For each CBB (cbb0, cbb1): read `SST_CLOS_ASSOC_0.clos_id_module[N]` for first M modules</td>
+<td>First `PctHpModuleCount/2` modules per CBB → CLOS 0 (HP); rest → CLOS 2/3 (LP)</td>
+<td>CLOS assignment mismatch</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read `SST_CP_CONTROL.sst_cp_enable` per CBB</td>
+<td>= 1 (PCT globally enabled)</td>
+<td>= 0</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Read `SST_CP_CONTROL.sst_cp_priority_type` per CBB</td>
+<td>= 1 (Ordered Throttling mode)</td>
+<td>≠ 1</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Read `SST_TF_INFO_1.num_core_0` per CBB</td>
+<td>≥ configured HP module count</td>
+<td>&lt; configured value</td>
+</tr>
+</tbody></table>
+<h3>Pass / Fail Criteria</h3>
+<ul>
+<li>**PASS**: CAPID4.bit29=1; CLOS assignments match BIOS HP count; `sst_cp_enable`=1; `sst_cp_priority_type`=1; num_core_0 ≥ HP count</li>
+<li>**FAIL**: Any register mismatch; CAPID4.bit29=0; CLOS assignment incorrect; PCT globally disabled</li>
+</ul>
+<p>---</p></div>
+  <div id="tab1" class="panel"><p>**Disposition: Runnable_On_N-1** — PCT relies on SST-TF infrastructure which is functional on NWP.</p>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Adaptation Required</th>
+</tr></thead><tbody>
+<tr>
+<td>Number of CBBs</td>
+<td>4</td>
+<td>**2**</td>
+<td>Loop `range(2)` not `range(4)`</td>
+</tr>
+<tr>
+<td>Cores per CBB</td>
+<td>64</td>
+<td>**48**</td>
+<td>Adjust module count calculations</td>
+</tr>
+<tr>
+<td>Total cores</td>
+<td>256</td>
+<td>**96** (2×48)</td>
+<td>Update HP count validation</td>
+</tr>
+<tr>
+<td>CAPID4 namednodes path</td>
+<td>`sv.socket0.imh0.punit.ptpcioregs.capid4_29`</td>
+<td>**`sv.socket0.nio.punit.ptpcioregs.ptpcioregs.capid4.capid4_29`**</td>
+<td>Path changed: `imh0` → `nio`</td>
+</tr>
+<tr>
+<td>SST TPMI path</td>
+<td>`sv.socket0.imhX.base.tpmi.sst_*`</td>
+<td>**`sv.socket0.cbbX.base.tpmi.sst_*`**</td>
+<td>CBB path (same as DMR CBB)</td>
+</tr>
+<tr>
+<td>Automation config</td>
+<td>`dmr.xml`</td>
+<td>**`nwp.xml`**</td>
+<td>Config swap</td>
+</tr>
+<tr>
+<td>SST python package</td>
+<td>`diamondrapids`</td>
+<td>**`newport`**</td>
+<td>Package update</td>
+</tr>
+</tbody></table>
+<p>**NWP-specific critical note**: `CAPID4.bit29` is at `sv.socket0.nio.punit.ptpcioregs.ptpcioregs.capid4.capid4_29` (NIO Punit, not IMH Punit).</p>
+<p>---</p></div>
+  <div id="tab2" class="panel"><h3>Key Registers (NWP Namednodes Paths)</h3>
+<table class="md-table"><thead><tr>
+<th>Register</th>
+<th>NWP Namednodes Path</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td>`CAPID4.bit29`</td>
+<td>`sv.socket0.nio.punit.ptpcioregs.ptpcioregs.capid4.capid4_29`</td>
+<td>Fuse: PCT capability enable</td>
+</tr>
+<tr>
+<td>`PctHpModuleCount`</td>
+<td>`nvram.PctHpModuleCount.getValue()`</td>
+<td>BIOS: HP module count (multiples of 4)</td>
+</tr>
+<tr>
+<td>`SST_CLOS_ASSOC_0.clos_id_module{N}`</td>
+<td>`sv.socket0.cbb{X}.base.tpmi.sst_clos_assoc_0.clos_id_module{N}`</td>
+<td>Module CLOS assignment (0/1=HP, 2/3=LP)</td>
+</tr>
+<tr>
+<td>`SST_CP_CONTROL.sst_cp_enable`</td>
+<td>`sv.socket0.cbb{X}.base.tpmi.sst_cp_control.sst_cp_enable`</td>
+<td>PCT globally enabled (1=on)</td>
+</tr>
+<tr>
+<td>`SST_CP_CONTROL.sst_cp_priority_type`</td>
+<td>`sv.socket0.cbb{X}.base.tpmi.sst_cp_control.sst_cp_priority_type`</td>
+<td>Throttling mode (1=Ordered)</td>
+</tr>
+<tr>
+<td>`SST_TF_INFO_1.num_core_0`</td>
+<td>`sv.socket0.cbb{X}.base.tpmi.sst_tf_info_1.num_core_0`</td>
+<td>Max HP modules supported by silicon</td>
+</tr>
+<tr>
+<td>`MSR 0x774 IA32_HWP_REQUEST`</td>
+<td>`pd.debug.access_to_msr(0x774, core=core)`</td>
+<td>HWP desired ratio (HP cores: request P0)</td>
+</tr>
+<tr>
+<td>`MSR 0x198 IA32_PERF_STATUS`</td>
+<td>`pd.debug.access_to_msr(0x198, core=core)`</td>
+<td>Current operating ratio</td>
+</tr>
+</tbody></table>
+<h3>PythonSV Validation Sketch</h3>
+<pre><code>
+# NWP PCT TPMI register check (2 CBBs × 48 cores)
+import sv
+
+# Step 1: Check CAPID4.bit29 (NIO path on NWP)
+capid4_pct = sv.socket0.nio.punit.ptpcioregs.ptpcioregs.capid4.capid4_29.read()
+print(f&quot;CAPID4.bit29 (PCT fuse) = {capid4_pct}  (expect 1)&quot;)
+assert capid4_pct == 1, &quot;PCT fuse not set — TC cannot run&quot;
+
+# Step 2: Read BIOS HP module count
+hp_count = nvram.PctHpModuleCount.getValue()
+print(f&quot;PctHpModuleCount = {hp_count}  (expect non-zero, multiple of 4)&quot;)
+assert hp_count &gt; 0 and hp_count % 4 == 0
+
+# Step 3: Verify CLOS assignment per CBB
+for cbb_idx in range(2):   # NWP: 2 CBBs
+    cbb = sv.socket0.getbypath(f&quot;cbb{cbb_idx}&quot;)
+    hp_per_cbb = hp_count // 2  # HP modules split evenly across 2 CBBs
+    for mod in range(48 // 2):  # 24 modules per CBB (2 cores/module)
+        clos = cbb.base.tpmi.sst_clos_assoc_0.getbypath(f&quot;clos_id_module{mod}&quot;).read()
+        expected = 0 if mod &lt; hp_per_cbb else 2  # HP=CLOS0, LP=CLOS2
+        print(f&quot;CBB{cbb_idx} mod{mod}: CLOS={clos}  (expect {expected})&quot;)
+        assert clos == expected, f&quot;CLOS mismatch CBB{cbb_idx} mod{mod}: got {clos} expected {expected}&quot;
+
+    # Step 4-5: PCT control registers
+    cp_en = cbb.base.tpmi.sst_cp_control.sst_cp_enable.read()
+    cp_type = cbb.base.tpmi.sst_cp_control.sst_cp_priority_type.read()
+    num_core = cbb.base.tpmi.sst_tf_info_1.num_core_0.read()
+    print(f&quot;CBB{cbb_idx}: cp_enable={cp_en} priority_type={cp_type} num_core_0={num_core}&quot;)
+    assert cp_en == 1, f&quot;PCT not enabled on CBB{cbb_idx}&quot;
+    assert cp_type == 1, f&quot;Priority type != Ordered on CBB{cbb_idx}&quot;
+    assert num_core &gt;= hp_per_cbb, f&quot;num_core_0 &lt; HP count on CBB{cbb_idx}&quot;
+
+print(&quot;PASS: PCT TPMI registers correctly programmed&quot;)
+</code></pre>
+<p>---</p></div>
+  <div id="tab3" class="panel"><table class="md-table"><thead><tr>
+<th>Coverage Area</th>
+<th>DMR Coverage</th>
+<th>NWP Adaptation</th>
+<th>Gap</th>
+</tr></thead><tbody>
+<tr>
+<td>CAPID4.bit29 fuse check</td>
+<td>✅</td>
+<td>✅ Path changed to NIO</td>
+<td>None after path fix</td>
+</tr>
+<tr>
+<td>CLOS assignment per module</td>
+<td>✅ 4 CBBs</td>
+<td>✅ 2 CBBs</td>
+<td>CBB loop bounds</td>
+</tr>
+<tr>
+<td>`sst_cp_enable` per CBB</td>
+<td>✅</td>
+<td>✅</td>
+<td>None</td>
+</tr>
+<tr>
+<td>`sst_cp_priority_type` per CBB</td>
+<td>✅</td>
+<td>✅</td>
+<td>None</td>
+</tr>
+<tr>
+<td>`sst_tf_info_1.num_core_0`</td>
+<td>✅</td>
+<td>✅</td>
+<td>None</td>
+</tr>
+<tr>
+<td>HP count validation math</td>
+<td>4 CBBs÷4 = 1×HP</td>
+<td>**2 CBBs÷2 = hp_count/2 per CBB**</td>
+<td>Must recalculate</td>
+</tr>
+<tr>
+<td>VP/HSLE environment</td>
+<td>Limited</td>
+<td>✅ `virtual_platform` env</td>
+<td>Run on VP</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="tab4" class="panel"><table class="md-table"><thead><tr>
+<th>Reference</th>
+<th>Link</th>
+</tr></thead><tbody>
+<tr>
+<td>SST HAS — PCT registers</td>
+<td>[Intel SST HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html)</td>
+</tr>
+<tr>
+<td>NWP PM MAS</td>
+<td>[NWP IMH SoC PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)</td>
+</tr>
+<tr>
+<td>PCT KB article</td>
+<td>[KB/pm_features/sst/pct.md](../../../pm_features/sst/pct.md)</td>
+</tr>
+<tr>
+<td>Parent TCD 22022420855</td>
+<td>[PCT Enabling &amp; Discovery](https://hsdes.intel.com/appstore/article-one/#/22022420855)</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="tab5" class="panel"><table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>CAPID4 path change (`imh0` → `nio`) missed</td>
+<td>High</td>
+<td>Must use `sv.socket0.nio.punit.ptpcioregs.*` not IMH path</td>
+</tr>
+<tr>
+<td>2</td>
+<td>HP module count math — CBB count changed (4→2)</td>
+<td>Medium</td>
+<td>`hp_per_cbb = hp_count // 2` (not // 4)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Automation still uses `dmr.xml`</td>
+<td>Medium</td>
+<td>Must change to `nwp.xml`</td>
+</tr>
+<tr>
+<td>4</td>
+<td>SST python package (`diamondrapids` → `newport`)</td>
+<td>Low</td>
+<td>Package name update needed</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="tab6" class="panel"><p>**Adopt with adaptation.** PCT/SST-TF functional on NWP.</p>
+<p>Required changes:</p>
+<p>1. `CAPID4.bit29` path: `sv.socket0.imh0.punit.*` → `sv.socket0.nio.punit.ptpcioregs.ptpcioregs.capid4.capid4_29`</p>
+<p>2. CBB loop: `range(4)` → `range(2)`</p>
+<p>3. HP count per CBB: `hp_count // 4` → `hp_count // 2`</p>
+<p>4. Automation: `dmr.xml` → `nwp.xml`</p>
+<p>5. SST package: `diamondrapids` → `newport`</p>
+<p>---</p></div>
+  <div id="tab7" class="panel"><table class="md-table"><thead><tr>
+<th>Sl No</th>
+<th>Dimension</th>
+<th>Value</th>
+<th>Rationale</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>NWP Delta</td>
+<td>Yes</td>
+<td>2 CBBs (not 4); CAPID4 path change; HP count math update</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Applicable NWP</td>
+<td>**Yes**</td>
+<td>SST-TF/PCT functional on NWP; register check is direct TPMI read</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PSS Environment</td>
+<td>✅ Virtual Platform</td>
+<td>VP can run TPMI register checks; `virtual_platform` env tagged</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Silicon Only</td>
+<td>No</td>
+<td>VP feasible for register-level boot validation</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Test Content</td>
+<td>DMR_L</td>
+<td>Low adaptation: path fix + CBB count; test intent unchanged</td>
+</tr>
+<tr>
+<td>6</td>
+<td>OS</td>
+<td>sv-os</td>
+<td>PythonSV namednodes (no OS driver needed)</td>
+</tr>
+</tbody></table>
+<h3>Verdict</h3>
+<p>**Runnable_On_N-1** — direct TPMI register read after boot; VP-capable; low adaptation overhead.</p>
+<p>Key adaptation: CAPID4 NIO path + 2-CBB loop + HP count math correction.</p>
+<p>---</p></div>
+  <div id="tab8" class="panel"><p>**Disposition: Runnable_On_N-1**</p>
 <p>PCT (Performance Core Tuning) partitions cores into High Priority (HP) and Low Priority (LP) groups, allowing HP cores to run at a higher turbo frequency when power allows. PCT relies on SST-TF infrastructure (TPMI-based CLOS configuration), and SST-TF is **functional on NWP** (not ZBB).</p>
 <p>Test verifies TPMI registers after boot:</p>
 <ul>
@@ -84,9 +507,8 @@
 </ul>
 <p>NWP topology: 2 CBBs × 48 cores = 96 total cores; `sst_pp_control` per CBB.</p>
 <p>Tags: `plc.feature.p1`, `PMSS_NWP_READINESS_CHECK`.</p>
-<p>---</p>
-<h2>Section B: NWP-Specific Test Procedure</h2>
-<h3>Adapted Command (NWP)</h3>
+<p>---</p></div>
+  <div id="tab9" class="panel"><h3>Adapted Command (NWP)</h3>
 <pre><code>
 python runPmx.py -x nwp.xml -p pct -tM 60 -M 10 --retry_count 2
 </code></pre>
@@ -108,9 +530,8 @@ for cbb_idx in range(2):
 <li>HP cores subscribed to CLOS[0], LP cores to CLOS[3]</li>
 <li>`pct` PMx plugin passes for NWP</li>
 </ul>
-<p>---</p>
-<h2>Section F: Recommendation</h2>
-<p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; 2 CBBs × 48 cores; PCT/SST-TF functional on NWP; SST python package: `diamondrapids` → `newport`**</p>
+<p>---</p></div>
+  <div id="tab10" class="panel"><p>**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; 2 CBBs × 48 cores; PCT/SST-TF functional on NWP; SST python package: `diamondrapids` → `newport`**</p>
 <p>**Priority**: High — `plc.feature.p1`, `PMSS_NWP_READINESS_CHECK`; PCT TPMI register baseline is foundation for all PCT functional tests</p>
 <p>---</p>
 <h2>Feature Classification: Silicon-Heavy with Firmware Orchestration</h2>
@@ -409,8 +830,19 @@ Model gap (missing TPMI field in VP):
 <p>&gt; These layers are complementary, not redundant.</p>
 <p>&gt;</p>
 <p>&gt; Feature classification: **Silicon-heavy** (CAPID4 fuse, HW TRL enforcement, Acode derating)</p>
-<p>&gt; with **moderate firmware orchestration** (BIOS knobs, PCode CLOS programming, PrimeCode HPM).</p>
-    </div>
+<p>&gt; with **moderate firmware orchestration** (BIOS knobs, PCode CLOS programming, PrimeCode HPM).</p></div>
   </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
 </body>
 </html>

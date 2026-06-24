@@ -16,38 +16,80 @@
 
 ## Test Case
 
-### Intent
+### Test Case Intent
 
-Verify that SST-TF can be dynamically enabled and disabled at runtime by writing to TPMI field `sst_pp_control.feature_state[bit 1]`. The test validates the complete enable/disable flow including: feature availability check per PP level, CLOS dependency enforcement, error type reporting when prerequisites are not met, and symmetric disable-after-enable behavior.
+Verify **dynamic enable/disable of SST-TF via TPMI** and confirm TPMI register correctness,
+bucket and status consistency, turbo behavior transition, and system stability across the
+enable → disable → enable flow.
+
+**Validation focus:**
+- TPMI register read-back consistency (`SST_TF_CONTROL`, `SST_TF_STATUS`, `SST_TF_BUCKET_N`)
+- Stable enable → disable → enable cycle via `sst_pp_control.feature_state[bit 1]`
+- OS-level confirmation via CPPC enumeration
+
+### SW Requirements
+
+| Component | Requirement |
+|-----------|-------------|
+| AcodeFW + Pcode | Required |
+| Pstate driver + Cstate driver | Required |
+| DMR SVOS | Required |
+| DMR PythonSV repository | Required |
+| Patch23 + PythonSV installed | Required |
 
 ### Pre-Conditions
 
-- SVOS booted with SST-TF capable SKU
-- BIOS SST knobs at default (TF not force-disabled)
-- CLOS programming available (io_pm_qos_config.enable_clos accessible)
-- For NWP: PP level fixed at PP0 (SST-PP is ZBB); SST-TF availability determined solely on PP0
+| Item | Requirement |
+|------|-------------|
+| Feature | SST-TF dynamic enable/disable via TPMI |
+| Platform | NWP validation target (silicon / emulation) with SST-TF (PCT) enabled |
+| BIOS | SST knobs at default; TF not force-disabled |
+| CLOS | `io_pm_qos_config.enable_clos` accessible |
+| Automation | `runPmx.py -x nwp.xml -p sst_tf -tM 60 -M 5 --retry_count 2` |
+| Category | Active PM |
 
 ### Test Steps
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Verify TF is currently disabled: read `sst_pp_status.feature_state[bit 1]` | == 0x0 (TF off) |
-| 2 | Enable TF: write `sst_pp_control.feature_state[bit 1] = 0x1` | Write accepted |
-| 3 | Check TF availability on current PP level: read `sst_tf_info_0.feature_supported` | Reports TF support for PP0 |
-| 4a | If PP does NOT support TF: verify `sst_pp_status.feature_error_type[2:0]` | == 0x1 (feature not supported by HW) |
-| 4b | If PP does NOT support TF: verify `sst_pp_status.feature_state[bit 1]` | == 0x0 (TF was NOT enabled) |
-| 5a | If PP supports TF AND `io_pm_qos_config.enable_clos == 0x1`: verify `sst_pp_status.feature_state[bit 1]` | == 0x1 (TF enabled successfully) |
-| 5b | If PP supports TF AND `io_pm_qos_config.enable_clos == 0x0`: verify `sst_pp_status.feature_error_type[2:0]` | == 0x1 (dependency not met) |
-| 5c | If PP supports TF AND CLOS disabled: verify `sst_pp_status.feature_state[bit 1]` | == 0x0 (TF not enabled due to CLOS dependency) |
-| 6 | With TF enabled, disable TF: write `sst_pp_control.feature_state[bit 1] = 0x0` | Write accepted |
-| 7 | Verify TF disabled: read `sst_pp_status.feature_state[bit 1]` | == 0x0 (TF off again) |
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|------------------------|--------------------|
+| 1 | Boot to OS. Read `SST_TF_CONTROL` (`sst_pp_control.feature_state[bit 1]`), `SST_TF_STATUS` (`sst_pp_status`), and all `SST_TF_BUCKET_N` (`sst_tf_info_*`) registers | Registers readable, non-zero, within valid range | Unreadable or zero-valued |
+| 2 | Write `sst_pp_control.feature_state[bit 1] = 0x0` (disable SST-TF) | SST-TF disabled; `sst_pp_status.feature_state[bit 1]`=0; turbo reverts to BIOS default | Status still shows enabled; turbo unchanged |
+| 3 | Write `sst_pp_control.feature_state[bit 1] = 0x1` (enable SST-TF) | SST-TF enabled; bucket restored; `sst_pp_status.feature_state[bit 1]`=1; TPMI reflects correct state | Status shows disabled; error_type mismatch |
+| 4 | Run automation: `runPmx.py -x nwp.xml -p sst_tf -tM 60 -M 5 --retry_count 2` | Automation PASS; feature behavior validated end-to-end | Script FAIL or timeout |
 
-### Pass/Fail Criteria
+> **NWP note**: PP level fixed at PP0 (SST-PP ZBB'd). If PP0 does not support SST-TF, expect
+> `sst_pp_status.feature_error_type[2:0]`=0x1 and `feature_state[bit 1]`=0 (feature not supported by HW).
+> If `io_pm_qos_config.enable_clos`=0, expect error_type=0x1 (CLOS dependency not met).
 
-- SST-TF enable/disable toggles correctly via TPMI write to `sst_pp_control.feature_state[bit 1]`
-- Error type `0x1` correctly reported when PP level does not support TF or CLOS dependency not met
-- Feature state in status register accurately reflects enable/disable outcome
-- Symmetric behavior: enable then disable returns to original disabled state
+### Health Check — Registers & Logs
+
+| Register / Log | Access | Pass/Fail Criteria |
+|---------------|--------|--------------------|
+| `sst_pp_control.feature_state[bit 1]` | `sv.socket0.cbbX.base.tpmi.sst_pp_control` | Toggles correctly on write |
+| `sst_pp_status.feature_state[bit 1]` | `sv.socket0.cbbX.base.tpmi.sst_pp_status` | Reflects active state |
+| `sst_pp_status.feature_error_type[2:0]` | `sv.socket0.cbbX.base.tpmi.sst_pp_status` | 0x0 on success; 0x1 on PP/CLOS error |
+| `sst_tf_info_0/2` (bucket N registers) | `sv.socket0.cbbX.base.tpmi.sst_tf_info_*` | Readable; non-zero; stable |
+| `MSR_TURBO_RATIO_LIMIT (0x1AD)` | `pd.debug.access_to_msr(0x1AD, core=0)` | = `sst_tf_info_2.ratio_0` when TF enabled |
+| NLOG / FW trace | PMx / firmware logs | No error-level events |
+| No hang / MCA | System status | No BIOS hang, OS hang, MCA, or soft hang |
+
+### Pass / Fail Criteria
+
+**PASS:**
+- Feature flow completes without instability
+- All TPMI registers and telemetry checks pass
+- Correct enable → disable → enable behavior observed via `sst_pp_status.feature_state`
+- Automation (`runPmx.py -x nwp.xml -p sst_tf`) completes successfully
+- No MCA, hang, or unexpected PM event
+
+**FAIL:**
+- Any MCA or system hang (BIOS/OS/soft hang)
+- TPMI register mismatch or unreadable values
+- Incorrect enable/disable behavior (`feature_state` does not reflect write)
+- Unexpected turbo/throttle state after toggle
+- Error-level events in NLOG / FW trace
+
+
 
 ---
 

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
+  <title>TC: [PSS]PCT - Default HP core selection</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:4px;}
+    .header .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+    .chip{background:rgba(255,255,255,.18);border-radius:12px;padding:2px 10px;font-size:11px;}
+    .chip.disp{background:#1565c0;font-weight:bold;}
+    a.hsd-link{color:#90caf9;font-size:11px;margin-left:8px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar button{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 18px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar button:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar button.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    .panel code{font-family:Consolas,monospace;}
+    table.md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    table.md-table th,table.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    table.md-table th{background:#e8eef7;font-weight:600;}
+    table.md-table tr:nth-child(even){background:#f8fafc;}
+    .tc-content{font-size:12.5px;}
+    .tc-content h3{color:#004a80;font-size:13px;margin:14px 0 4px;
+        background:#cce4f7;padding:8px 14px;border-left:4px solid #0071c5;border-radius:0 4px 4px 0;font-weight:bold;}
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>[PSS]PCT - Default HP core selection
+    <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/16030715686" target="_blank" rel="noopener">HSD 16030715686 ↗</a>
+  </h1>
+  <div class="chips">
+    <span class="chip">PCT (Priority Core Turbo) › </span>
+    <span class="chip disp"></span>
+    <span class="chip">Env: silicon,virtual_platform</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="active" data-tab="tc">Test Case</button>
+  <button data-tab="sec-a">A: NWP Delta</button>
+  <button data-tab="sec-b">B: Interactions</button>
+  <button data-tab="sec-c">C: Coverage</button>
+  <button data-tab="sec-d">D: Spec Refs</button>
+  <button data-tab="sec-e">E: Risks</button>
+  <button data-tab="sec-f">F: Recommendations</button>
+</div>
+
+<div class="panels">
+  <div id="tc" class="panel active tc-content">
+
+
+
+
+<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
+<br/><p style="margin:10px 0 16px 0;"><strong>Objective:</strong> Verify on PSS that the default HP core selection (first N modules per CBB, ordered, first core always HP) is correctly implemented by PCode from BIOS NVRAM. <strong>PSS Environment:</strong> VP or HSLE — validates PCode NVRAM read and TPMI programming logic. <strong>Key distinction from FV:</strong> This TC runs on a pre-silicon model (VP/HSLE). It finds firmware/RTL bugs before tape-out. FV confirms on real silicon. Not a duplicate. <strong>PASS:</strong> First core is HP; HP module count matches BIOS NVRAM; CLOS assignments are consecutive from module 0 on both CBBs. <strong>FAIL:</strong> First core is LP on PSS → PCode CLOS assignment ordering bug on model (check VP TPMI model fidelity). HP count mismatch → NVRAM read failing on VP. Save: NVRAM HP count, per-module CLOS assignments on both CBBs, HP_CORES and LP_CORES lists, first core assertion result.</p>
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Preconditions</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">VP or HSLE environment</td><td style="text-align:left;padding:8px;">PSS environment booted with PCT enabled</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">PctHpModuleCount > 0</td><td style="text-align:left;padding:8px;">NVRAM `PctHpModuleCount` set to valid value (multiple of 4)</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">pct_focus.py available</td><td style="text-align:left;padding:8px;">`import pct_focus as pctd` succeeds</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Both CBBs active</td><td style="text-align:left;padding:8px;">cbb0 and cbb1 accessible in namednodes</td></tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Test Steps</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 8px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">#</th>
+  <th style="text-align:left;padding:8px;">Action</th>
+  <th style="text-align:left;padding:8px;">Expected Result (PASS)</th>
+  <th style="text-align:left;padding:8px;">Failure Indication</th>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read `PctHpModuleCount` from NVRAM</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Valid value > 0 and multiple of 4</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Value is 0 or non-multiple — pre-condition failure</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Run `pctd.generate_core_list()` to populate HP_CORES and LP_CORES</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">HP_CORES non-empty; total = HP_CORES + LP_CORES = 96 cores (2 CBBs × 48)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">HP_CORES empty — PCT not active on PSS</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify first core (cbb0, compute0, module0, core0) is in HP_CORES</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`first_core in pctd.HP_CORES` is True</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">First core is LP — PCode CLOS ordering bug on VP model</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify HP module count matches NVRAM value</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`len(pctd.HP_CORES) // cores_per_module == PctHpModuleCount`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Count mismatch — NVRAM read failing on VP or CLOS assignment wrong</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify HP modules are the first N consecutive modules per CBB (ordered selection)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">First N modules per CBB have CLOS_ID=0 or 1 (HP); remaining have CLOS_ID=2 or 3 (LP)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Non-consecutive HP selection — PCode selection algorithm bug</td>
+</tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Pass / Fail Criteria</div>
+<br/>
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
+  <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
+  <p style="margin:0;font-size:0.9em;">** First core is HP; HP module count matches BIOS NVRAM; CLOS assignments are consecutive from module 0 on both CBBs.</p>
+</div>
+
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
+  <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
+  <p style="margin:0;font-size:0.9em;">** First core is LP on PSS → PCode CLOS assignment ordering bug on model (check VP TPMI model fidelity). HP count mismatch → NVRAM read failing on VP.</p>
+</div>
+
+
+
+
+
+
+
+
+
+<br/>
+
+
+
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
+<br/><p style="margin:10px 0;">Save: NVRAM HP count, per-module CLOS assignments on both CBBs, HP_CORES and LP_CORES lists, first core assertion result. - [PCT HAS](https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html) — PCT CLOS model, HP/LP core assignment, Ordered Throttling</p>
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">References</div>
+<br/>
+
+<ul>
+
+
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html">PCT HAS</a></li>
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html">Intel SST HAS</a></li>
+
+<li><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html">NWP PM MAS</a></li>
+
+<li><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/has/Overview/NWP_HAS.html#pm-features">NWP HAS PM</a></li>
+
+
+</ul>
+
+
+</div>
+  </div>
+  <div id="sec-a" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-b" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-c" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-d" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-e" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-f" class="panel"><p><em>Not available.</em></p></div>
+</div>
+
+<script>
+const btns  = Array.from(document.querySelectorAll('.tab-bar button'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+btns.forEach(btn => btn.addEventListener('click', () => {
+  btns.forEach(b => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const p = document.getElementById(btn.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

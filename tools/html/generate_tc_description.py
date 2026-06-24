@@ -75,14 +75,30 @@ def _section_lines(text: str, heading: str) -> list[str]:
 
 
 def _text_block(lines: list[str]) -> str:
-    """Join lines into a clean paragraph string."""
-    return " ".join(l.strip() for l in lines if l.strip() and not l.strip().startswith("|"))
+    """Join lines into a clean paragraph string, converting inline markdown."""
+    import html as _html
+    import re as _re
+    def _inline(s):
+        s = _html.escape(s)
+        s = _re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', s)
+        s = _re.sub(r'`([^`]+)`', r'<code>\1</code>', s)
+        return s
+    parts = []
+    for l in lines:
+        s = l.strip()
+        if not s or s.startswith("|") or s.startswith("---") or s.startswith("```"):
+            continue
+        if s.startswith("> "):
+            parts.append(f'<span style="display:block;background:#f0f4f9;border-left:3px solid #1a5fa8;padding:4px 10px;margin:4px 0;font-size:0.92em;color:#1e3a5f;">{_inline(s[2:].strip())}</span>')
+        else:
+            parts.append(_inline(s))
+    return " ".join(parts)
 
 
 # ─── Section extractors ───────────────────────────────────────────────────────
 
 def extract_scope(text: str) -> str:
-    for heading in ("## Test Case Intent", "### Refined Intent"):
+    for heading in ("## Test Case Intent", "### Test Case Intent", "### Intent", "### Refined Intent"):
         lines = _section_lines(text, heading)
         # stop at first sub-heading OR first bullet/dash line (preconditions / PASS/FAIL)
         trimmed = []
@@ -231,7 +247,7 @@ def extract_refs(text: str) -> tuple[list[dict], dict]:
     """Return (fr_hsd list, specs dict)."""
     fr_hsd = []
     specs  = {}
-    for heading in ("## Section D: Spec Refs", "## KB References", "### Reference Documents"):
+    for heading in ("## Section D: Spec Refs", "## KB References", "### Reference Documents", "### References", "## References"):
         lines = _section_lines(text, heading)
         for line in lines:
             # markdown link: [text](url)
@@ -349,11 +365,70 @@ def render_fallback(tc: dict, config: dict, title: str) -> str:
     return "\n".join(lines)
 
 
+def _generate_hsd_fallback(hsd_id: str, force: bool = False) -> int:
+    """Generate a minimal TC description HTML from live HSD data (no inference.md)."""
+    from hsd_utils import get_session, get_article
+    import html as _html
+
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    s = get_session()
+    a = get_article(hsd_id, fields="id,title,status,owner,description,tag", session=s)
+    title_raw = a.get("title", hsd_id)
+    slug_raw  = re.sub(r"[^a-z0-9]+", "_", title_raw.lower()).strip("_")
+    out_path  = OUTPUT_DIR / f"HSD_{hsd_id}_{slug_raw}_tc_desc.html"
+
+    if out_path.exists() and not force:
+        print(f"SKIP (exists): {out_path.name}  — use --force to overwrite")
+        return 0
+
+    desc_html = a.get("description", "") or "<p><em>No description in HSD.</em></p>"
+    title_esc = _html.escape(title_raw)
+    hsd_url   = f"https://hsdes.intel.com/appstore/article-one/#/{hsd_id}"
+
+    page = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
+  <title>TC: {title_esc}</title>
+  <style>
+    *{{box-sizing:border-box;margin:0;padding:0}}
+    body{{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}}
+    .header{{background:#0f4c81;color:#fff;padding:14px 24px;}}
+    .header h1{{font-size:18px;font-weight:600;margin-bottom:4px;}}
+    a.hsd-link{{color:#90caf9;font-size:11px;margin-left:8px;}}
+    .notice{{background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:10px 14px;
+             margin:16px 28px;font-size:12px;color:#664d03;}}
+    .content{{max-width:1100px;margin:20px auto;padding:0 28px 40px;
+              background:#fff;border:1px solid #d9e2ec;border-radius:8px;}}
+    .content {{padding:22px 26px;line-height:1.6;font-size:13px;}}
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>{title_esc}
+    <a class="hsd-link" href="{hsd_url}" target="_blank" rel="noopener">HSD {hsd_id} ↗</a>
+  </h1>
+</div>
+<div class="notice">ⓘ <b>HSD-live fallback</b> — no KB inference.md found for this TC.
+  Showing current HSD description. Add an inference.md to get tabbed deep-analysis output.</div>
+<div class="content">
+{desc_html}
+</div>
+</body>
+</html>"""
+
+    out_path.write_text(page, encoding="utf-8")
+    print(f"GENERATED [HSD-live]: {out_path}")
+    return 0
+
+
 def generate(hsd_id: str, force: bool = False) -> int:
     inf = find_inference_file(hsd_id)
     if not inf:
-        print(f"ERROR: no inference.md found for HSD {hsd_id} in {CACHE_ROOT}")
-        return 1
+        return _generate_hsd_fallback(hsd_id, force)
 
     text  = inf.read_text(encoding="utf-8", errors="replace")
     slug  = inf.stem.replace(".inference", "")

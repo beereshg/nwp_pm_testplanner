@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
+  <title>TC: PCT - BIOS Menu</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:4px;}
+    .header .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+    .chip{background:rgba(255,255,255,.18);border-radius:12px;padding:2px 10px;font-size:11px;}
+    .chip.disp{background:#1565c0;font-weight:bold;}
+    a.hsd-link{color:#90caf9;font-size:11px;margin-left:8px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar button{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 18px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar button:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar button.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    .panel code{font-family:Consolas,monospace;}
+    table.md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    table.md-table th,table.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    table.md-table th{background:#e8eef7;font-weight:600;}
+    table.md-table tr:nth-child(even){background:#f8fafc;}
+    .tc-content{font-size:12.5px;}
+    .tc-content h3{color:#004a80;font-size:13px;margin:14px 0 4px;
+        background:#cce4f7;padding:8px 14px;border-left:4px solid #0071c5;border-radius:0 4px 4px 0;font-weight:bold;}
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>PCT - BIOS Menu
+    <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022422100" target="_blank" rel="noopener">HSD 22022422100 ↗</a>
+  </h1>
+  <div class="chips">
+    <span class="chip">SST › PCT — BIOS Setup knob visibility, defaults, and range validation</span>
+    <span class="chip disp">Rejected</span>
+    <span class="chip">Env: virtual_platform</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="active" data-tab="tc">Test Case</button>
+  <button data-tab="sec-a">A: NWP Delta</button>
+  <button data-tab="sec-b">B: Interactions</button>
+  <button data-tab="sec-c">C: Coverage</button>
+  <button data-tab="sec-d">D: Spec Refs</button>
+  <button data-tab="sec-e">E: Risks</button>
+  <button data-tab="sec-f">F: Recommendations</button>
+</div>
+
+<div class="panels">
+  <div id="tc" class="panel active tc-content">
+
+
+
+
+<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
+<br/><p style="margin:10px 0 16px 0;">Verify that the BIOS Setup menu exposes correct PCT configuration knobs with proper defaults and value ranges, as specified in PCT HAS Table 4. Specific checks:</p>
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Preconditions</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;padding:8px;">NWP with BIOS exposing PCT knobs; CAPID4.bit29=1</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Access</td><td style="text-align:left;padding:8px;">BIOS Setup menu access (not UEFI shell)</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">SST-TF fused</td><td style="text-align:left;padding:8px;">PCT_Module_Mask fuse set (silicon must support PCT)</td></tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Test Steps</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 8px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">#</th>
+  <th style="text-align:left;padding:8px;">Action</th>
+  <th style="text-align:left;padding:8px;">Expected Result (PASS)</th>
+  <th style="text-align:left;padding:8px;">Failure Indication</th>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Enter BIOS Setup menu on NWP platform with PCT capability (CAPID4.bit29=1)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">BIOS Setup menu accessible; no hang</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">BIOS hang or inaccessible</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Navigate to PCT/SST knob section; verify PCT Partition Count knob is present (replaces standalone PCT Enable)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PCT Partition Count knob visible with options 0 / 2 / 4; default = 4</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Knob absent or default != 4</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify PCT Core Selection knob is present with Auto/Manual options; default = Auto</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Knob present; default = Auto</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Knob absent or wrong default</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Set PCT Partition Count to a non-default value; save and reboot</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Setting persists after reboot; TPMI SST_CLOS_ASSOC reflects new HP count</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Setting reverts or TPMI mismatch</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify that SST-PP and DLCP cross-product knobs are absent (ZBB'd on NWP)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">No SST-PP × PCT knob; no DLCP knob in menu</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Stale DMR knobs present</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Set PCT Partition Count = 0 (disabled); verify PCT inactive after reboot</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PCT disabled; SST_CP_CONTROL.sst_cp_enable = 0</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PCT still active</td>
+</tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Pass / Fail Criteria</div>
+<br/>
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
+  <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
+  <p style="margin:0;font-size:0.9em;">All PCT knobs present when CAPID4.bit29=1; defaults match HAS; valid ranges accepted; knobs hidden when not capable</p>
+</div>
+
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
+  <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
+  <p style="margin:0;font-size:0.9em;">Missing knobs on capable platform; wrong defaults; invalid range accepted; knobs visible on incapable platform</p>
+</div>
+
+
+
+
+
+<h3>NOTEs</h3>
+<div style="font-size:0.85em;color:#555;margin-left:12px;padding:10px;background:#f8f9fa;border-left:3px solid #999;border-radius:3px;">
+
+<p style="margin:6px 0;">"PCT Enable" standalone knob absent on NWP BIOS — NWP integrates it into Partition Count</p>
+
+<p style="margin:6px 0;">SST-PP cross-product knobs in test — SST-PP ZBB'd — Causes test failure on NWP</p>
+
+<p style="margin:6px 0;">PCT Partition Count default = 4 on NWP (not 0) — Expected default differs from DMR</p>
+
+<p style="margin:6px 0;">DLCP knob checks fail (not present on NWP) — Remove DLCP from test scope</p>
+
+<p style="margin:6px 0;">MSR 0x1AD 0xFF — NWP BIOS must use RATIO_0 — Validate explicitly; 0xFF causes issues</p>
+
+</div>
+
+
+
+
+<h3>OPENs</h3>
+<div style="font-size:0.85em;color:#c62828;margin-left:12px;padding:10px;background:#fff3f3;border-left:3px solid #c62828;border-radius:3px;">
+<ul style="margin:4px 0;padding-left:20px;">
+
+<li style="margin:4px 0;">"PCT Enable" standalone knob absent on NWP BIOS → NWP integrates it into Partition Count</li>
+
+<li style="margin:4px 0;">SST-PP cross-product knobs in test — SST-PP ZBB'd → Causes test failure on NWP</li>
+
+<li style="margin:4px 0;">PCT Partition Count default = 4 on NWP (not 0) → Expected default differs from DMR</li>
+
+<li style="margin:4px 0;">MSR 0x1AD 0xFF — NWP BIOS must use RATIO_0 → Validate explicitly; 0xFF causes issues</li>
+
+</ul>
+</div>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Health Check — Registers &amp; Logs to Collect</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">Register / Log</th>
+  <th style="text-align:left;padding:8px;">Access</th>
+  <th style="text-align:left;padding:8px;">Pass/Fail Criteria</th>
+</tr>
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">PCT HAS Table 4 (BIOS knobs)</td>
+  <td style="text-align:left;padding:8px;">[PCT HAS](https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html)</td>
+  <td style="text-align:left;padding:8px;"></td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">NWP PM MAS</td>
+  <td style="text-align:left;padding:8px;">[NWP IMH SoC PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)</td>
+  <td style="text-align:left;padding:8px;"></td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">MSR 0x1AD 0xFF bug</td>
+  <td style="text-align:left;padding:8px;">[HSD 14025997048](https://hsdes.intel.com/appstore/article-one/#/14025997048)</td>
+  <td style="text-align:left;padding:8px;"></td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">PCT KB article</td>
+  <td style="text-align:left;padding:8px;">[KB/pm_features/sst/pct.md](../../../pm_features/sst/pct.md)</td>
+  <td style="text-align:left;padding:8px;"></td>
+</tr>
+
+
+</table>
+
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
+<br/><p style="margin:10px 0;">N/A</p>
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">References</div>
+<br/>
+
+<ul>
+
+
+<li><a href="https://hsdes.intel.com/appstore/article-one/#/14025997048">HSD 14025997048</a> — HSD 14025997048</li>
+
+
+
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html">PCT HAS</a></li>
+
+<li><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html">NWP IMH SoC PM MAS</a></li>
+
+
+</ul>
+
+
+</div>
+  </div>
+  <div id="sec-a" class="panel"><p>**Disposition: Rejected** — BIOS Menu test is platform-specific (BIOS setup structure) and was found to not apply to NWP as written.</p>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>PCT capability</td>
+<td>✅</td>
+<td>✅ PCT functional</td>
+<td>PCT itself not ZBB&#x27;d</td>
+</tr>
+<tr>
+<td>Standalone &quot;PCT Enable&quot; knob</td>
+<td>✅ Present</td>
+<td>⚠️ **Eliminated** — integrated into PCT Partition Count</td>
+<td>Test fails if looking for separate Enable knob</td>
+</tr>
+<tr>
+<td>PCT Partition Count default</td>
+<td>0 (disabled)</td>
+<td>**4 on NWP** (auto-enabled when fused)</td>
+<td>Default value check must use NWP value</td>
+</tr>
+<tr>
+<td>HP Cores on NWP</td>
+<td>Varies</td>
+<td>**8** (2 per partition × 4 partitions on 96-core NWP)</td>
+<td>Fixed count</td>
+</tr>
+<tr>
+<td>SST-PP × PCT knob cross-product</td>
+<td>Present</td>
+<td>**N/A** — SST-PP ZBB&#x27;d on NWP</td>
+<td>Remove PP-related knob verification</td>
+</tr>
+<tr>
+<td>DLCP knobs</td>
+<td>May be exposed</td>
+<td>**Not applicable** on NWP (DLCP-specific)</td>
+<td>Skip DLCP knob check</td>
+</tr>
+<tr>
+<td>CBB topology knobs</td>
+<td>4 CBBs × 32 cores</td>
+<td>2 CBBs × 48 cores</td>
+<td>Partition algorithm differs</td>
+</tr>
+</tbody></table>
+<p>The HSD is marked rejected. Most likely reasons:</p>
+<p>1. **SST-PP cross-product knobs**: Original test likely verifies BIOS knobs combining PCT + SST-PP levels. SST-PP is ZBB&#x27;d on NWP.</p>
+<p>2. **&quot;PCT Enable&quot; knob eliminated**: NWP BIOS may not have a standalone PCT Enable knob — it&#x27;s integrated into Partition Count.</p>
+<p>3. **DLCP-specific knobs**: Not applicable on NWP.</p>
+<p>4. **BIOS setup path changed**: Exact menu path may differ between DMR and NWP BIOS.</p>
+<p>PCT itself **is** functional on NWP — the BIOS menu test was rejected because the DMR-specific BIOS menu structure doesn&#x27;t directly map.</p>
+<p>---</p></div>
+  <div id="sec-b" class="panel"><pre><code>
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       PCT BIOS Menu Validation Flow                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Phase         │ BIOS           │ Fuses        │ TPMI          │ PCode       │
+├───────────────┼────────────────┼──────────────┼───────────────┼─────────────┤
+│ 1. Boot       │ Read PCT fuses │◄────────────│               │             │
+│               │ (PCT_ENABLE,   │ PCT_ENABLE   │               │             │
+│               │  partition cap)│ PCT_Module_  │               │             │
+│               │                │ Mask         │               │             │
+├───────────────┼────────────────┼──────────────┼───────────────┼─────────────┤
+│ 2. Setup Menu │ Present knobs  │              │               │             │
+│               │ (PCT Partition │              │               │             │
+│               │  Count, HP     │              │               │             │
+│               │  Cores/Part)   │              │               │             │
+├───────────────┼────────────────┼──────────────┼───────────────┼─────────────┤
+│ 3. User       │ User selects   │              │               │             │
+│    Config     │ PCT options    │              │               │             │
+├───────────────┼────────────────┼──────────────┼───────────────┼─────────────┤
+│ 4. Apply      │ Write SST-TF   │              │◄──────────────│             │
+│               │ TPMI registers │              │ SST_CLOS_*    │             │
+│               │                │              │ SST_PP_CTRL   │             │
+├───────────────┼────────────────┼──────────────┼───────────────┼─────────────┤
+│ 5. Runtime    │                │              │ Read TPMI    ─┼────────────►│
+│               │                │              │               │ Enforce     │
+│               │                │              │               │ CLOS limits │
+└───────────────┴────────────────┴──────────────┴───────────────┴─────────────┘
+</code></pre>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Actor</th>
+<th>Action</th>
+<th>Target</th>
+<th>Expected Result</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Test Framework</td>
+<td>Enter BIOS Setup</td>
+<td>BIOS</td>
+<td>Setup menu displayed</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Test Framework</td>
+<td>Navigate to PCT section</td>
+<td>BIOS Menu</td>
+<td>PCT section found under Processor Configuration</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Test Framework</td>
+<td>Enumerate PCT knobs</td>
+<td>BIOS Menu</td>
+<td>PCT Partition Count, HP Cores present</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Test Framework</td>
+<td>Verify defaults</td>
+<td>BIOS Menu</td>
+<td>Partition Count = 4, HP Cores = 2</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Test Framework</td>
+<td>Change PCT Partition Count to 2</td>
+<td>BIOS Menu</td>
+<td>Value accepted</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Test Framework</td>
+<td>Save and reset</td>
+<td>BIOS</td>
+<td>System resets</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Test Framework</td>
+<td>Re-enter Setup</td>
+<td>BIOS</td>
+<td>Menu displayed</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Test Framework</td>
+<td>Verify PCT Partition Count</td>
+<td>BIOS Menu</td>
+<td>Value persists as 2</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Test Framework</td>
+<td>Restore default</td>
+<td>BIOS Menu</td>
+<td>Partition Count = 4</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-c" class="panel"><table class="md-table"><thead><tr>
+<th>Coverage Area</th>
+<th>DMR Coverage</th>
+<th>NWP Applicable</th>
+<th>Gap</th>
+</tr></thead><tbody>
+<tr>
+<td>PCT knob visibility (CAPID4 gating)</td>
+<td>✅</td>
+<td>✅</td>
+<td>Path change only</td>
+</tr>
+<tr>
+<td>PCT Core Count defaults and ranges</td>
+<td>✅</td>
+<td>⚠️ Default=4 on NWP</td>
+<td>Update expected default</td>
+</tr>
+<tr>
+<td>PCT Core Select mode</td>
+<td>✅</td>
+<td>✅</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>Standalone &quot;PCT Enable&quot; knob</td>
+<td>✅</td>
+<td>❌ Eliminated on NWP</td>
+<td>Remove from test</td>
+</tr>
+<tr>
+<td>SST-PP × PCT cross-product knobs</td>
+<td>✅</td>
+<td>❌ SST-PP ZBB&#x27;d</td>
+<td>Remove</td>
+</tr>
+<tr>
+<td>DLCP knobs</td>
+<td>✅</td>
+<td>❌ Not on NWP</td>
+<td>Remove</td>
+</tr>
+<tr>
+<td>MSR 0x1AD override validation</td>
+<td>✅</td>
+<td>✅</td>
+<td>Same rule (not 0xFF)</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-d" class="panel"><table class="md-table"><thead><tr>
+<th>Reference</th>
+<th>Link</th>
+</tr></thead><tbody>
+<tr>
+<td>PCT HAS Table 4 (BIOS knobs)</td>
+<td>[PCT HAS](https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html)</td>
+</tr>
+<tr>
+<td>NWP PM MAS</td>
+<td>[NWP IMH SoC PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)</td>
+</tr>
+<tr>
+<td>MSR 0x1AD 0xFF bug</td>
+<td>[HSD 14025997048](https://hsdes.intel.com/appstore/article-one/#/14025997048)</td>
+</tr>
+<tr>
+<td>PCT KB article</td>
+<td>[KB/pm_features/sst/pct.md](../../../pm_features/sst/pct.md)</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-e" class="panel"><table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>&quot;PCT Enable&quot; standalone knob absent on NWP BIOS</td>
+<td>High</td>
+<td>NWP integrates it into Partition Count</td>
+</tr>
+<tr>
+<td>2</td>
+<td>SST-PP cross-product knobs in test — SST-PP ZBB&#x27;d</td>
+<td>High</td>
+<td>Causes test failure on NWP</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PCT Partition Count default = 4 on NWP (not 0)</td>
+<td>Medium</td>
+<td>Expected default differs from DMR</td>
+</tr>
+<tr>
+<td>4</td>
+<td>DLCP knob checks fail (not present on NWP)</td>
+<td>Low</td>
+<td>Remove DLCP from test scope</td>
+</tr>
+<tr>
+<td>5</td>
+<td>MSR 0x1AD 0xFF — NWP BIOS must use RATIO_0</td>
+<td>High</td>
+<td>Validate explicitly; 0xFF causes issues</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-f" class="panel"><p>**Rejected — BIOS Menu test requires significant rewrite for NWP.**</p>
+<p>To re-open for NWP:</p>
+<p>1. Remove &quot;PCT Enable&quot; standalone knob check (integrated into Partition Count on NWP)</p>
+<p>2. Remove SST-PP × PCT cross-product knob checks (SST-PP ZBB&#x27;d)</p>
+<p>3. Remove DLCP knob checks (not applicable on NWP)</p>
+<p>4. Update PCT Core Count default: DMR=0 → NWP=4</p>
+<p>5. Validate MSR 0x1AD = `SST_TF_INFO_2.RATIO_0` (not 0xFF, per HSD 14025997048)</p>
+<p>6. Update BIOS menu navigation path for NWP BIOS structure</p>
+<p>---</p></div>
+</div>
+
+<script>
+const btns  = Array.from(document.querySelectorAll('.tab-bar button'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+btns.forEach(btn => btn.addEventListener('click', () => {
+  btns.forEach(b => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const p = document.getElementById(btn.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

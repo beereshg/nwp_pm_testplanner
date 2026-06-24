@@ -24,31 +24,62 @@
 
 ## Test Case Intent
 
-SW divides all available "processors" into N partitions (default N=4). The first processor in each partition is configured as the PCT HP (High Priority) core. This test verifies the default HP core selection algorithm produces the correct set of HP cores and CLOS assignments on NWP's 96-core topology.
+Verify that the default **PCT high-priority (HP) core selection algorithm** produces the correct HP core set, CLOS mapping, and HP/LP frequency policy on NWP. PCT divides available logical processors into N partitions; for the configured partition count, the platform selects default HP cores per the architectural PCT selection rule and programs the corresponding CLOS associations and CLOS frequency ceilings.
+
+**Focus**: default HP core selection and discovery -- not workload-based performance validation.
 
 ### Pre-Conditions
 
-- PCT enabled via BIOS knob (PCT Partition Count ≥ 1; default = 4)
-- SST-TF active (`SST_PP_CONTROL.feature_state[1] = 1`)
-- All cores online (no BIST failures, no OS offlines)
+| Item | Requirement |
+|------|-------------|
+| 1 | PCT enabled via BIOS / platform policy (PCT Partition Count >= 1; default = 4) |
+| 2 | SST-TF active (SST_PP_CONTROL.feature_state[1] = 1) |
+| 3 | All logical processors online and available for discovery |
+| 4 | No defeatured / offline cores that invalidate expected partition topology |
+| 5 | TPMI and architectural register read path available |
 
 ### Test Steps
 
-| Step | Action | Expected Result |
-|------|--------|-----------------|
-| 1 | Boot with PCT Partition Count = 4 (default) | System boots with SST-TF/PCT active |
-| 2 | Read total available logical processors | 96 (NWP: 2 CBBs × 48, no SMT) |
-| 3 | Compute expected partitions: 96 ÷ 4 = 24 cores/partition | 4 partitions of 24 cores each |
-| 4 | Identify expected HP cores: first core of each partition | Cores at indices 0, 24, 48, 72 (or 2 per partition = 8 total per CCB 14026595435) |
-| 5 | Read `SST_CLOS_ASSOC` for each logical processor | HP cores → CLOS[0], LP cores → CLOS[3] |
-| 6 | Verify HP core CLOS config | `SST_CLOS_CONFIG[0].max = SST_TF_INFO_2.RATIO_0` (HP TRL) |
-| 7 | Verify LP core CLOS config | `SST_CLOS_CONFIG[3].max = SST_TF_INFO_0.LP_CLIP_RATIO_0` (~P1) |
-| 8 | Read MSR 0x1AD on HP cores | Overridden with HP TRL ratio |
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|------------------------|--------------------|
+| 1 | Boot with default PCT Partition Count = 4 | Platform boots with PCT / SST-TF active | PCT not active or SST-TF not enabled |
+| 2 | Read total available logical processors | NWP: 96 (2 CBBs x 48, no SMT) | Unexpected count or topology mismatch |
+| 3 | Compute expected partition size: total LPs / partition count | NWP default: 96 / 4 = 24 cores/partition | Partition computation inconsistent |
+| 4 | Derive expected HP core indices per architectural selection rule | Per NWP product req (HSD 14026595435): 8 HP cores total (2/partition x 4 partitions) | Derived HP set does not match platform-programmed result |
+| 5 | Read SST_CLOS_ASSOC for all logical processors | HP cores -> CLOS[0]; LP cores -> CLOS[3] | Incorrect CLOS assignment |
+| 6 | Read HP CLOS config: SST_CLOS_CONFIG[0].max | = SST_TF_INFO_2.RATIO_0 (~4.4 GHz HP TRL) | HP CLOS max ratio incorrect |
+| 7 | Read LP CLOS config: SST_CLOS_CONFIG[3].max | = SST_TF_INFO_0.LP_CLIP_RATIO_0 (~P1) | LP CLOS max ratio incorrect |
+| 8 | Read IA32_HWP_CAPABILITIES per core | HP cores: highest_perf = P0max; LP cores: highest_perf = LP clip | HP/LP distinction not visible |
+| 9 | Read MSR 0x1AD (if applicable) | HP TRL broadcast = SST_TF_INFO_2.RATIO_0 (not 0xFF per HSD 14025997048) | Incorrect or 0xFF value |
+
+> **NWP authoritative HP count**: 8 HP cores per product requirement (HSD 14026595435) -- if nominal formula (96/4 = 1 HP/partition = 4 HP) differs, product requirement takes precedence.
+
+> **DLCP**: if SST_TF_INFO_10 is non-zero, fused HP mask governs -- SST_CLOS_ASSOC may not be sole source.
 
 ### Pass / Fail Criteria
 
-- **PASS**: Correct number of HP cores selected per partition; CLOS assignments match HP/LP segmentation; HP cores report elevated TRL
-- **FAIL**: Wrong HP core count, incorrect CLOS mapping, or LP cores not clipped
+**PASS**: PCT active; SST-TF enabled; HP core count matches product requirement; HP -> CLOS[0] and LP -> CLOS[3] assignments correct; HP CLOS max = SST_TF_INFO_2.RATIO_0; LP CLOS max = LP_CLIP; HP cores expose elevated turbo vs LP.
+
+**FAIL**: PCT not active; wrong HP count; incorrect CLOS mapping; HP or LP CLOS ratios wrong; HP cores do not show elevated capability vs LP.
+
+### Health Checks — Registers to Collect
+
+| Register | Purpose |
+|----------|---------|
+| SST_PP_CONTROL.feature_state[1] | SST-TF active state |
+| SST_CP_CONTROL | PCT enable / policy |
+| SST_CLOS_ASSOC[all cores] | HP/LP to CLOS mapping |
+| SST_CLOS_CONFIG[0].max | HP TRL ceiling |
+| SST_CLOS_CONFIG[3].max | LP clip ceiling |
+| SST_TF_INFO_0.LP_CLIP_RATIO_0 | LP clip source |
+| SST_TF_INFO_2.RATIO_0 | HP TRL source |
+| SST_TF_INFO_10 | DLCP mask (non-zero = fused HP positions) |
+| IA32_HWP_CAPABILITIES (0x771) | Per-core highest_perf |
+| MSR 0x1AD | HP TRL broadcast |
+
+### Post-Process
+
+Archive: logical processor list, HP/LP classification, TPMI register dumps (SST_CLOS_ASSOC, SST_CLOS_CONFIG, SST_CP_CONTROL, SST_PP_CONTROL, SST_TF_INFO_0/2/10), per-core HWP capability output.
 
 ---
 

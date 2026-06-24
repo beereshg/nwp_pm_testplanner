@@ -56,7 +56,12 @@ def md_bullets(lines: list[str]) -> str:
     if not items:
         return ""
     LI = 'style="margin:5px 0;line-height:1.5;"'
-    return '<ul style="margin:10px 0;padding-left:25px;">' + "".join(f"<li {LI}>{_h.escape(i)}</li>" for i in items) + "</ul>"
+    def _inline(s: str) -> str:
+        s = _h.escape(s)
+        s = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', s)
+        s = re.sub(r'`([^`]+)`', r'<code style="font-family:Consolas,monospace;font-size:0.9em;">\1</code>', s)
+        return s
+    return '<ul style="margin:10px 0;padding-left:25px;">' + "".join(f"<li {LI}>{_inline(i)}</li>" for i in items) + "</ul>"
 
 
 def parse_block(text: str, heading: str) -> list[str]:
@@ -105,9 +110,19 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
     def bullet_lines(block):
         return [l for l in block if l.strip().startswith(("- ", "* "))]
 
+    def _convert_inline_md(s: str) -> str:
+        """Convert inline markdown (bold, code) in an already HTML-escaped string."""
+        s = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', s)
+        s = re.sub(r'`([^`]+)`', r'<code style="font-family:Consolas,monospace;font-size:0.9em;">\1</code>', s)
+        return s
+
     def text_para(block):
-        parts = [l.strip() for l in block if l.strip() and not l.strip().startswith(("#", "|", "-", "*", "```"))]
-        return f'<p style="margin:10px 0 12px;line-height:1.6;">{_h.escape(" ".join(parts))}</p>' if parts else ""
+        parts = [l.strip() for l in block if l.strip() and not l.strip().startswith(("#", "|", "- ", "* ", "```")) and not re.match(r'^\d+[.)\s]', l.strip())]
+        if not parts:
+            return ""
+        # Convert markdown per-line (before joining) to avoid cross-line bold matching issues
+        converted = [_convert_inline_md(_h.escape(p)) for p in parts]
+        return f'<p style="margin:10px 0 12px;line-height:1.6;">{" ".join(converted)}</p>'
 
     # --- Section 1: Architecture
     # Support both "What is PCT" (older style) and "Architecture / Micro-arch" (new style)
@@ -118,25 +133,72 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
 
     # For richer Architecture blocks, render the full block as markdown
     if what_block and len(what_block) > 10:
-        pre_lines, table_lines_all, bullet_lines_all = [], [], []
+        arch_extra = ""
         in_pre = False
+        pre_buf = []
+        current_tbl = []
+        bullet_lines_all = []
+        ol_lines = []
+
+        def flush_table(tbl):
+            if not tbl:
+                return ""
+            return md_table(tbl)
+
         for l in what_block:
             s = l.strip()
             if s.startswith("```"):
+                if in_pre:
+                    arch_extra += f'<pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">{_h.escape(chr(10).join(pre_buf))}</pre>'
+                    pre_buf = []
                 in_pre = not in_pre
             elif in_pre:
-                pre_lines.append(l)
+                pre_buf.append(l)
             elif s.startswith("|"):
-                table_lines_all.append(l)
-            elif s.startswith(("- ", "* ")):
-                bullet_lines_all.append(l)
-        arch_extra = ""
-        if pre_lines:
-            arch_extra += f'<pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">{_h.escape(chr(10).join(pre_lines))}</pre>'
-        if table_lines_all:
-            arch_extra += md_table(table_lines_all)
+                current_tbl.append(l)
+            else:
+                # Flush pending table when non-table line encountered
+                if current_tbl:
+                    arch_extra += flush_table(current_tbl)
+                    current_tbl = []
+                if s.startswith(("- ", "* ")):
+                    if ol_lines:
+                        arch_extra += '<ol style="margin:6px 0 10px 16px;line-height:1.7;">'
+                        for ol_l in ol_lines:
+                            arch_extra += f'<li>{_h.escape(re.sub(r"^\d+[.)\s]+","",ol_l.strip()))}</li>'
+                        arch_extra += '</ol>'
+                        ol_lines = []
+                    bullet_lines_all.append(l)
+                elif re.match(r'^\d+[.)]\s', s):
+                    if bullet_lines_all:
+                        arch_extra += md_bullets(bullet_lines_all)
+                        bullet_lines_all = []
+                    ol_lines.append(s)
+                elif s.startswith("### "):
+                    # Sub-heading within Architecture — flush buffers then render as h3
+                    if current_tbl:
+                        arch_extra += flush_table(current_tbl)
+                        current_tbl = []
+                    if bullet_lines_all:
+                        arch_extra += md_bullets(bullet_lines_all)
+                        bullet_lines_all = []
+                    if ol_lines:
+                        arch_extra += '<ol style="margin:6px 0 10px 16px;line-height:1.7;">'
+                        for ol_l in ol_lines:
+                            arch_extra += f'<li>{_h.escape(re.sub(r"^\d+[.)\s]+","",ol_l.strip()))}</li>'
+                        arch_extra += '</ol>'
+                        ol_lines = []
+                    arch_extra += h3(s.lstrip("# ").strip())
+        # Flush any remaining
+        if current_tbl:
+            arch_extra += flush_table(current_tbl)
         if bullet_lines_all:
             arch_extra += md_bullets(bullet_lines_all)
+        if ol_lines:
+            arch_extra += '<ol style="margin:6px 0 10px 16px;line-height:1.7;">'
+            for ol_l in ol_lines:
+                arch_extra += f'<li>{_h.escape(re.sub(r"^\d+[.)\s]+","",ol_l.strip()))}</li>'
+            arch_extra += '</ol>'
     else:
         arch_extra = ""
     freq_tbl   = md_table(table_lines(parse_block(kb_text, "Frequency Hierarchy") or parse_block(kb_text, "Frequency Hierarchy")))
@@ -154,62 +216,92 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
         (h3("BIOS Knobs") + bios_tbl if bios_tbl else "") +
         (h3("NWP vs DMR Delta") + dmr_tbl if dmr_tbl else ""))
 
-    # --- Section 2: Interfaces
-    disc_block = parse_block(kb_text, "Interfaces and Protocols")
-    body2 = h3("Discovery Registers") + (md_table(table_lines(disc_block)) or "")
+    def render_block_generic(block, fallback=""):
+        """Render a KB section block generically: pre-blocks, tables, bullets, paragraphs.
+        Handles multiple tables and sub-headings (###) in order — each ### flushes pending content."""
+        if not block:
+            return fallback
 
-    # --- Section 3: Reset
-    body3 = (f'<div {BOX}><ul style="margin:0;padding-left:20px;line-height:1.8;">'
-        "<li>PCT CLOS state is not retained across reset; must be reprogrammed at every boot</li>"
-        "<li>PrimeCode reads SST_TF fuses at reset Phase 5 → writes SST_TF_INFO_0/2/10</li>"
-        "<li>BIOS reprogram SST_CLOS_CONFIG/ASSOC, SST_CP_CONTROL, MSR 0x1AD after each boot</li>"
-        "</ul></div>")
+        def _inline(s):
+            s = _h.escape(s)
+            s = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', s)
+            s = re.sub(r'`([^`]+)`', r'<code style="font-family:Consolas,monospace;font-size:0.9em;">\1</code>', s)
+            return s
+
+        out = ""
+        in_pre, pre_buf = False, []
+        cur_tbl, cur_bul = [], []
+
+        def flush_tbl():
+            nonlocal cur_tbl
+            if cur_tbl:
+                out_tbl = md_table(cur_tbl)
+                cur_tbl = []
+                return out_tbl
+            return ""
+
+        def flush_bul():
+            nonlocal cur_bul
+            if cur_bul:
+                o = md_bullets(cur_bul)
+                cur_bul = []
+                return o
+            return ""
+
+        for l in block:
+            s = l.strip()
+            if s.startswith("```"):
+                out += flush_tbl() + flush_bul()
+                if in_pre:
+                    out += f'<pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">{_h.escape(chr(10).join(pre_buf))}</pre>'
+                    pre_buf, in_pre = [], False
+                else:
+                    in_pre = True
+            elif in_pre:
+                pre_buf.append(l)
+            elif s.startswith("|"):
+                out += flush_bul()
+                cur_tbl.append(l)
+            elif s.startswith(("- ", "* ")):
+                out += flush_tbl()
+                cur_bul.append(l)
+            elif s.startswith("### "):
+                out += flush_tbl() + flush_bul()
+                out += h3(s.lstrip("# ").strip())
+            elif s and not s.startswith("#"):
+                out += flush_tbl() + flush_bul()
+                out += f'<p style="margin:6px 0 10px;line-height:1.6;">{_inline(s)}</p>'
+
+        out += flush_tbl() + flush_bul()
+        return out or fallback
+
+    NOT_APPLICABLE = f'<div {BOX}><p style="color:#666;font-style:italic;margin:0;">Not applicable — see feature context in Section 1.</p></div>'
+
+    # --- Section 2: Interfaces and Protocols
+    disc_block = parse_block(kb_text, "Interfaces and Protocols")
+    body2 = render_block_generic(disc_block, NOT_APPLICABLE)
+
+    # --- Section 3: Reset, Power, and Clocking
+    reset_block = parse_block(kb_text, "Reset, Power") or parse_block(kb_text, "Reset")
+    body3 = render_block_generic(reset_block, NOT_APPLICABLE)
 
     # --- Section 4: Programming Model
     prog_block = parse_block(kb_text, "Programming Model")
     enab_tbl   = md_table(table_lines(prog_block))
-    enab_pre   = ('<pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);'
-        'padding:15px;font-family:Consolas,monospace;font-size:0.88em;white-space:pre-wrap;">'
-        'Boot sequence: PrimeCode Phase 5 \u2192 BIOS CPL3 CLOS programming \u2192 MSR 0x1AD override\n'
-        'HP selection (NWP): 96 cores \u00f7 4 partitions = 24/partition; first 2 cores = HP \u21d2 8 HP total\n'
-        'Note: MSR 0x1AD must be SST_TF_INFO_2.RATIO_0 (0xFF invalid, HSD 14025997048)</pre>')
-    body4 = h3("Enabling Path") + enab_pre + enab_tbl
+    body4 = render_block_generic(prog_block, NOT_APPLICABLE)
 
-    # --- Section 5: Operational Behavior (normal flow, not TC table)
-    body5 = (f'<div {BOX}>'
-        '<p style="font-weight:bold;margin-bottom:8px;">Normal Operating Flow</p>'
-        '<ol style="margin:0;padding-left:20px;line-height:1.9;">'
-        '<li>BIOS activates PCT before OS handoff (if PCT Partition Count &gt; 0): '
-        'programs CLOS registers, MSR 0x1AD override.</li>'
-        '<li>OS/VMM reads <code>SST_HEADER.CAPABILITY_MASK</code> to confirm PCT is active.</li>'
-        '<li>OS/VMM discovers HP vs LP core assignment via '
-        '<code>SST_CLOS_ASSOC</code>, <code>IA32_HWP_CAPABILITIES (0x771)</code>, or Intel SST tool.</li>'
-        '<li>OS/VMM affinitizes high-priority (GPU-serving) workloads to HP cores.</li>'
-        '<li>PCode enforces CLOS-based frequency limits at runtime (standard SST-TF flow &mdash; '
-        'no PCT-specific Pcode logic).</li>'
-        '<li>Optional runtime reconfiguration: Intel SST tool can reassign HP/LP cores '
-        'or disable PCT without reboot.</li>'
-        '</ol>'
-        '</div>'
-        '<p style="margin:12px 0 4px;"><b>Entry conditions:</b> PCT Partition Count &gt; 0; '
-        'SST-TF enabled; CAPID4.bit29 not required on DMR/NWP.</p>'
-        '<p style="margin:4px 0 4px;"><b>Exit / disable:</b> Set PCT Partition Count = 0 (requires '
-        'warm reset). Or use Intel SST tool for runtime disable (no reset needed).</p>'
-        '<p style="margin:4px 0;"><b>Virtualization note:</b> PCT is SoC-wide; once SST-TF is active, '
-        'all non-HP cores are LP-clipped regardless of VM boundaries.</p>')
+    # --- Section 5: Operational Behavior
+    ops_block = parse_block(kb_text, "Operational Behavior")
+    body5 = render_block_generic(ops_block, NOT_APPLICABLE)
 
-    # --- Sections 6–8 (compact)
-    body6 = (f'<div {BOX}><ul style="margin:0;padding-left:20px;line-height:1.8;">'
-        "<li>PCT Partition Count = 0 \u2192 conventional turbo fallback</li>"
-        "<li>Uneven core count: surplus PCT cores become LP (not HP)</li>"
-        "<li>DLCP SKU: SST_CLOS_ASSOC is ignored; Pcode uses PCT_Module_Mask fuse exclusively</li>"
-        "<li>Mutex: SST-BF + PCT both enabled = DQ rule violation</li>"
-        "</ul></div>")
-    body7 = (f'<div {BOX}><ul style="margin:0;padding-left:20px;line-height:1.8;">'
-        "<li>PCT is SoC-wide: non-HP cores are LP-clipped for all VMs once SST-TF is active</li>"
-        "<li>TPMI lock bit: prevents OS from overriding CLOS assignments post-CPL3</li>"
-        "<li>DLCP: HP core positions are fuse-fixed; SW cannot reassign HP on DLCP SKUs</li>"
-        "</ul></div>")
+    # --- Section 6: Corner Cases & Error Handling
+    corner_block = parse_block(kb_text, "Corner Cases") or parse_block(kb_text, "Corner")
+    body6 = render_block_generic(corner_block, NOT_APPLICABLE)
+
+    # --- Section 7: Security / Safety / Policy
+    sec7_block = parse_block(kb_text, "Security") or parse_block(kb_text, "Safety")
+    body7 = render_block_generic(sec7_block, NOT_APPLICABLE)
+
     ref_block = parse_block(kb_text, "References")
     body8 = refs_html(ref_block)
 

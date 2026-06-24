@@ -3,40 +3,63 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
   <title>Deep Analysis: SST-PP Static Boot Flow with OSPL</title>
   <style>
-    body { font-family: Segoe UI, Arial, sans-serif; background:#f6f8fb; color:#1f2937; margin:0; }
-    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px; }
-    .meta { background:#0f4c81; color:#fff; padding:14px 16px; border-radius:8px; margin-bottom:16px; }
-    .meta h1 { margin:0; font-size:20px; }
-    .meta p { margin:6px 0 0; font-size:12px; opacity:0.95; }
-    .content { background:#fff; border:1px solid #d9e2ec; border-radius:8px; padding:20px; line-height:1.5; }
-    h1,h2,h3,h4,h5,h6 { color:#0f4c81; margin-top:20px; }
-    p { margin:8px 0; }
-    ul { margin:8px 0 8px 20px; }
-    pre { background:#f3f6fb; border:1px solid #d9e2ec; padding:10px; overflow:auto; border-radius:6px; }
-    code { font-family: Consolas, monospace; }
-    .md-table { border-collapse: collapse; width: 100%; margin: 10px 0; }
-    .md-table th, .md-table td { border:1px solid #d9e2ec; padding:6px 8px; text-align:left; }
-    .md-table th { background:#e8eef7; }
-    .md-pre { white-space:pre-wrap; }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="meta">
-      <h1>Deep Analysis: SST-PP Static Boot Flow with OSPL</h1>
-      <p>Segment: FV | Source: HSD_22022422194_sst_pp_static_boot_flow_with.inference.md | Generated: 2026-06-17 21:14:31</p>
-    </div>
-    <div class="content">
-      <h1>Deep Analysis: SST-PP Static Boot Flow with OSPL</h1>
+  <div class="header">
+    <h1>Deep Analysis: SST-PP Static Boot Flow with OSPL</h1>
+    <p>Segment: FV | Source: HSD_22022422194_sst_pp_static_boot_flow_with.inference.md | Generated: 2026-06-22 20:55:44</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+    <button class="tab" data-tab="tab1">A: NWP Delta</button>
+    <button class="tab" data-tab="tab2">B: Interactions</button>
+    <button class="tab" data-tab="tab3">C: Coverage</button>
+    <button class="tab" data-tab="tab4">D: Spec Refs &amp; Validation Points</button>
+    <button class="tab" data-tab="tab5">E: Risk Assessment</button>
+    <button class="tab" data-tab="tab6">F: Recommendations</button>
+    <button class="tab" data-tab="tab7">G: PSS Grading</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>Deep Analysis: SST-PP Static Boot Flow with OSPL</h1>
 <table class="md-table"><thead><tr>
 <th>Field</th>
 <th>Value</th>
 </tr></thead><tbody>
 <tr>
 <td>**HSD ID**</td>
-<td>22022422194</td>
+<td>[22022422194](https://hsdes.intel.com/appstore/article-one/#/22022422194)</td>
 </tr>
 <tr>
 <td>**Title**</td>
@@ -44,7 +67,7 @@
 </tr>
 <tr>
 <td>**Date**</td>
-<td>2025-07-24</td>
+<td>2026-06-22</td>
 </tr>
 <tr>
 <td>**Target Program**</td>
@@ -55,33 +78,522 @@
 <td>DMR (Diamond Rapids)</td>
 </tr>
 <tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
 <td>**Feature**</td>
 <td>SST</td>
 </tr>
 <tr>
 <td>**Sub-Feature**</td>
-<td>SST-PP — boot flow after runtime MCU update (OSPL); SST state retained</td>
+<td>SST-PP — state retention after OS Patch Loading (OSPL)</td>
+</tr>
+<tr>
+<td>**Parent TCD**</td>
+<td>[22022420914 — SST-PP Static Boot flow](https://hsdes.intel.com/appstore/article-one/#/22022420914)</td>
 </tr>
 <tr>
 <td>**NWP Disposition**</td>
 <td>**Skip_ZBB**</td>
 </tr>
+<tr>
+<td>**Val Environment**</td>
+<td>silicon</td>
+</tr>
+<tr>
+<td>**Framework**</td>
+<td>os-svos</td>
+</tr>
+<tr>
+<td>**Origin**</td>
+<td>DIAMOND RAPIDS</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>mps</td>
+</tr>
+<tr>
+<td>**Tags**</td>
+<td>DMR_PO, PMSS_NWP_READINESS_CHECK</td>
+</tr>
+<tr>
+<td>**DMR Command**</td>
+<td>`runPmx.py -x dmr.xml -p sst_pp -tM 60 --retry_count 2`</td>
+</tr>
 </tbody></table>
+<h2>KB References</h2>
+<ul>
+<li>KB Article: [KB/pm_features/sst/pp.md](../../../pm_features/sst/pp.md)</li>
+</ul>
+<h2>OSPL Definition</h2>
+<p>&gt; **OSPL = OS Patch Loading** — a live microcode update applied by the OS after boot (e.g., via</p>
+<p>&gt; `wrmsr 0x79` / Intel MCU update path). This is distinct from the `sst_ospl` CSR register.</p>
+<p>&gt; The test verifies that SST-PP profile configuration is **retained and consistent** after the</p>
+<p>&gt; OS performs a microcode patch load event.</p>
+<h2>Version History</h2>
+<ul>
+<li>v1 (2025-07-24): Initial stub — Skip_ZBB only</li>
+<li>v2 (2026-06-22): Full enrichment — OSPL = OS Patch Loading definition, all sections A-G</li>
+</ul>
 <p>---</p>
-<h2>Section A: NWP Disposition &amp; Justification</h2>
-<p>**Disposition: Skip_ZBB**</p>
-<p>**Reason**: This test requires **SST-PP** to be functional (boot into different PP profiles, verify retention after OSPL). SST-PP is on the NWP ZBB list.</p>
-<p>Test steps:</p>
-<p>1. Run `runPmx.py -x nwp.xml -p sst_pp` → SST-PP not functional → Skip</p>
-<p>2. Apply OSPL (OS-present live update)</p>
-<p>3. Re-run `runPmx.py -x nwp.xml -p sst_pp` to verify state retention</p>
-<p>Manual steps also require switching to SST-PP level 3, doing OS page flip — both require SST-PP functional.</p>
-<p>Tags: `DMR_PO`, `PMSS_NWP_READINESS_CHECK`.</p>
-<p>---</p>
-<h2>Section F: Recommendation</h2>
-<p>**Recommendation: SKIP — SST-PP is ZBB on NWP; OSPL + SST-PP retention test not applicable; revisit for future NWP stepping**</p>
-<p>**Priority**: N/A — ZBB blocker</p>
-    </div>
+<h2>Test Case Intent</h2>
+<p>Verify **SST-PP state retention across an OS Patch Loading (OSPL) event**. The concern:</p>
+<p>when the OS applies a live microcode update, PCode re-initializes certain PM state. This TC</p>
+<p>confirms that the SST-PP profile committed at boot (TDP, frequency caps, core-count mask)</p>
+<p>is correctly preserved — or re-applied — after the OSPL event, and that no unintended profile</p>
+<p>regression or hang occurs.</p>
+<p>**Specific verification:**</p>
+<p>1. Boot into a non-default SST-PP profile (e.g., PP1/PP2) via BIOS OSPL knob</p>
+<p>2. Trigger OS Patch Loading (live MCU update)</p>
+<p>3. After OSPL: `sst_ospl` register and `SST_PP_STATUS.SST_PP_LEVEL` match pre-OSPL values</p>
+<p>4. Active TDP and frequency caps unchanged from pre-OSPL profile</p>
+<p>5. `runPmx.py -x dmr.xml -p sst_pp` automation PASS</p>
+<h3>Pre-Conditions</h3>
+<table class="md-table"><thead><tr>
+<th>Item</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>Platform</td>
+<td>NWP silicon with SST/HGS and PM flow enabled</td>
+</tr>
+<tr>
+<td>FW stack</td>
+<td>AcodeFW, Pcode, Pstate driver, Cstate Driver, DMR SVOS, DMR PythonSV repo, Patch23 installed</td>
+</tr>
+<tr>
+<td>BIOS</td>
+<td>OSPL knob set to non-default SST-PP profile index before boot</td>
+</tr>
+<tr>
+<td>MCU patch</td>
+<td>A valid microcode update package available for OS-level patch loading</td>
+</tr>
+</tbody></table>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Configure BIOS OSPL knob to select a non-default SST-PP profile; boot to OS</td>
+<td>System boots into selected profile; no MCA or hang in PH3/PH4</td>
+<td>Boot hang, MCA, or profile not applied</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Record pre-OSPL state: read `sst_ospl`, `SST_PP_STATUS.SST_PP_LEVEL`, active TDP/freq from `SST_PP_INFO_*`</td>
+<td>Baseline profile registers read successfully</td>
+<td>Register read failure</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Apply OS Patch Loading (OSPL): trigger live MCU update via OS mechanism</td>
+<td>MCU update completes; no MCA, hang, or unexpected reset</td>
+<td>MCA, hang, or uncontrolled reset during OSPL</td>
+</tr>
+<tr>
+<td>4</td>
+<td>After OSPL: re-read `sst_ospl`, `SST_PP_STATUS.SST_PP_LEVEL`, active TDP/freq</td>
+<td>All values match pre-OSPL snapshot; profile retained</td>
+<td>Any register mismatch vs pre-OSPL baseline</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Run `runPmx.py -x dmr.xml -p sst_pp -tM 60 --retry_count 2`</td>
+<td>Automation PASS; SST-PP static boot + OSPL retention verified</td>
+<td>Script FAIL or timeout</td>
+</tr>
+</tbody></table>
+<h3>Pass / Fail Criteria</h3>
+<ul>
+<li>**PASS**: All post-OSPL registers match pre-OSPL snapshot; SST-PP profile TDP/freq/core-count match HAS; no MCA, no hang; automation passes</li>
+<li>**FAIL**: Any register mismatch post-OSPL; profile regressed to default; MCA or hang during OSPL; NLOG error-level event; automation failure</li>
+</ul>
+<p>---</p></div>
+  <div id="tab1" class="panel"><p>**Disposition: Skip_ZBB — SST-PP is ZBB&#x27;d on NWP; OSPL retention flow not testable**</p>
+<p>SST-PP is fully ZBB&#x27;d on NWP. Without SST-PP functional, no non-default profile can be</p>
+<p>committed at boot, so the OSPL retention check has no baseline to compare against.</p>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>SST-PP static boot via BIOS knob</td>
+<td>✅ Functional</td>
+<td>❌ **ZBB&#x27;d**</td>
+<td>No non-default profile to retain</td>
+</tr>
+<tr>
+<td>OS Patch Loading (OSPL) mechanism</td>
+<td>✅ Functional</td>
+<td>✅ Functional</td>
+<td>OSPL itself works; but SST-PP is ZBB&#x27;d</td>
+</tr>
+<tr>
+<td>SST-PP state post-OSPL retention</td>
+<td>✅ Tested</td>
+<td>❌ N/A (ZBB)</td>
+<td>Nothing to retain</td>
+</tr>
+<tr>
+<td>`sst_ospl` register (namednodes)</td>
+<td>`sv.socket0.imhX.punit.sst_ospl`</td>
+<td>Same path — **unchanged**</td>
+<td>No path swap needed</td>
+</tr>
+<tr>
+<td>`runPmx.py -x dmr.xml`</td>
+<td>DMR topology</td>
+<td>Needs `nwp.xml`</td>
+<td>Config swap required if re-enabled</td>
+</tr>
+<tr>
+<td>NWP active SST features</td>
+<td>SST-PP + TF/BF/CP</td>
+<td>**SST-TF + PCT only**</td>
+<td>All PP variants ZBB&#x27;d</td>
+</tr>
+</tbody></table>
+<p>**ZBB References:**</p>
+<ul>
+<li>[HSD 22021155414](https://hsdes.intel.com/appstore/article-one/#/22021155414) — SST-PP/BF/CP ZBB&#x27;d on NWP</li>
+<li>[NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)</li>
+<li>`nwp_imh/v1_0/ok_going_zero.txt` lines 270, 297–298</li>
+</ul>
+<p>---</p></div>
+  <div id="tab2" class="panel"><h3>Swimlane Data</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Actor</th>
+<th>Action</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>BIOS setup</td>
+<td>Set OSPL knob → selects SST-PP profile index at boot</td>
+<td>BIOS Setup Menu</td>
+</tr>
+<tr>
+<td>2</td>
+<td>PrimeCode PH5</td>
+<td>Read SST-PP fuses; populate `SST_PP_HEADER` + `SST_PP_INFO_0..11`</td>
+<td>[Internal fuse→TPMI]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PCode PH3/PH4</td>
+<td>Apply selected profile TDP/freq/core-count; write `SST_PP_STATUS`</td>
+<td>[HPM sideband]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>OS</td>
+<td>Record pre-OSPL register snapshot</td>
+<td>[TPMI MMIO / MSR]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>OS</td>
+<td>Trigger OS Patch Loading — write MCU update blob via `wrmsr 0x79` or equivalent</td>
+<td>[MSR 0x79]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>PCode</td>
+<td>Handle OSPL event: preserve or re-apply SST-PP profile; update `SST_PP_STATUS`</td>
+<td>[Internal / HPM]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Test/PythonSV</td>
+<td>Re-read `sst_ospl`, `SST_PP_STATUS`, `SST_PP_INFO_*`; compare to pre-OSPL snapshot</td>
+<td>[TPMI MMIO]</td>
+</tr>
+</tbody></table>
+<h3>Sequence Data</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>From</th>
+<th>To</th>
+<th>Message</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>BIOS</td>
+<td>TPMI SRAM</td>
+<td>Write `SST_PP_CONTROL.SST_PP_LEVEL = target_index`</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>PCode</td>
+<td>All CBBs</td>
+<td>Broadcast active profile constraints</td>
+<td>[HPM sideband]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>OS</td>
+<td>MSR 0x79</td>
+<td>Write MCU update blob (OS Patch Loading)</td>
+<td>[MSR]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>PCode</td>
+<td>Internal</td>
+<td>Re-validate SST-PP state post-OSPL; re-populate STATUS</td>
+<td>[Internal]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Test</td>
+<td>TPMI SRAM</td>
+<td>Read `SST_PP_STATUS`, `SST_PP_INFO_*`; diff vs pre-OSPL</td>
+<td>[TPMI MMIO]</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="tab3" class="panel"><table class="md-table"><thead><tr>
+<th>Coverage Area</th>
+<th>DMR Coverage</th>
+<th>NWP Gap</th>
+<th>Adaptation Required</th>
+</tr></thead><tbody>
+<tr>
+<td>SST-PP static boot profile apply</td>
+<td>Covered</td>
+<td>⚠️ ZBB&#x27;d</td>
+<td>Feature not functional</td>
+</tr>
+<tr>
+<td>Pre-OSPL register snapshot</td>
+<td>Covered</td>
+<td>⚠️ ZBB&#x27;d</td>
+<td>No valid non-default profile</td>
+</tr>
+<tr>
+<td>OSPL (MCU live update) trigger</td>
+<td>Covered</td>
+<td>✅ OSPL mechanism works</td>
+<td>Only SST-PP side is ZBB&#x27;d</td>
+</tr>
+<tr>
+<td>Post-OSPL SST-PP state retention check</td>
+<td>Covered</td>
+<td>⚠️ ZBB&#x27;d</td>
+<td>Nothing to retain</td>
+</tr>
+<tr>
+<td>`runPmx.py -x dmr.xml` static boot + OSPL</td>
+<td>Covered</td>
+<td>❌ Config mismatch</td>
+<td>Needs `nwp.xml` if re-enabled</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="tab4" class="panel"><h3>Key Registers</h3>
+<table class="md-table"><thead><tr>
+<th>Register</th>
+<th>NWP Namednodes Path</th>
+<th>Purpose</th>
+<th>Access</th>
+</tr></thead><tbody>
+<tr>
+<td>sst_ospl</td>
+<td>`sv.socket0.imhX.punit.sst_ospl`</td>
+<td>OSPL boot profile index — **path unchanged from DMR**</td>
+<td>RW</td>
+</tr>
+<tr>
+<td>SST_PP_CONTROL.SST_PP_LEVEL</td>
+<td>`sv.socket0.cbbX.base.tpmi.sst_pp_control.sst_pp_level`</td>
+<td>Active/requested PP level</td>
+<td>RW</td>
+</tr>
+<tr>
+<td>SST_PP_STATUS.SST_PP_LEVEL</td>
+<td>`sv.socket0.cbbX.base.tpmi.sst_pp_status.sst_pp_level`</td>
+<td>Acknowledged PP level</td>
+<td>RO/V</td>
+</tr>
+<tr>
+<td>SST_PP_INFO_0</td>
+<td>`sv.socket0.cbbX.base.tpmi.sst_pp_info_0`</td>
+<td>Active profile TDP power</td>
+<td>RO</td>
+</tr>
+<tr>
+<td>MSR 0x79</td>
+<td>`sv.socket0.imh0.punit` (PCode internal)</td>
+<td>OS Patch Loading trigger (microcode update)</td>
+<td>WO</td>
+</tr>
+</tbody></table>
+<h3>PythonSV Validation Sketch (for reference — ZBB&#x27;d on NWP)</h3>
+<pre><code>
+# Pre-OSPL snapshot
+pre_ospl = sv.socket0.imh0.punit.sst_ospl.read()
+pre_level = sv.socket0.cbb0.base.tpmi.sst_pp_status.sst_pp_level.read()
+pre_info0 = sv.socket0.cbb0.base.tpmi.sst_pp_info_0.read()
+print(f&quot;Pre-OSPL: ospl={hex(pre_ospl)} level={pre_level} info0={hex(pre_info0)}&quot;)
+
+# --- OS triggers OSPL (MCU update) here ---
+
+# Post-OSPL check
+post_ospl = sv.socket0.imh0.punit.sst_ospl.read()
+post_level = sv.socket0.cbb0.base.tpmi.sst_pp_status.sst_pp_level.read()
+post_info0 = sv.socket0.cbb0.base.tpmi.sst_pp_info_0.read()
+print(f&quot;Post-OSPL: ospl={hex(post_ospl)} level={post_level} info0={hex(post_info0)}&quot;)
+
+assert pre_ospl == post_ospl, f&quot;OSPL register changed: {hex(pre_ospl)} -&gt; {hex(post_ospl)}&quot;
+assert pre_level == post_level, f&quot;PP level changed: {pre_level} -&gt; {post_level}&quot;
+assert pre_info0 == post_info0, f&quot;PP INFO_0 changed: {hex(pre_info0)} -&gt; {hex(post_info0)}&quot;
+print(&quot;PASS: SST-PP state retained across OSPL&quot;)
+</code></pre>
+<h3>References</h3>
+<ul>
+<li>[Intel SST HAS — SST-PP Registers](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html#sst-pp-registers)</li>
+<li>[NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)</li>
+<li>[HSD 22021155414](https://hsdes.intel.com/appstore/article-one/#/22021155414) — ZBB confirmation</li>
+<li>KB: KB/pm_features/sst/pp.md</li>
+</ul>
+<p>---</p></div>
+  <div id="tab5" class="panel"><table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk / Open Item</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>SST-PP ZBB&#x27;d on NWP — no non-default profile available for retention test</td>
+<td>**High**</td>
+<td>Root cause of Skip; blocks entire flow</td>
+</tr>
+<tr>
+<td>2</td>
+<td>OSPL mechanism itself (MCU live update) works on NWP — but SST-PP side can&#x27;t be verified</td>
+<td>Medium</td>
+<td>OSPL isolation test possible if needed</td>
+</tr>
+<tr>
+<td>3</td>
+<td>`dmr.xml` in automation — `nwp.xml` config required if re-enabled</td>
+<td>Medium</td>
+<td>Config swap on re-enable</td>
+</tr>
+<tr>
+<td>4</td>
+<td>`sst_ospl` namednodes path **unchanged** from DMR — no adaptation needed</td>
+<td>—</td>
+<td>Risk removed</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Post-OSPL PCode re-init sequence may differ between DMR and NWP stepping</td>
+<td>Medium</td>
+<td>Re-validate when ZBB lifted</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="tab6" class="panel"><p>**Recommendation: SKIP — SST-PP is ZBB&#x27;d on NWP; OSPL retention test not applicable.**</p>
+<p>If SST-PP is re-enabled on a future NWP stepping:</p>
+<p>1. Change `-x dmr.xml` → `-x nwp.xml` in automation command</p>
+<p>2. `sst_ospl` register path: `sv.socket0.imhX.punit.sst_ospl` — **no change needed** (same as DMR)</p>
+<p>3. CBB loop bounds: `range(4)` → `range(2)`, core counts 64 → 48</p>
+<p>4. Verify PCode post-OSPL re-init sequence preserves SST-PP state on NWP topology</p>
+<p>5. Confirm MCU patch package compatible with NWP stepping for OSPL trigger</p>
+<p>---</p></div>
+  <div id="tab7" class="panel"><h3>Grading Table</h3>
+<table class="md-table"><thead><tr>
+<th>Sl No</th>
+<th>Dimension</th>
+<th>Value</th>
+<th>Rationale</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>NWP Delta</td>
+<td>Yes</td>
+<td>SST-PP ZBB&#x27;d; OSPL trigger mechanism same; post-OSPL retention path may differ in NWP PCode</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Applicable NWP</td>
+<td>**No (ZBB)**</td>
+<td>SST-PP explicitly ZBB&#x27;d — HSD 22021155414; no non-default profile to retain</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PSS Environment</td>
+<td>N/A (ZBB)</td>
+<td>OSPL (MCU live update) not typically modeled in VP/HSLE; SST-PP side also ZBB&#x27;d</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Silicon Only</td>
+<td>Yes</td>
+<td>Live MCU update + PM state retention requires real hardware reset flow</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Test Content</td>
+<td>DMR_M</td>
+<td>DMR-origin; medium adaptation (config, CBB bounds) needed if ZBB lifted</td>
+</tr>
+<tr>
+<td>6</td>
+<td>OS</td>
+<td>sv-os</td>
+<td>PythonSV register reads under SVOS; MCU update via OS mechanism</td>
+</tr>
+</tbody></table>
+<h3>Verdict</h3>
+<p>**Skip_ZBB** — SST-PP is not activatable on NWP. Without a committed non-default SST-PP profile at boot, there is no state to retain across OSPL. Re-evaluate when SST-PP support is confirmed for a future NWP stepping.</p>
+<h3>Key Notes</h3>
+<table class="md-table"><thead><tr>
+<th>Area</th>
+<th>Detail</th>
+</tr></thead><tbody>
+<tr>
+<td>OSPL clarification</td>
+<td>OSPL = OS Patch Loading (live MCU update), NOT the `sst_ospl` Performance Level register</td>
+</tr>
+<tr>
+<td>`sst_ospl` register</td>
+<td>Path unchanged from DMR — `sv.socket0.imhX.punit.sst_ospl`</td>
+</tr>
+<tr>
+<td>Reuse Level</td>
+<td>Medium (DMR_M) — config swap + CBB loop update once ZBB lifted</td>
+</tr>
+<tr>
+<td>Key validation risk</td>
+<td>Post-OSPL PCode re-init behavior may differ on NWP; must re-validate</td>
+</tr>
+</tbody></table></div>
   </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
 </body>
 </html>

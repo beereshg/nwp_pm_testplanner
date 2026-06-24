@@ -13,27 +13,63 @@
 
 ## Test Case
 
-### Test Intent
+### Test Case Intent
 
-This test validates the **core PCT functional invariant**: under full load with C-states disabled, **HP (High Priority) cores achieve the elevated PCT turbo ratio** while **LP (Low Priority) cores are clipped to the LP frequency ceiling (~P1)**. This is the fundamental frequency-separation test for Priority Core Turbo — if HP and LP cores do not converge to their respective CLOS-assigned frequency ceilings, PCT is broken.
+This test validates the primary functional invariant of **PCT (Priority Core Turbo)** on NWP: **HP cores** run at the elevated PCT HP ratio while **LP cores** are clipped to the LP frequency ceiling, under sustained all-core load with C-states disabled. If HP and LP cores do not converge to their respective CLOS-assigned ceilings, the PCT policy is not functioning correctly.
+
+This TC validates: HP/LP runtime frequency separation, consistency with programmed PCT CLOS ceilings, sustained frequency behavior under all-core load, and automation-based execution.
+
+> Does **not** validate boot-time discovery or default enablement (covered by TC 22022422103 and TC 16030768619).
 
 ### Pre-Conditions
-1. Platform boots with PCT enabled (PCT Partition Count ≥ 2, default = 4)
-2. SST-TF active (`SST_PP_CONTROL.feature_state[1] = 1`)
-3. BIOS has assigned HP cores to CLOS[0] and LP cores to CLOS[3]
-4. All C-states disabled (BIOS knob or `MSR 0xE2` override) — ensures all cores stay in C0
-5. `runPmx.py` test framework available with NWP XML config
 
-### Test Steps (from HSD TCD)
-1. Disable all C-states — ensures every core remains active in C0
-2. Set HWP request MSR `IA32_HWP_REQUEST` (0x774) to request max frequency on all cores
-3. Verify HP cores follow HP PCT ratio and LP cores follow LP PCT ratio
+| Item | Requirement |
+|------|-------------|
+| 1 | Platform boots with PCT enabled (PCT Partition Count >= 2; default = 4) |
+| 2 | SST-TF active (SST_PP_CONTROL.feature_state[1] = 1) |
+| 3 | HP cores assigned to CLOS[0]; LP cores to CLOS[3] |
+| 4 | All C-states disabled (BIOS or MSR 0xE2) — all cores in C0 |
+| 5 | All logical processors online |
+| 6 | No active thermal / external limiter that would invalidate frequency observation |
+| 7 | 
+unPmx.py available with NWP XML configuration (
+wp.xml) |
 
-### Pass/Fail Criteria
-- **Pass**: All 8 HP cores achieve PCT TRL frequency (`SST_CLOS_CONFIG[0].max` = SST_TF_INFO_2.RATIO_0); all 88 LP cores clipped to LP frequency (`SST_CLOS_CONFIG[3].max` = SST_TF_INFO_0.LP_CLIP_RATIO_0); frequency separation HP > LP maintained under sustained load
-- **Fail**: Any HP core running below PCT TRL; any LP core exceeding LP clip ratio; no frequency separation observed
+### Recommended Baseline Registers
 
----
+| Register | Purpose |
+|----------|---------|
+| SST_PP_CONTROL.feature_state[1] | Confirm SST-TF active |
+| SST_CLOS_ASSOC[] | Confirm HP/LP classification |
+| SST_CLOS_CONFIG[0].max | HP ratio ceiling |
+| SST_CLOS_CONFIG[3].max | LP clip ceiling |
+| SST_TF_INFO_2.RATIO_0 | HP target ratio source |
+| SST_TF_INFO_0.LP_CLIP_RATIO_0 | LP clip source |
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|------------------------|--------------------|
+| 1 | Disable all C-states; confirm all cores in C0 | No C-state residency | Cores entering C-states |
+| 2 | Confirm PCT active state and HP/LP CLOS mapping via TPMI | SST-TF enabled; CLOS assignments correct | PCT disabled or wrong mapping |
+| 3 | Write IA32_HWP_REQUEST (MSR 0x774) for max-perf on all cores | HWP max request accepted | MSR write failure |
+| 4 | Apply sustained CPU workload to all cores | All cores loaded; no idle | Partial loading |
+| 5 | Read effective frequency on HP cores via IA32_PERF_STATUS (MSR 0x198) | HP cores at PCT TRL = SST_TF_INFO_2.RATIO_0 (~4.4 GHz NWP) | HP cores below expected HP ceiling |
+| 6 | Read effective frequency on LP cores via IA32_PERF_STATUS (MSR 0x198) | LP cores at LP clip = SST_TF_INFO_0.LP_CLIP_RATIO_0 (~P1) | LP cores exceed LP clip |
+| 7 | Compare HP and LP observed frequencies | Clear HP > LP frequency separation | No separation or inversion |
+| 8 | Run automation: 
+unPmx.py -x nwp.xml -p pct -tM 60 -M 10 --retry_count 2 | Automation PASS | Script FAIL or timeout |
+| 9 | Verify post-run CLOS configuration consistent | PCT/CLOS state unchanged after run | State corruption or drift |
+
+### Pass / Fail Criteria
+
+**PASS**: PCT active; 8 HP cores track PCT TRL (SST_CLOS_CONFIG[0].max = SST_TF_INFO_2.RATIO_0 ~4.4 GHz); 88 LP cores clipped to LP ceiling (SST_CLOS_CONFIG[3].max = SST_TF_INFO_0.LP_CLIP_RATIO_0 ~P1); HP freq > LP freq under sustained load; automation passes.
+
+**FAIL**: Any HP core below PCT TRL; any LP core exceeding LP clip; no frequency separation; PCT/SST-TF inactive; automation fails.
+
+### Post-Process
+
+Save: TPMI snapshots (before/after), HP/LP per-core frequency observations, automation log, C-state residency evidence.
 
 ## Section A: NWP Architecture Delta
 

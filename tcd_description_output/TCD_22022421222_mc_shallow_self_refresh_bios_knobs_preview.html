@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
+  <title>TCD Preview: MC Shallow Self Refresh BIOS knobs</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;font-size:13px;color:#1f2937;}
+    .hdr{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .hdr h1{font-size:17px;font-weight:600;}
+    .hdr .sub{font-size:11px;opacity:.82;margin-top:4px;}
+    .hdr a{color:#90caf9;}
+    .wrap{max-width:960px;margin:18px auto;padding:0 16px 40px;}
+    .notice{background:#e8f5e9;border:1px solid #a5d6a7;border-radius:6px;
+             padding:10px 14px;margin-bottom:14px;font-size:12px;color:#1b5e20;}
+    .tc-box{background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:14px 16px;margin-bottom:14px;}
+    .tc-box h3{color:#0f4c81;font-size:13px;margin-bottom:8px;}
+    .desc-box{background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;}
+  </style>
+</head>
+<body>
+<div class="hdr">
+  <h1>TCD Preview: MC Shallow Self Refresh BIOS knobs <span style="background:rgba(255,255,255,.2);border-radius:12px;padding:2px 10px;font-size:11px;">KB-SOURCED</span></h1>
+  <div class="sub">
+    <a href="https://hsdes.intel.com/appstore/article-one/#/22022421222" target="_blank">22022421222</a>
+    &nbsp;|&nbsp; Status: rejected &nbsp;|&nbsp; Owner: bg3
+    &nbsp;|&nbsp; Parent: <a href="https://hsdes.intel.com/appstore/article-one/#/16030762531" target="_blank">16030762531</a>
+    &nbsp;|&nbsp; 2026-06-22 22:09
+  </div>
+</div>
+<div class="wrap">
+  <div class="notice">&#10003; <b>KB-sourced preview</b> &mdash; built from <code>KB\pm_tcd_kb\16030762531_nwp_pm_aipm_mc_ssr\TCD_22022421222_mc_ssr_bios_knobs.md</code>. Sources: AIPM KB — aipm.md, NWP HAS Overview, NWP HAS Comments, LPDDR6 HAS. Say <b>&quot;update HSD&quot;</b> to push.</div>
+  <div class="tc-box">
+    <h3>Test Cases (1)</h3><table style="width:100%;border-collapse:collapse;font-size:12px;margin:8px 0;"><thead><tr style="background:#e8eef7;"><th style="padding:6px 8px;text-align:left;">ID</th><th style="padding:6px 8px;text-align:left;">Title</th><th style="padding:6px 8px;text-align:left;">Status</th><th style="padding:6px 8px;text-align:left;">Val Env</th><th style="padding:6px 8px;text-align:left;">Feature</th></tr></thead><tbody><tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422933" target="_blank">22022422933</a></td><td>MC Shallow Self Refresh BIOS knobs</td><td style="color:#888">rejected</td><td>virtual_platform</td><td>Autonomous Idle</td></tr></tbody></table>
+  </div>
+  <div class="desc-box"><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">1. Architecture / Micro-architecture and Functionality</div><div style="padding:25px;"><p style="margin:10px 0 12px;line-height:1.6;">This TCD covers BIOS knob configuration for enabling/disabling MC Shallow Self-Refresh. On NWP, SSR is ZBB&#x27;d by MC team decision — SSR BIOS knobs have no effect and are not a required validation item.</p><table style="width:100%;border-collapse:collapse;font-size:0.9em;margin:10px 0;"><thead><tr><th style="background:rgb(0,113,197);color:white;padding:7px 10px;text-align:left;">HSD</th><th style="background:rgb(0,113,197);color:white;padding:7px 10px;text-align:left;">Title</th><th style="background:rgb(0,113,197);color:white;padding:7px 10px;text-align:left;">Status</th><th style="background:rgb(0,113,197);color:white;padding:7px 10px;text-align:left;">Reason</th></tr></thead><tbody><tr style="background:rgb(248,249,250);"><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">*(1 TC — BIOS knobs)*</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">MC Shallow Self Refresh BIOS knobs</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">**Rejected — ZBB**</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">SSR ZBB&#x27;d on NWP; no SSR BIOS knob validation needed</td></tr></tbody></table></div></div><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">2. Interfaces and Protocols</div><div style="padding:25px;"><p style="margin:10px 0;line-height:1.6;">SSR BIOS knobs would configure MC SSR enable/disable. Not applicable on NWP — SSR not enabled.</p></div></div><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">3. Reset, Power, and Clocking</div><div style="padding:25px;"><p style="margin:10px 0;line-height:1.6;">Not applicable — SSR ZBB&#x27;d on NWP.</p></div></div><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">4. Programming Model</div><div style="padding:25px;"><p style="margin:10px 0;line-height:1.6;">Not applicable — SSR BIOS knob programming not required.</p></div></div><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">5. Operational Behavior</div><div style="padding:25px;"><p style="margin:10px 0;line-height:1.6;">Not applicable — see feature context in Section 1.</p></div></div><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">6. Corner Cases &amp; Error Handling</div><div style="padding:25px;"><p style="margin:10px 0;line-height:1.6;">Not applicable — see feature context in Section 1.</p></div></div><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">7. Security / Safety / Policy</div><div style="padding:25px;"><p style="margin:10px 0;line-height:1.6;">Not applicable — see feature context in Section 1.</p></div></div><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">8. References</div><div style="padding:25px;"><ul style="margin:10px 0;padding-left:25px;line-height:1.8;"><li style="margin:5px 0;"><a href="../../pm_features/pm_cross_products/aipm.md" target="_blank">AIPM KB — aipm.md</a> — MC SSR ZBB confirmation</li><li style="margin:5px 0;"><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/has/overview/nwp_has.html" target="_blank">NWP HAS Overview</a> — NWP Memory PM feature set delta</li><li style="margin:5px 0;"><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/has/comments.html" target="_blank">NWP HAS Comments</a> — MC team ZBB statement</li><li style="margin:5px 0;"><a href="https://docs.intel.com/documents/iparch/mc/has/gen6/releases/lpddr6/lpddr6.html" target="_blank">LPDDR6 HAS</a> — LPDDR6 power mode support table</li></ul></div></div></div>
+</div>
+</body>
+</html>

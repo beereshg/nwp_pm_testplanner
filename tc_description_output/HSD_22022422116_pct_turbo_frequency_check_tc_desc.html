@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
+  <title>TC: HSD_22022422116_pct_turbo_frequency_check</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:4px;}
+    .header .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+    .chip{background:rgba(255,255,255,.18);border-radius:12px;padding:2px 10px;font-size:11px;}
+    .chip.disp{background:#1565c0;font-weight:bold;}
+    a.hsd-link{color:#90caf9;font-size:11px;margin-left:8px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar button{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 18px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar button:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar button.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    .panel code{font-family:Consolas,monospace;}
+    table.md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    table.md-table th,table.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    table.md-table th{background:#e8eef7;font-weight:600;}
+    table.md-table tr:nth-child(even){background:#f8fafc;}
+    .tc-content{font-size:12.5px;}
+    .tc-content h3{color:#004a80;font-size:13px;margin:14px 0 4px;
+        background:#cce4f7;padding:8px 14px;border-left:4px solid #0071c5;border-radius:0 4px 4px 0;font-weight:bold;}
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>HSD_22022422116_pct_turbo_frequency_check
+    <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022422116" target="_blank" rel="noopener">HSD 22022422116 ↗</a>
+  </h1>
+  <div class="chips">
+    <span class="chip"> › </span>
+    <span class="chip disp"></span>
+    <span class="chip">Env: </span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="active" data-tab="tc">Test Case</button>
+  <button data-tab="sec-a">A: NWP Delta</button>
+  <button data-tab="sec-b">B: Interactions</button>
+  <button data-tab="sec-c">C: Coverage</button>
+  <button data-tab="sec-d">D: Spec Refs</button>
+  <button data-tab="sec-e">E: Risks</button>
+  <button data-tab="sec-f">F: Recommendations</button>
+</div>
+
+<div class="panels">
+  <div id="tc" class="panel active tc-content">
+
+
+
+
+<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
+<br/><p style="margin:10px 0 16px 0;">This test validates the primary functional invariant of <strong>PCT (Priority Core Turbo)</strong> on NWP: <strong>HP cores</strong> run at the elevated PCT HP ratio while <strong>LP cores</strong> are clipped to the LP frequency ceiling, under sustained all-core load with C-states disabled. If HP and LP cores do not converge to their respective CLOS-assigned ceilings, the PCT policy is not functioning correctly. This TC validates: HP/LP runtime frequency separation, consistency with programmed PCT CLOS ceilings, sustained frequency behavior under all-core load, and automation-based execution. <span style="display:block;background:#f0f4f9;border-left:3px solid #1a5fa8;padding:4px 10px;margin:4px 0;font-size:0.92em;color:#1e3a5f;">Does <strong>not</strong> validate boot-time discovery or default enablement (covered by TC 22022422103 and TC 16030768619).</span> unPmx.py available with NWP XML configuration ( wp.xml) | unPmx.py -x nwp.xml -p pct -tM 60 -M 10 --retry_count 2 | Automation PASS | Script FAIL or timeout | <strong>PASS</strong>: PCT active; 8 HP cores track PCT TRL (SST_CLOS_CONFIG[0].max = SST_TF_INFO_2.RATIO_0 ~4.4 GHz); 88 LP cores clipped to LP ceiling (SST_CLOS_CONFIG[3].max = SST_TF_INFO_0.LP_CLIP_RATIO_0 ~P1); HP freq &gt; LP freq under sustained load; automation passes. <strong>FAIL</strong>: Any HP core below PCT TRL; any LP core exceeding LP clip; no frequency separation; PCT/SST-TF inactive; automation fails. Save: TPMI snapshots (before/after), HP/LP per-core frequency observations, automation log, C-state residency evidence.</p>
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Preconditions</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;padding:8px;">Platform boots with PCT enabled (PCT Partition Count >= 2; default = 4)</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;padding:8px;">SST-TF active (SST_PP_CONTROL.feature_state[1] = 1)</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;padding:8px;">HP cores assigned to CLOS[0]; LP cores to CLOS[3]</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;padding:8px;">All C-states disabled (BIOS or MSR 0xE2) — all cores in C0</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">5</td><td style="text-align:left;padding:8px;">All logical processors online</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">6</td><td style="text-align:left;padding:8px;">No active thermal / external limiter that would invalidate frequency observation</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">7</td><td style="text-align:left;padding:8px;"></td></tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Test Steps</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 8px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">#</th>
+  <th style="text-align:left;padding:8px;">Action</th>
+  <th style="text-align:left;padding:8px;">Expected Result (PASS)</th>
+  <th style="text-align:left;padding:8px;">Failure Indication</th>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Disable all C-states; confirm all cores in C0</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">No C-state residency</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Cores entering C-states</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Confirm PCT active state and HP/LP CLOS mapping via TPMI</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">SST-TF enabled; CLOS assignments correct</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PCT disabled or wrong mapping</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Write IA32_HWP_REQUEST (MSR 0x774) for max-perf on all cores</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">HWP max request accepted</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">MSR write failure</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Apply sustained CPU workload to all cores</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">All cores loaded; no idle</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Partial loading</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read effective frequency on HP cores via IA32_PERF_STATUS (MSR 0x198)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">HP cores at PCT TRL = SST_TF_INFO_2.RATIO_0 (~4.4 GHz NWP)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">HP cores below expected HP ceiling</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read effective frequency on LP cores via IA32_PERF_STATUS (MSR 0x198)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">LP cores at LP clip = SST_TF_INFO_0.LP_CLIP_RATIO_0 (~P1)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">LP cores exceed LP clip</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Compare HP and LP observed frequencies</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Clear HP > LP frequency separation</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">No separation or inversion</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">8</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Run automation:</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">9</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify post-run CLOS configuration consistent</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PCT/CLOS state unchanged after run</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">State corruption or drift</td>
+</tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Pass / Fail Criteria</div>
+<br/>
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
+  <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
+  <p style="margin:0;font-size:0.9em;">PCT active; 8 HP cores track PCT TRL (SST_CLOS_CONFIG[0].max = SST_TF_INFO_2.RATIO_0 ~4.4 GHz); 88 LP cores clipped to LP ceiling (SST_CLOS_CONFIG[3].max = SST_TF_INFO_0.LP_CLIP_RATIO_0 ~P1); HP freq > LP freq under sustained load; automation passes.</p>
+</div>
+
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
+  <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
+  <p style="margin:0;font-size:0.9em;">Any HP core below PCT TRL; any LP core exceeding LP clip; no frequency separation; PCT/SST-TF inactive; automation fails.</p>
+</div>
+
+
+
+
+
+
+
+
+
+<br/>
+
+
+
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
+<br/><p style="margin:10px 0;">Save: TPMI snapshots (before/after), HP/LP per-core frequency observations, automation log, C-state residency evidence.</p>
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">References</div>
+<br/>
+
+<p>N/A</p>
+
+
+</div>
+  </div>
+  <div id="sec-a" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-b" class="panel"><table class="md-table"><thead><tr>
+<th>#</th>
+<th>OS/Test</th>
+<th>BIOS</th>
+<th>PrimeCode (NIO)</th>
+<th>PCode (CBB×2)</th>
+<th>Core FIVR/PLL</th>
+<th>Verification</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td></td>
+<td>**[Config]** Read PCT fuses: PCT_ENABLE, PCT_Module_Mask, SST_TF_CONFIG arrays</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td></td>
+<td>**[Config]** Divide 96 cores into 4 partitions (24 cores each); select 2 HP cores/partition = 8 HP total</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td></td>
+<td>**[Config]** Program per-dielet SST-TF TPMI: SST_CLOS_CONFIG[0].max = TRL ratio (HP), SST_CLOS_CONFIG[3].max = LP clip (LP)</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td></td>
+<td>**[Config]** Set SST_CLOS_ASSOC[]: HP cores → CLOS[0], LP cores → CLOS[3]; SST_CP_CONTROL = Ordered; SST_PP_CONTROL.feature_state[1] = 1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td></td>
+<td>**[Config]** Override MSR 0x1AD with SST_TF_INFO_2.RATIO_0 (HP TRL); Disable C-states</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td></td>
+<td></td>
+<td>**[Config]** Reset Phase 5: Read SST_TF fuses → populate SST_TF_INFO_0..10 TPMI registers</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>7</td>
+<td></td>
+<td></td>
+<td></td>
+<td>**[HW]** SST-TF active: enforce CLOS-based per-core frequency limits</td>
+<td>**[HW]** HP PLLs target PCT TRL; LP PLLs clipped to LP_CLIP</td>
+<td></td>
+</tr>
+<tr>
+<td>8</td>
+<td>**[Action]** Write MSR 0x774 (IA32_HWP_REQUEST) = max freq on ALL 96 cores</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>9</td>
+<td>**[Action]** Apply sustained CPU load across all cores</td>
+<td></td>
+<td></td>
+<td>**[HW]** HP CLOS[0] resolves to PCT TRL ratio; LP CLOS[3] resolves to LP clip</td>
+<td>**[HW]** HP FIVRs deliver PCT voltage/freq; LP FIVRs at P1 voltage/freq</td>
+<td></td>
+</tr>
+<tr>
+<td>10</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>**[Verify]** Read MSR 0x198 (IA32_PERF_STATUS) on each core</td>
+</tr>
+<tr>
+<td>11</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>**[Verify]** HP cores: actual_freq == SST_TF_INFO_2.RATIO_0</td>
+</tr>
+<tr>
+<td>12</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>**[Verify]** LP cores: actual_freq == SST_TF_INFO_0.LP_CLIP_RATIO_0</td>
+</tr>
+<tr>
+<td>13</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>**[Verify]** Frequency separation: HP freq &gt; LP freq</td>
+</tr>
+</tbody></table>
+<pre><code>
+    BIOS         TPMI(SST)      PrimeCode(NIO)   PCode(CBB×2)    Core FIVR/PLL    OS/Test
+     │               │               │               │               │               │
+ 1.  │──[TPMI MMIO]─►│ Write SST_CLOS_CONFIG[0].max = HP TRL ratio  │               │
+ 2.  │──[TPMI MMIO]─►│ Write SST_CLOS_CONFIG[3].max = LP clip ratio │               │
+ 3.  │──[TPMI MMIO]─►│ Write SST_CLOS_ASSOC[]: HP→CLOS[0], LP→CLOS[3]              │
+ 4.  │──[TPMI MMIO]─►│ Write SST_PP_CONTROL.feature_state[1]=1      │               │
+ 5.  │──[MSR]────────┼──────────────►│ Override MSR 0x1AD with HP TRL│               │
+     │               │               │               │               │               │
+ 6.  │               │               │──[Phase 5]───►│ SST_TF fuses → SST_TF_INFO regs│
+     │               │               │               │               │               │
+ 7.  │               │               │               │──[CLOS enf]──►│ HP: PLL → TRL freq
+ 8.  │               │               │               │──[CLOS enf]──►│ LP: PLL → clip freq
+     │               │               │               │               │               │
+ 9.  │               │               │               │               │◄──[MSR 0x774]──│ HWP req = max
+10.  │               │               │               │               │◄──[workload]───│ Sustained load
+     │               │               │               │               │               │
+11.  │               │               │               │               │──[MSR 0x198]──►│ Read PERF_STATUS
+12.  │               │               │               │               │               │ Verify HP == TRL
+13.  │               │               │               │               │               │ Verify LP == clip
+14.  │               │               │               │               │               │ Verify HP &gt; LP
+</code></pre>
+<p>---</p></div>
+  <div id="sec-c" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-d" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-e" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-f" class="panel"><p>1. **ADOPT with config change** — swap `dmr.xml` → `nwp.xml` in command line; no logic changes needed. NWP PCT is functionally identical to DMR PCT at the CLOS enforcement level.</p>
+<p>2. **Add pre-condition checks** — before frequency measurement, verify:</p>
+<ul>
+<li>`SST_PP_CONTROL.feature_state[1] == 1` (SST-TF active)</li>
+<li>`SST_CLOS_ASSOC[]` shows expected HP/LP core mapping</li>
+<li>`perf_limit_reasons` is clear (no thermal/RAPL throttle masking results)</li>
+</ul>
+<p>3. **Derive expected values dynamically** — read `SST_TF_INFO_2.RATIO_0` for expected HP frequency and `SST_TF_INFO_0.LP_CLIP_RATIO_0` for expected LP frequency at runtime rather than hardcoding targets.</p>
+<p>4. **Add DLCP awareness** — if NWP uses Die Level Cherry Picking, read `SST_TF_INFO_10` PCT_Module_Mask and `IA32_HWP_CAPABILITIES(0x771).highest_perf` per core to correctly identify which cores are HP vs LP.</p>
+<p>5. **Update core iteration** — adjust from 4 CBBs × 32 cores to 2 CBBs × 48 cores (96 total; 8 HP, 88 LP).</p>
+<p>6. **Monitor DMR LP ratio bugs** — the most common DMR SST-TF failure mode was incorrect LP ratio resolution. This is the exact failure this test catches. Confirm PCode `sst_manager.cpp::update_cfgs()` is correct for NWP topology.</p>
+<p>**Priority**: **High** — tagged `plc.feature.p1`; this is the foundational PCT frequency correctness test. PCT is 1 of only 2 active SST features on NWP.</p></div>
+</div>
+
+<script>
+const btns  = Array.from(document.querySelectorAll('.tab-bar button'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+btns.forEach(btn => btn.addEventListener('click', () => {
+  btns.forEach(b => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const p = document.getElementById(btn.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

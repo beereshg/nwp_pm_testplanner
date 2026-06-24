@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
+  <title>TC: IO Trunk Clock Gating_Late QChannel and Noise QCh enabling</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:4px;}
+    .header .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+    .chip{background:rgba(255,255,255,.18);border-radius:12px;padding:2px 10px;font-size:11px;}
+    .chip.disp{background:#1565c0;font-weight:bold;}
+    a.hsd-link{color:#90caf9;font-size:11px;margin-left:8px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar button{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 18px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar button:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar button.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    .panel code{font-family:Consolas,monospace;}
+    table.md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    table.md-table th,table.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    table.md-table th{background:#e8eef7;font-weight:600;}
+    table.md-table tr:nth-child(even){background:#f8fafc;}
+    .tc-content{font-size:12.5px;}
+    .tc-content h3{color:#004a80;font-size:13px;margin:14px 0 4px;
+        background:#cce4f7;padding:8px 14px;border-left:4px solid #0071c5;border-radius:0 4px 4px 0;font-weight:bold;}
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>IO Trunk Clock Gating_Late QChannel and Noise QCh enabling
+    <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022422990" target="_blank" rel="noopener">HSD 22022422990 ↗</a>
+  </h1>
+  <div class="chips">
+    <span class="chip">AIPM › IO Trunk Clock Gating — QCh autonomous-idle enable configuration</span>
+    <span class="chip disp">Open — boot-time register config checkout only</span>
+    <span class="chip">Env: </span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="active" data-tab="tc">Test Case</button>
+  <button data-tab="sec-a">A: NWP Delta</button>
+  <button data-tab="sec-b">B: Interactions</button>
+  <button data-tab="sec-c">C: Coverage</button>
+  <button data-tab="sec-d">D: Spec Refs</button>
+  <button data-tab="sec-e">E: Risks</button>
+  <button data-tab="sec-f">F: Recommendations</button>
+</div>
+
+<div class="panels">
+  <div id="tc" class="panel active tc-content">
+
+
+
+
+<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
+<br/><p style="margin:10px 0 16px 0;">Verify that the **late Q-Channel and noise Q-Channel autonomous-idle enable configuration** is programmed correctly for the MIO trunk clock-gating infrastructure after boot. PrimeCode programs `QCH_FSM_POLICY.ENABLE_AUTO_IDLE` and strap defaults per MAS §9.1 during PH6. **On NWP** (no L1, no PkgC): trunk clock gating never fires at runtime. This TC confirms the **register plumbing is correct** — correct strap/policy values, no hang/MCA after setup, state preserved across re-reads. It is explicitly **not** a runtime entry/residency test. **Reference**: [HSD 22021621791](https://hsdes.intel.com/appstore/article-one/#/22021621791) — MIO TCG spec update for UXI link (RC autonomous-idle strap/policy definitions)</p>
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Preconditions</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;padding:8px;">NWP validation target with AIPM boot-time setup flow enabled</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">FW stack</td><td style="text-align:left;padding:8px;">PrimeCode PH6 RC workpoint programming complete; PythonSV installed</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">BIOS</td><td style="text-align:left;padding:8px;">AIPM feature not force-disabled (`pcode_aipm_mio_trunk_clock_gating_disable` = 0)</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation</td><td style="text-align:left;padding:8px;">`runPmx.py -x nwp.xml -p trunk_clkg -tM 6` (NWP config — replace `dmr.xml`)</td></tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Test Steps</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 8px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">#</th>
+  <th style="text-align:left;padding:8px;">Action</th>
+  <th style="text-align:left;padding:8px;">Expected Result (PASS)</th>
+  <th style="text-align:left;padding:8px;">Failure Indication</th>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Boot platform; verify no BIOS hang or MCA during PH6 RC programming</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Clean boot; PrimeCode RC workpoint programming completes without error</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">BIOS hang, MCA, or soft hang</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read `QCH_FSM_POLICY.ENABLE_AUTO_IDLE` for all late QCh instances (`resctrl_prvt_idle_late_regss`)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`enable_auto_idle` = 1 for enabled stacks per MAS §9.1</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Bit = 0 on expected stacks; or register unreadable</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read `QCH_FSM_POLICY.ENABLE_AUTO_IDLE` for noise QCh instances (`resctrl_prvt_idle_noise_regs0`)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`enable_auto_idle` = 1 for enabled stacks per MAS §9.1</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Bit = 0 on expected stacks</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read late/noise QCh strap defaults (`strap_l_autonomous_idle_enable_default`, `strap_n_autonomous_idle_enable_default`)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Strap values match PrimeCode-programmed enable mask; consistent across re-reads</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Strap mismatch or read instability</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Confirm disabled stacks have AIPM skipped (CMPL_STATUS=2 path, MAS §9.2)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Disabled stacks: `ENABLE_AUTO_IDLE` = 0; PrimeCode did not program AIPM for them</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Disabled stack incorrectly shows AIPM enabled</td>
+</tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Pass / Fail Criteria</div>
+<br/>
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
+  <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
+  <p style="margin:0;font-size:0.9em;">All `ENABLE_AUTO_IDLE` bits match expected programmed values per MAS §9.1; strap defaults consistent; no hang/MCA; disabled stacks correctly skipped</p>
+</div>
+
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
+  <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
+  <p style="margin:0;font-size:0.9em;">Any `ENABLE_AUTO_IDLE` mismatch; BIOS hang or MCA; disabled stack incorrectly enabled; register read instability</p>
+</div>
+
+
+
+
+
+<h3>NOTEs</h3>
+<div style="font-size:0.85em;color:#555;margin-left:12px;padding:10px;background:#f8f9fa;border-left:3px solid #999;border-radius:3px;">
+
+<p style="margin:6px 0;">Automation still uses `dmr.xml` in HSD description — Must change to `nwp.xml` before execution</p>
+
+<p style="margin:6px 0;">Old pass criteria reference "residency/entry" — inapplicable on NWP — Must be removed from TC description</p>
+
+<p style="margin:6px 0;">strap default values may differ between DMR and NWP RC variant — Read and compare vs MAS §9.1 expected values</p>
+
+</div>
+
+
+
+
+<h3>OPENs</h3>
+<div style="font-size:0.85em;color:#c62828;margin-left:12px;padding:10px;background:#fff3f3;border-left:3px solid #c62828;border-radius:3px;">
+<ul style="margin:4px 0;padding-left:20px;">
+
+<li style="margin:4px 0;">Automation still uses `dmr.xml` in HSD description → Must change to `nwp.xml` before execution</li>
+
+<li style="margin:4px 0;">Old pass criteria reference "residency/entry" — inapplicable on NWP → Must be removed from TC description</li>
+
+</ul>
+</div>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Health Check — Registers &amp; Logs to Collect</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">Register / Log</th>
+  <th style="text-align:left;padding:8px;">Access</th>
+  <th style="text-align:left;padding:8px;">Pass/Fail Criteria</th>
+</tr>
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">Late QCh FSM policy</td>
+  <td style="text-align:left;padding:8px;">`sv.socket0.imh0.resctrl.rc_mio_ew.resctrl_prvt_idle_late_regss`</td>
+  <td style="text-align:left;padding:8px;">`ENABLE_AUTO_IDLE` bit per late QCh</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">Noise QCh FSM policy</td>
+  <td style="text-align:left;padding:8px;">`sv.socket0.imh0.resctrl.rc_mio_ew.resctrl_prvt_idle_noise_regs0`</td>
+  <td style="text-align:left;padding:8px;">`ENABLE_AUTO_IDLE` bit for noise QCh</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">Late QCh strap default</td>
+  <td style="text-align:left;padding:8px;">`sv.socket0.imh0.resctrl.rc_mio_ew.strap_l_autonomous_idle_enable_default`</td>
+  <td style="text-align:left;padding:8px;">Default enable mask from strap</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">Noise QCh strap default</td>
+  <td style="text-align:left;padding:8px;">`sv.socket0.imh0.resctrl.rc_mio_ew.strap_n_autonomous_idle_enable_default`</td>
+  <td style="text-align:left;padding:8px;">Default enable mask from strap</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">AIPM fuse disable</td>
+  <td style="text-align:left;padding:8px;">`sv.sockets.imhs.fuses.punit.pcode_aipm_mio_trunk_clock_gating_disable`</td>
+  <td style="text-align:left;padding:8px;">Must be 0 for AIPM enabled</td>
+</tr>
+
+
+</table>
+
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
+<br/><p style="margin:10px 0;">N/A</p>
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">References</div>
+<br/>
+
+<p>N/A</p>
+
+
+</div>
+  </div>
+  <div id="sec-a" class="panel"><table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact on This TC</th>
+</tr></thead><tbody>
+<tr>
+<td>Runtime TCG entry</td>
+<td>✅ L1-triggered</td>
+<td>❌ No L1, no PkgC</td>
+<td>Remove entry/residency expectations entirely</td>
+</tr>
+<tr>
+<td>Boot-time QCh programming</td>
+<td>✅ Active</td>
+<td>✅ Active</td>
+<td>Core of this TC — still valid</td>
+</tr>
+<tr>
+<td>QCh FSM policy registers</td>
+<td>`sv.socket0.imh0.resctrl.*`</td>
+<td>Same path — unchanged</td>
+<td>No path change needed</td>
+</tr>
+<tr>
+<td>RC Gen4 lnpv variant</td>
+<td>✅</td>
+<td>✅</td>
+<td>NUM_QCH_LATE=9, NUM_QCH_NOISE=9</td>
+</tr>
+<tr>
+<td>Automation config</td>
+<td>`runPmx.py -x dmr.xml`</td>
+<td>`runPmx.py -x nwp.xml`</td>
+<td>**Config file swap required**</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-b" class="panel"><table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Actor</th>
+<th>Action</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>PrimeCode (PH6)</td>
+<td>Reads LFCLK RA → programs `QCH_FSM_POLICY.ENABLE_AUTO_IDLE` per §9.1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>PrimeCode (PH6)</td>
+<td>§9.2: skips disabled stacks (CMPL_STATUS=2) → does NOT enable AIPM</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Test/PythonSV</td>
+<td>Reads all late/noise QCh policy registers; compares to expected enable mask</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-c" class="panel"><table class="md-table"><thead><tr>
+<th>Coverage Area</th>
+<th>NWP Applicable</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>Late QCh `ENABLE_AUTO_IDLE` programming</td>
+<td>✅ Yes</td>
+<td>Core of TC</td>
+</tr>
+<tr>
+<td>Noise QCh `ENABLE_AUTO_IDLE` programming</td>
+<td>✅ Yes</td>
+<td>Core of TC</td>
+</tr>
+<tr>
+<td>Strap default verification</td>
+<td>✅ Yes</td>
+<td>Validate strap values post-boot</td>
+</tr>
+<tr>
+<td>Disabled stack skip (CMPL_STATUS=2)</td>
+<td>✅ Yes</td>
+<td>Negative correctness check</td>
+</tr>
+<tr>
+<td>Runtime TCG entry/residency</td>
+<td>❌ No</td>
+<td>Not applicable — no L1 on NWP</td>
+</tr>
+<tr>
+<td>L1-triggered autonomous idle</td>
+<td>❌ No</td>
+<td>L1 ZBB&#x27;d — no trigger available</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-d" class="panel"><table class="md-table"><thead><tr>
+<th>Register</th>
+<th>NWP Namednodes Path</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td>Late QCh FSM policy</td>
+<td>`sv.socket0.imh0.resctrl.rc_mio_ew.resctrl_prvt_idle_late_regss`</td>
+<td>`ENABLE_AUTO_IDLE` bit per late QCh</td>
+</tr>
+<tr>
+<td>Noise QCh FSM policy</td>
+<td>`sv.socket0.imh0.resctrl.rc_mio_ew.resctrl_prvt_idle_noise_regs0`</td>
+<td>`ENABLE_AUTO_IDLE` bit for noise QCh</td>
+</tr>
+<tr>
+<td>Late QCh strap default</td>
+<td>`sv.socket0.imh0.resctrl.rc_mio_ew.strap_l_autonomous_idle_enable_default`</td>
+<td>Default enable mask from strap</td>
+</tr>
+<tr>
+<td>Noise QCh strap default</td>
+<td>`sv.socket0.imh0.resctrl.rc_mio_ew.strap_n_autonomous_idle_enable_default`</td>
+<td>Default enable mask from strap</td>
+</tr>
+<tr>
+<td>AIPM fuse disable</td>
+<td>`sv.sockets.imhs.fuses.punit.pcode_aipm_mio_trunk_clock_gating_disable`</td>
+<td>Must be 0 for AIPM enabled</td>
+</tr>
+</tbody></table>
+<pre><code>
+</code></pre></div>
+  <div id="sec-e" class="panel"><table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Automation still uses `dmr.xml` in HSD description</td>
+<td>Medium</td>
+<td>Must change to `nwp.xml` before execution</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Old pass criteria reference &quot;residency/entry&quot; — inapplicable on NWP</td>
+<td>High</td>
+<td>Must be removed from TC description</td>
+</tr>
+<tr>
+<td>3</td>
+<td>strap default values may differ between DMR and NWP RC variant</td>
+<td>Low</td>
+<td>Read and compare vs MAS §9.1 expected values</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-f" class="panel"><p>**Keep TC open — rewrite description to remove DMR-inherited runtime entry language.**</p>
+<p>Specific changes needed in HSD TC description:</p>
+<p>1. **Remove**: &quot;trigger the target idle/power-state transition&quot; and &quot;Target transition/residency is observed&quot;</p>
+<p>2. **Replace with**: boot-time register configuration checkout steps (see Test Steps above)</p>
+<p>3. **Change automation**: `dmr.xml` → `nwp.xml`</p>
+<p>4. **Update scope**: explicitly state &quot;no runtime TCG entry validation on NWP — no L1&quot;</p>
+<p>5. **Keep references**: HSD 22021621791 (UXI TCG spec) + MAS §9.1 link</p>
+<p>---</p></div>
+</div>
+
+<script>
+const btns  = Array.from(document.querySelectorAll('.tab-bar button'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+btns.forEach(btn => btn.addEventListener('click', () => {
+  btns.forEach(b => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const p = document.getElementById(btn.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

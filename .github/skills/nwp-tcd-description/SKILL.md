@@ -64,41 +64,86 @@ Example: `KB/pm_tcd_kb/16030762839_sst_speed_select_technology/TCD_22022420855_p
 
 ## Step 2 — TCD KB File Format
 
-`markdown
-# TCD: {title}
+Example path: `KB/pm_tcd_kb/15019477653_nwp_pm_socket_rapl/TCD_22022420798_socket_rapl_algorithm_functionality.md`
 
-| Field | Value |
-|-------|-------|
-| **TCD ID** | [{id}](https://hsdes.intel.com/appstore/article-one/#/{id}) |
-| **Title** | {title} |
-| **Status** | {status} |
-| **Owner** | {owner} |
-| **Parent TP** | [{parent_id}](...) |
-| **KB last updated** | {date} |
+The KB file uses **8-section structure** matching the TCD description format. The generator
+(`generate_tcd_preview.py`) renders all headings, tables, code blocks, and lists automatically.
 
-## Feature Overview
-{LLM-generated from HAS/MAS + KB article — not generic template bullets}
+### Section 1 Architecture — Supported Content Types
 
-## Enabling Path (key registers)
-| Step | Actor | Register | Value |
+The generator renders Section 1 in order, separated by `### SubHeading` markers:
 
-## Discovery Registers
-| Interface | Register | Purpose |
+| Content Type | Markdown Syntax | Rendered As |
+|-------------|-----------------|-------------|
+| Intro paragraph | Plain text (no leading `#`, `|`, `-`, `*`, digit) | `<p>` with bold/code inline |
+| Code block / ASCII diagram | ` ``` ... ``` ` | `<pre>` with blue left border |
+| Table | `\| col \| col \|` rows | HTML table (separate per gap) |
+| Bullet list | `- item` or `* item` | `<ul>` |
+| Numbered list | `1. item`, `2. item` | `<ol>` |
+| Sub-heading | `### Title` | `<h3>` — flushes pending table/list first |
 
-## Test Cases Under This TCD
-| HSD ID | Title | Status | Val Environment |
+**Key rules:**
+- Two tables separated by a blank line (or `### SubHeading`) render as **two separate tables**
+- `**bold**` and `` `code` `` in intro paragraphs render as `<strong>` and `<code>` (per-line conversion — no cross-line bold issues)
+- `### Feature Overview` heading is **not needed** if the intro paragraph text is the feature overview — it would render as an empty h3
+- Numbered list items must start with `\d+. ` or `\d+) ` pattern
 
-## References
-- [HAS link]
-- [MAS link]
-- KB: KB/pm_features/{feature}/{subfeature}.md
-`
+### Recommended Section 1 Structure
 
-**Quality rules for Feature Overview:**
-- Must describe what the feature IS, not just "validate X functionality"
-- Must reference at least one HAS/MAS spec URL
-- Must include NWP-specific topology note (CBB count, core count, ZBB scope)
-- Must have enabling and discovery register lists if applicable
+```markdown
+## Section 1: Architecture / Micro-architecture and Functionality
+
+Intro paragraph with **bold** terms and `code` — no leading `### Feature Overview` needed.
+
+### Runtime Control Flow
+
+1. Step one description
+2. Step two description
+
+### Block Decomposition
+
+` ` `
+ASCII diagram here
+` ` `
+
+### Key Properties Table
+
+| Property | Value A | Value B |
+|----------|---------|---------|
+
+### NWP-Specific Deltas
+
+- Delta item 1
+- Delta item 2
+
+### TC Coverage Map
+
+| TC | Scope | Mechanism |
+|----|-------|-----------|
+| [HSD ID — Title](url) | scenario | mechanism |
+```
+
+### Push to HSD — Extract desc-box only (skip header + TC table)
+
+When pushing TCD preview HTML to HSD, extract only the `desc-box` div to start the
+description from Section 1 (Architecture), skipping the preview header and TC summary table:
+
+```python
+import re
+html = open('tcd_description_output/TCD_{id}_{slug}_preview.html', encoding='utf-8').read()
+m = re.search(r'<div class="desc-box">(.*?)</div>\s*</div>\s*</body>', html, re.DOTALL)
+content = m.group(1).strip() if m else html
+# Then PUT content to HSD
+```
+
+### PowerShell heredoc warning
+
+**Avoid** writing KB content via PowerShell heredoc (`@'...'@`) for lines with `**bold**`.
+PowerShell can introduce extra `**` at line boundaries (e.g. `**text****` instead of `**text** `),
+causing inverted bold in the rendered HTML. Prefer writing KB files directly via the `create_file`
+tool or `replace_string_in_file`.
+
+
 
 ---
 

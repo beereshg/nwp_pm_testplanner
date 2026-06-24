@@ -1,108 +1,97 @@
-# NWP PSS Analysis
+# Deep Analysis: DRAM RAPL ZBB Negative Checks
 
-## Metadata
-- HSD ID: 22022060651
-- Title: DRAM RAPL ZBB Negative Checks
-- Feature: Power/RAPL
-- Sub Feature: Socket RAPL
-- Script: nwp_pss_scripts/pss_rapl_zbb.py
-- HSD Script: (none)
-- TC Owner: jscanlo1
-- TR Owner: mps
-- Validation Environment: emulation.hsle
-- Test Cycle: Newport Product.trunk.pss_1p0.pss.val.NWP_MCP-HSLE
-- NWP Scope: Runnable_On_N-1
-
-## HSD Hierarchy
-- Test Case Definition: [22022060621 - NWP ZBB Negative Validation](https://hsdes.intel.com/appstore/article/#/22022060621)
-- Test Case: [22022060651 - DRAM RAPL ZBB Negative Checks](https://hsdes.intel.com/appstore/article/#/22022060651)
-- Test Result: [22022060669 - [PSS][DRAM_RAPL] DRAM RAPL ZBB Negative Checks](https://hsdes.intel.com/appstore/article/#/22022060669)
-
-## KB References
-- KB Article: [KB/pm_features/power_rapl/socket_rapl.md](../../../KB/pm_features/power_rapl/socket_rapl.md)
-
-## Model Response
-
-## Refined Intent
-NWP ZBB negative validation: verify ZBB'd RAPL features (DRAM RAPL, Platform RAPL/Psys, FastRAPL, Fine-Grained Energy) are inaccessible on NWP. Socket RAPL should remain functional.
-
-## Refined Test Steps
-Pre-Conditions:
-  - NWP platform booted
-
-Step 1 — Verify DRAM RAPL fused off:
-  Attempt to read/write DRAM RAPL MSRs — expect disabled or zero.
-
-Step 2 — Verify Platform RAPL/Psys not available:
-  Attempt to access Platform RAPL registers — expect not enumerated.
-
-Step 3 — Verify Socket RAPL still works:
-  Read MSR 0x610 — verify PL1/PL2 accessible and enabled.
-  Run throttling test — verify Socket RAPL functional.
-
-Pass/Fail Criteria:
-  PASS: ZBB'd RAPL features inaccessible, Socket RAPL functional
-  FAIL: ZBB'd feature accessible, or Socket RAPL broken
-
-HAS/MAS References:
-  - DMR RAPL Simplification HAS: https://docs.intel.com/documents/pm_doc/src/server/DMR/PM%20Features/DMR_RAPL_Simplification.html
-  - NWP PM MAS — RAPL ZBB scope (DRAM/Platform/FastRAPL): https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html
-
-### NWP Project Relevance
-**Test Classification:** Regression (DMR-inherited)
-**Feature Status:** Expected to work
-**Test Purpose:** NWP ZBB negative validation: verify ZBB'd RAPL features (DRAM RAPL, Platform RAPL/Psys, FastRAPL, Fine-Grained Energy) are inaccessible on NWP. Socket RAPL should remain functional.
-**Negative Test Aspect:** None
-**NWP Delta:** Topology differences from DMR (2 CBB + 1 NIO); same Power/RAPL behavior expected
-
-## Section A: Critical Execution Path
-1. Step 1 — Verify DRAM RAPL fused off:
-2. Step 2 — Verify Platform RAPL/Psys not available:
-3. Step 3 — Verify Socket RAPL still works:
-
-## Section B: Component Interaction Diagram
-```mermaid
-sequenceDiagram
-    participant OS as Host OS
-    participant FW as PCode/OCode
-    participant HW as Hardware
-
-    OS->>FW: Send command via interface
-    FW->>HW: Configure registers
-    HW-->>FW: Acknowledge
-    FW-->>OS: Return status
-```
-
-## Section C: Interface Coverage Assessment
-| Interface | Covered | Notes |
-| --------- | ------- | ----- |
-| CSR | Yes | Primary interface |
-| MSR | Yes | Primary interface |
-| TPMI_IB | Yes | Primary interface |
-| 0x610 PKG_POWER_LIMIT | Yes | Register access |
-| DRAM RAPL MSRs | Yes | Register access |
-
-## Section D: NWP Specification References
-- **NWP PM HAS**: [NWP HAS - PM Features](https://docs.intel.com/documents/custom-xeon/newport-docs/has/Overview/NWP_HAS.html#pm-features)
-- **NWP PM MAS**: [NWP IMH SoC PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)
-- **DMR PM HAS**: [DMR SoC PM HAS](https://docs.intel.com/documents/pm_doc/src/server/DMR/SOC_PM_HAS/DMR_SOC_PM_HAS.html)
-- **Feature HAS**: [PNC PM HAS §7 - RAPL](https://docs.intel.com/documents/pm_doc/src/server/GNR/Features/LNC/GNR_LNC_RAPL.html)
-- **DMR CBB HAS**: [DMR CBB PM HAS - RAPL](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/PM%20HAS/cbb_pm_has.html#rapl)
-- **Intel® 64 and IA-32 SDM**: MSR definitions, CPUID enumeration
-
-## Section E: NWP Risk Assessment
-| Risk | Likelihood | Impact | Mitigation |
-| ---- | ---------- | ------ | ---------- |
-| Topology change | Medium | Medium | Verify on multi-die config |
-| Interface delta | Low | Low | Compare with DMR baseline |
-| Timing sensitivity | Low | Medium | Allow tolerance margins |
-
-## Section F: Recommendations
-1. Verify test works on NWP multi-die topology
-2. Check for any interface changes from DMR
-3. Update HAS references to NWP specifications
-4. Add negative test coverage if missing
-5. Consider additional stress test variants
+| Field | Value |
+|-------|-------|
+| **HSD ID** | [22022060651](https://hsdes.intel.com/appstore/article-one/#/22022060651) |
+| **Title** | DRAM RAPL ZBB Negative Checks |
+| **Segment** | PSS |
+| **Target Program** | NWP (Newport) |
+| **Feature** | Power / RAPL — DRAM RAPL |
+| **Val Environment** | virtual_platform, emulation |
+| **Parent TCD** | [22022060621 — NWP ZBB Negative Validation](https://hsdes.intel.com/appstore/article-one/#/22022060621) |
 
 ---
-*Generated from metadata on 2026-05-28 23:20:51*
+
+## Test Case Intent
+
+**Objective:** Verify that DRAM RAPL is correctly ZBB'd on NWP. DRAM RAPL (MSRs 0x618-0x61B) provides per-channel DRAM power limits and energy accounting on DMR; it is removed from NWP scope. All DRAM RAPL MSRs must return 0 and writes must be silently dropped. Socket RAPL (MSR 0x610 / TPMI) must remain functional.
+
+**Dual-Environment:** Runs on both VP (Simics) and emulation (HSLE).
+
+### Pre-Conditions
+
+| Pre-Condition | Expected State | Failure Indication |
+|---------------|---------------|-------------------|
+| Platform booted | NWP system accessible via PythonSV | Environment not booted |
+| DRAM RAPL fuse disabled | pcode_dram_rapl_disable=1 | Fuse not set — wrong model config |
+| MSR access available | pd.debug.access_to_msr(0x618) does not raise | MSR access not available |
+| Socket RAPL TPMI accessible | sv.socket0.nio.punit.tpmi.socket_rapl_pl1_control readable | TPMI not initialized |
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|------------------------|--------------------|
+| 1 | Read DRAM RAPL disable fuse: sv.socket0.nio.punit.fuses.punit.pcode_dram_rapl_disable | Returns 1 (DRAM RAPL disabled) | Returns 0 — DRAM RAPL unexpectedly enabled |
+| 2 | Read MSR 0x618 (DRAM_POWER_LIMIT): should be 0 | MSR reads 0 | Non-zero — DRAM PL register active |
+| 3 | Write non-zero to MSR 0x618 and read back | Readback = 0 (write silently dropped) | Readback reflects written value |
+| 4 | Read MSR 0x619 (DRAM_ENERGY_STATUS): should be 0 | MSR reads 0 (no DRAM energy counter) | Non-zero — DRAM energy counter running |
+| 5 | Read MSR 0x61A (DRAM_PERF_STATUS): should be 0 | MSR reads 0 | Non-zero — DRAM perf status active |
+| 6 | Read MSR 0x61B (DRAM_POWER_INFO): should be 0 | MSR reads 0 | Non-zero — DRAM power info populated |
+| 7 | Verify Socket RAPL PL1 TPMI reads valid TDP value | socket_rapl_pl1_control.pwr_lim returns non-zero TDP | Zero — Socket RAPL broken |
+| 8 | Verify Socket RAPL ENERGY_STATUS increments under load | Two reads of TPMI socket_rapl_energy_status show increasing value | Stuck at 0 — Socket RAPL energy counting broken |
+
+### Pass / Fail Criteria
+
+**PASS:** DRAM RAPL disable fuse=1; MSRs 0x618-0x61B all read 0; write to 0x618 silently dropped; Socket RAPL TPMI PL1 non-zero; ENERGY_STATUS increments under load.
+
+**FAIL:** Fuse=0 (wrong config); any DRAM RAPL MSR non-zero; write to 0x618 persists; Socket RAPL broken or energy counter stuck.
+
+### Post-Process
+
+Save: DRAM RAPL fuse, MSR 0x618-0x61B readbacks, Socket RAPL TPMI PL1 and ENERGY_STATUS samples, environment type.
+
+### Reference Documents
+
+- [Intel RAPL HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/RAPL/RAPL.html) — DRAM domain MSRs 0x618-0x61B
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — DRAM RAPL ZBB scope
+- [DMR RAPL Simplification HAS](https://docs.intel.com/documents/pm_doc/src/server/DMR/PM%20Features/DMR_RAPL_Simplification.html) — DRAM RAPL removal rationale
+- [Socket RAPL KB](../../pm_features/power_rapl/socket_rapl.md)
+
+---
+
+## Section A: NWP Disposition & Justification
+
+**Disposition: Runnable_On_N-1**
+
+DRAM RAPL is explicitly ZBB'd on NWP. NWP uses a different memory controller architecture that does not expose per-channel DRAM power limits. This negative test confirms ZBB enforcement across both VP and emulation.
+
+Tags: plc.zbb.p1, PMSS_NWP_READINESS_CHECK.
+
+---
+
+## Section B: NWP-Specific Test Procedure
+
+### DRAM RAPL ZBB Key Registers
+
+| Register | MSR / Path | Expected on NWP | Purpose |
+|----------|-----------|----------------|---------|
+| DRAM RAPL disable fuse | sv.socket0.nio.punit.fuses.punit.pcode_dram_rapl_disable | 1 | ZBB fuse |
+| DRAM_POWER_LIMIT | MSR 0x618 (deprecated) | 0 — write dropped | ZBB validation |
+| DRAM_ENERGY_STATUS | MSR 0x619 (deprecated) | 0 — counter inactive | ZBB validation |
+| DRAM_PERF_STATUS | MSR 0x61A (deprecated) | 0 | ZBB validation |
+| DRAM_POWER_INFO | MSR 0x61B (deprecated) | 0 | ZBB validation |
+| Socket RAPL PL1 | TPMI socket_rapl_pl1_control.pwr_lim | Non-zero TDP | Positive sanity |
+| Socket RAPL ENERGY | TPMI socket_rapl_energy_status | Increments under load | Positive sanity |
+
+### Adapted Steps
+
+| Step | Action | NWP Details |
+|------|--------|-------------|
+| 1 | Read DRAM fuse | sv.socket0.nio.punit.fuses.punit.pcode_dram_rapl_disable.get_value() |
+| 2 | Read MSRs 0x618-0x61B | Via pd.debug.access_to_msr(offset, core=first_core) on first core |
+| 3 | Write/readback 0x618 | Write 0xFFFF, read back — expect 0 |
+| 4 | Verify Socket RAPL TPMI | Read socket_rapl_pl1_control + socket_rapl_energy_status |
+
+### Pass Criteria
+
+DRAM fuse=1; MSRs 0x618-0x61B return 0; Socket RAPL TPMI valid and energy counter active.

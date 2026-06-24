@@ -19,6 +19,44 @@ PCT (Priority Core Turbo) is a distinct Intel PM feature that uses SST-TF CLOS-b
 partitioning to designate a small subset of HP cores to operate at an elevated turbo frequency
 (up to P0max, ~4.4 GHz on NWP) while clipping LP cores to approximately P1.
 
+### Block Diagram
+
+```
++-------------------------------------------------------------------------+
+| Boot Time (BIOS CPL3) -- per CBB dielet (cbb0, cbb1 on NWP)            |
+|                                                                         |
+|  SST_CLOS_CONFIG[0].max = HP TRL (~4.4 GHz)   <- HP ceiling            |
+|  SST_CLOS_CONFIG[3].max = LP clip (~P1)        <- LP ceiling            |
+|  SST_CLOS_ASSOC[core]: HP -> CLOS[0], LP -> CLOS[3]                    |
+|  SST_CP_CONTROL.SST_CP_PRIORITY_TYPE = 1       <- Ordered throttle      |
+|  SST_PP_CONTROL.feature_state[1] = 1           <- SST-TF active         |
+|  MSR 0x1AD = SST_TF_INFO_2.RATIO_0             <- HP TRL (not 0xFF)    |
++-----------------------------+-------------------------------------------+
+                              |
+                              | PCode reads CLOS config at runtime
+                              v
++-------------------------------------------------------------------------+
+| Runtime: PCode SST-TF FSM (per CBB Root Punit)                         |
+|                                                                         |
+|  HP cores: WP4 = SST_TF_INFO_2.RATIO_0  (~4.4 GHz ceiling)            |
+|  LP cores: WP4 = SST_TF_INFO_0.LP_CLIP_RATIO_0  (~P1 ceiling)         |
+|                                                                         |
+|  RAPL Ordered throttle (SST_CP_PRIORITY_TYPE=1):                        |
+|    Phase A: reduce LP first                                             |
+|    Phase B: maintain HP while LP still above min                        |
+|    Phase C: only then reduce HP                                         |
++-----------------------------+-------------------------------------------+
+                              |
+                              | WP4 per CLOS group broadcast to cores
+                              v
++-------------------------------------------------------------------------+
+| Core Perimeter (ACP / Acode) -- NWP: 2 CBBs x 48 cores = 96 total     |
+|  HP cores (~8): operate at HP TRL (~4.4 GHz) when power allows         |
+|  LP cores (~88): clipped to LP_CLIP (~P1) at all times                 |
+|  HWP_CAPABILITY.highest_perf: HP=P0max, LP=LP_clip (DLCP mode)        |
++-------------------------------------------------------------------------+
+```
+
 ### Primary Use Case (from PCT HAS)
 PCT targets Intel Xeon CPU+GPU/accelerator systems where a few CPUs in each partition are
 dedicated to servicing one GPU. These GPU-serving cores need maximum frequency while remaining
@@ -65,7 +103,12 @@ DLCP is a PCT evolution where HP core positions are **fixed at specific physical
 - PCT and FCT (Favored Core Turbo) are **mutually exclusive** (enforced by DQ rule)
 - If PCT_ENABLE: SST-TF must also be enabled
 
-## BIOS Knobs (from CPUPM BIOS Knobs Reference Gen 3)
+## Interfaces and Protocols — Discovery Registers
+
+> Placed under **Section 2: Interfaces and Protocols** — TPMI/MSR/NVRAM interfaces
+> through which SW observes and interacts with the PCT feature, plus BIOS knobs.
+
+### BIOS Knobs (from CPUPM BIOS Knobs Reference Gen 3)
 
 | BIOS Knob | Options | Default | Notes |
 |-----------|---------|---------|-------|
@@ -75,10 +118,7 @@ DLCP is a PCT evolution where HP core positions are **fixed at specific physical
 
 > Note: On DMR/NWP the PCT Partition Count knob defaults to 0 (disabled), customers must opt-in.
 
-## Interfaces and Protocols — Discovery Registers
-
-> Placed under **Section 2: Interfaces and Protocols** — these are the TPMI/MSR/NVRAM interfaces
-> through which SW observes and interacts with the PCT feature.
+### TPMI / MSR / NVRAM Registers
 
 | Interface | Register | Purpose |
 |-----------|----------|---------| 

@@ -71,7 +71,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
-<br/><p style="margin:10px 0 16px 0;">SW divides all available "processors" into N partitions (default N=4). The first processor in each partition is configured as the PCT HP (High Priority) core. This test verifies the default HP core selection algorithm produces the correct set of HP cores and CLOS assignments on NWP's 96-core topology.</p>
+<br/><p style="margin:10px 0 16px 0;">Verify that the default <strong>PCT high-priority (HP) core selection algorithm</strong> produces the correct HP core set, CLOS mapping, and HP/LP frequency policy on NWP. PCT divides available logical processors into N partitions; for the configured partition count, the platform selects default HP cores per the architectural PCT selection rule and programs the corresponding CLOS associations and CLOS frequency ceilings. <strong>Focus</strong>: default HP core selection and discovery -- not workload-based performance validation. <span style="display:block;background:#f0f4f9;border-left:3px solid #1a5fa8;padding:4px 10px;margin:4px 0;font-size:0.92em;color:#1e3a5f;"><strong>NWP authoritative HP count</strong>: 8 HP cores per product requirement (HSD 14026595435) -- if nominal formula (96/4 = 1 HP/partition = 4 HP) differs, product requirement takes precedence.</span> <span style="display:block;background:#f0f4f9;border-left:3px solid #1a5fa8;padding:4px 10px;margin:4px 0;font-size:0.92em;color:#1e3a5f;"><strong>DLCP</strong>: if SST_TF_INFO_10 is non-zero, fused HP mask governs -- SST_CLOS_ASSOC may not be sole source.</span> <strong>PASS</strong>: PCT active; SST-TF enabled; HP core count matches product requirement; HP -&gt; CLOS[0] and LP -&gt; CLOS[3] assignments correct; HP CLOS max = SST_TF_INFO_2.RATIO_0; LP CLOS max = LP_CLIP; HP cores expose elevated turbo vs LP. <strong>FAIL</strong>: PCT not active; wrong HP count; incorrect CLOS mapping; HP or LP CLOS ratios wrong; HP cores do not show elevated capability vs LP. Archive: logical processor list, HP/LP classification, TPMI register dumps (SST_CLOS_ASSOC, SST_CLOS_CONFIG, SST_CP_CONTROL, SST_PP_CONTROL, SST_TF_INFO_0/2/10), per-core HWP capability output.</p>
 
 <br/>
 
@@ -81,11 +81,15 @@
 <br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
 <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;padding:8px;">PCT enabled via BIOS knob (PCT Partition Count ≥ 1; default = 4)</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;padding:8px;">PCT enabled via BIOS / platform policy (PCT Partition Count >= 1; default = 4)</td></tr>
 
 <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;padding:8px;">SST-TF active (SST_PP_CONTROL.feature_state[1] = 1)</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;padding:8px;">All cores online (no BIST failures, no OS offlines)</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;padding:8px;">All logical processors online and available for discovery</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;padding:8px;">No defeatured / offline cores that invalidate expected partition topology</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">5</td><td style="text-align:left;padding:8px;">TPMI and architectural register read path available</td></tr>
 
 </table>
 
@@ -105,58 +109,65 @@
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Boot with PCT Partition Count = 4 (default)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">System boots with SST-TF/PCT active</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Boot with default PCT Partition Count = 4</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Platform boots with PCT / SST-TF active</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PCT not active or SST-TF not enabled</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
   <td style="text-align:left;vertical-align:top;padding:8px;">Read total available logical processors</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">96 (NWP: 2 CBBs × 48, no SMT)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">NWP: 96 (2 CBBs x 48, no SMT)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Unexpected count or topology mismatch</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Compute expected partitions: 96 ÷ 4 = 24 cores/partition</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">4 partitions of 24 cores each</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Compute expected partition size: total LPs / partition count</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">NWP default: 96 / 4 = 24 cores/partition</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Partition computation inconsistent</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Identify expected HP cores: first core of each partition</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Cores at indices 0, 24, 48, 72 (or 2 per partition = 8 total per CCB 14026595435)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Derive expected HP core indices per architectural selection rule</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Per NWP product req (HSD 14026595435): 8 HP cores total (2/partition x 4 partitions)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Derived HP set does not match platform-programmed result</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read `SST_CLOS_ASSOC` for each logical processor</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">HP cores → CLOS[0], LP cores → CLOS[3]</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read SST_CLOS_ASSOC for all logical processors</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">HP cores -> CLOS[0]; LP cores -> CLOS[3]</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Incorrect CLOS assignment</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify HP core CLOS config</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">`SST_CLOS_CONFIG[0].max = SST_TF_INFO_2.RATIO_0` (HP TRL)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read HP CLOS config: SST_CLOS_CONFIG[0].max</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">= SST_TF_INFO_2.RATIO_0 (~4.4 GHz HP TRL)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">HP CLOS max ratio incorrect</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify LP core CLOS config</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">`SST_CLOS_CONFIG[3].max = SST_TF_INFO_0.LP_CLIP_RATIO_0` (~P1)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read LP CLOS config: SST_CLOS_CONFIG[3].max</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">= SST_TF_INFO_0.LP_CLIP_RATIO_0 (~P1)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">LP CLOS max ratio incorrect</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">8</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read MSR 0x1AD on HP cores</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Overridden with HP TRL ratio</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read IA32_HWP_CAPABILITIES per core</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">HP cores: highest_perf = P0max; LP cores: highest_perf = LP clip</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">HP/LP distinction not visible</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">9</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read MSR 0x1AD (if applicable)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">HP TRL broadcast = SST_TF_INFO_2.RATIO_0 (not 0xFF per HSD 14025997048)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Incorrect or 0xFF value</td>
 </tr>
 
 </table>
@@ -171,13 +182,13 @@
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
   <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
-  <p style="margin:0;font-size:0.9em;">Correct number of HP cores selected per partition; CLOS assignments match HP/LP segmentation; HP cores report elevated TRL</p>
+  <p style="margin:0;font-size:0.9em;">PCT active; SST-TF enabled; HP core count matches product requirement; HP -> CLOS[0] and LP -> CLOS[3] assignments correct; HP CLOS max = SST_TF_INFO_2.RATIO_0; LP CLOS max = LP_CLIP; HP cores expose elevated turbo vs LP.</p>
 </div>
 
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
   <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
-  <p style="margin:0;font-size:0.9em;">Wrong HP core count, incorrect CLOS mapping, or LP cores not clipped</p>
+  <p style="margin:0;font-size:0.9em;">PCT not active; wrong HP count; incorrect CLOS mapping; HP or LP CLOS ratios wrong; HP cores do not show elevated capability vs LP.</p>
 </div>
 
 
@@ -191,13 +202,103 @@
 <br/>
 
 
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Health Check — Registers &amp; Logs to Collect</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">Register / Log</th>
+  <th style="text-align:left;padding:8px;">Access</th>
+  <th style="text-align:left;padding:8px;">Pass/Fail Criteria</th>
+</tr>
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">SST_PP_CONTROL.feature_state[1]</td>
+  <td style="text-align:left;padding:8px;">SST-TF active state</td>
+  <td style="text-align:left;padding:8px;"></td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">SST_CP_CONTROL</td>
+  <td style="text-align:left;padding:8px;">PCT enable / policy</td>
+  <td style="text-align:left;padding:8px;"></td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">SST_CLOS_ASSOC[all cores]</td>
+  <td style="text-align:left;padding:8px;">HP/LP to CLOS mapping</td>
+  <td style="text-align:left;padding:8px;"></td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">SST_CLOS_CONFIG[0].max</td>
+  <td style="text-align:left;padding:8px;">HP TRL ceiling</td>
+  <td style="text-align:left;padding:8px;"></td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">SST_CLOS_CONFIG[3].max</td>
+  <td style="text-align:left;padding:8px;">LP clip ceiling</td>
+  <td style="text-align:left;padding:8px;"></td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">SST_TF_INFO_0.LP_CLIP_RATIO_0</td>
+  <td style="text-align:left;padding:8px;">LP clip source</td>
+  <td style="text-align:left;padding:8px;"></td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">SST_TF_INFO_2.RATIO_0</td>
+  <td style="text-align:left;padding:8px;">HP TRL source</td>
+  <td style="text-align:left;padding:8px;"></td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">SST_TF_INFO_10</td>
+  <td style="text-align:left;padding:8px;">DLCP mask (non-zero = fused HP positions)</td>
+  <td style="text-align:left;padding:8px;"></td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">IA32_HWP_CAPABILITIES (0x771)</td>
+  <td style="text-align:left;padding:8px;">Per-core highest_perf</td>
+  <td style="text-align:left;padding:8px;"></td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">MSR 0x1AD</td>
+  <td style="text-align:left;padding:8px;">HP TRL broadcast</td>
+  <td style="text-align:left;padding:8px;"></td>
+</tr>
+
+
+</table>
 
 
 <br/>
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
-<br/><p style="margin:10px 0;">N/A</p>
+<br/><p style="margin:10px 0;">Archive: logical processor list, HP/LP classification, TPMI register dumps (SST_CLOS_ASSOC, SST_CLOS_CONFIG, SST_CP_CONTROL, SST_PP_CONTROL, SST_TF_INFO_0/2/10), per-core HWP capability output.</p>
 
 <br/>
 

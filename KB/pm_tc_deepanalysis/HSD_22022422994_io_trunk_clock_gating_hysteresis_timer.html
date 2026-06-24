@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+  <title>Deep Analysis: IO Trunk Clock gating — Hysteresis Timer</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Deep Analysis: IO Trunk Clock gating — Hysteresis Timer</h1>
+    <p>Segment: FV | Source: HSD_22022422994_io_trunk_clock_gating_hysteresis_timer.inference.md | Generated: 2026-06-22 23:07:35</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+    <button class="tab" data-tab="tab1">A: NWP Delta</button>
+    <button class="tab" data-tab="tab2">D: NWP Register Paths</button>
+    <button class="tab" data-tab="tab3">F: Recommendations</button>
+    <button class="tab" data-tab="tab4">G: PSS Grading</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>Deep Analysis: IO Trunk Clock gating — Hysteresis Timer</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>[22022422994](https://hsdes.intel.com/appstore/article-one/#/22022422994)</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>IO Trunk Clock gating_Hysterisis Timer</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-06-22</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>AIPM</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>IO Trunk Clock Gating — Hysteresis timer configuration checkout</td>
+</tr>
+<tr>
+<td>**Parent TCD**</td>
+<td>[22022421240 — MIO Trunk Clock gating Boot Time Setup](https://hsdes.intel.com/appstore/article-one/#/22022421240)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Open — boot-time hysteresis timer configuration checkout only**</td>
+</tr>
+<tr>
+<td>**Status**</td>
+<td>open</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>bg3</td>
+</tr>
+</tbody></table>
+<h2>NWP Scope Clarification</h2>
+<p>&gt; **No L1, no PkgC on NWP** → trunk clock gating entry never fires at runtime.</p>
+<p>&gt; This TC validates **hysteresis timer register programming correctness** at boot.</p>
+<p>&gt; Runtime entry timing, actual hysteresis firing, and residency are explicitly out of scope.</p>
+<p>---</p>
+<h2>Test Case Intent</h2>
+<p>Verify that PrimeCode correctly programs the **RC_MIO hysteresis timer** during PH6 per MAS §9.1.</p>
+<p>The hysteresis timer controls the delay between QCh idle detection and trunk clock gate assertion.</p>
+<p>Even though the timer never triggers on NWP (no L1), verifying the programmed value is correct</p>
+<p>ensures the infrastructure is ready for future silicon with L1 support.</p>
+<h3>Pre-Conditions</h3>
+<table class="md-table"><thead><tr>
+<th>Item</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>Platform</td>
+<td>NWP validation target with MIO trunk clock-gating boot setup flow enabled</td>
+</tr>
+<tr>
+<td>FW stack</td>
+<td>PrimeCode PH6 RC workpoint programming complete; PythonSV installed</td>
+</tr>
+<tr>
+<td>Automation</td>
+<td>`runPmx.py -x nwp.xml -p trunk_clkg -tM 6` (replace `dmr.xml`)</td>
+</tr>
+<tr>
+<td>Note</td>
+<td>Boot/setup hysteresis timer configuration check only</td>
+</tr>
+</tbody></table>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Boot platform; verify clean PH6 completion</td>
+<td>No BIOS hang, MCA, or soft hang</td>
+<td>Hang or MCA during PH6</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read RC_MIO hysteresis timer configuration registers (`HYSTERESIS_TIMER` / `IDLE_HYSTERESIS_TIMEOUT`)</td>
+<td>Registers readable; non-zero programmed value</td>
+<td>Unreadable or zero when non-zero expected</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Compare programmed timer value against MAS §9.1 spec-defined default or PrimeCode-programmed target</td>
+<td>Timer value matches expected NWP configuration</td>
+<td>Mismatch vs spec/expected</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Re-read after any platform sequencing; verify stability</td>
+<td>Timer value consistent across re-reads</td>
+<td>Value changes unexpectedly</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Check logs/telemetry for timer-related PM configuration errors</td>
+<td>No PM infrastructure or timer programming error</td>
+<td>Error logged indicating misconfiguration</td>
+</tr>
+</tbody></table>
+<h3>Pass / Fail Criteria</h3>
+<ul>
+<li>**PASS**: Hysteresis timer programmed to expected value; registers stable; no hang/MCA; no PM config error</li>
+<li>**FAIL**: Timer = 0 when non-zero expected; mismatch vs spec; register instability; hang/MCA</li>
+</ul>
+<p>&gt; **DO NOT** use &quot;hysteresis timer fired&quot; or &quot;trunk gating delay observed&quot; as pass criteria — timer never fires on NWP.</p>
+<p>---</p></div>
+  <div id="tab1" class="panel"><table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>Runtime hysteresis firing</td>
+<td>✅ Verified via residency timing</td>
+<td>❌ Never triggered</td>
+<td>Remove timing/delay observation; keep programming check</td>
+</tr>
+<tr>
+<td>Boot-time timer programming</td>
+<td>✅</td>
+<td>✅ (PH6)</td>
+<td>Core of this TC</td>
+</tr>
+<tr>
+<td>Hysteresis timer registers</td>
+<td>RC_MIO MMIO</td>
+<td>Same path — unchanged</td>
+<td>No path change</td>
+</tr>
+<tr>
+<td>Automation config</td>
+<td>`dmr.xml`</td>
+<td>`nwp.xml`</td>
+<td>Config swap required</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="tab2" class="panel"><table class="md-table"><thead><tr>
+<th>Register</th>
+<th>NWP Namednodes Path</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td>Hysteresis timer</td>
+<td>`sv.socket0.imh0.resctrl.rc_mio_ew.resctrl_prv_idle_timer`</td>
+<td>RC idle hysteresis timeout value</td>
+</tr>
+<tr>
+<td>QCh FSM policy</td>
+<td>`sv.socket0.imh0.resctrl.rc_mio_ew.resctrl_prvt_idle_late_regss`</td>
+<td>QCh FSM policy (enable_auto_idle + timer enable)</td>
+</tr>
+</tbody></table>
+<h3>PythonSV Validation Sketch</h3>
+<pre><code>
+# Hysteresis timer checkout (NWP)
+timer_val = sv.socket0.imh0.resctrl.rc_mio_ew.resctrl_prv_idle_timer.read()
+print(f&quot;RC idle hysteresis timer = {hex(timer_val)}  (expect non-zero per MAS §9.1)&quot;)
+assert timer_val != 0, &quot;Hysteresis timer must be programmed to non-zero value&quot;
+
+# Re-read for stability
+timer_val2 = sv.socket0.imh0.resctrl.rc_mio_ew.resctrl_prv_idle_timer.read()
+assert timer_val == timer_val2, f&quot;Timer value changed: {hex(timer_val)} -&gt; {hex(timer_val2)}&quot;
+print(&quot;PASS: Timer value stable&quot;)
+</code></pre>
+<p>---</p></div>
+  <div id="tab3" class="panel"><p>Keep open. Change automation from `dmr.xml` to `nwp.xml`. Remove any &quot;hysteresis firing observed&quot; from pass criteria. Validate programmed value only.</p>
+<p>---</p></div>
+  <div id="tab4" class="panel"><table class="md-table"><thead><tr>
+<th>Sl No</th>
+<th>Dimension</th>
+<th>Value</th>
+<th>Rationale</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>NWP Delta</td>
+<td>Yes</td>
+<td>Remove firing/timing observation; config swap</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Applicable NWP</td>
+<td>Yes (boot-time)</td>
+<td>Timer programmed at PH6 unconditionally</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PSS Environment</td>
+<td>HSLE</td>
+<td>Boot register state verifiable on HSLE</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Silicon Only</td>
+<td>No</td>
+<td>HSLE/VP feasible</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Test Content</td>
+<td>DMR_M</td>
+<td>Medium: remove runtime expectations</td>
+</tr>
+<tr>
+<td>6</td>
+<td>OS</td>
+<td>sv-os</td>
+<td>PythonSV register reads</td>
+</tr>
+</tbody></table>
+<h3>References</h3>
+<ul>
+<li>[AIPM KB — aipm.md](../../pm_features/pm_cross_products/aipm.md) — RC boot-time programming</li>
+<li>[NWP PM MAS §9.1](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — RC workpoint + timer programming</li>
+<li>[RC TRM HAS](https://docs.intel.com/documents/sysip_pm/resource_controller/TRM/TRM.html) — Hysteresis timer register definitions</li>
+</ul></div>
+  </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

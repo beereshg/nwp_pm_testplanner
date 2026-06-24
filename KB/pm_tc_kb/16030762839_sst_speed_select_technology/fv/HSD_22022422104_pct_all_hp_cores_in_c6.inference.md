@@ -28,55 +28,62 @@
 
 ## Test Case
 
-### Intent
+### Test Case Intent
 
-Verify that the LP core frequency clipping invariant is maintained when all HP cores enter C6 idle state under PCT (Priority Core Turbo). This test validates a critical cross-product interaction between SST-TF CLOS-based frequency partitioning and core C-state power management: even when all HP (CLOS[0]) cores are idle in C6, LP (CLOS[3]) cores must remain clipped to the LP_CLIP_RATIO — they must **not** gain access to the HP turbo frequency budget.
+Verify that when **all HP cores are placed in C6** and **HWP requests maximum frequency** via
+`IA32_HWP_REQUEST (MSR 0x774)`, the **LP cores remain clipped** to `LP_CLIP_RATIO` per PCT
+policy on NWP. This is a **runtime functional validation** — not just a boot-time TPMI check.
 
-This is architecturally significant because PCode's TRL tables are indexed by active core count (not in C6). When HP cores enter C6, the active core count drops, which could theoretically allow LP cores higher turbo headroom. However, the CLOS-based partitioning must still enforce the LP clip ceiling regardless of HP core C-state residency.
+The test validates the cross-product interaction between SST-TF CLOS frequency partitioning
+and core C6 power management. When all HP (CLOS[0]) cores idle in C6, LP (CLOS[3]) cores
+must still not gain access to the HP turbo budget. PCode recalculates TRL tables on active
+core-count change, but the CLOS-based LP clip ceiling must remain enforced regardless of HP
+C-state residency.
+
+**Key distinction**: TC 22022422103 (TPMI register check) validates boot-time TPMI
+programming. This TC validates **runtime behavior under HP-core C6 conditions**.
+
 
 ### Pre-Conditions
 
-1. SVOS booted with C-states enabled (C6 supported on NWP)
-2. PCT enabled via BIOS knob: PCT Partition Count = 4 (default)
-3. SST-TF activated: `SST_PP_CONTROL.feature_state[1] = 1`
-4. HP cores assigned to CLOS[0], LP cores to CLOS[3]
-5. 8 HP cores across 4 partitions (2 per partition × 2 CBBs × 48 cores)
-6. PythonSV or PMx test framework available
-7. HWP enabled (MSR 0x770 IA32_PM_ENABLE = 1)
+| Item | Requirement |
+|------|-------------|
+| Platform | NWP silicon or emulation with PCT enabled and C6 capable |
+| BIOS knobs | PCT Partition Count = 4 (default); HP core count = 8 across 4 partitions |
+| FW stack | PCode, PrimeCode, PythonSV/PMx available; HWP enabled (`IA32_PM_ENABLE` = 1) |
+| SST-TF active | `SST_PP_CONTROL.feature_state[1]` = 1; HP→CLOS[0], LP→CLOS[3] |
+| C-state control | Ability to enable/disable C6 per core |
+| HWP access | Ability to write `IA32_HWP_REQUEST (MSR 0x774)` |
 
 ### Test Steps
 
-| Step | Action | Interface | NWP Adaptation | Expected |
-|------|--------|-----------|----------------|----------|
-| 1 | Disable all C-states via OS/BIOS | MSR 0xE2 / BIOS | Same | All cores in C0 |
-| 2 | Enable PCT: BIOS PCT Partition Count = 4 | BIOS Setup | Same | 8 HP + 88 LP cores configured |
-| 3 | Verify SST-TF active: read `SST_PP_CONTROL.feature_state[1]` | TPMI MMIO | Same | Bit 1 = 1 |
-| 4 | Verify CLOS assignments: HP→CLOS[0], LP→CLOS[3] | TPMI SST_CLOS_ASSOC | Same | 8 cores in CLOS[0], 88 in CLOS[3] |
-| 5 | Record baseline LP frequency: read `SST_CLOS_CONFIG[3].max` | TPMI MMIO | Same | LP_CLIP_RATIO (≈P1) |
-| 6 | Record baseline HP frequency: read `SST_CLOS_CONFIG[0].max` | TPMI MMIO | Same | PCT TRL ratio (4.4 GHz target) |
-| 7 | Enable C6 on all cores | MSR 0xE2 | Same | C6 allowed |
-| 8 | Set HWP request max frequency on all cores: write MSR 0x774 | MSR | Same | All cores request max |
-| 9 | Load HP cores with workload, keep LP cores loaded | Test | CBB0+CBB1 (2 CBBs vs 4) | HP at PCT TRL, LP at LP clip |
-| 10 | Remove load from all HP cores — drive HP cores into C6 | Test | Same | All 8 HP cores enter C6 |
-| 11 | Verify LP cores remain clipped: read LP core effective frequency | MSR 0x198 / TPMI | Same | LP ratio ≤ LP_CLIP_RATIO |
-| 12 | Verify LP cores did NOT gain HP turbo headroom | MSR 0x771 / perf counters | Same | LP highest_perf unchanged |
-| 13 | Wake HP cores from C6 (apply load) | Test | Same | HP cores resume at PCT TRL |
-| 14 | Verify LP still clipped after HP wake | MSR 0x198 | Same | LP ratio ≤ LP_CLIP_RATIO |
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|------------------------|--------------------|
+| 1 | Confirm PCT active: verify `SST_PP_CONTROL.feature_state[1]`=1 and CLOS assignments (HP→CLOS[0], LP→CLOS[3]) | 8 HP cores in CLOS[0]; 88 LP in CLOS[3] | PCT not enabled or CLOS mismatch |
+| 2 | Record baseline LP frequency via `SST_CLOS_CONFIG[3].max` and HP via `SST_CLOS_CONFIG[0].max` | LP baseline ≤ LP_CLIP_RATIO (~P1); HP baseline at PCT TRL (~4.4 GHz) | Baseline register mismatch |
+| 3 | Enable C6 on all cores; program `IA32_HWP_REQUEST (MSR 0x774)` to request max frequency | HWP max request active; C6 allowed | MSR write/readback mismatch |
+| 4 | Drive all 8 HP cores into C6; verify residency via `IA32_CORE_C6_RESIDENCY (MSR 0x3FD)` | All HP cores in C6; residency counter incrementing | HP cores fail to enter/hold C6 |
+| 5 | While HP cores in C6: read LP core effective frequency via `IA32_PERF_STATUS (MSR 0x198)` and `IA32_HWP_CAPABILITIES (MSR 0x771)` per LP core | LP ratio ≤ LP_CLIP_RATIO; `highest_perf` unchanged from baseline | LP cores exceed LP clip or gain HP budget |
+| 6 | Wake HP cores from C6 (apply load); re-read LP core effective frequency | LP still clipped; HP resumes PCT TRL (~4.4 GHz) | LP or HP frequency incorrect after C6 exit |
+| 7 | Run automation: `runPmx.py -x nwp.xml -p pct -tM 60 -M 10 --retry_count 2` | Automation PASS | Script FAIL or timeout |
 
 ### Pass/Fail Criteria
 
 **PASS:**
-- LP core effective frequency ≤ LP_CLIP_RATIO at all times (steps 11, 14)
-- LP cores do not gain frequency headroom when HP cores are in C6
-- HP cores achieve C6 residency (verified via MSR 0x3FD IA32_CORE_C6_RESIDENCY or equivalent)
-- HP cores resume PCT TRL frequency on C6 exit
+- LP core effective frequency ≤ `LP_CLIP_RATIO` at all times (steps 5, 6)
+- LP cores do **not** gain frequency headroom when HP cores are in C6
+- HP cores achieve C6 residency (MSR 0x3FD counter incrementing)
+- HP cores resume PCT TRL (~4.4 GHz on NWP) after C6 exit
+- `IA32_HWP_REQUEST (0x774)` max-frequency request confirmed active
 - `runPmx.py -x nwp.xml -p pct` passes
 
 **FAIL:**
-- LP core frequency exceeds LP_CLIP_RATIO while HP cores are in C6
-- HP cores fail to enter C6
+- LP core frequency exceeds `LP_CLIP_RATIO` while HP cores are in C6
+- HP cores fail to enter or hold C6
 - HP cores do not return to PCT TRL after C6 exit
 - SST-TF CLOS enforcement lost during C-state transitions
+- Any hang, MCA, soft hang, or PM error observed
+
 
 ---
 

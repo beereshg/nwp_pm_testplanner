@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+  <title>Deep Analysis: IO Trunk Clock Gating — Late QChannel and Noise QCh Enabling</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Deep Analysis: IO Trunk Clock Gating — Late QChannel and Noise QCh Enabling</h1>
+    <p>Segment: FV | Source: HSD_22022422990_io_trunk_clock_gating_late_qchannel_noise_qch_enabling.inference.md | Generated: 2026-06-22 23:01:05</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+    <button class="tab" data-tab="tab1">A: NWP Delta</button>
+    <button class="tab" data-tab="tab2">B: Interactions</button>
+    <button class="tab" data-tab="tab3">C: Coverage</button>
+    <button class="tab" data-tab="tab4">D: Spec Refs &amp; NWP Register Paths</button>
+    <button class="tab" data-tab="tab5">E: Risk Assessment</button>
+    <button class="tab" data-tab="tab6">F: Recommendations</button>
+    <button class="tab" data-tab="tab7">G: PSS Grading</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>Deep Analysis: IO Trunk Clock Gating — Late QChannel and Noise QCh Enabling</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>[22022422990](https://hsdes.intel.com/appstore/article-one/#/22022422990)</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>IO Trunk Clock Gating_Late QChannel and Noise QCh enabling</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-06-22</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Segment**</td>
+<td>FV</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>AIPM</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>IO Trunk Clock Gating — QCh autonomous-idle enable configuration</td>
+</tr>
+<tr>
+<td>**Parent TCD**</td>
+<td>[22022421240 — MIO Trunk Clock gating Boot Time Setup](https://hsdes.intel.com/appstore/article-one/#/22022421240)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Open — boot-time register config checkout only**</td>
+</tr>
+<tr>
+<td>**Status**</td>
+<td>open</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>bg3</td>
+</tr>
+</tbody></table>
+<h2>NWP Scope Clarification</h2>
+<p>&gt; **No L1, no PkgC on NWP** → trunk clock gating entry never fires at runtime.</p>
+<p>&gt;</p>
+<p>&gt; This TC is applicable to NWP **only** as a **boot-time QCh autonomous-idle configuration checkout**.</p>
+<p>&gt; The DMR-origin framing (&quot;trigger idle/power-state transition&quot;, &quot;residency observed&quot;) must NOT be applied on NWP.</p>
+<h2>Version History</h2>
+<ul>
+<li>v1 (2026-06-22): New — NWP-rewritten from stale DMR content; remove runtime entry/residency expectations</li>
+</ul>
+<p>---</p>
+<h2>Test Case Intent</h2>
+<p>Verify that the **late Q-Channel and noise Q-Channel autonomous-idle enable configuration** is</p>
+<p>programmed correctly for the MIO trunk clock-gating infrastructure after boot. PrimeCode programs</p>
+<p>`QCH_FSM_POLICY.ENABLE_AUTO_IDLE` and strap defaults per MAS §9.1 during PH6.</p>
+<p>**On NWP** (no L1, no PkgC): trunk clock gating never fires at runtime. This TC confirms the</p>
+<p>**register plumbing is correct** — correct strap/policy values, no hang/MCA after setup, state</p>
+<p>preserved across re-reads. It is explicitly **not** a runtime entry/residency test.</p>
+<p>**Reference**: [HSD 22021621791](https://hsdes.intel.com/appstore/article-one/#/22021621791) — MIO TCG spec update for UXI link (RC autonomous-idle strap/policy definitions)</p>
+<h3>Pre-Conditions</h3>
+<table class="md-table"><thead><tr>
+<th>Item</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>Platform</td>
+<td>NWP validation target with AIPM boot-time setup flow enabled</td>
+</tr>
+<tr>
+<td>FW stack</td>
+<td>PrimeCode PH6 RC workpoint programming complete; PythonSV installed</td>
+</tr>
+<tr>
+<td>BIOS</td>
+<td>AIPM feature not force-disabled (`pcode_aipm_mio_trunk_clock_gating_disable` = 0)</td>
+</tr>
+<tr>
+<td>Automation</td>
+<td>`runPmx.py -x nwp.xml -p trunk_clkg -tM 6` (NWP config — replace `dmr.xml`)</td>
+</tr>
+</tbody></table>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Boot platform; verify no BIOS hang or MCA during PH6 RC programming</td>
+<td>Clean boot; PrimeCode RC workpoint programming completes without error</td>
+<td>BIOS hang, MCA, or soft hang</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read `QCH_FSM_POLICY.ENABLE_AUTO_IDLE` for all late QCh instances (`resctrl_prvt_idle_late_regss`)</td>
+<td>`enable_auto_idle` = 1 for enabled stacks per MAS §9.1</td>
+<td>Bit = 0 on expected stacks; or register unreadable</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read `QCH_FSM_POLICY.ENABLE_AUTO_IDLE` for noise QCh instances (`resctrl_prvt_idle_noise_regs0`)</td>
+<td>`enable_auto_idle` = 1 for enabled stacks per MAS §9.1</td>
+<td>Bit = 0 on expected stacks</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read late/noise QCh strap defaults (`strap_l_autonomous_idle_enable_default`, `strap_n_autonomous_idle_enable_default`)</td>
+<td>Strap values match PrimeCode-programmed enable mask; consistent across re-reads</td>
+<td>Strap mismatch or read instability</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Confirm disabled stacks have AIPM skipped (CMPL_STATUS=2 path, MAS §9.2)</td>
+<td>Disabled stacks: `ENABLE_AUTO_IDLE` = 0; PrimeCode did not program AIPM for them</td>
+<td>Disabled stack incorrectly shows AIPM enabled</td>
+</tr>
+</tbody></table>
+<h3>Pass / Fail Criteria</h3>
+<ul>
+<li>**PASS**: All `ENABLE_AUTO_IDLE` bits match expected programmed values per MAS §9.1; strap defaults consistent; no hang/MCA; disabled stacks correctly skipped</li>
+<li>**FAIL**: Any `ENABLE_AUTO_IDLE` mismatch; BIOS hang or MCA; disabled stack incorrectly enabled; register read instability</li>
+</ul>
+<p>&gt; **DO NOT** use &quot;residency observed&quot; or &quot;autonomous entry confirmed&quot; as pass criteria on NWP — trunk gating entry never fires (no L1 trigger).</p>
+<p>---</p></div>
+  <div id="tab1" class="panel"><table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact on This TC</th>
+</tr></thead><tbody>
+<tr>
+<td>Runtime TCG entry</td>
+<td>✅ L1-triggered</td>
+<td>❌ No L1, no PkgC</td>
+<td>Remove entry/residency expectations entirely</td>
+</tr>
+<tr>
+<td>Boot-time QCh programming</td>
+<td>✅ Active</td>
+<td>✅ Active</td>
+<td>Core of this TC — still valid</td>
+</tr>
+<tr>
+<td>QCh FSM policy registers</td>
+<td>`sv.socket0.imh0.resctrl.*`</td>
+<td>Same path — unchanged</td>
+<td>No path change needed</td>
+</tr>
+<tr>
+<td>RC Gen4 lnpv variant</td>
+<td>✅</td>
+<td>✅</td>
+<td>NUM_QCH_LATE=9, NUM_QCH_NOISE=9</td>
+</tr>
+<tr>
+<td>Automation config</td>
+<td>`runPmx.py -x dmr.xml`</td>
+<td>`runPmx.py -x nwp.xml`</td>
+<td>**Config file swap required**</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="tab2" class="panel"><table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Actor</th>
+<th>Action</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>PrimeCode (PH6)</td>
+<td>Reads LFCLK RA → programs `QCH_FSM_POLICY.ENABLE_AUTO_IDLE` per §9.1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>PrimeCode (PH6)</td>
+<td>§9.2: skips disabled stacks (CMPL_STATUS=2) → does NOT enable AIPM</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Test/PythonSV</td>
+<td>Reads all late/noise QCh policy registers; compares to expected enable mask</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="tab3" class="panel"><table class="md-table"><thead><tr>
+<th>Coverage Area</th>
+<th>NWP Applicable</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>Late QCh `ENABLE_AUTO_IDLE` programming</td>
+<td>✅ Yes</td>
+<td>Core of TC</td>
+</tr>
+<tr>
+<td>Noise QCh `ENABLE_AUTO_IDLE` programming</td>
+<td>✅ Yes</td>
+<td>Core of TC</td>
+</tr>
+<tr>
+<td>Strap default verification</td>
+<td>✅ Yes</td>
+<td>Validate strap values post-boot</td>
+</tr>
+<tr>
+<td>Disabled stack skip (CMPL_STATUS=2)</td>
+<td>✅ Yes</td>
+<td>Negative correctness check</td>
+</tr>
+<tr>
+<td>Runtime TCG entry/residency</td>
+<td>❌ No</td>
+<td>Not applicable — no L1 on NWP</td>
+</tr>
+<tr>
+<td>L1-triggered autonomous idle</td>
+<td>❌ No</td>
+<td>L1 ZBB&#x27;d — no trigger available</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="tab4" class="panel"><table class="md-table"><thead><tr>
+<th>Register</th>
+<th>NWP Namednodes Path</th>
+<th>Description</th>
+</tr></thead><tbody>
+<tr>
+<td>Late QCh FSM policy</td>
+<td>`sv.socket0.imh0.resctrl.rc_mio_ew.resctrl_prvt_idle_late_regss`</td>
+<td>`ENABLE_AUTO_IDLE` bit per late QCh</td>
+</tr>
+<tr>
+<td>Noise QCh FSM policy</td>
+<td>`sv.socket0.imh0.resctrl.rc_mio_ew.resctrl_prvt_idle_noise_regs0`</td>
+<td>`ENABLE_AUTO_IDLE` bit for noise QCh</td>
+</tr>
+<tr>
+<td>Late QCh strap default</td>
+<td>`sv.socket0.imh0.resctrl.rc_mio_ew.strap_l_autonomous_idle_enable_default`</td>
+<td>Default enable mask from strap</td>
+</tr>
+<tr>
+<td>Noise QCh strap default</td>
+<td>`sv.socket0.imh0.resctrl.rc_mio_ew.strap_n_autonomous_idle_enable_default`</td>
+<td>Default enable mask from strap</td>
+</tr>
+<tr>
+<td>AIPM fuse disable</td>
+<td>`sv.sockets.imhs.fuses.punit.pcode_aipm_mio_trunk_clock_gating_disable`</td>
+<td>Must be 0 for AIPM enabled</td>
+</tr>
+</tbody></table>
+<h3>PythonSV Validation Sketch</h3>
+<pre><code>
+# Boot-time QCh enable verification (NWP)
+# Check late QCh autonomous-idle enable programming
+for ch in range(9):  # NUM_QCH_LATE = 9 (Gen4 lnpv)
+    en = sv.socket0.imh0.resctrl.rc_mio_ew.resctrl_prvt_idle_late_regss[ch].qch_fsm_policy.enable_auto_idle.read()
+    print(f&quot;Late QCh[{ch}] ENABLE_AUTO_IDLE = {en}&quot;)
+
+# Check noise QCh autonomous-idle enable programming
+for ch in range(9):  # NUM_QCH_NOISE = 9
+    en = sv.socket0.imh0.resctrl.rc_mio_ew.resctrl_prvt_idle_noise_regs0[ch].i_qch_ctrl.enable_auto_idle.read()
+    print(f&quot;Noise QCh[{ch}] ENABLE_AUTO_IDLE = {en}&quot;)
+
+# Check AIPM not globally disabled
+fuse_dis = sv.sockets.imhs.fuses.punit.pcode_aipm_mio_trunk_clock_gating_disable.read()
+print(f&quot;AIPM disable fuse = {fuse_dis}  (expect 0)&quot;)
+</code></pre>
+<p>---</p></div>
+  <div id="tab5" class="panel"><table class="md-table"><thead><tr>
+<th>#</th>
+<th>Risk</th>
+<th>Severity</th>
+<th>Notes</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Automation still uses `dmr.xml` in HSD description</td>
+<td>Medium</td>
+<td>Must change to `nwp.xml` before execution</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Old pass criteria reference &quot;residency/entry&quot; — inapplicable on NWP</td>
+<td>High</td>
+<td>Must be removed from TC description</td>
+</tr>
+<tr>
+<td>3</td>
+<td>strap default values may differ between DMR and NWP RC variant</td>
+<td>Low</td>
+<td>Read and compare vs MAS §9.1 expected values</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="tab6" class="panel"><p>**Keep TC open — rewrite description to remove DMR-inherited runtime entry language.**</p>
+<p>Specific changes needed in HSD TC description:</p>
+<p>1. **Remove**: &quot;trigger the target idle/power-state transition&quot; and &quot;Target transition/residency is observed&quot;</p>
+<p>2. **Replace with**: boot-time register configuration checkout steps (see Test Steps above)</p>
+<p>3. **Change automation**: `dmr.xml` → `nwp.xml`</p>
+<p>4. **Update scope**: explicitly state &quot;no runtime TCG entry validation on NWP — no L1&quot;</p>
+<p>5. **Keep references**: HSD 22021621791 (UXI TCG spec) + MAS §9.1 link</p>
+<p>---</p></div>
+  <div id="tab7" class="panel"><table class="md-table"><thead><tr>
+<th>Sl No</th>
+<th>Dimension</th>
+<th>Value</th>
+<th>Rationale</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>NWP Delta</td>
+<td>Yes</td>
+<td>Remove runtime entry/residency; add §9.2 disabled-stack skip; config file swap</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Applicable NWP</td>
+<td>**Yes (boot-time only)**</td>
+<td>QCh programming happens on NWP; only runtime entry is N/A</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PSS Environment</td>
+<td>Partial</td>
+<td>HSLE can validate boot-time register state; cannot validate runtime TCG entry</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Silicon Only</td>
+<td>No</td>
+<td>Boot-time register checkout feasible on HSLE / VP</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Test Content</td>
+<td>DMR_M</td>
+<td>Medium adaptation: rewrite intent, remove entry/residency, add NWP path/config</td>
+</tr>
+<tr>
+<td>6</td>
+<td>OS</td>
+<td>sv-os</td>
+<td>PythonSV register reads under SVOS</td>
+</tr>
+</tbody></table>
+<h3>Verdict</h3>
+<p>**Open — rewrite required.** Boot-time QCh autonomous-idle enable checkout is valid on NWP. Runtime entry/residency expectations must be removed. Automation config file must be updated to `nwp.xml`.</p></div>
+  </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

@@ -14,6 +14,81 @@
 
 ---
 
+## Test Case Intent
+
+Verify the **Socket RAPL x PCT cross-product** behavior under **PL1/TDP enforcement** on NWP. When the socket is power-constrained by RAPL PL1, **PCT Ordered Throttling** must preserve HP priority:
+
+- **LP cores throttled first** (Phase A)
+- **HP cores maintained while LP cores still have reduction headroom** (Phase B)
+- **HP cores reduced only after LP reduction is exhausted** (Phase C if needed)
+
+This is the key functional invariant for RAPL x PCT interaction. If HP cores are reduced before LP-first behavior is observable, Ordered Throttling is not functioning correctly.
+
+> Ordered Throttling Phases: Phase A (LP-only reduction) -> Phase B (LP at min, HP maintained) -> Phase C (HP reduction only if required)
+
+> This TC does **not** validate boot-time configuration or standalone PCT frequency separation outside the power-constrained case.
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| 1 | Platform boots with PCT enabled (PCT Partition Count >= 2; default = 4) |
+| 2 | SST-TF active; SST_CP_CONTROL.sst_cp_priority_type = 1 (Ordered Throttling) |
+| 3 | HP cores assigned to CLOS[0]; LP cores to CLOS[3] |
+| 4 | RAPL PL1 programmed below active platform power to force throttling |
+| 5 | Sustained CPU workload on all active cores |
+| 6 | No unrelated thermal/external limiter dominating the result |
+| 7 | 
+unPmx.py available with NWP XML (
+wp.xml) |
+
+### Recommended Baseline Registers
+
+| Register | Purpose |
+|----------|---------|
+| SST_CP_CONTROL.sst_cp_priority_type | Confirm Ordered Throttling = 1 |
+| SST_CLOS_ASSOC[] | HP/LP core mapping |
+| SST_CLOS_CONFIG[0].max | HP ceiling = SST_TF_INFO_2.RATIO_0 |
+| SST_CLOS_CONFIG[3].max | LP clip = SST_TF_INFO_0.LP_CLIP_RATIO_0 |
+| TPMI PERF_STATUS.PWR_LIMIT_THROTTLE_CTR | RAPL throttle accounting |
+| IA32_PERF_STATUS (MSR 0x198) | Per-core frequency observation |
+| TPMI PL1_CONTROL | Confirm active RAPL PL1 value |
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|------------------------|--------------------|
+| 1 | Confirm SST_CP_PRIORITY_TYPE = 1 (Ordered Throttling) per CBB | Ordered Throttling configured | != 1 |
+| 2 | Program RAPL PL1 below current platform power; apply sustained workload | RAPL enforcement active; PERF_STATUS counter increments | RAPL not enforcing |
+| 3 | Read LP core effective frequency via IA32_PERF_STATUS (MSR 0x198) | LP cores reduce first below unconstrained operating point | LP cores not reduced first |
+| 4 | Read HP core effective frequency via IA32_PERF_STATUS (MSR 0x198) | HP cores remain at/near PCT TRL while LP cores still have reduction headroom | HP cores reduced before LP-first behavior exhausted |
+| 5 | Compare HP vs LP during convergence window | Clear LP-first priority: LP throttled more than HP during Phase A/B | Simultaneous or inverted throttle order |
+| 6 | Verify TPMI PERF_STATUS.PWR_LIMIT_THROTTLE_CTR increments under load | Counter active; RAPL is the limiter | No throttle accounting |
+| 7 | Observe through convergence; confirm ordering rule maintained | Ordered phase behavior consistent throughout | No observable ordered throttling |
+| 8 | Run automation: 
+unPmx.py -x nwp.xml -p pct -tM 60 -M 10 --retry_count 2 | Automation PASS | Script FAIL or timeout |
+
+### Pass / Fail Criteria
+
+**PASS**: RAPL PL1 enforces power budget; LP cores throttled first (Phase A behavior); HP cores maintain PCT TRL while LP cores still have remaining reduction headroom; PERF_STATUS shows active throttle; ordering rule preserved throughout convergence; automation passes.
+
+**FAIL**: HP cores throttled before LP-first behavior observed; no observable LP-first throttle order; Ordered Throttling not functioning; RAPL not enforcing; automation fails.
+
+### Post-Process
+
+Save: TPMI snapshots (before/during), per-core HP/LP frequency observations across convergence window, PERF_STATUS deltas, automation log, active RAPL PL1 value.
+
+### Reference Documents
+
+- [PCT HAS](https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html) — Ordered Throttling phases, CLOS priority model
+- [Intel SST HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html) — SST_CP_CONTROL.sst_cp_priority_type, SST_CLOS_CONFIG
+- [Intel RAPL HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/RAPL/RAPL.html) — TPMI PERF_STATUS, Socket RAPL PL1 algorithm
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP RAPL x PCT integration
+- [PCT KB — pct.md](../../../pm_features/sst/pct.md)
+- [CCB HSD 14026595435](https://hsdes.intel.com/appstore/article-one/#/14026595435) — NWP PCT target: 8 HP cores, ~4.4 GHz
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**
