@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
+  <title>TC: CBB CCF PM Cstate wake events across Activeidle</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:4px;}
+    .header .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+    .chip{background:rgba(255,255,255,.18);border-radius:12px;padding:2px 10px;font-size:11px;}
+    .chip.disp{background:#1565c0;font-weight:bold;}
+    a.hsd-link{color:#90caf9;font-size:11px;margin-left:8px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar button{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 18px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar button:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar button.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    .panel code{font-family:Consolas,monospace;}
+    table.md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    table.md-table th,table.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    table.md-table th{background:#e8eef7;font-weight:600;}
+    table.md-table tr:nth-child(even){background:#f8fafc;}
+    .tc-content{font-size:12.5px;}
+    .tc-content h3{color:#004a80;font-size:13px;margin:14px 0 4px;
+        background:#cce4f7;padding:8px 14px;border-left:4px solid #0071c5;border-radius:0 4px 4px 0;font-weight:bold;}
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>CBB CCF PM Cstate wake events across Activeidle
+    <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022422868" target="_blank" rel="noopener">HSD 22022422868 ↗</a>
+  </h1>
+  <div class="chips">
+    <span class="chip">CBB CCF -- Active Idle wake event handling › </span>
+    <span class="chip disp"></span>
+    <span class="chip">Env: silicon, virtual_platform</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="active" data-tab="tc">Test Case</button>
+  <button data-tab="sec-a">A: NWP Delta</button>
+  <button data-tab="sec-b">B: Interactions</button>
+  <button data-tab="sec-c">C: Coverage</button>
+  <button data-tab="sec-d">D: Spec Refs</button>
+  <button data-tab="sec-e">E: Risks</button>
+  <button data-tab="sec-f">F: Recommendations</button>
+</div>
+
+<div class="panels">
+  <div id="tc" class="panel active tc-content">
+
+
+
+
+<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
+<br/><p style="margin:10px 0 16px 0;"><strong>Objective:</strong> Validate that the CBB CCF ring correctly handles wake events that arrive during <strong>Active Idle</strong> — the transient window where all cores have issued a MWAIT C-state hint but the Q-channel deassert sequence (CFC_CLK / CFC_PWR / INF qactive) has not yet completed. Wake events must abort Active Idle cleanly: Q-channels re-assert, core power-up resumes, PICLET replays queued interrupts, and the CCF ring restores to its pre-idle frequency without spurious PLR or stuck state. <strong>Active Idle definition:</strong> All cores have deasserted <code>core_active</code> and the PMA is transitioning Q-channels toward zero. A wake event (timer, interrupt, or PEGA injection) during this window triggers immediate abort — the CCF ring never fully powers down and must recover within the normal wake latency. <strong>NWP scope:</strong> MC6 is the deepest idle state on NWP (PkgC6 fused off). Active Idle / wake event behavior in MC6 context is the primary validation target on silicon. PkgC6 cross-product scenarios are not applicable on NWP customer parts. <strong>PASS:</strong> All phases complete without hang; MC6 residency increments; Q-channels re-assert on wake; CCF ratio restores to pre-idle value; PICLET delivers interrupts correctly; no duplicate/missed events; PLR = 0x0; per-module and per-CBB independence confirmed. <strong>FAIL:</strong> Stuck Q-channel (never re-asserts); wrong or stale residency counter; CCF frequency does not restore; PICLET drops or duplicates interrupt; PLR non-zero; system hang during any phase. Save: CC6/MC6 counters (baseline, mid-test, post-test), GPSB state at each phase, UFS_STATUS.CURRENT_RATIO pre/during/post Active Idle, PLR_DIE_LEVEL for both CBBs, PICLET delivery confirmation log.</p>
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Preconditions</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform booted to XOS/SVOS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; PCode running</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">BIOS: C-states enabled</td><td style="text-align:left;padding:8px;">CC6 reachable; MonitorMWait enabled</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">CPU governor: powersave</td><td style="text-align:left;padding:8px;">Allows CC6 entry under zero load</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">No sustained workload</td><td style="text-align:left;padding:8px;">All test cores at idle baseline before injection</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">CC6/MC6 residency MSRs accessible</td><td style="text-align:left;padding:8px;">`msr(0x3FD)`, `msr(0x664)` readable</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">CBB GPSB accessible</td><td style="text-align:left;padding:8px;">`sv.socket0.cbb0.compute0.pma0.gpsb` readable</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">PEGA/pmutil available</td><td style="text-align:left;padding:8px;">`pega_mailbox.pega_pstate()` importable</td></tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Test Steps</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 8px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">#</th>
+  <th style="text-align:left;padding:8px;">Action</th>
+  <th style="text-align:left;padding:8px;">Expected Result (PASS)</th>
+  <th style="text-align:left;padding:8px;">Failure Indication</th>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Baseline: read CC6 residency (`MSR 0x3FD`), MC6 residency (`MSR 0x664`), and `UFS_STATUS.CURRENT_RATIO` on cbb0 module0</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero residency counters; baseline CCF ratio recorded</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">MSR unreadable or ratio = 0</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Phase 1 — Clean Active Idle: idle all cores in module0 via MWAIT `EAX=0x23`; wait 10ms for Q-channels to deassert fully</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">MC6 residency increments; Q-channels deassert; Fast Ring C3 engages</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">MC6 counter stale -- cores not reaching MC6</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify Active Idle state: read `GPSB.HWP_REQUEST_RESOLVED` and CCF clock gate status</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">GPSB shows low-power resolved state; Uclk tree gated</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">No state change -- Active Idle not engaged</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Phase 2 — Timer wake during Active Idle: re-idle all cores; inject ARAT timer interrupt mid-transition (before Q-channel deassert completes)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Timer fires during Active Idle window; Q-channels immediately re-assert; no stuck state</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Q-channels stuck deasserted -- abort failed</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify post-timer-wake CCF state: `UFS_STATUS.CURRENT_RATIO` and `GPSB.HWP_REQUEST_RESOLVED`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">CCF ratio restores to pre-idle baseline value; GPSB reflects active state</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">CCF stuck at low ratio -- wake did not restore freq</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Phase 3 — External interrupt wake: re-idle cores; inject external interrupt via PEGA mailbox during Q-channel transition</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Interrupt delivery aborts Active Idle; PICLET queues and replays interrupt; no ordering errors</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PICLET drops interrupt -- wake event lost</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify PICLET interrupt replay: read interrupt delivery counter or use PEGA inject-and-check API</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Interrupt received by correct core; no duplicate or missed delivery</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Interrupt not received -- PICLET replay broken</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">8</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Phase 4 — Repeat on cbb1 and module1: run phases 1-3 on cbb1 and on module1 of cbb0</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Same behavior; per-module and per-CBB independence confirmed</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">One module/CBB asymmetry -- PMA state stuck</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">9</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify residency counters after full test: CC6 and MC6 both advanced from baseline</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Residency reflects all idle cycles across phases; no rollback</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Counters unchanged -- HW not accounting C-state residency</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">10</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify `PLR_DIE_LEVEL = 0x0` on both CBBs throughout all phases</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">No spurious Performance Limit Reason from Active Idle transitions</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PLR non-zero -- unexpected throttle from CCF state transitions</td>
+</tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Pass / Fail Criteria</div>
+<br/>
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
+  <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
+  <p style="margin:0;font-size:0.9em;">** All phases complete without hang; MC6 residency increments; Q-channels re-assert on wake; CCF ratio restores to pre-idle value; PICLET delivers interrupts correctly; no duplicate/missed events; PLR = 0x0; per-module and per-CBB independence confirmed.</p>
+</div>
+
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
+  <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
+  <p style="margin:0;font-size:0.9em;">** Stuck Q-channel (never re-asserts); wrong or stale residency counter; CCF frequency does not restore; PICLET drops or duplicates interrupt; PLR non-zero; system hang during any phase.</p>
+</div>
+
+
+
+
+
+
+
+
+
+<br/>
+
+
+
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
+<br/><p style="margin:10px 0;">Save: CC6/MC6 counters (baseline, mid-test, post-test), GPSB state at each phase, UFS_STATUS.CURRENT_RATIO pre/during/post Active Idle, PLR_DIE_LEVEL for both CBBs, PICLET delivery confirmation log. - [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html) -- Active Idle Q-channel deassert sequence, wake abort flow</p>
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">References</div>
+<br/>
+
+<ul>
+
+
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html">CBB CCF Power Management HAS</a></li>
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCP%20HAS/cbb_cpp_has.html">CBB CCP PM Integration HAS</a></li>
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details">CBB Telemetry Aggregator</a></li>
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html">CBB Power Management HAS Index</a></li>
+
+<li><a href="https://wiki.ith.intel.com/display/ServerPcode/PEGA">PEGA Architecture</a></li>
+
+<li><a href="https://docs.intel.com/documents/arch_datacenter/DMR/Overview/DMR_Overview_HAS.html#figure-hub-and-spoke">DMR SoC HAS</a></li>
+
+
+</ul>
+
+
+</div>
+  </div>
+  <div id="sec-a" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-b" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-c" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-d" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-e" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-f" class="panel"><p><em>Not available.</em></p></div>
+</div>
+
+<script>
+const btns  = Array.from(document.querySelectorAll('.tab-bar button'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+btns.forEach(btn => btn.addEventListener('click', () => {
+  btns.forEach(b => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const p = document.getElementById(btn.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

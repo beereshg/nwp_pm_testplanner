@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
+  <title>TC: CBB CCF Snoop Scalability / Distress</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:4px;}
+    .header .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+    .chip{background:rgba(255,255,255,.18);border-radius:12px;padding:2px 10px;font-size:11px;}
+    .chip.disp{background:#1565c0;font-weight:bold;}
+    a.hsd-link{color:#90caf9;font-size:11px;margin-left:8px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar button{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 18px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar button:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar button.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    .panel code{font-family:Consolas,monospace;}
+    table.md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    table.md-table th,table.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    table.md-table th{background:#e8eef7;font-weight:600;}
+    table.md-table tr:nth-child(even){background:#f8fafc;}
+    .tc-content{font-size:12.5px;}
+    .tc-content h3{color:#004a80;font-size:13px;margin:14px 0 4px;
+        background:#cce4f7;padding:8px 14px;border-left:4px solid #0071c5;border-radius:0 4px 4px 0;font-weight:bold;}
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>CBB CCF Snoop Scalability / Distress
+    <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022422895" target="_blank" rel="noopener">HSD 22022422895 ↗</a>
+  </h1>
+  <div class="chips">
+    <span class="chip">CBB CCF -- Snoop scalability under high coherency workload and distress mechanism › </span>
+    <span class="chip disp"></span>
+    <span class="chip">Env: silicon, virtual_platform</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="active" data-tab="tc">Test Case</button>
+  <button data-tab="sec-a">A: NWP Delta</button>
+  <button data-tab="sec-b">B: Interactions</button>
+  <button data-tab="sec-c">C: Coverage</button>
+  <button data-tab="sec-d">D: Spec Refs</button>
+  <button data-tab="sec-e">E: Risks</button>
+  <button data-tab="sec-f">F: Recommendations</button>
+</div>
+
+<div class="panels">
+  <div id="tc" class="panel active tc-content">
+
+
+
+
+<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
+<br/><p style="margin:10px 0 16px 0;"><strong>Objective:</strong> Validate CBB CCF ring scalability under high snoop rates and the snoop back-pressure / distress mechanism. With 96 cores (2 CBBs x 48 cores), high-coherency workloads drive extreme snoop traffic. Tests verify: CCF ring frequency scales with snoop traffic demand; snoop back-pressure (SBO) triggers distress and frequency boost; scalability improves latency vs fixed-low-frequency baseline. <strong>NWP topology:</strong> 2 CBBs (cbb0/cbb1) x 48 cores = 96 cores total. CCF ring managed autonomously by CBB PCode GVFSM. CCF target = 2.2 GHz (ratio 0x16) for full bandwidth (460 GB/s). MC6 is the deepest idle state (PkgC6 fused off). <strong>PASS:</strong> CCF scales to P0 under snoop pressure; SBO counter increments; distress fires at threshold; throughput scales with frequency; per-CBB independence; PLR = 0x0. <strong>FAIL:</strong> CCF stays at Pm despite snoop load; SBO stuck at 0; no distress; no throughput scaling; both CBBs scale together. Save: counter snapshots (baseline and under load), UFS_STATUS.CURRENT_RATIO trace, PLR_DIE_LEVEL for both CBBs.</p>
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Preconditions</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">System booted to XOS/SVOS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; PCode running</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">TPMI accessible per CBB</td><td style="text-align:left;padding:8px;">`sv.socket0.cbbN.base.tpmi.*` readable</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">PythonSV namednodes loaded</td><td style="text-align:left;padding:8px;">`import namednodes; sv = namednodes.sv` succeeds</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Workload available</td><td style="text-align:left;padding:8px;">CPU stress or coherency workload can be launched</td></tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Test Steps</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 8px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">#</th>
+  <th style="text-align:left;padding:8px;">Action</th>
+  <th style="text-align:left;padding:8px;">Expected Result (PASS)</th>
+  <th style="text-align:left;padding:8px;">Failure Indication</th>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Baseline: pin CCF at Pm (800 MHz) and run high-coherency workload; measure snoop latency</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Snoop latency measured at 800 MHz (high, baseline)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Cannot measure snoop latency -- missing instrumentation</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Allow autonomous CCF DVFS: run same workload; observe CCF scale to P0 (2.2 GHz)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">CCF ratio rises toward P0 under snoop pressure; latency improves vs Pm baseline</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">CCF stays at Pm -- BW heuristic / distress not triggering scale-up</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify SBO back-pressure counter increments during high snoop load</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">SBO occupancy counter > 0 under coherency workload</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">SBO counter stuck -- snoop back-pressure not detected</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify distress signal fires when SBO occupancy exceeds threshold</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Distress HPM message sent; CCF frequency boost observed</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">No distress despite high SBO -- threshold misconfigured</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Measure peak snoop throughput at P0 (2.2 GHz) vs Pm (800 MHz)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Throughput scales ~linearly with CCF frequency (NWP CCF target: 460 GB/s at 2.2 GHz)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">No throughput improvement at higher CCF freq -- CCF not the bottleneck</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify snoop scalability is per-CBB: apply load to one CBB; verify other CBB not disturbed</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Loaded CBB scales to P0; unloaded CBB stays at low freq</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Both CBBs scale together -- loss of per-CBB independence</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify PLR_DIE_LEVEL = 0x0 throughout scalability test</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PLR = 0x0; no spurious power throttle limiting CCF</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PLR non-zero -- power throttle interfering with scalability</td>
+</tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Pass / Fail Criteria</div>
+<br/>
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
+  <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
+  <p style="margin:0;font-size:0.9em;">** CCF scales to P0 under snoop pressure; SBO counter increments; distress fires at threshold; throughput scales with frequency; per-CBB independence; PLR = 0x0.</p>
+</div>
+
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
+  <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
+  <p style="margin:0;font-size:0.9em;">** CCF stays at Pm despite snoop load; SBO stuck at 0; no distress; no throughput scaling; both CBBs scale together.</p>
+</div>
+
+
+
+
+
+
+
+
+
+<br/>
+
+
+
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
+<br/><p style="margin:10px 0;">Save: counter snapshots (baseline and under load), UFS_STATUS.CURRENT_RATIO trace, PLR_DIE_LEVEL for both CBBs. - [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html) -- Snoop distress, SBO threshold, frequency scaling</p>
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">References</div>
+<br/>
+
+<ul>
+
+
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html">CBB CCF Power Management HAS</a></li>
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details">CBB Telemetry Aggregator</a></li>
+
+<li><a href="https://docs.intel.com/documents/arch_datacenter/DMR/Overview/DMR_Overview_HAS.html#figure-hub-and-spoke">DMR SoC HAS</a></li>
+
+<li><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html">NWP PM MAS</a></li>
+
+
+</ul>
+
+
+</div>
+  </div>
+  <div id="sec-a" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-b" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-c" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-d" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-e" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-f" class="panel"><p><em>Not available.</em></p></div>
+</div>
+
+<script>
+const btns  = Array.from(document.querySelectorAll('.tab-bar button'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+btns.forEach(btn => btn.addEventListener('click', () => {
+  btns.forEach(b => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const p = document.getElementById(btn.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>
