@@ -13,6 +13,65 @@
 
 ---
 
+### Test Case Intent
+
+Verify system **stability** when PMAX hard throttle is concurrent with Fast RAPL limiting. Both features activate simultaneously; the min(PMax ceiling, Fast RAPL ceiling) should be enforced without MCA or system hang. `NGA_MAIN` / `ti_gate.b0` cross-feature test. NWP: single `imh0`.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| SV session | `sv.socket0.imh0` and `sv.socket0.cbb{0,1}` reachable |
+| Workload | PTAT or stress-ng generating sustained load |
+| RAPL active | Verify Fast RAPL loop operational (SVID IMON valid) |
+| Platform S0 | No pre-existing MCAs |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Start sustained workload. Start PTAT or stress-ng and verify load is generating Fast RAPL response. `import time` | Workload running; Fast RAPL PLR bit (bit 9) visible in perf_limit_reasons | Fast RAPL not firing — SVID IMON invalid |
+| 2 | Simultaneously inject PMAX hard throttle. `sv.socket0.imh0.punit.throttle.pmax_service.punit_supervises_pmax.write(0x1); sv.socket0.imh0.pcodeio_map.io_pmax_config.global_pmax_latch_bypass.write(0x1); sv.socket0.imh0.pcodeio_map.io_pmax_config.global_pmax_inject.write(0x1); time.sleep(30)` | System stable for 30 s with dual throttle; no MCA or hang | System hang or MCA — record NLOG and crash dump |
+| 3 | Verify concurrent throttle state. `plr = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.perf_limit_reasons.read(); print(f'PLR=0x{plr:08X}'); pmax_log = sv.socket0.imh0.punit.throttle.package_therm_status.pmax_log.read()` | Both PMAX and FAST_RAPL PLR bits set concurrently | Only one bit set — one throttle path blocked |
+| 4 | Clear PMAX inject; verify Fast RAPL continues then clears with workload removed. `sv.socket0.imh0.pcodeio_map.io_pmax_config.global_pmax_inject.write(0x0); time.sleep(5.0)` | System stable post-clear; Fast RAPL clears after workload stops | Fast RAPL stuck after PMAX removed — check CBB pem_status |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: System stable with concurrent PMAX + Fast RAPL; both PLR bits set; recovery clean after clear.
+- **FAIL**: MCA, hang, or only one throttle active during concurrent test.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| pmax_log | sv.socket0.imh0.punit.throttle.package_therm_status.pmax_log | = 1 during PMAX inject |
+| perf_limit_reasons bit 9 | sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.perf_limit_reasons | FAST_RAPL bit set during workload |
+| pem_status | sv.socket0.cbb{0,1}.base.tpmi.pem_status | PEM excursion bit set during Fast RAPL |
+| NLOG | peg_client --nlog --filter PMAX | No fatal events |
+
+---
+
+### Post-Process
+
+Clear `global_pmax_inject`. Stop workload. Verify no residual PLR bits. Collect NLOG on failure.
+
+---
+
+### References
+
+- [DMR PMax HAS](https://docs.intel.com/documents/pm_doc/src/server/dmr/pm_features/dmr_pmax.html) — PMAX hard throttle; min-ceiling arbitration with other RAPL controllers
+- [Primecode Fast RAPL Flow](https://docs.intel.com/documents/primecode/primecode_two/firmware_architecture/flows_pm_features/fast_rapl.html) — concurrent Fast RAPL + PMAX behavior
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**
