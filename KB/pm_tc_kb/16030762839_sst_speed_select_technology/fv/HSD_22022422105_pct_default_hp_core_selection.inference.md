@@ -54,7 +54,13 @@ Verify that the default **PCT high-priority (HP) core selection algorithm** prod
 
 > **NWP authoritative HP count**: 8 HP cores per product requirement (HSD 14026595435) -- if nominal formula (96/4 = 1 HP/partition = 4 HP) differs, product requirement takes precedence.
 
-> **DLCP**: if SST_TF_INFO_10 is non-zero, fused HP mask governs -- SST_CLOS_ASSOC may not be sole source.
+> **DLCP (Die Level Cherry Picking)**: if `SST_TF_INFO_10 \u2260 0`, HP core positions are fuse-fixed via `PCT_Module_Mask` fuse. In DLCP mode, `SST_CLOS_ASSOC` must follow the fused mask (not APIC-ID order). Add the following DLCP branch steps:
+
+| # | DLCP Branch Action | Expected Result (PASS) | Failure Indication |
+|---|-------------------|----------------------|-------------------|
+| 10 | Read `SST_TF_INFO_10` from both CBBs. `for cbb in [0,1]: v=sv.socket0.cbb[cbb].base.tpmi.sst_tf_info_10.read()` | Non-zero (DLCP) or 0 (standard PCT) on both CBBs | Mismatch between CBBs \u2014 partial DLCP programming |
+| 11 | **If DLCP (SST_TF_INFO_10 \u2260 0):** decode HP core positions from mask; verify `SST_CLOS_ASSOC` for each decoded HP core = 0. | HP cores per fused mask \u2192 CLOS[0]; all others \u2192 CLOS[3] | BIOS ignored DLCP mask; used APIC-order instead |
+| 12 | **If DLCP:** verify `IA32_HWP_CAPABILITIES.highest_perf` differs per core. HP = P0max; LP = LP_CLIP. `hp_cap=rdmsr(0x771,hp_core); lp_cap=rdmsr(0x771,lp_core); assert hp_cap.highest_perf > lp_cap.highest_perf` | HP highest_perf = P0max; LP highest_perf = LP_CLIP ratio | HP = LP \u2014 DLCP per-core HWP differentiation not present |
 
 ### Pass / Fail Criteria
 

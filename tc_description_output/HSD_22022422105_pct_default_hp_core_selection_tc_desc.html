@@ -71,7 +71,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
-<br/><p style="margin:10px 0 16px 0;">Verify that the default <strong>PCT high-priority (HP) core selection algorithm</strong> produces the correct HP core set, CLOS mapping, and HP/LP frequency policy on NWP. PCT divides available logical processors into N partitions; for the configured partition count, the platform selects default HP cores per the architectural PCT selection rule and programs the corresponding CLOS associations and CLOS frequency ceilings. <strong>Focus</strong>: default HP core selection and discovery -- not workload-based performance validation. <span style="display:block;background:#f0f4f9;border-left:3px solid #1a5fa8;padding:4px 10px;margin:4px 0;font-size:0.92em;color:#1e3a5f;"><strong>NWP authoritative HP count</strong>: 8 HP cores per product requirement (HSD 14026595435) -- if nominal formula (96/4 = 1 HP/partition = 4 HP) differs, product requirement takes precedence.</span> <span style="display:block;background:#f0f4f9;border-left:3px solid #1a5fa8;padding:4px 10px;margin:4px 0;font-size:0.92em;color:#1e3a5f;"><strong>DLCP</strong>: if SST_TF_INFO_10 is non-zero, fused HP mask governs -- SST_CLOS_ASSOC may not be sole source.</span> <strong>PASS</strong>: PCT active; SST-TF enabled; HP core count matches product requirement; HP -&gt; CLOS[0] and LP -&gt; CLOS[3] assignments correct; HP CLOS max = SST_TF_INFO_2.RATIO_0; LP CLOS max = LP_CLIP; HP cores expose elevated turbo vs LP. <strong>FAIL</strong>: PCT not active; wrong HP count; incorrect CLOS mapping; HP or LP CLOS ratios wrong; HP cores do not show elevated capability vs LP. Archive: logical processor list, HP/LP classification, TPMI register dumps (SST_CLOS_ASSOC, SST_CLOS_CONFIG, SST_CP_CONTROL, SST_PP_CONTROL, SST_TF_INFO_0/2/10), per-core HWP capability output.</p>
+<br/><p style="margin:10px 0 16px 0;">Verify that the default <strong>PCT high-priority (HP) core selection algorithm</strong> produces the correct HP core set, CLOS mapping, and HP/LP frequency policy on NWP. PCT divides available logical processors into N partitions; for the configured partition count, the platform selects default HP cores per the architectural PCT selection rule and programs the corresponding CLOS associations and CLOS frequency ceilings. <strong>Focus</strong>: default HP core selection and discovery -- not workload-based performance validation. <span style="display:block;background:#f0f4f9;border-left:3px solid #1a5fa8;padding:4px 10px;margin:4px 0;font-size:0.92em;color:#1e3a5f;"><strong>NWP authoritative HP count</strong>: 8 HP cores per product requirement (HSD 14026595435) -- if nominal formula (96/4 = 1 HP/partition = 4 HP) differs, product requirement takes precedence.</span> <span style="display:block;background:#f0f4f9;border-left:3px solid #1a5fa8;padding:4px 10px;margin:4px 0;font-size:0.92em;color:#1e3a5f;"><strong>DLCP (Die Level Cherry Picking)</strong>: if <code>SST_TF_INFO_10 \u2260 0</code>, HP core positions are fuse-fixed via <code>PCT_Module_Mask</code> fuse. In DLCP mode, <code>SST_CLOS_ASSOC</code> must follow the fused mask (not APIC-ID order). Add the following DLCP branch steps:</span> <strong>PASS</strong>: PCT active; SST-TF enabled; HP core count matches product requirement; HP -&gt; CLOS[0] and LP -&gt; CLOS[3] assignments correct; HP CLOS max = SST_TF_INFO_2.RATIO_0; LP CLOS max = LP_CLIP; HP cores expose elevated turbo vs LP. <strong>FAIL</strong>: PCT not active; wrong HP count; incorrect CLOS mapping; HP or LP CLOS ratios wrong; HP cores do not show elevated capability vs LP. Archive: logical processor list, HP/LP classification, TPMI register dumps (SST_CLOS_ASSOC, SST_CLOS_CONFIG, SST_CP_CONTROL, SST_PP_CONTROL, SST_TF_INFO_0/2/10), per-core HWP capability output.</p>
 
 <br/>
 
@@ -168,6 +168,34 @@
   <td style="text-align:left;vertical-align:top;padding:8px;">Read MSR 0x1AD (if applicable)</td>
   <td style="text-align:left;vertical-align:top;padding:8px;">HP TRL broadcast = SST_TF_INFO_2.RATIO_0 (not 0xFF per HSD 14025997048)</td>
   <td style="text-align:left;vertical-align:top;padding:8px;">Incorrect or 0xFF value</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">10</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">DLCP Branch Action</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Expected Result (PASS)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Failure Indication</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">11</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read `SST_TF_INFO_10` from both CBBs. `for cbb in [0,1]: v=sv.socket0.cbb[cbb].base.tpmi.sst_tf_info_10.read()`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero (DLCP) or 0 (standard PCT) on both CBBs</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Mismatch between CBBs \u2014 partial DLCP programming</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">12</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">If DLCP (SST_TF_INFO_10 \u2260 0): decode HP core positions from mask; verify `SST_CLOS_ASSOC` for each decoded HP core = 0.</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">HP cores per fused mask \u2192 CLOS[0]; all others \u2192 CLOS[3]</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">BIOS ignored DLCP mask; used APIC-order instead</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">13</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">If DLCP: verify `IA32_HWP_CAPABILITIES.highest_perf` differs per core. HP = P0max; LP = LP_CLIP. `hp_cap=rdmsr(0x771,hp_core); lp_cap=rdmsr(0x771,lp_core); assert hp_cap.highest_perf > lp_cap.highest_perf`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">HP highest_perf = P0max; LP highest_perf = LP_CLIP ratio</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">HP = LP \u2014 DLCP per-core HWP differentiation not present</td>
 </tr>
 
 </table>

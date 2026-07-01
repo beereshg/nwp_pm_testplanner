@@ -51,6 +51,8 @@ PV exercises the `sst` tool + `intel-speed-select` driver path.
 | 4 | Read `SST_CP_CONTROL.sst_cp_enable` per CBB | = 1 (PCT globally enabled) | = 0 |
 | 5 | Read `SST_CP_CONTROL.sst_cp_priority_type` per CBB | = 1 (Ordered Throttling mode) | ≠ 1 |
 | 6 | Read `SST_TF_INFO_1.num_core_0` per CBB | ≥ configured HP module count | < configured value |
+| 7 | **[DLCP check]** Read `SST_TF_INFO_10` from both CBBs. `for cbb in [0,1]: info10=sv.socket0.cbb[cbb].base.tpmi.sst_tf_info_10.read(); print(f'CBB{cbb} SST_TF_INFO_10=0x{info10:08X}')` | **Scenario A (DLCP active):** non-zero value matching `PCT_Module_Mask` fuse on both CBBs. **Scenario B (non-DLCP):** = 0 on both CBBs and MADT-order CLOS assignment governs | Fuse \u2260 register — PrimeCode Phase 5 init failure |
+| 8 | **[DLCP check]** Verify `SST_TF_INFO_10` is RO: attempt write; read back to confirm unchanged. | Value unchanged after write attempt | Value changed — register incorrectly writable |
 
 ### Pass / Fail Criteria
 

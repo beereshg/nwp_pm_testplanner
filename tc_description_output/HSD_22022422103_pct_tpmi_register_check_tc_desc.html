@@ -71,7 +71,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
-<br/><p style="margin:10px 0 16px 0;">Verify that TPMI SST_CLOS registers are **correctly programmed by PCode at boot** to reflect the BIOS-configured HP core count. This is a register-level boot validation — no runtime workload needed. Environment: NWP silicon or emulation (PythonSV/namednodes direct TPMI access, not OS driver). **Key distinction from PV TC 16030717720 (Discovery)**: This TC reads raw TPMI registers directly; PV exercises the `sst` tool + `intel-speed-select` driver path.</p>
+<br/><p style="margin:10px 0 16px 0;">Verify that TPMI SST_CLOS registers are <strong>correctly programmed by PCode at boot</strong> to reflect the BIOS-configured HP core count. This is a register-level boot validation — no runtime workload needed. Environment: NWP silicon or emulation (PythonSV/namednodes direct TPMI access, not OS driver). <strong>Key distinction from PV TC 16030717720 (Discovery)</strong>: This TC reads raw TPMI registers directly; PV exercises the <code>sst</code> tool + <code>intel-speed-select</code> driver path.</p>
 
 <br/>
 
@@ -145,6 +145,20 @@
   <td style="text-align:left;vertical-align:top;padding:8px;">Read `SST_TF_INFO_1.num_core_0` per CBB</td>
   <td style="text-align:left;vertical-align:top;padding:8px;">≥ configured HP module count</td>
   <td style="text-align:left;vertical-align:top;padding:8px;">< configured value</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">[DLCP check] Read `SST_TF_INFO_10` from both CBBs. `for cbb in [0,1]: info10=sv.socket0.cbb[cbb].base.tpmi.sst_tf_info_10.read(); print(f'CBB{cbb} SST_TF_INFO_10=0x{info10:08X}')`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Scenario A (DLCP active): non-zero value matching `PCT_Module_Mask` fuse on both CBBs. Scenario B (non-DLCP): = 0 on both CBBs and MADT-order CLOS assignment governs</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Fuse \u2260 register — PrimeCode Phase 5 init failure</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">8</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">[DLCP check] Verify `SST_TF_INFO_10` is RO: attempt write; read back to confirm unchanged.</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Value unchanged after write attempt</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Value changed — register incorrectly writable</td>
 </tr>
 
 </table>
