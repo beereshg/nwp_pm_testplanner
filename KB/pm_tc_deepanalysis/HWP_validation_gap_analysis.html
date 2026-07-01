@@ -38,6 +38,13 @@ code{background:#f3f6fb;border:1px solid #d9e2ec;padding:1px 5px;border-radius:3
 .tp-label{min-width:130px;font-weight:700;color:#1a5fa8;font-size:12px;padding-top:1px;}
 .tp-content{flex:1;font-size:12px;line-height:1.6;}
 .phase-hdr{background:#cce4f7;color:#004a80;padding:6px 14px;font-weight:700;font-size:12px;border-radius:4px;margin:10px 0 4px;}
+.flow-diagram{background:#1a202c;color:#e2e8f0;border-radius:8px;padding:18px 22px;font-family:Consolas,monospace;font-size:11px;line-height:1.7;overflow-x:auto;margin:12px 0;}
+.flow-diagram .layer-label{color:#90cdf4;font-weight:700;}
+.flow-diagram .arrow{color:#68d391;}
+.flow-diagram .reg{color:#fbd38d;}
+.flow-diagram .decision{color:#fc8181;}
+.flow-diagram .note{color:#b794f4;}
+.flow-diagram .gap-marker{color:#fc8181;font-weight:700;}
 </style>
 </head>
 <body>
@@ -58,6 +65,95 @@ code{background:#f3f6fb;border:1px solid #d9e2ec;padding:1px 5px;border-radius:3
   <li><strong>Final clipping by platform constraints</strong> — RAPL, Thermal, Turbo limits dominate HWP-requested frequency</li>
 </ol>
 <div class="notice">⚠️ <strong>Architecture note:</strong> EET can reduce granted frequency but does not increase it. HWP operates <em>inside</em> the broader platform envelope — RAPL and Thermal always dominate. If <code>ACTIVITY_WINDOW = 0</code>, pCode uses an internal EPP-derived default. EET feeds into Autonomous HWP / LegacyP through the energy-efficiency layer.</div>
+</div>
+
+<!-- GAP TABLE -->
+<div class="card">
+<h2>HWP Micro-Architectural Flow</h2>
+<p style="margin-bottom:10px;">End-to-end HWP processing pipeline from SW inputs through final V/F application. Gap markers show where current validation is missing.</p>
+<div class="flow-diagram">
+<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="layer-label">  LAYER 0 — SW / EXTERNAL INPUTS</span>
+<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+  OS / BIOS / OOB / PECI  ──►  <span class="reg">IA32_HWP_REQUEST (0x774)</span>   [ Min | Max | Desired | EPP | AW | PkgCtl ]
+                           ──►  <span class="reg">IA32_HWP_REQUEST_PKG (0x772)</span>  [ Package-level policy ]
+                           ──►  PECI / BIOS / Global overrides
+  <span class="reg">IA32_HWP_CAPABILITIES (0x771)</span>  [ Highest | Guaranteed | Efficient | Lowest ]  ──►  bounds all clipping
+
+<span class="arrow">                                          │ MSR/OOB write event
+                                          ▼</span>
+<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="layer-label">  LAYER 1 — FASTPATH REQUEST RESOLUTION                              ✅ Well covered</span>
+<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+  <span class="decision">◆ PACKAGE_CONTROL = 1?</span>  ──yes──►  use IA32_HWP_REQUEST_PKG
+                            ──no───►  use thread IA32_HWP_REQUEST
+
+  <span class="decision">◆ PECI override active?</span>   ──yes──►  Apply PECI/BIOS override  (replaces thread/pkg)    [ TC 22022422303 ✅ ]
+                            ──no───►  keep selected source
+
+  Resolve EPP  →  if EPP not explicit, derive from EPB×4             [ TC 22022422303 ✅ ]
+  Clip Min/Max to HWP_CAPABILITIES bounds
+  <span class="decision">◆ ACTIVITY_WINDOW = 0?</span>   ──yes──►  Use internal AW default = f(EPP)   <span class="gap-marker">⚠ G5: edge case not tested</span>
+                            ──no───►  use programmed AW
+  <span class="decision">◆ DESIRED = 0?</span>           ──yes──►  defer to APS output  ──► (Layer 2 below)
+                            ──no───►  use explicit desired
+  Shape:  min ≤ desired ≤ max   [clamp to capabilities]             <span class="gap-marker">⚠ G6: out-of-range not tested</span>
+  Core resolution:  core_req = max(all thread requests)
+
+<span class="arrow">                                          │
+                                          ▼  [ TC 22022422305 / 22022422312 ✅ ]</span>
+<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="layer-label">  LAYER 2 — APS / UBPS AUTONOMOUS PATH  (when DESIRED = 0)          ✅ Well covered</span>
+<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+  Inputs:  resolved_thread_EPP  |  thread C0 cycles  |  core C0 cycles
+           UBPS gain  |  ratio decay  |  Activity Window
+  Compute utilization  →  compute aps_thread_ratio[t]
+  Substitute: desired  ←  aps_thread_ratio                          [ TC 22022422298 ✅ ]
+  EPP = performance-oriented  →  aggressive ramp  (APSrocketing)    [ TC 22022422301 ✅ ]
+  EPP = energy-oriented       →  conservative ramp
+
+<span class="arrow">                                          │
+                                          ▼</span>
+<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="layer-label">  LAYER 3 — ENERGY-EFFICIENCY REFINEMENT                          ❌ Critical gaps G1 G7</span>
+<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+  Input EPB  →  resolve:  min(thread EPB) or BIOS/OOB selection
+  SAPM-DLL:  process thread C0 + resolved thread request             [ TC 22022422284 ✅ standalone ]
+    └─► compute resolved_thread_EPB  /  resolved_core_EPB            <span class="gap-marker">❌ G7: HWP EPP → SAPM-DLL link not tested</span>
+
+  EET inputs:  core stall count  |  L1/L2/L3 stall cycles           [ TC 16030734092 ✅ standalone ]
+               SQ occupancy  |  resolved_core_EPB
+    └─► compute scalability  →  frequency deration factor
+    └─► derate core request   ( EET can REDUCE, never INCREASE )     <span class="gap-marker">❌ G1: EET deration WITH HWP active not tested</span>
+
+<span class="arrow">                                          │ derated_core_request
+                                          ▼</span>
+<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="layer-label">  LAYER 4 — FINAL CLIPPING / PLATFORM CONSTRAINTS                ❌ Critical gaps G2 G3 G4</span>
+<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+  Clip derated request to [core_min, core_max]
+  Apply workpoint limits:  WP1.Fceil  |  F_floor  |  WP4
+  Apply higher-level constraints (all dominate HWP):
+    ├── Turbo / TRL / FACT                                           [ TC 22022422337 OOB ✅ ; G8 in-band gap ]
+    ├── RAPL PL1 / PL2  (NWP: TPMI path, MSR 0x610 deprecated)      <span class="gap-marker">❌ G2: HWP + RAPL not tested</span>
+    ├── Thermal / TCC throttle                                        <span class="gap-marker">❌ G3: HWP + Thermal not tested</span>
+    └── C-state entry/exit  (HWP state + APS history)                <span class="gap-marker">❌ G4: HWP + C-state not tested</span>
+  Submit to GPSS  →  WP download  →  GV / AGV flow
+  <span class="arrow">▼</span>  <span class="layer-label">Final applied V/F</span>
+
+<span class="arrow">                                          │
+                                          ▼</span>
+<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+<span class="layer-label">  OBSERVABILITY</span>
+<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
+  <span class="reg">IA32_PERF_STATUS (0x198)</span>         ← observed executed ratio / effective frequency
+  <span class="reg">IA32_HWP_STATUS (0x777)</span>          ← notification: min excursion | guaranteed change  [ TC 22022422311 ✅ ]
+  <span class="reg">perf_limit_reasons (TPMI)</span>        ← PLR: RAPL / Thermal / PMAX bits               [ test when gaps are closed ]
+
+<span class="note">  DFx / debug hooks:  disable SW request handling  |  disable UBPS  |  disable PECI override
+                       disable SAPM-DLL switching  |  disable EET deration</span>
+</div>
+<p style="font-size:11px;color:#888;margin-top:4px;">Source: hwp_micro_architectural_flow.puml · Layer annotations from Core P-state HAS + ACP PM HAS</p>
 </div>
 
 <!-- GAP TABLE -->
