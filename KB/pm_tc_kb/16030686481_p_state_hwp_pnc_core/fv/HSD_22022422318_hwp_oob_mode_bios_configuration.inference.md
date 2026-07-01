@@ -14,6 +14,47 @@
 
 ---
 
+### Test Case Intent
+
+Verify **HWP Out-of-Band (OOB) mode BIOS configuration**: BIOS exposes HWP OOB mode knob; enabling OOB mode allows out-of-band management (BMC/NM) to control HWP parameters via PECI/MCTP without OS intervention. Verify OOB mode activated correctly and in-band SW still sees expected behavior. `plc.feature.p2`.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| BIOS | HWP OOB Mode knob visible and configurable |
+| BMC/NM | OOB management tool available (IPMI/PECI) |
+| SV session | `sv.socket0.imh0` accessible |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Enable HWP OOB Mode via BIOS knob; reboot. | System boots; OOB mode flag reflected in PM registers | Boot failure or OOB flag not set |
+| 2 | Verify OOB mode status register. `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.hwp_oob_mode_status.read()` | OOB mode status = enabled | = 0 — BIOS knob not propagating |
+| 3 | Send HWP request via OOB path (PECI/IPMI); verify core responds. | Core frequency changes per OOB request | Core ignores OOB request — OOB path not active |
+| 4 | Disable OOB Mode via BIOS; reboot; verify reverts to in-band mode. | OOB mode status = 0; in-band HWP request resumes control | OOB mode persists after BIOS disable |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: BIOS OOB knob sets OOB mode status; OOB requests honored; disable reverts correctly.
+- **FAIL**: BIOS knob not effective; OOB status wrong; requests ignored.
+
+---
+
+### References
+
+- [Core P-state HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Core_Pstates/Core_Pstate_HAS.html) — HWP OOB mode; BIOS activation; PECI HWP request path
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP OOB HWP configuration
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

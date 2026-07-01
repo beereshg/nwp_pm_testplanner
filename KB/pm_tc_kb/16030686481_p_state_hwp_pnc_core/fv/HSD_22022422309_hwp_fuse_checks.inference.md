@@ -14,6 +14,63 @@
 
 ---
 
+### Test Case Intent
+
+Verify **HWP enabling fuses** are correctly programmed and propagated: `HWP_ENABLE` fuse must be set on NWP for HWP to be activatable by BIOS. This is a boot-time fuse verification test — no runtime workload needed. `ti_gate.b0` / `PMSS_NWP_READINESS_CHECK`.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| SV session | `sv.socket0.imh0.fuses` accessible |
+| Platform S0 | Fully booted post-PH6 |
+| PMx | `python flexconPM.py -i NWPSV.ini` |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Read HWP enable fuse from IMH. `hwp_fuse = sv.socket0.imh0.fuses.punit.hwp_enable.read()` | = 1 (HWP hardware support fused on) | = 0 — HWP not fused; BIOS cannot enable HWP |
+| 2 | Verify fuse propagated: enable HWP via BIOS (HWPMEnable=1); confirm IA32_PM_ENABLE[0]=1. `rdmsr 0x770` | IA32_PM_ENABLE[0]=1; fuse allows HWP activation | = 0 after BIOS enable — fuse blocking HWP |
+| 3 | Read CPUID leaf 0x6: verify HWP capability bit (bit 7) = 1. | CPUID.0x6.EAX[7] = 1 (HWP supported) | = 0 — HWP capability not advertised; check fuse |
+| 4 | Run flexconPM fuse checkout. `python flexconPM.py -i NWPSV.ini` | flexconPM PASS | flexconPM FAIL |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: HWP fuse=1; IA32_PM_ENABLE[0] settable; CPUID advertises HWP; flexconPM PASS.
+- **FAIL**: Fuse=0; IA32_PM_ENABLE not sticky; CPUID bit clear; flexconPM FAIL.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| hwp_enable fuse | sv.socket0.imh0.fuses.punit.hwp_enable | = 1 |
+| CPUID.6.EAX[7] | CPUID leaf 6 | = 1 (HWP hardware coordination) |
+| IA32_PM_ENABLE | MSR 0x770 | Settable when fuse=1 |
+
+---
+
+### Post-Process
+
+Read-only fuse test. Collect fuse dump on failure.
+
+---
+
+### References
+
+- [Core P-state HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Core_Pstates/Core_Pstate_HAS.html) — HWP fuse; CPUID.0x6.EAX[7]; IA32_PM_ENABLE sticky behavior
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP HWP fuse configuration
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

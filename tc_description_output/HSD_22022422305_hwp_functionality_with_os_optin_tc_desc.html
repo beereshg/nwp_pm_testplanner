@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
+  <title>TC: HWP Functionality with OS Optin</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:4px;}
+    .header .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+    .chip{background:rgba(255,255,255,.18);border-radius:12px;padding:2px 10px;font-size:11px;}
+    .chip.disp{background:#1565c0;font-weight:bold;}
+    a.hsd-link{color:#90caf9;font-size:11px;margin-left:8px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar button{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 18px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar button:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar button.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    .panel code{font-family:Consolas,monospace;}
+    table.md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    table.md-table th,table.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    table.md-table th{background:#e8eef7;font-weight:600;}
+    table.md-table tr:nth-child(even){background:#f8fafc;}
+    .tc-content{font-size:12.5px;}
+    .tc-content h3{color:#004a80;font-size:13px;margin:14px 0 4px;
+        background:#cce4f7;padding:8px 14px;border-left:4px solid #0071c5;border-radius:0 4px 4px 0;font-weight:bold;}
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>HWP Functionality with OS Optin
+    <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022422305" target="_blank" rel="noopener">HSD 22022422305 ↗</a>
+  </h1>
+  <div class="chips">
+    <span class="chip">Pstate Stack › HWP Native Mode — OS optin via IA32_PM_ENABLE (MSR 0x770)</span>
+    <span class="chip disp">Runnable_On_N-1</span>
+    <span class="chip">Env: </span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="active" data-tab="tc">Test Case</button>
+  <button data-tab="sec-a">A: NWP Delta</button>
+  <button data-tab="sec-b">B: Interactions</button>
+  <button data-tab="sec-c">C: Coverage</button>
+  <button data-tab="sec-d">D: Spec Refs</button>
+  <button data-tab="sec-e">E: Risks</button>
+  <button data-tab="sec-f">F: Recommendations</button>
+</div>
+
+<div class="panels">
+  <div id="tc" class="panel active tc-content">
+
+
+
+
+<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
+<br/><p style="margin:10px 0 16px 0;">Verify end-to-end <strong>HWP Native Mode</strong> functionality after OS optin via <code>IA32_PM_ENABLE.HWP_ENABLE = 1</code>: HWP capabilities readable, HWP request fields accepted, per-core frequency governed by HWP policy, and system stable throughout. This is the primary HWP functional validation. <code>plc.feature.p1</code> / <code>NGA_MAIN</code>. NWP: 2 CBBs x 48 cores.</p>
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Preconditions</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">HWP</td><td style="text-align:left;padding:8px;">Disabled initially (legacy P-state mode)</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">SV session</td><td style="text-align:left;padding:8px;">Per-core MSR access available</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">BIOS</td><td style="text-align:left;padding:8px;">HWPMEnable = Enabled</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">PMx</td><td style="text-align:left;padding:8px;">`python runPmx.py -x nwp.xml -p hwp -tM 60 -M 5`</td></tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Test Steps</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 8px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">#</th>
+  <th style="text-align:left;padding:8px;">Action</th>
+  <th style="text-align:left;padding:8px;">Expected Result (PASS)</th>
+  <th style="text-align:left;padding:8px;">Failure Indication</th>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Write IA32_PM_ENABLE[0]=1 to enable HWP. `wrmsr 0x770 0x1`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">IA32_PM_ENABLE[0]=1 (sticky; cannot be unset without reset)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">= 0 after write — BIOS HWPMEnable not set</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read IA32_HWP_CAPABILITIES per core; verify highest_perf, guaranteed, efficient, lowest_perf. `rdmsr 0x771 per core`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero values; highest_perf ≥ guaranteed > efficient ≥ lowest_perf; consistent across all 96 cores</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Any core returns 0 or inverted values</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Write HWP request: min=guaranteed, max=highest, desired=0 (autonomous), EPP=128. `wrmsr 0x774 per core`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Request accepted; autonomous APS governs frequency</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Frequency stuck — HWP request not being enforced</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Write explicit desired=P0 ratio; verify frequency.</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Frequency at P0 (explicit request honored)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Frequency does not reach P0</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Write desired=lowest_perf; verify frequency reduced.</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Frequency near Pn (minimum)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Frequency stays high — minimum not enforced</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Run PMx HWP end-to-end. `python runPmx.py -x nwp.xml -p hwp -tM 60 -M 5`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PMx PASS</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PMx FAIL</td>
+</tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Pass / Fail Criteria</div>
+<br/>
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
+  <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
+  <p style="margin:0;font-size:0.9em;">IA32_PM_ENABLE sticky; capabilities non-zero; HWP request governs frequency; explicit and autonomous modes work; PMx PASS.</p>
+</div>
+
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
+  <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
+  <p style="margin:0;font-size:0.9em;">Sticky bit fails; capabilities 0; request not governing frequency; PMx FAIL.</p>
+</div>
+
+
+
+
+
+
+
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Health Check — Registers &amp; Logs to Collect</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">Register / Log</th>
+  <th style="text-align:left;padding:8px;">Access</th>
+  <th style="text-align:left;padding:8px;">Pass/Fail Criteria</th>
+</tr>
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">IA32_PM_ENABLE</td>
+  <td style="text-align:left;padding:8px;">MSR 0x770</td>
+  <td style="text-align:left;padding:8px;">[0]=1 after write; sticky</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">IA32_HWP_CAPABILITIES</td>
+  <td style="text-align:left;padding:8px;">MSR 0x771 per core</td>
+  <td style="text-align:left;padding:8px;">highest_perf ≥ guaranteed ≥ efficient ≥ lowest_perf</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">IA32_HWP_REQUEST</td>
+  <td style="text-align:left;padding:8px;">MSR 0x774 per core</td>
+  <td style="text-align:left;padding:8px;">Accepted; governs frequency</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">IA32_PERF_STATUS</td>
+  <td style="text-align:left;padding:8px;">MSR 0x198 per core</td>
+  <td style="text-align:left;padding:8px;">Reflects HWP-governed frequency</td>
+</tr>
+
+
+</table>
+
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
+<br/><p style="margin:10px 0;">Collect PMx log on failure. Note: IA32_PM_ENABLE[0] is sticky — requires platform reset to return to legacy P-state mode.</p>
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">References</div>
+<br/>
+
+<ul>
+
+
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Core_Pstates/Core_Pstate_HAS.html">Core P-state HAS</a></li>
+
+<li><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html">NWP PM MAS</a></li>
+
+
+</ul>
+
+
+</div>
+  </div>
+  <div id="sec-a" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-b" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-c" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-d" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-e" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-f" class="panel"><p><em>Not available.</em></p></div>
+</div>
+
+<script>
+const btns  = Array.from(document.querySelectorAll('.tab-bar button'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+btns.forEach(btn => btn.addEventListener('click', () => {
+  btns.forEach(b => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const p = document.getElementById(btn.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

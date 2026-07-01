@@ -14,6 +14,64 @@
 
 ---
 
+### Test Case Intent
+
+Verify **HWP EPP (Energy Performance Preference) resolution** from multiple sources in correct priority order: PECI override > package request > thread/core HWP request > EPB-derived EPP. EPP (0=max performance, 255=max energy saving) controls APS bias. NWP: verify resolution on single-IMH topology. `NGA_MAIN` priority.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| HWP | Enabled (`IA32_PM_ENABLE[0] = 1`) |
+| SV session | Per-core MSR access available |
+| PECI | Accessible for PECI override test step |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Write EPP=0 (performance) to core HWP request. `wrmsr 0x774 [EPP_field=0]` | Autonomous frequency biased toward P0; APS ramps aggressively | No frequency change — EPP field not being respected |
+| 2 | Write EPP=255 (energy saving) to same core. | Autonomous frequency reduced; APS conservative | Frequency stays high — EPP=255 not reducing frequency |
+| 3 | Set package HWP request (IA32_HWP_REQUEST_PKG) with different EPP; enable PACKAGE_CONTROL bit. `wrmsr 0x772; wrmsr 0x774 [PACKAGE_CONTROL=1]` | Core uses package EPP, overriding its own | Thread EPP still dominant — package control bit not working |
+| 4 | Apply PECI EPP override (if PECI available); verify it supersedes both thread and package. | PECI EPP overrides both local and package requests | PECI not overriding — check PECI enable path |
+| 5 | Remove PECI override; verify OS-programmed values restored. | Reverts to OS-programmed EPP | Stale PECI EPP still active |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: EPP priority: PECI > Package > Thread; EPP 0 = performance bias, 255 = efficiency bias; PECI removal restores OS values.
+- **FAIL**: Wrong priority; EPP has no effect; PECI not overriding or not restoring.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| IA32_HWP_REQUEST | MSR 0x774 per core | EPP field (bits[31:24]) set correctly |
+| IA32_HWP_REQUEST_PKG | MSR 0x772 | Package EPP applied when PACKAGE_CONTROL=1 |
+| IA32_PERF_STATUS | MSR 0x198 | Frequency biased per EPP |
+
+---
+
+### Post-Process
+
+Remove PECI override. Restore core EPP to default (balanced = 0x80).
+
+---
+
+### References
+
+- [Core P-state HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Core_Pstates/Core_Pstate_HAS.html) — EPP resolution priority; PECI override semantics; package control bit
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP EPP resolution; single IMH topology
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

@@ -14,6 +14,47 @@
 
 ---
 
+### Test Case Intent
+
+Verify **HWP EPP resolution in OOB mode**: when OOB mode is active, EPP sent via PECI/OOB path takes priority and overrides in-band OS-programmed EPP. Verify EPP source priority specifically in OOB context: OOB-PECI EPP > in-band thread EPP. `plc.feature.p2`.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| HWP OOB | Mode enabled (per TC 22022422318) |
+| PECI / IPMI | OOB management path accessible |
+| SV session | Per-core MSR access |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Set in-band thread EPP=0 (performance) via IA32_HWP_REQUEST. | Thread request set | Write accepted |
+| 2 | Send OOB EPP=255 (energy saving) via PECI HWP request. | Frequency drops toward energy-saving levels; OOB EPP overrides in-band | In-band EPP=0 still dominant — OOB not overriding |
+| 3 | Remove OOB EPP override; verify in-band EPP=0 resumes control. | Frequency returns to performance levels | OOB EPP persists after removal |
+| 4 | Send OOB EPP=0 (performance); in-band EPP=255. | Performance-biased behavior — OOB EPP dominates | In-band EPP=255 overriding — wrong priority |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: OOB EPP overrides in-band; correct priority; removal restores in-band values.
+- **FAIL**: In-band overrides OOB; priority inverted; stale OOB after removal.
+
+---
+
+### References
+
+- [Core P-state HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Core_Pstates/Core_Pstate_HAS.html) — HWP OOB EPP source; PECI override semantics in OOB mode
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP OOB EPP resolution
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

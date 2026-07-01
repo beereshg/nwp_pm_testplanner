@@ -14,6 +14,63 @@
 
 ---
 
+### Test Case Intent
+
+Verify **HWP package-level vs thread-level request resolution**: when `PACKAGE_CONTROL=1` in IA32_HWP_REQUEST, the core derives its parameters from IA32_HWP_REQUEST_PKG instead of its local request. Verify priority: PECI > Package > Thread. `pm.xproducts.pm` / `NGA_MAIN`.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| HWP | Enabled (`IA32_PM_ENABLE[0]=1`) |
+| SV session | Per-core and package MSR access |
+| Platform | Fully booted; no prior HWP requests active |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Write EPP=0 (performance) to IA32_HWP_REQUEST_PKG (0x772). Set PACKAGE_CONTROL=1 on all cores. | All cores use package EPP=0; frequency biased toward P0 | Cores still using thread EPP — PACKAGE_CONTROL bit not working |
+| 2 | Write different EPP per thread (thread EPP=200); verify package EPP=0 still dominates. | Frequency biased toward performance despite thread EPP=200 | Thread EPP overriding package — wrong priority |
+| 3 | Clear PACKAGE_CONTROL bit on one core; verify it reverts to its thread EPP. | That core uses thread EPP=200; others still use package EPP=0 | Per-core PACKAGE_CONTROL toggle not working |
+| 4 | Apply PECI EPP override; verify it supersedes both package and thread requests on all cores. | All cores follow PECI EPP regardless of thread/package settings | PECI not overriding — check PECI enable path |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: PACKAGE_CONTROL=1 routes to package request; PECI overrides all; per-core toggle works.
+- **FAIL**: Wrong priority order; PACKAGE_CONTROL ineffective; PECI not overriding.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| IA32_HWP_REQUEST_PKG | MSR 0x772 | Package-level EPP/desired programmed |
+| IA32_HWP_REQUEST | MSR 0x774 per core | PACKAGE_CONTROL bit[42]; EPP per thread |
+| IA32_PERF_STATUS | MSR 0x198 per core | Frequency reflects correct EPP source |
+
+---
+
+### Post-Process
+
+Clear PACKAGE_CONTROL on all cores. Remove PECI override. Restore thread HWP requests to defaults.
+
+---
+
+### References
+
+- [Core P-state HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Core_Pstates/Core_Pstate_HAS.html) — PACKAGE_CONTROL bit; package vs thread request resolution; PECI override priority
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP package/thread HWP request paths
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

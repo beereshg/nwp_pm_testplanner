@@ -14,6 +14,67 @@
 
 ---
 
+### Test Case Intent
+
+Verify end-to-end **HWP Native Mode** functionality after OS optin via `IA32_PM_ENABLE.HWP_ENABLE = 1`: HWP capabilities readable, HWP request fields accepted, per-core frequency governed by HWP policy, and system stable throughout. This is the primary HWP functional validation. `plc.feature.p1` / `NGA_MAIN`. NWP: 2 CBBs x 48 cores.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| HWP | Disabled initially (legacy P-state mode) |
+| SV session | Per-core MSR access available |
+| BIOS | HWPMEnable = Enabled |
+| PMx | `python runPmx.py -x nwp.xml -p hwp -tM 60 -M 5` |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Write IA32_PM_ENABLE[0]=1 to enable HWP. `wrmsr 0x770 0x1` | IA32_PM_ENABLE[0]=1 (sticky; cannot be unset without reset) | = 0 after write — BIOS HWPMEnable not set |
+| 2 | Read IA32_HWP_CAPABILITIES per core; verify highest_perf, guaranteed, efficient, lowest_perf. `rdmsr 0x771 per core` | Non-zero values; highest_perf ≥ guaranteed > efficient ≥ lowest_perf; consistent across all 96 cores | Any core returns 0 or inverted values |
+| 3 | Write HWP request: min=guaranteed, max=highest, desired=0 (autonomous), EPP=128. `wrmsr 0x774 per core` | Request accepted; autonomous APS governs frequency | Frequency stuck — HWP request not being enforced |
+| 4 | Write explicit desired=P0 ratio; verify frequency. | Frequency at P0 (explicit request honored) | Frequency does not reach P0 |
+| 5 | Write desired=lowest_perf; verify frequency reduced. | Frequency near Pn (minimum) | Frequency stays high — minimum not enforced |
+| 6 | Run PMx HWP end-to-end. `python runPmx.py -x nwp.xml -p hwp -tM 60 -M 5` | PMx PASS | PMx FAIL |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: IA32_PM_ENABLE sticky; capabilities non-zero; HWP request governs frequency; explicit and autonomous modes work; PMx PASS.
+- **FAIL**: Sticky bit fails; capabilities 0; request not governing frequency; PMx FAIL.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| IA32_PM_ENABLE | MSR 0x770 | [0]=1 after write; sticky |
+| IA32_HWP_CAPABILITIES | MSR 0x771 per core | highest_perf ≥ guaranteed ≥ efficient ≥ lowest_perf |
+| IA32_HWP_REQUEST | MSR 0x774 per core | Accepted; governs frequency |
+| IA32_PERF_STATUS | MSR 0x198 per core | Reflects HWP-governed frequency |
+
+---
+
+### Post-Process
+
+Collect PMx log on failure. Note: IA32_PM_ENABLE[0] is sticky — requires platform reset to return to legacy P-state mode.
+
+---
+
+### References
+
+- [Core P-state HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Core_Pstates/Core_Pstate_HAS.html) — IA32_PM_ENABLE; HWP_CAPABILITIES; HWP_REQUEST fields; explicit vs autonomous mode
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP HWP Native mode; 96-core topology
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

@@ -14,6 +14,63 @@
 
 ---
 
+### Test Case Intent
+
+Verify **HWP Notification interrupts** fire correctly on three trigger conditions: (1) excursion below HWP minimum, (2) guaranteed performance change, (3) PECS (PCS) override. Each condition must generate an interrupt visible via IA32_HWP_STATUS MSR and optionally via APIC thermal LVT. `plc.feature.p2`.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| HWP | Enabled (`IA32_PM_ENABLE[0]=1`) |
+| HWP Interrupt | BIOS knob `HWP Interrupt = Enabled` |
+| IA32_HWP_INTERRUPT | MSR 0x773 bits[2:0] set to enable desired interrupts |
+| APIC | Thermal LVT enabled if checking interrupt delivery |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Enable all HWP interrupt sources: `wrmsr 0x773 0x7` (bits 0=min excursion, 1=guaranteed change, 2=excursion to maximum) | IA32_HWP_INTERRUPT = 0x7 after write | Bits not set — BIOS not allowing interrupt enable |
+| 2 | Force a frequency below HWP minimum (e.g., via aggressive power limit); read IA32_HWP_STATUS. `rdmsr 0x777` | IA32_HWP_STATUS.EXCURSION_TO_MINIMUM[0] = 1 | = 0 — below-min excursion not generating status bit |
+| 3 | Trigger guaranteed ratio change (e.g., change RAPL PL1 to cause guaranteed ratio drop); read IA32_HWP_STATUS. | IA32_HWP_STATUS.CHANGE_TO_GUARANTEED[1] = 1 | = 0 — guaranteed change notification missing |
+| 4 | Clear status bits by writing 1 to clear. `wrmsr 0x777 0x3` | Status bits clear to 0 | Bits sticky and not clearing |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: All 3 interrupt sources generate status bits; bits clear on write-to-clear; interrupt delivery functional.
+- **FAIL**: Any status bit not set on trigger; bits not clearing; interrupt not delivered.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| IA32_HWP_INTERRUPT | MSR 0x773 | Interrupt enable bits settable |
+| IA32_HWP_STATUS | MSR 0x777 | Status bits set on trigger conditions; WC (write-1-to-clear) |
+
+---
+
+### Post-Process
+
+Clear IA32_HWP_STATUS. Restore IA32_HWP_INTERRUPT to default (0). Remove artificial power limits.
+
+---
+
+### References
+
+- [Core P-state HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Core_Pstates/Core_Pstate_HAS.html) — HWP notification interrupts; IA32_HWP_INTERRUPT; IA32_HWP_STATUS; excursion-to-min; guaranteed change
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP HWP interrupt support
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

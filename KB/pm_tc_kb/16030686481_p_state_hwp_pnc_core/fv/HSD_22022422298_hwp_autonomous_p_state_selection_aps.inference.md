@@ -14,6 +14,68 @@
 
 ---
 
+### Test Case Intent
+
+Verify **HWP Autonomous P-state Selection (APS/UBPS)** correctly drives core frequency based on workload utilization when `DESIRED_PERFORMANCE = 0`. APS uses utilization history + EPP + Activity Window to produce a dynamic target frequency. NWP: 2 CBBs x 48 cores (no SMT); HWP enabled via IA32_PM_ENABLE[0]=1. `NGA_MAIN` priority.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| SV session | `sv.socket0.cbb{0,1}` accessible |
+| HWP | Enabled: `IA32_PM_ENABLE.HWP_ENABLE = 1` |
+| DESIRED_PERFORMANCE | = 0 (autonomous mode); not explicit request |
+| Workload tools | PTU, PTAT, or stress-ng for utilization variation |
+| PMx | `python runPmx.py -x nwp.xml -p hwp -tM 60 -M 5` |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Enable HWP and set DESIRED=0, EPP=128 (balanced). `wrmsr 0x770 0x1; wrmsr 0x774 0x0080_0000_0000` | HWP active; APS mode engaged | HWP_ENABLE not sticky — check BIOS HWPMEnable knob |
+| 2 | Apply light workload (20% utilization); wait 2s; read IA32_PERF_STATUS. `rdmsr 0x198 per core` | Frequency below P0 (APS selected lower ratio for light load) | Frequency at P0 max — APS not reducing for low utilization |
+| 3 | Apply heavy workload (100% utilization); wait 2s; read IA32_PERF_STATUS. | Frequency near P0 (APS ramped up for high utilization) | Frequency stuck low — APS ramp-up not working |
+| 4 | Change Activity Window (MSR 0x774 bits[41:32]); observe responsiveness change. | Shorter window = faster ramp; longer window = smoother response | No change — Activity Window not being applied |
+| 5 | Run PMx HWP test. `python runPmx.py -x nwp.xml -p hwp -tM 60 -M 5` | PMx PASS | PMx FAIL — collect log |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: APS drives frequency proportionally to utilization; Activity Window affects responsiveness; PMx HWP PASS.
+- **FAIL**: Frequency unresponsive to load changes; Activity Window has no effect; PMx FAIL.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| IA32_PM_ENABLE | MSR 0x770 | HWP_ENABLE[0] = 1 |
+| IA32_HWP_REQUEST | MSR 0x774 per core | DESIRED=0; EPP and Activity Window set |
+| IA32_PERF_STATUS | MSR 0x198 per core | Tracks utilization; ramps with load |
+| IA32_HWP_CAPABILITIES | MSR 0x771 per core | highest_perf = P0max; lowest_perf = Pn |
+
+---
+
+### Post-Process
+
+Stop workload. Collect PMx log on failure. Verify no residual RAPL/thermal throttle affecting results.
+
+---
+
+### References
+
+- [Core P-state HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Core_Pstates/Core_Pstate_HAS.html) — APS/UBPS algorithm; DESIRED=0 autonomous mode; EPP and Activity Window interaction
+- [ACP PM HAS](https://docs.intel.com/documents/pm_doc/src/server/wave3_common/autonomous_core_perimeter/autonomous_core_perimeter_pm_has.html) — UBPS gain/decay; aps_thread_ratio computation
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP HWP scope; 2-CBB topology
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

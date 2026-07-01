@@ -14,6 +14,62 @@
 
 ---
 
+### Test Case Intent
+
+Verify **Solar tool** drives random HWP P-state requests across P0..Pn in HWP mode and system remains stable. Solar is platform-agnostic (no NWP-specific XML). Pre-condition: HWP enabled (`IA32_PM_ENABLE[0]=1`). `plc.feature.p1`.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| SVOS | Running on NWP silicon |
+| Solar | Installed at `/usr/bin/solar/` |
+| HWP | Enabled: BIOS HWPMEnable=1 and IA32_PM_ENABLE[0]=1 |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Verify Solar installed and HWP enabled. `ls /usr/bin/solar/solar.sh; rdmsr 0x770` | Solar present; IA32_PM_ENABLE[0]=1 | Solar missing; or HWP not enabled — check BIOS |
+| 2 | Run Solar HWP random P-state sweep. `/usr/bin/solar/solar.sh /hwp -gvpoints P0..Pn -r /logpath .` | Solar completes; log shows PASS for all ratio steps | Solar FAIL — check log for which ratio step failed |
+| 3 | Verify no MCAs during Solar sweep. `dmesg | grep -i mce; mcelog` | No MCA events | MCA present — collect mcelog and crash dump |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: Solar HWP sweep completes; all ratio steps PASS; no MCAs.
+- **FAIL**: Solar FAIL; MCA during sweep.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| Solar output log | /logpath/solar_*.log | All HWP ratio steps = PASS |
+| MCA events | dmesg / mcelog | No MCA during sweep |
+| IA32_PM_ENABLE | MSR 0x770 | [0]=1 (HWP active) |
+
+---
+
+### Post-Process
+
+Collect Solar log on failure. Check mcelog for MCA details.
+
+---
+
+### References
+
+- [Core P-state HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Core_Pstates/Core_Pstate_HAS.html) — HWP P-state range; IA32_HWP_CAPABILITIES bounds
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP HWP; Solar tool SVOS operation
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

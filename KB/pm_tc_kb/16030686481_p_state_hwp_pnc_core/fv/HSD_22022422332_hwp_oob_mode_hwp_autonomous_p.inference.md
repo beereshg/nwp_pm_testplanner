@@ -14,6 +14,47 @@
 
 ---
 
+### Test Case Intent
+
+Verify **HWP Autonomous P-state Selection (APS) in OOB mode**: when OOB mode is active and DESIRED=0 in the OOB HWP request, APS/UBPS still operates correctly using utilization history but with OOB-supplied EPP and Activity Window parameters. `plc.feature.p2`.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| HWP OOB | Mode enabled |
+| OOB path | PECI/IPMI accessible |
+| Workload tools | PTU/PTAT for utilization variation |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Send OOB HWP request with DESIRED=0 and EPP=128 (balanced). | APS autonomous mode active; frequency tracks utilization | Frequency static — APS not running in OOB mode |
+| 2 | Apply light workload; verify APS selects lower frequency. | Frequency reduced for light utilization | Frequency at P0 — APS ramp-down not working |
+| 3 | Apply heavy workload; verify APS ramps to P0. | Frequency near P0 for high utilization | Frequency stuck low — APS ramp-up not working in OOB |
+| 4 | Change OOB EPP to 0 (performance); verify APS more aggressive. | Frequency at P0 faster / more frequently | EPP change has no effect |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: APS tracks utilization in OOB mode; OOB EPP affects APS bias; both ramp-up and ramp-down work.
+- **FAIL**: APS not active in OOB; EPP change has no effect; ramp-up or ramp-down broken.
+
+---
+
+### References
+
+- [Core P-state HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Core_Pstates/Core_Pstate_HAS.html) — HWP OOB APS; DESIRED=0 autonomous mode in OOB context
+- [ACP PM HAS](https://docs.intel.com/documents/pm_doc/src/server/wave3_common/autonomous_core_perimeter/autonomous_core_perimeter_pm_has.html) — UBPS in OOB mode
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**
