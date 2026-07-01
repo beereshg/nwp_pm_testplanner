@@ -13,6 +13,75 @@
 
 ---
 
+### Test Case Intent
+
+Verify all SIMPL policy fuse values for IMH0 are correctly programmed and propagated to `simpl_max_freq_*` pcudata registers. 4 policies, 2 domains (IO=0, Mem=1): fuse → register match required for correct SIMPL frequency ceiling enforcement. NWP: single IMH (imh0) only. `ti_gate.b0` / `PMSS_NWP_READINESS_CHECK`. ⚠️ SIMPL ZBB per NWP PM MAS §3.
+
+**Expected fuse values (from DMR_Fabric_DVFS.xlsx):**
+
+| Policy | IO Freq Fuse | Mem Freq Fuse |
+|--------|-------------|---------------|
+| 0 | 0xe | TBD |
+| 1 | 0x14 | TBD |
+| 2 | 0x14 | TBD |
+| 3 | TBD | TBD |
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| SV session | `sv.socket0.imh0` and fuse paths reachable |
+| Platform S0 | Fully booted post-PH6 |
+| PMx | `python flexconPM.py` (NWPSV.ini) available |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Read Policy 0 IO fuse and pcudata. `p0_f=sv.socket0.imh0.fuses.punit.pcode_simpl_policy_0_imh_cfcio_max_freq.read(); p0_p=sv.socket0.imh0.pcudata.simpl_max_freq_0_0.read(); assert p0_f==0xe; assert p0_f==p0_p` | Fuse=0xe; pcudata matches fuse | Fuse=0 or fuse!=pcudata — PrimeCode init failure |
+| 2 | Read Policy 1 IO fuse and pcudata. `p1_f=sv.socket0.imh0.fuses.punit.pcode_simpl_policy_1_imh_cfcio_max_freq.read(); p1_p=sv.socket0.imh0.pcudata.simpl_max_freq_0_1.read(); assert p1_f==0x14; assert p1_f==p1_p` | Fuse=0x14; pcudata matches | Mismatch — PrimeCode init failure |
+| 3 | Read Policy 2 IO fuse and pcudata. `p2_f=sv.socket0.imh0.fuses.punit.pcode_simpl_policy_2_imh_cfcio_max_freq.read(); p2_p=sv.socket0.imh0.pcudata.simpl_max_freq_0_2.read(); assert p2_f==0x14; assert p2_f==p2_p` | Fuse=0x14; pcudata matches | Mismatch |
+| 4 | Read Policy 3 IO fuse and pcudata; verify Mem fuses for all policies. | All fuse values non-zero; all fuse==pcudata | Zero fuse or mismatch |
+| 5 | Run flexconPM. `python flexconPM.py` | flexconPM PASS | PMx FAIL — collect log |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: All 4 policy fuses match expected values; all fuse==pcudata; flexconPM PASS.
+- **FAIL**: Any fuse=0, fuse!=expected, or fuse!=pcudata; flexconPM FAIL.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| simpl_policy_0 IO fuse | sv.socket0.imh0.fuses.punit.pcode_simpl_policy_0_imh_cfcio_max_freq | = 0xe |
+| simpl_max_freq_0_0 | sv.socket0.imh0.pcudata.simpl_max_freq_0_0 | = fuse value |
+| simpl_policy_1 IO fuse | sv.socket0.imh0.fuses.punit.pcode_simpl_policy_1_imh_cfcio_max_freq | = 0x14 |
+| simpl_max_freq_0_1 | sv.socket0.imh0.pcudata.simpl_max_freq_0_1 | = fuse value |
+
+---
+
+### Post-Process
+
+Read-only test. Collect fuse dump on failure.
+
+---
+
+### References
+
+- [DMR SIMPL HAS](https://docs.intel.com/documents/pm_doc/src/server/DMR/PM%20Features/DMR_SIMPL.html) — SIMPL fuse structure; policy frequency tables; fuse-to-register propagation
+- [DMR Fabric DVFS Data](https://docs.intel.com/documents/pm_doc/src/server/DMR/PM%20Features/assets/DMR_Fabric_DVFS.xlsx) — Policy definitions; BW→freq tables; fuse values (source of truth)
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP SIMPL ZBB status; single IMH topology
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

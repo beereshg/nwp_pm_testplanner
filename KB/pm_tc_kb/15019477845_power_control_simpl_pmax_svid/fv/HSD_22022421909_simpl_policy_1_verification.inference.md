@@ -13,6 +13,63 @@
 
 ---
 
+### Test Case Intent
+
+Verify **SIMPL Policy 1** is selected when IO/Mem fabric bandwidth demand crosses the Policy-0→Policy-1 threshold, and that frequency limits match Policy 1 spec (IO=0x14 = 2.0 GHz). `ti_gate.b0` / `NGA_MAIN`. NWP: single IMH (imh0). ⚠️ SIMPL ZBB per NWP PM MAS §3.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| SV session | `sv.socket0.imh0` reachable |
+| SIMPL fuses | Verified (TC 22022421902) |
+| Workload | Medium IO/Mem bandwidth tool (stream, MBW) |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Run medium IO/Mem bandwidth workload (moderate BW demand). | IO/Mem demand in Policy-1 BW range | Load too light (stays Policy 0) or too heavy (jumps to Policy 2/3) |
+| 2 | Read `current_policy`. `cur = sv.socket0.imh0.pcudata.patch_persistent.current_policy.read(); assert cur==1, f'Expected Policy 1, got {cur}'` | `current_policy = 1` | Wrong policy — adjust workload BW intensity |
+| 3 | Read Policy 1 freq limits. `io_freq=sv.socket0.imh0.pcudata.simpl_max_freq_0_1.read(); assert io_freq==0x14` | IO freq = 0x14 for Policy 1 | Freq mismatch — fuse propagation issue |
+| 4 | Run PMx SIMPL test. `python runPmx.py -x nwp.xml -p simpl -tM 60` | PMx PASS | PMx FAIL |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: `current_policy=1` under medium-IO workload; IO freq limit=0x14; PMx PASS.
+- **FAIL**: Wrong policy; freq mismatch; PMx FAIL.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| current_policy | sv.socket0.imh0.pcudata.patch_persistent.current_policy | = 1 under medium IO/Mem load |
+| simpl_max_freq_0_1 | sv.socket0.imh0.pcudata.simpl_max_freq_0_1 | = 0x14 (Policy 1 IO freq) |
+
+---
+
+### Post-Process
+
+Stop workload. Verify policy transitions back to 0 at idle.
+
+---
+
+### References
+
+- [DMR SIMPL HAS](https://docs.intel.com/documents/pm_doc/src/server/DMR/PM%20Features/DMR_SIMPL.html) — Policy 1 BW threshold; freq limits; policy transition hysteresis
+- [DMR Fabric DVFS Data](https://docs.intel.com/documents/pm_doc/src/server/DMR/PM%20Features/assets/DMR_Fabric_DVFS.xlsx) — Policy 1 freq=0x14 (2.0 GHz); BW→policy table
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP SIMPL; new voltage rails; single IMH
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

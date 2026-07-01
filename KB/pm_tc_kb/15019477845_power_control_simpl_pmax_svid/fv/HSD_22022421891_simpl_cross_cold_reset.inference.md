@@ -13,6 +13,64 @@
 
 ---
 
+### Test Case Intent
+
+Verify that after a **cold reset**, SIMPL reverts to **Policy 0** (default safe policy): `current_policy = 0` and `target_policy = 0` on IMH0. The SIMPL Cold Reset Handshake must terminate correctly. `NGA_MAIN` / `ti_gate.b0` cross-product test. NWP: **single IMH (imh0)** — no IMH1. ⚠️ SIMPL is ZBB per NWP PM MAS §3; FV team disposition Runnable_On_N-1 pending final confirmation.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| SV session | `sv.socket0.imh0` reachable after reset |
+| Platform S0 | Fully booted post cold-reset |
+| Namespace | `imh0 = sv.socket0.imh0` alias set |
+| SIMPL status | Confirm SIMPL functional (not disabled by fuse/BIOS) |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | (Optional) Set SIMPL to non-default policy pre-reset via BIOS knob or override. | Non-zero policy active before reset | Skippable if SIMPL stays at Policy 0 by default |
+| 2 | Initiate a cold reset and wait for full boot. | Platform completes cold reset; SVOS boots | Boot failure — unrelated issue |
+| 3 | Read `current_policy` and `target_policy` post-boot. `current = sv.socket0.imh0.pcudata.patch_persistent.current_policy.read(); target = sv.socket0.imh0.pcudata.patch_persistent.target_policy.read(); print(f'current={current} target={target}')` | Both = 0 (Policy 0 restored by cold reset) | Non-zero — SIMPL Cold Reset Handshake did not terminate; check PH6 init |
+| 4 | Run PMx SIMPL reset test. `python runPmx.py -x nwp.xml -p simpl_reset -tM 60` | PMx PASS | PMx FAIL — collect run log |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: After cold reset `current_policy = 0` and `target_policy = 0` on IMH0; PMx simpl_reset PASS.
+- **FAIL**: Either policy != 0 post cold reset; SIMPL Handshake stuck.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| current_policy | sv.socket0.imh0.pcudata.patch_persistent.current_policy | = 0 after cold reset |
+| target_policy | sv.socket0.imh0.pcudata.patch_persistent.target_policy | = 0 after cold reset |
+| NLOG SIMPL | peg_client --nlog --filter SIMPL | No handshake errors |
+
+---
+
+### Post-Process
+
+Verify system stable post cold reset. Collect NLOG if policy stuck non-zero.
+
+---
+
+### References
+
+- [DMR SIMPL HAS](https://docs.intel.com/documents/pm_doc/src/server/DMR/PM%20Features/DMR_SIMPL.html) — SIMPL cold reset handshake; policy-0 restore behavior; current_policy / target_policy registers
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP SIMPL ZBB status (MAS §3); single IMH topology
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

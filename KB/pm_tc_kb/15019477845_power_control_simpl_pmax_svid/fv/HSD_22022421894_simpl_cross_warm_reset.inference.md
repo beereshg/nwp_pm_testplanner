@@ -13,6 +13,62 @@
 
 ---
 
+### Test Case Intent
+
+Verify that after a **warm reset**, SIMPL **retains** (does not reset) its current policy state. Unlike cold reset (which restores Policy 0), warm reset should preserve the previously active policy. `ti_gate.b0` cross-product test. NWP: single IMH (imh0). ⚠️ SIMPL ZBB per NWP PM MAS §3; FV team: Runnable_On_N-1 pending confirmation.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| SV session | `sv.socket0.imh0` reachable post-reset |
+| SIMPL functional | SIMPL enabled and policy selection working |
+| Pre-reset state | Record policy state before warm reset |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Drive SIMPL to non-Policy-0 by running IO/Mem-heavy workload. `current_pre = sv.socket0.imh0.pcudata.patch_persistent.current_policy.read(); print(f'Pre-reset policy={current_pre}')` | Non-zero policy active (e.g., Policy 2 or 3) | Policy stays 0 — workload insufficient; increase IO/Mem load |
+| 2 | Initiate warm reset; wait for full boot. | Platform completes warm reset; SVOS boots | Boot failure |
+| 3 | Read `current_policy` post warm reset. `current_post = sv.socket0.imh0.pcudata.patch_persistent.current_policy.read(); print(f'Post-reset policy={current_post}')` | Policy retained (matches pre-reset value OR returns to safe default per spec) | Unexpected policy value — verify warm reset SIMPL behavior in NWP HAS |
+| 4 | Run PMx SIMPL warm reset test. `python runPmx.py -x nwp.xml -p simpl_reset -tM 60` | PMx PASS | PMx FAIL — collect log |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: Warm reset policy behavior matches NWP HAS specification; PMx PASS.
+- **FAIL**: Policy in unexpected state post warm reset; PMx FAIL.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| current_policy | sv.socket0.imh0.pcudata.patch_persistent.current_policy | Matches expected warm-reset behavior per NWP HAS |
+| target_policy | sv.socket0.imh0.pcudata.patch_persistent.target_policy | Consistent with current_policy |
+
+---
+
+### Post-Process
+
+Collect NLOG on unexpected policy state. Verify SIMPL HAS for warm vs cold reset behavior difference.
+
+---
+
+### References
+
+- [DMR SIMPL HAS](https://docs.intel.com/documents/pm_doc/src/server/DMR/PM%20Features/DMR_SIMPL.html) — warm reset vs cold reset policy retention behavior
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP SIMPL ZBB; single IMH topology
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

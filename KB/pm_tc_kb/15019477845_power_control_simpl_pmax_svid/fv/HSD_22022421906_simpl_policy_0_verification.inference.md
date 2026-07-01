@@ -13,6 +13,65 @@
 
 ---
 
+### Test Case Intent
+
+Verify **SIMPL Policy 0** is selected under core-heavy + light IO/Mem workload, and that IO/Mem fabric frequency limits match Policy 0 spec values. Policy 0 = maximum IO/Mem fabric frequency (least restrictive). `ti_gate.b0` / `NGA_MAIN`. NWP: single IMH (imh0). ⚠️ SIMPL ZBB per NWP PM MAS §3; FV team Runnable_On_N-1 pending confirmation.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| SV session | `sv.socket0.imh0` reachable |
+| Workload tools | stress-ng (core), MBW or memory-bandwidth tool |
+| SIMPL fuses | Verified (TC 22022421902) |
+| PMx | `python runPmx.py -x nwp.xml -p simpl -tM 60` |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Start heavy core workload + light IO/Mem (e.g., stress-ng CPU cores, low memory BW). `import time; # start workload; time.sleep(5)` | System under core-heavy load; minimal IO/Mem fabric demand | Workload not running |
+| 2 | Read `current_policy`. `cur = sv.socket0.imh0.pcudata.patch_persistent.current_policy.read(); print(f'current_policy={cur}')` | `current_policy = 0` (core-heavy + light IO/Mem → Policy 0) | Non-zero policy — IO/Mem demand higher than expected; reduce IO workload |
+| 3 | Read IO and Mem fabric freq limits for Policy 0. `io_freq=sv.socket0.imh0.pcudata.simpl_max_freq_0_0.read(); mem_freq=sv.socket0.imh0.pcudata.simpl_max_freq_1_0.read(); print(f'IO={hex(io_freq)} Mem={hex(mem_freq)}')` | Freq limits match Policy 0 fuse values (IO=0xe); non-zero | Freq limits 0 or unexpected — fuse propagation failure |
+| 4 | Run PMx SIMPL test. `python runPmx.py -x nwp.xml -p simpl -tM 60` | PMx PASS | PMx FAIL |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: `current_policy=0` under core-heavy+light-IO workload; freq limits match Policy 0 spec; PMx PASS.
+- **FAIL**: Wrong policy selected; freq limits mismatch; PMx FAIL.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| current_policy | sv.socket0.imh0.pcudata.patch_persistent.current_policy | = 0 under specified workload |
+| target_policy | sv.socket0.imh0.pcudata.patch_persistent.target_policy | = 0 (no pending transition) |
+| simpl_max_freq_0_0 | sv.socket0.imh0.pcudata.simpl_max_freq_0_0 | Policy 0 IO freq = 0xe |
+
+---
+
+### Post-Process
+
+Stop workload. Verify policy returns to 0 at idle.
+
+---
+
+### References
+
+- [DMR SIMPL HAS](https://docs.intel.com/documents/pm_doc/src/server/DMR/PM%20Features/DMR_SIMPL.html) — Policy 0 definition; workload classification; IO/Mem freq limits table
+- [DMR Fabric DVFS Data](https://docs.intel.com/documents/pm_doc/src/server/DMR/PM%20Features/assets/DMR_Fabric_DVFS.xlsx) — Policy 0 freq values; BW→policy mapping
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP SIMPL status; single IMH; new voltage rails
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**
