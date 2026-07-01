@@ -3,205 +3,251 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>HWP Feature — Validation Gap Analysis</title>
+<title>HWP Feature — Review-Ready Validation Gap Analysis</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;font-size:13px;color:#1f2937;}
 .hdr{background:#0f4c81;color:#fff;padding:16px 28px;}
 .hdr h1{font-size:20px;font-weight:600;}
-.hdr .sub{font-size:12px;opacity:.82;margin-top:5px;}
-.wrap{max-width:1120px;margin:20px auto;padding:0 18px 50px;}
+.hdr .meta{font-size:12px;opacity:.82;margin-top:4px;}
+.wrap{max-width:1140px;margin:20px auto;padding:0 18px 50px;}
 .card{background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;margin-bottom:18px;}
 h2{color:#0f4c81;font-size:15px;font-weight:700;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #cce4f7;}
-h3{color:#1a5fa8;font-size:13px;font-weight:700;margin:14px 0 6px;}
+h3{color:#1a5fa8;font-size:13px;font-weight:700;margin:14px 0 5px;}
+h4{color:#374151;font-size:12px;font-weight:700;margin:10px 0 3px;text-transform:uppercase;letter-spacing:.5px;}
 p{margin:6px 0;line-height:1.65;}
 ul{margin:6px 0 8px 22px;line-height:1.75;}
+ol{margin:6px 0 8px 22px;line-height:1.75;}
 table{border-collapse:collapse;width:100%;margin:10px 0;font-size:12px;}
 th{background:#e8f0fe;color:#0f4c81;padding:7px 10px;text-align:left;border:1px solid #c8d9f0;font-weight:600;}
-td{padding:6px 10px;border:1px solid #d9e2ec;vertical-align:top;}
+td{padding:7px 10px;border:1px solid #d9e2ec;vertical-align:top;line-height:1.55;}
 tr:nth-child(even) td{background:#f8fafc;}
 code{background:#f3f6fb;border:1px solid #d9e2ec;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:11px;}
-.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;}
+.badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:600;}
+.p1{background:#ffcdd2;color:#b71c1c;}
+.p2{background:#fff3e0;color:#e65100;}
 .covered{background:#c8e6c9;color:#1b5e20;}
-.partial{background:#fff3e0;color:#e65100;}
+.partial{background:#fff9c4;color:#f57f17;}
 .gap{background:#fce4ec;color:#880e4f;}
-.ok{background:#e8f5e9;border-left:4px solid #2e7d32;padding:10px 14px;margin:10px 0;border-radius:0 4px 4px 0;font-size:12px;}
-.notice{background:#fff8e1;border-left:4px solid #f9a825;padding:10px 14px;margin:10px 0;border-radius:0 4px 4px 0;font-size:12px;}
-.gap-box{background:#fce4ec;border-left:4px solid #c62828;padding:10px 14px;margin:10px 0;border-radius:0 4px 4px 0;font-size:12px;}
-.layer{background:#e3f2fd;border-left:4px solid #1565c0;padding:8px 14px;margin:4px 0;border-radius:0 4px 4px 0;font-size:12px;}
+.ok{background:#e8f5e9;border-left:4px solid #2e7d32;padding:10px 14px;margin:10px 0;border-radius:0 4px 4px 0;font-size:12px;line-height:1.6;}
+.notice{background:#fff8e1;border-left:4px solid #f9a825;padding:10px 14px;margin:10px 0;border-radius:0 4px 4px 0;font-size:12px;line-height:1.6;}
+.gap-box{background:#fce4ec;border-left:4px solid #c62828;padding:10px 14px;margin:8px 0;border-radius:0 4px 4px 0;font-size:12px;line-height:1.6;}
+.tp-section{border:1px solid #c8d9f0;border-radius:6px;padding:16px 20px;margin:14px 0;background:#fafcff;}
+.tp-hdr{background:#0f4c81;color:#fff;padding:8px 14px;border-radius:4px;font-weight:700;font-size:13px;margin-bottom:12px;}
+.tp-row{display:flex;gap:0;margin:6px 0;}
+.tp-label{min-width:130px;font-weight:700;color:#1a5fa8;font-size:12px;padding-top:1px;}
+.tp-content{flex:1;font-size:12px;line-height:1.6;}
+.phase-hdr{background:#cce4f7;color:#004a80;padding:6px 14px;font-weight:700;font-size:12px;border-radius:4px;margin:10px 0 4px;}
 </style>
 </head>
 <body>
 <div class="hdr">
-  <h1>HWP Feature — Validation Gap Analysis</h1>
-  <div class="sub">NWP PM · Generated 2026-07-01 · Based on Core P-state HAS + ACP PM HAS + Current TC coverage</div>
+  <h1>HWP Feature — Review-Ready Validation Gap Analysis</h1>
+  <div class="meta">NWP PM · 2026-07-01 · Sources: Core P-state HAS · ACP PM HAS · Current TC coverage (TPF 16030686481)</div>
 </div>
 <div class="wrap">
 
-<!-- FEATURE ARCHITECTURE -->
+<!-- SCOPE -->
 <div class="card">
-<h2>HWP Feature Architecture (End-to-End Stack)</h2>
-<p>HWP is a hardware-managed P-state mechanism with three layers of processing before a frequency is applied:</p>
+<h2>Scope &amp; Architectural Reference</h2>
+<p>This gap analysis covers <strong>HWP Native and OOB mode validation</strong> across the full P-state processing stack:</p>
+<ol>
+  <li><strong>Request input and resolution</strong> — source selection (thread / package / PECI), normalization (min ≤ desired ≤ max), capabilities boundary</li>
+  <li><strong>APS / UBPS autonomous selection</strong> — DESIRED=0, utilization-based ramp, EPP + Activity Window</li>
+  <li><strong>SAPM-DLL / EET refinement</strong> — dynamic EPB resolution, frequency deration factor from scalability</li>
+  <li><strong>Final clipping by platform constraints</strong> — RAPL, Thermal, Turbo limits dominate HWP-requested frequency</li>
+</ol>
+<div class="notice">⚠️ <strong>Architecture note:</strong> EET can reduce granted frequency but does not increase it. HWP operates <em>inside</em> the broader platform envelope — RAPL and Thermal always dominate. If <code>ACTIVITY_WINDOW = 0</code>, pCode uses an internal EPP-derived default. EET feeds into Autonomous HWP / LegacyP through the energy-efficiency layer.</div>
+</div>
 
-<div class="layer"><strong>Layer 1 — Request Input &amp; Resolution</strong>: SW writes HWP request fields (Min, Max, Desired, EPP, Activity Window, Package Control). PM logic resolves source: Thread → Package (if PACKAGE_CONTROL=1) → PECI override. Request is normalized: min ≤ desired ≤ max; DESIRED=0 triggers APS; EPP derived from EPB if not explicit.</div>
-<div class="layer"><strong>Layer 2 — Autonomous Selection (APS/UBPS)</strong>: When DESIRED=0, UBPS algorithm converts utilization history + EPP + Activity Window into <code>aps_thread_ratio</code>. Gain term ramps up on rising utilization; decay term ramps down on falling utilization. Short Activity Window = responsive; Long = smooth.</div>
-<div class="layer"><strong>Layer 3 — Energy Efficiency Refinement (SAPM-DLL + EET)</strong>: SAPM-DLL dynamically adjusts EPB based on thread activity. EET computes a frequency deration factor from stall/scalability behavior using SAPM-DLL's resolved EPB. EET can only reduce frequency, never increase it.</div>
-<div class="layer"><strong>Layer 4 — Final Clipping</strong>: Acode/pCode clips resolved request against WP1.Fceil, WP4 limits, F_floor. RAPL, Thermal, and Turbo policies remain in pCode and constrain the final frequency. HWP operates <em>within</em> this envelope, not around it.</div>
-
-<h3>Key MSRs</h3>
+<!-- GAP TABLE -->
+<div class="card">
+<h2>Review-Ready Gap Table (8 Gaps)</h2>
 <table>
-<tr><th>MSR</th><th>Address</th><th>Purpose</th></tr>
-<tr><td><code>IA32_PM_ENABLE</code></td><td>0x770</td><td>HWP_ENABLE[0] = 1 activates HWP (sticky; reset to clear)</td></tr>
-<tr><td><code>IA32_HWP_CAPABILITIES</code></td><td>0x771</td><td>RO: highest/guaranteed/efficient/lowest perf per core</td></tr>
-<tr><td><code>IA32_HWP_REQUEST_PKG</code></td><td>0x772</td><td>Package-level HWP request (used when PACKAGE_CONTROL=1)</td></tr>
-<tr><td><code>IA32_HWP_INTERRUPT</code></td><td>0x773</td><td>Enable HWP notifications: min excursion, guaranteed change, max excursion</td></tr>
-<tr><td><code>IA32_HWP_REQUEST</code></td><td>0x774</td><td>Per-core: min[7:0], max[15:8], desired[23:16], EPP[31:24], activity_window[41:32], PACKAGE_CONTROL[42]</td></tr>
-<tr><td><code>IA32_HWP_STATUS</code></td><td>0x777</td><td>Notification status bits (WC = write-1-to-clear)</td></tr>
-<tr><td><code>IA32_PERF_STATUS</code></td><td>0x198</td><td>Current executed ratio (observable HWP output)</td></tr>
+<tr>
+  <th style="width:6%">Gap</th>
+  <th style="width:12%">Area</th>
+  <th style="width:28%">Gap Statement</th>
+  <th style="width:18%">Current Coverage</th>
+  <th style="width:18%">Risk if Untested</th>
+  <th style="width:8%">Priority</th>
+  <th style="width:10%">Rationale</th>
+</tr>
+<tr>
+  <td><strong>G1</strong></td>
+  <td>HWP × EET</td>
+  <td>No TC demonstrates that <strong>EET deration is applied while HWP is in autonomous mode</strong> (DESIRED=0) and workload scalability is poor.</td>
+  <td>Standalone APS covered (22022422298); standalone EET covered (16030734092). No combined test.</td>
+  <td>Incorrect autonomous frequency may appear as unexplained underperformance or energy-efficiency loss with no visible cause.</td>
+  <td><span class="badge p1">P1</span></td>
+  <td>Architecture explicitly feeds EET deration into Autonomous HWP path.</td>
+</tr>
+<tr>
+  <td><strong>G2</strong></td>
+  <td>HWP × RAPL</td>
+  <td>No TC verifies that <strong>RAPL / platform power limits cap frequency when HWP requests high performance</strong>.</td>
+  <td>HWP request path covered; RAPL covered separately. No combined cross-product TC.</td>
+  <td>Power-capping correctness escape — HWP could exceed intended power envelope with no test catching it.</td>
+  <td><span class="badge p1">P1</span></td>
+  <td>HWP operates inside platform constraints; resolved request is clipped by upper-level limits.</td>
+</tr>
+<tr>
+  <td><strong>G3</strong></td>
+  <td>HWP × Thermal</td>
+  <td>No TC verifies that <strong>thermal throttling overrides HWP-requested performance</strong>.</td>
+  <td>No HWP + thermal cross-product TC exists.</td>
+  <td>Thermal protection escape — silicon could honor HWP request during thermal event, violating safety policy.</td>
+  <td><span class="badge p1">P1</span></td>
+  <td>Thermal belongs to the physical-constraints layer and must dominate requested performance.</td>
+</tr>
+<tr>
+  <td><strong>G4</strong></td>
+  <td>HWP × C-state</td>
+  <td>No TC validates <strong>HWP state stability and post-exit frequency behavior across CC1 / CC6 entry-exit transitions</strong>.</td>
+  <td>No explicit HWP + C-state cross-product TC.</td>
+  <td>Resume-latency / stale utilization-history / state-retention bugs invisible without idle-cycle testing.</td>
+  <td><span class="badge p1">P1</span></td>
+  <td>High integration risk: APS history-based control may misbehave after deep idle; HWP state retention not tested.</td>
+</tr>
+<tr>
+  <td><strong>G5</strong></td>
+  <td>Activity Window = 0</td>
+  <td>No TC explicitly verifies that <strong>ACTIVITY_WINDOW=0 selects the internal EPP-derived default</strong> rather than a literal zero window.</td>
+  <td>APS responsiveness covered; ACTIVITY_WINDOW=0 edge case not covered.</td>
+  <td>Spec edge-case escape; unexpected responsiveness with zero activity window.</td>
+  <td><span class="badge p2">P2</span></td>
+  <td>Directly specified in HWP request resolution behavior.</td>
+</tr>
+<tr>
+  <td><strong>G6</strong></td>
+  <td>Out-of-range request</td>
+  <td>No TC verifies behavior when <strong>HWP request fields exceed HWP capability bounds</strong> or violate min ≤ desired ≤ max.</td>
+  <td>In-range values only tested in existing TCs.</td>
+  <td>Robustness / interface compliance gap; potential undefined behavior on malformed requests.</td>
+  <td><span class="badge p2">P2</span></td>
+  <td>Final values must remain within HWP capability limits; request shaping must be graceful.</td>
+</tr>
+<tr>
+  <td><strong>G7</strong></td>
+  <td>HWP EPP → SAPM-DLL</td>
+  <td>No TC explicitly proves that <strong>HWP-programmed EPP propagates into SAPM-DLL-resolved EPB behavior</strong>.</td>
+  <td>Standalone SAPM-DLL covered (22022422284); no HWP EPP → SAPM-DLL connection test.</td>
+  <td>Silent EPB-policy disconnect in HWP mode; EET may not receive correct efficiency bias.</td>
+  <td><span class="badge p2">P2</span></td>
+  <td>SAPM-DLL resolves EPB; EET consumes it; HWP EPP should be reflected in this path.</td>
+</tr>
+<tr>
+  <td><strong>G8</strong></td>
+  <td>HWP + Turbo (in-band)</td>
+  <td>OOB turbo-disabled covered; <strong>no equivalent in-band HWP + turbo-disable</strong> validation.</td>
+  <td>22022422337 covers OOB only.</td>
+  <td>In-band / OOB inconsistency risk; in-band path may not clip at P1 when turbo disabled.</td>
+  <td><span class="badge p2">P2</span></td>
+  <td>Symmetry check: both in-band and OOB paths should honor turbo-disable ceiling.</td>
+</tr>
+</table>
+
+<h3>Coverage Summary</h3>
+<table>
+<tr><th>Layer</th><th>Covered</th><th>Partial</th><th>Gap</th><th>Score</th></tr>
+<tr><td>L1 — Request &amp; Resolution</td><td>7</td><td>2</td><td>0</td><td style="color:#2e7d32;font-weight:700;">78%</td></tr>
+<tr><td>L2 — APS / UBPS Autonomous</td><td>5</td><td>1 (G5)</td><td>0</td><td style="color:#2e7d32;font-weight:700;">83%</td></tr>
+<tr><td>L3 — SAPM-DLL / EET with HWP</td><td>2</td><td>0</td><td>2 (G1, G7)</td><td style="color:#c62828;font-weight:700;">50%</td></tr>
+<tr><td>L4 — Clipping / Cross-Products</td><td>2</td><td>1 (G6)</td><td>3 (G2, G3, G4)</td><td style="color:#c62828;font-weight:700;">38%</td></tr>
+<tr><td>OOB Mode</td><td>5</td><td>0</td><td>1 (G8)</td><td style="color:#2e7d32;font-weight:700;">83%</td></tr>
+<tr style="background:#e8f0fe;font-weight:700;"><td>TOTAL (32 aspects)</td><td>21</td><td>4</td><td>6</td><td>66%</td></tr>
 </table>
 </div>
 
-<!-- COVERAGE MAPPING -->
+<!-- TEST PLANS -->
 <div class="card">
-<h2>Current TC Coverage vs HWP Architecture Layers</h2>
+<h2>Test Plans — Phase 1: Must Close (P1)</h2>
 
-<h3>Layer 1 — Request Input &amp; Resolution</h3>
-<table>
-<tr><th>HWP Aspect</th><th>Coverage</th><th>TC</th><th>Gap?</th></tr>
-<tr><td>HWP enable (IA32_PM_ENABLE sticky)</td><td><span class="badge covered">COVERED</span></td><td>22022422305 (OS Optin)</td><td>—</td></tr>
-<tr><td>HWP BIOS knobs (HWPMEnable, APSrocketing)</td><td><span class="badge covered">COVERED</span></td><td>22022422301 (BIOS Config)</td><td>—</td></tr>
-<tr><td>HWP fuses (hwp_enable, CPUID.6.EAX[7])</td><td><span class="badge covered">COVERED</span></td><td>22022422309 (Fuse Checks)</td><td>—</td></tr>
-<tr><td>Min/Max/Desired request fields (explicit mode)</td><td><span class="badge covered">COVERED</span></td><td>22022422305 (OS Optin)</td><td>—</td></tr>
-<tr><td>Request normalization (min ≤ desired ≤ max)</td><td><span class="badge partial">PARTIAL</span></td><td>22022422305 (tests explicit values only)</td><td>⚠ No TC for out-of-range request handling</td></tr>
-<tr><td>EPP resolution priority (PECI &gt; Pkg &gt; Thread)</td><td><span class="badge covered">COVERED</span></td><td>22022422303 (EPP Resolution)</td><td>—</td></tr>
-<tr><td>PACKAGE_CONTROL bit + package request</td><td><span class="badge covered">COVERED</span></td><td>22022422312 (Pkg/Thread xprod)</td><td>—</td></tr>
-<tr><td>PECI override and restore</td><td><span class="badge covered">COVERED</span></td><td>22022422303 (EPP), 22022422312 (Pkg)</td><td>—</td></tr>
-<tr><td>HWP_CAPABILITIES boundary enforcement</td><td><span class="badge partial">PARTIAL</span></td><td>22022422305 (reads caps, tests min/max)</td><td>⚠ No test for request exceeding HIGHEST/LOWEST caps</td></tr>
-</table>
-
-<h3>Layer 2 — APS/UBPS Autonomous Mode</h3>
-<table>
-<tr><th>HWP Aspect</th><th>Coverage</th><th>TC</th><th>Gap?</th></tr>
-<tr><td>DESIRED=0 autonomous mode (APS drives frequency)</td><td><span class="badge covered">COVERED</span></td><td>22022422298 (APS)</td><td>—</td></tr>
-<tr><td>APS ramp-up on heavy utilization</td><td><span class="badge covered">COVERED</span></td><td>22022422298 (APS)</td><td>—</td></tr>
-<tr><td>APS ramp-down on light utilization</td><td><span class="badge covered">COVERED</span></td><td>22022422298 (APS)</td><td>—</td></tr>
-<tr><td>Activity Window: short vs long responsiveness</td><td><span class="badge covered">COVERED</span></td><td>22022422298 (APS)</td><td>—</td></tr>
-<tr><td>Activity Window = 0 → EPP-derived default</td><td><span class="badge partial">PARTIAL</span></td><td>22022422298 (doesn't test activity_window=0)</td><td>⚠ Edge case: verify default chosen from EPP when AW=0</td></tr>
-<tr><td>Solar random P-state sweep (HWP mode)</td><td><span class="badge covered">COVERED</span></td><td>22022422317 (Solar HWP)</td><td>—</td></tr>
-<tr><td>APSrocketing effect on ramp speed</td><td><span class="badge covered">COVERED</span></td><td>22022422301 (BIOS Config step 4)</td><td>—</td></tr>
-</table>
-
-<h3>Layer 3 — SAPM-DLL + EET Interaction with HWP</h3>
-<table>
-<tr><th>HWP Aspect</th><th>Coverage</th><th>TC</th><th>Gap?</th></tr>
-<tr><td>SAPM-DLL standalone (EPB resolution)</td><td><span class="badge covered">COVERED</span></td><td>22022422284 (SAPM-DLL check)</td><td>—</td></tr>
-<tr><td>EET standalone flow verification</td><td><span class="badge covered">COVERED</span></td><td>16030734092 (EET flow)</td><td>—</td></tr>
-<tr><td><strong>SAPM-DLL + EET WITH HWP active</strong></td><td><span class="badge gap">❌ GAP</span></td><td>No existing TC</td><td>🔴 HWP APS target may be derated by EET when workload is non-scalable. No TC verifies EET deration visible in HWP output.</td></tr>
-<tr><td>EPP change visible in SAPM-DLL resolved EPB</td><td><span class="badge gap">❌ GAP</span></td><td>No existing TC</td><td>🔴 EPP written in HWP request should affect SAPM-DLL resolved EPB — not explicitly cross-checked.</td></tr>
-</table>
-
-<h3>Layer 4 — Final Clipping &amp; Cross-Products</h3>
-<table>
-<tr><th>HWP Aspect</th><th>Coverage</th><th>TC</th><th>Gap?</th></tr>
-<tr><td>HWP + RAPL: frequency limited by PL1/PL2 when HWP active</td><td><span class="badge gap">❌ GAP</span></td><td>No existing TC</td><td>🔴 HWP requests P0; RAPL should cap at PL1 ceiling. No TC tests HWP + RAPL interaction.</td></tr>
-<tr><td>HWP + Turbo disable (capped at P1)</td><td><span class="badge covered">COVERED</span></td><td>22022422337 (OOB Turbo Disabled)</td><td>In-band equivalent missing; OOB only</td></tr>
-<tr><td>HWP + Thermal throttle interaction</td><td><span class="badge gap">❌ GAP</span></td><td>No existing TC</td><td>🔴 DTS-based throttle should override HWP requested frequency. Not tested.</td></tr>
-<tr><td>HWP + C-state cross-product (HWP during C-state transitions)</td><td><span class="badge gap">❌ GAP</span></td><td>No existing TC</td><td>🔴 HWP state during CC6/CC1 entry/exit not validated.</td></tr>
-<tr><td>HWP notifications: min excursion, guaranteed change</td><td><span class="badge covered">COVERED</span></td><td>22022422311 (HWP Interruptions)</td><td>—</td></tr>
-<tr><td>HWP Capabilities: explicit out-of-range request handling</td><td><span class="badge partial">PARTIAL</span></td><td>22022422305 (tests in-range only)</td><td>⚠ Behavior when desired &gt; highest_perf or &lt; lowest_perf</td></tr>
-</table>
-
-<h3>HWP OOB Mode</h3>
-<table>
-<tr><th>HWP OOB Aspect</th><th>Coverage</th><th>TC</th><th>Gap?</th></tr>
-<tr><td>OOB BIOS activation</td><td><span class="badge covered">COVERED</span></td><td>22022422318</td><td>—</td></tr>
-<tr><td>OOB EPP resolution priority</td><td><span class="badge covered">COVERED</span></td><td>22022422326</td><td>—</td></tr>
-<tr><td>OOB APS autonomous mode</td><td><span class="badge covered">COVERED</span></td><td>22022422332</td><td>—</td></tr>
-<tr><td>OOB + Turbo disabled</td><td><span class="badge covered">COVERED</span></td><td>22022422337</td><td>—</td></tr>
-<tr><td>OOB mode PSS baseline</td><td><span class="badge covered">COVERED</span></td><td>16030715628 (PSS)</td><td>—</td></tr>
-<tr><td><strong>OOB + RAPL interaction</strong></td><td><span class="badge gap">❌ GAP</span></td><td>No existing TC</td><td>🔴 OOB path: RAPL should still cap frequency even with OOB HWP requesting P0.</td></tr>
-</table>
+<div class="tp-section">
+<div class="tp-hdr">TP-HWP-01 — HWP + EET Deration Interaction [Gap G1]</div>
+<div class="tp-row"><div class="tp-label">Objective</div><div class="tp-content">Verify that when HWP operates in autonomous mode (DESIRED=0), EET derates frequency for non-scalable workloads, and that the deration is reduced for scalable workloads. Proves EET is active in the autonomous HWP path.</div></div>
+<div class="tp-row"><div class="tp-label">Setup</div><div class="tp-content">HWP enabled (Native mode); Turbo enabled; EET enabled; at least two workloads: (a) non-scalable / memory-bound / stall-heavy, (b) scalable / compute-bound. Optional A/B with EET disabled for comparison.</div></div>
+<div class="tp-row"><div class="tp-label">Stimulus</div><div class="tp-content">Program HWP: <code>MIN</code>=floor, <code>MAX</code>=highest, <code>DESIRED=0</code>, <code>EPP</code>=perf-oriented. Run non-scalable workload → wait for stabilization. Switch to scalable workload. Optionally repeat both with EET disabled.</div></div>
+<div class="tp-row"><div class="tp-label">Observability</div><div class="tp-content">Primary: <code>IA32_PERF_STATUS (0x198)</code> — executed ratio / effective frequency. Secondary: HWP debug telemetry if available. Optional: EET-disabled A/B comparison.</div></div>
+<div class="tp-row"><div class="tp-label">Pass Criteria</div><div class="tp-content">(1) Non-scalable workload shows lower granted frequency than scalable workload under identical HWP settings. (2) EET-disabled case delivers higher frequency than EET-enabled for non-scalable workload. (3) EET does not increase frequency above APS request.</div></div>
 </div>
 
-<!-- GAP SUMMARY -->
-<div class="card">
-<h2>Validation Gap Summary</h2>
-
-<div class="gap-box">🔴 <strong>CRITICAL GAP: HWP + EET Interaction</strong><br>
-No TC verifies that EET deration is visible when HWP is in autonomous mode (DESIRED=0) and workload is non-scalable. This is a fundamental HWP+EET cross-product that the feature spec describes but the test plan does not cover. EET can silently clip HWP-requested frequencies for efficiency reasons — if broken, HWP users see unexpected lower-than-requested frequencies with no clear indication.</div>
-
-<div class="gap-box">🔴 <strong>CRITICAL GAP: HWP + RAPL Interaction</strong><br>
-No TC validates that RAPL (Socket PL1/PL2) correctly limits frequency when HWP is active. If RAPL and HWP conflict, RAPL should win. This path is critical for power capping correctness and must be tested explicitly. Note: NWP MSR 0x610/0x638 deprecated — must use TPMI RAPL path.</div>
-
-<div class="gap-box">🔴 <strong>CRITICAL GAP: HWP + Thermal Throttle</strong><br>
-No TC validates that DTS/TCC-based thermal throttle correctly overrides HWP-requested frequencies. HWP should not prevent thermal protection from capping frequency when temperature exceeds threshold.</div>
-
-<div class="gap-box">🔴 <strong>CRITICAL GAP: HWP + C-State Cross-Product</strong><br>
-No TC validates HWP state behavior during CC1/CC6 entry and exit. HWP state should be preserved correctly, and frequency should ramp back correctly after C-state exit. This is particularly important for APS mode where utilization history may be stale after deep idle.</div>
-
-<div class="notice">⚠️ <strong>Minor Gap: Activity Window = 0 Edge Case</strong><br>
-No TC explicitly verifies that when Activity Window field = 0, the PM uses an EPP-derived internal default. This is an edge case per the HAS but worth a targeted check.</div>
-
-<div class="notice">⚠️ <strong>Minor Gap: Out-of-Range Request Clamping</strong><br>
-No TC verifies behavior when HWP request fields are set outside HWP_CAPABILITIES range (e.g., desired &gt; highest_perf). The spec says min ≤ desired ≤ max must be enforced — validate that out-of-range inputs are clamped gracefully.</div>
-
-<div class="notice">⚠️ <strong>Minor Gap: EPP → SAPM-DLL Cross-Check</strong><br>
-No TC explicitly reads the SAPM-DLL resolved EPB and verifies it changed as expected when OS writes a new EPP value in HWP mode.</div>
-
-<div class="notice">⚠️ <strong>Minor Gap: HWP + Turbo Disabled (In-Band)</strong><br>
-22022422337 covers OOB+Turbo disabled. A parallel in-band mode test (turbo disabled via MSR while using in-band HWP request) is missing.</div>
+<div class="tp-section">
+<div class="tp-hdr">TP-HWP-02 — HWP + RAPL Power Limit Interaction [Gap G2]</div>
+<div class="tp-row"><div class="tp-label">Objective</div><div class="tp-content">Verify that platform power limits (RAPL PL1/PL2) cap HWP-requested frequency. HWP cannot bypass the power envelope. NWP: use TPMI <code>SOCKET_RAPL_PL1_CONTROL</code> — MSR 0x610/0x638 deprecated.</div></div>
+<div class="tp-row"><div class="tp-label">Setup</div><div class="tp-content">HWP enabled (Native mode); workload capable of driving frequency toward P0; TPMI RAPL PL1 accessible via <code>sv.socket0.nio.punit.ptpcfsms.ptpcfsms.socket_rapl_pl1_control</code>.</div></div>
+<div class="tp-row"><div class="tp-label">Stimulus</div><div class="tp-content">(1) Set HWP: <code>MAX=highest</code>, <code>DESIRED=highest</code> or <code>DESIRED=0</code> + perf EPP. Confirm freq at P0. (2) Apply aggressive RAPL PL1 (50% TDP). Wait for convergence under same workload. (3) Remove limit → observe freq restoration.</div></div>
+<div class="tp-row"><div class="tp-label">Observability</div><div class="tp-content">Primary: <code>IA32_PERF_STATUS</code>. Secondary: RAPL PLR bit in <code>perf_limit_reasons</code>. Optional: workload throughput delta.</div></div>
+<div class="tp-row"><div class="tp-label">Pass Criteria</div><div class="tp-content">(1) RAPL limit causes freq to drop below pre-limit level. (2) PLR RAPL bit set during throttle. (3) Removing limit restores freq. (4) HWP request stays active but delivered perf is clipped.</div></div>
 </div>
 
-<!-- PROPOSED NEW TCS -->
-<div class="card">
-<h2>Proposed New TCs to Close Critical Gaps</h2>
-<table>
-<tr><th>#</th><th>Proposed TC Title</th><th>Priority</th><th>Parent TCD</th><th>Gap Closed</th></tr>
-<tr><td>1</td><td>HWP + EET Deration Interaction Verification</td><td><strong>P1</strong></td><td>22022421004 (HWP Native)</td><td>EET derates APS-requested frequency; visible via IA32_PERF_STATUS</td></tr>
-<tr><td>2</td><td>HWP + RAPL Power Limit Interaction</td><td><strong>P1</strong></td><td>22022421004 (HWP Native)</td><td>RAPL PL1/PL2 caps HWP-requested frequency via TPMI RAPL path</td></tr>
-<tr><td>3</td><td>HWP + Thermal Throttle Cross-Product</td><td><strong>P1</strong></td><td>22022421004 (HWP Native)</td><td>DTS/TCC throttle overrides HWP max; validated via DTS injection</td></tr>
-<tr><td>4</td><td>HWP + C-State (CC6/CC1) Entry-Exit Stability</td><td><strong>P1</strong></td><td>22022421004 (HWP Native)</td><td>HWP state preserved across C-state; APS ramps correctly after exit</td></tr>
-<tr><td>5</td><td>HWP Activity Window = 0 Default Resolution</td><td>P2</td><td>22022421004 (HWP Native)</td><td>Activity Window=0 → EPP-derived default applied correctly</td></tr>
-<tr><td>6</td><td>HWP Request Out-of-Range Clamping</td><td>P2</td><td>22022421004 (HWP Native)</td><td>Desired &gt; highest_perf or &lt; lowest_perf → clamped to caps</td></tr>
-<tr><td>7</td><td>HWP EPP → SAPM-DLL Resolved EPB Verification</td><td>P2</td><td>22022420986 (EPB/SAPM-DLL)</td><td>HWP EPP change reflected in SAPM-DLL resolved_core_epb</td></tr>
-<tr><td>8</td><td>HWP + Turbo Disabled (In-Band Mode)</td><td>P2</td><td>22022421004 (HWP Native)</td><td>In-band parallel of 22022422337 (OOB); turbo disable via IA32_MISC_ENABLES[38]</td></tr>
-</table>
-
-<h3>Step Sketch for Critical Gap TC1: HWP + EET Interaction</h3>
-<table>
-<tr><th>#</th><th>Action</th><th>Expected (PASS)</th><th>Failure Indication</th></tr>
-<tr><td>1</td><td>Enable HWP; set DESIRED=0 (autonomous), EPP=0 (perf); run memory-bound / non-scalable workload (high stall ratio).</td><td>EET deration factor &gt; 0; observed freq &lt; APS-requested freq</td><td>Freq = APS-requested — EET not derrating</td></tr>
-<tr><td>2</td><td>Switch to compute-bound workload (high IPC, low stall); verify EET deration reduces.</td><td>Freq approaches APS target; EET factor near 0</td><td>Freq still derated — EET not responding to scalability change</td></tr>
-<tr><td>3</td><td>Compare freq with EET enabled vs disabled (BIOS knob); verify EET-disabled gives higher freq on same non-scalable workload.</td><td>EET-disabled freq &gt; EET-enabled freq for non-scalable WL</td><td>No difference — EET has no effect in HWP mode</td></tr>
-</table>
-
-<h3>Step Sketch for Critical Gap TC2: HWP + RAPL Interaction</h3>
-<table>
-<tr><th>#</th><th>Action</th><th>Expected (PASS)</th><th>Failure Indication</th></tr>
-<tr><td>1</td><td>Enable HWP; set DESIRED=highest_perf (P0 max). Verify freq at P0.</td><td>Freq = P0</td><td>—</td></tr>
-<tr><td>2</td><td>Set Socket RAPL PL1 to 50% TDP via TPMI (<code>SOCKET_RAPL_PL1_CONTROL.PWR_LIM</code>). Wait for convergence.</td><td>Freq drops below P0 (RAPL enforces power limit)</td><td>Freq stays at P0 — RAPL not limiting HWP</td></tr>
-<tr><td>3</td><td>Verify PLR RAPL bit set. <code>sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.perf_limit_reasons</code></td><td>RAPL PLR bit set during throttle</td><td>PLR clear — throttle cause not attributed to RAPL</td></tr>
-<tr><td>4</td><td>Remove RAPL limit; verify freq returns to P0.</td><td>Freq returns to P0 (HWP still requesting P0)</td><td>Freq stays low — HWP not recovering after RAPL release</td></tr>
-</table>
+<div class="tp-section">
+<div class="tp-hdr">TP-HWP-03 — HWP + Thermal Throttle Cross-Product [Gap G3]</div>
+<div class="tp-row"><div class="tp-label">Objective</div><div class="tp-content">Verify that thermal protection overrides HWP-requested performance. Delivered frequency must be reduced appropriately under thermal throttle regardless of HWP request.</div></div>
+<div class="tp-row"><div class="tp-label">Setup</div><div class="tp-content">HWP enabled (Native mode); thermal trigger available via <code>td.set_dts_temp()</code> injection or controlled heating; high-power workload.</div></div>
+<div class="tp-row"><div class="tp-label">Stimulus</div><div class="tp-content">(1) Program HWP for high performance; observe stable high freq. (2) Assert thermal condition (DTS injection above TCC threshold) while workload continues. (3) Remove thermal condition → observe recovery.</div></div>
+<div class="tp-row"><div class="tp-label">Observability</div><div class="tp-content">Primary: <code>IA32_PERF_STATUS</code>. Secondary: TCC status; thermal PLR bit in <code>perf_limit_reasons</code>. Optional: package temperature telemetry.</div></div>
+<div class="tp-row"><div class="tp-label">Pass Criteria</div><div class="tp-content">(1) Thermal event causes freq to drop below pre-throttle level. (2) HWP does not hold freq above thermal safety policy. (3) On deassertion, freq returns toward original allowed level.</div></div>
 </div>
 
-<!-- OVERALL STATUS -->
-<div class="card">
-<h2>Overall Coverage Score</h2>
-<table>
-<tr><th>Layer</th><th>Total Aspects</th><th>Covered</th><th>Partial</th><th>Gap</th><th>Score</th></tr>
-<tr><td>Layer 1 — Request &amp; Resolution</td><td>9</td><td>7</td><td>2</td><td>0</td><td style="color:#2e7d32;font-weight:700;">78%</td></tr>
-<tr><td>Layer 2 — APS / Autonomous</td><td>7</td><td>5</td><td>1</td><td>0</td><td style="color:#2e7d32;font-weight:700;">86%</td></tr>
-<tr><td>Layer 3 — SAPM-DLL / EET with HWP</td><td>4</td><td>2</td><td>0</td><td>2</td><td style="color:#c62828;font-weight:700;">50%</td></tr>
-<tr><td>Layer 4 — Clipping &amp; Cross-Products</td><td>6</td><td>2</td><td>1</td><td>3</td><td style="color:#c62828;font-weight:700;">33%</td></tr>
-<tr><td>OOB Mode</td><td>6</td><td>5</td><td>0</td><td>1</td><td style="color:#2e7d32;font-weight:700;">83%</td></tr>
-<tr style="background:#e8f0fe;font-weight:700;"><td>TOTAL</td><td>32</td><td>21</td><td>4</td><td>6</td><td>66%</td></tr>
-</table>
-<div class="notice" style="margin-top:12px;">
-<strong>Key findings:</strong> HWP Native and OOB modes are well covered (78–86%). The critical gaps are in <strong>cross-product interactions</strong>: HWP+EET, HWP+RAPL, HWP+Thermal, HWP+C-State are all missing. These are the scenarios most likely to reveal silicon defects in real workloads.
-<br><br>
-<strong>Action required:</strong> File 4 critical P1 TCs under TCD 22022421004 (HWP Native). Can be created in HSD when ready.
+<div class="tp-section">
+<div class="tp-hdr">TP-HWP-04 — HWP + C-State Entry/Exit Stability [Gap G4]</div>
+<div class="tp-row"><div class="tp-label">Objective</div><div class="tp-content">Verify HWP request state is preserved across CC1/CC6 transitions and post-exit frequency is correct. Especially important for autonomous mode where APS depends on recent utilization history.</div></div>
+<div class="tp-row"><div class="tp-label">Setup</div><div class="tp-content">HWP enabled (Native mode), <code>DESIRED=0</code>; ability to induce repeated idle/wake cycles; workload alternates active and idle phases.</div></div>
+<div class="tp-row"><div class="tp-label">Stimulus</div><div class="tp-content">(1) Program HWP autonomous; drive workload → record steady-state freq. (2) Transition to CC1 or CC6 via controlled idle. (3) Exit idle; resume workload. (4) Repeat 10+ cycles; vary Activity Window setting.</div></div>
+<div class="tp-row"><div class="tp-label">Observability</div><div class="tp-content">Primary: <code>IA32_PERF_STATUS</code>. Secondary: C-state residency / entry-exit counters; HWP interrupt status if relevant. Optional: latency to re-converge after exit.</div></div>
+<div class="tp-row"><div class="tp-label">Pass Criteria</div><div class="tp-content">(1) No corruption or loss of HWP mode across idle transitions. (2) Freq after exit consistent with configured HWP policy. (3) No stuck-low / stuck-high after repeated cycles. (4) Autonomous mode re-converges correctly.</div></div>
 </div>
+</div>
+
+<!-- PHASE 2 TEST PLANS -->
+<div class="card">
+<h2>Test Plans — Phase 2: Robustness &amp; Compliance (P2)</h2>
+
+<div class="tp-section">
+<div class="tp-hdr">TP-HWP-05 — Activity Window = 0 Default Resolution [Gap G5]</div>
+<div class="tp-row"><div class="tp-label">Objective</div><div class="tp-content">Verify that <code>ACTIVITY_WINDOW=0</code> causes pCode to use an internal EPP-derived default rather than treating zero as a literal zero-width window.</div></div>
+<div class="tp-row"><div class="tp-label">Stimulus</div><div class="tp-content">(1) Program <code>ACTIVITY_WINDOW=0</code>, <code>EPP</code>=low (perf); run bursty workload → measure responsiveness. (2) Program <code>ACTIVITY_WINDOW=0</code>, <code>EPP</code>=high (energy saving); run same workload → compare.</div></div>
+<div class="tp-row"><div class="tp-label">Pass Criteria</div><div class="tp-content">Behavior with <code>ACTIVITY_WINDOW=0</code> differs with EPP change; results consistent with an EPP-derived internal default (not a literal zero-width window).</div></div>
+</div>
+
+<div class="tp-section">
+<div class="tp-hdr">TP-HWP-06 — Out-of-Range Request Clamping [Gap G6]</div>
+<div class="tp-row"><div class="tp-label">Objective</div><div class="tp-content">Verify out-of-range HWP request fields are shaped/clamped safely; final effective values stay within HWP capability bounds.</div></div>
+<div class="tp-row"><div class="tp-label">Stimulus</div><div class="tp-content">Read capability bounds. Program: (a) <code>DESIRED &gt; HIGHEST</code>, (b) <code>MIN &gt; MAX</code>, (c) <code>MIN &lt; LOWEST</code>. Run stable workload after each case.</div></div>
+<div class="tp-row"><div class="tp-label">Pass Criteria</div><div class="tp-content">Delivered operating point within capability bounds; no illegal / unstable / undefined behavior; request shaping graceful and deterministic.</div></div>
+</div>
+
+<div class="tp-section">
+<div class="tp-hdr">TP-HWP-07 — HWP EPP to SAPM-DLL Resolved EPB [Gap G7]</div>
+<div class="tp-row"><div class="tp-label">Objective</div><div class="tp-content">Verify that EPP policy programmed via HWP influences SAPM-DLL EPB-resolution and is not lost before energy-efficiency processing.</div></div>
+<div class="tp-row"><div class="tp-label">Stimulus</div><div class="tp-content">(1) HWP fixed min/max/desired; set <code>EPP</code>=low → capture resolved EPB observability and freq. (2) Set <code>EPP</code>=high → same workload → compare.</div></div>
+<div class="tp-row"><div class="tp-label">Pass Criteria</div><div class="tp-content">Changing HWP EPP changes resolved EPB behavior in expected direction; downstream freq changes consistently with EPB policy shift.</div></div>
+</div>
+
+<div class="tp-section">
+<div class="tp-hdr">TP-HWP-08 — HWP + Turbo Disabled (In-Band) [Gap G8]</div>
+<div class="tp-row"><div class="tp-label">Objective</div><div class="tp-content">Verify in-band turbo-disable caps HWP-delivered performance at P1 (guaranteed ratio). Symmetry check with 22022422337 (OOB path covered).</div></div>
+<div class="tp-row"><div class="tp-label">Stimulus</div><div class="tp-content">(1) Enable HWP; request high perf; confirm freq at P0 turbo. (2) Disable turbo via <code>IA32_MISC_ENABLES[38]=1</code>; re-observe freq under same workload. (3) Re-enable turbo; confirm recovery.</div></div>
+<div class="tp-row"><div class="tp-label">Pass Criteria</div><div class="tp-content">Freq capped below turbo-enabled level after disable; HWP continues to function within reduced ceiling; re-enable restores turbo access.</div></div>
+</div>
+</div>
+
+<!-- EXECUTION PRIORITY -->
+<div class="card">
+<h2>Execution Priority &amp; Tracker</h2>
+<table>
+<tr><th>Phase</th><th>TP ID</th><th>Title</th><th>Gap</th><th>Priority</th><th>Parent TCD</th><th>New TC needed?</th></tr>
+<tr style="background:#ffebee;"><td><strong>1 — Must Close</strong></td><td>TP-HWP-01</td><td>HWP + EET Deration</td><td>G1</td><td><span class="badge p1">P1</span></td><td>22022421004</td><td>Yes — file new TC</td></tr>
+<tr style="background:#ffebee;"><td><strong>1 — Must Close</strong></td><td>TP-HWP-02</td><td>HWP + RAPL Power Limit</td><td>G2</td><td><span class="badge p1">P1</span></td><td>22022421004</td><td>Yes — file new TC</td></tr>
+<tr style="background:#ffebee;"><td><strong>1 — Must Close</strong></td><td>TP-HWP-03</td><td>HWP + Thermal Throttle</td><td>G3</td><td><span class="badge p1">P1</span></td><td>22022421004</td><td>Yes — file new TC</td></tr>
+<tr style="background:#ffebee;"><td><strong>1 — Must Close</strong></td><td>TP-HWP-04</td><td>HWP + C-State Stability</td><td>G4</td><td><span class="badge p1">P1</span></td><td>22022421004</td><td>Yes — file new TC</td></tr>
+<tr><td>2 — Robustness</td><td>TP-HWP-05</td><td>Activity Window = 0</td><td>G5</td><td><span class="badge p2">P2</span></td><td>22022421004</td><td>Add step to 22022422298</td></tr>
+<tr><td>2 — Robustness</td><td>TP-HWP-06</td><td>Out-of-Range Clamping</td><td>G6</td><td><span class="badge p2">P2</span></td><td>22022421004</td><td>Add step to 22022422305</td></tr>
+<tr><td>2 — Robustness</td><td>TP-HWP-07</td><td>HWP EPP → SAPM-DLL</td><td>G7</td><td><span class="badge p2">P2</span></td><td>22022420986</td><td>Yes — file new TC</td></tr>
+<tr><td>2 — Robustness</td><td>TP-HWP-08</td><td>HWP + Turbo Disabled (in-band)</td><td>G8</td><td><span class="badge p2">P2</span></td><td>22022421004</td><td>Yes — file new TC</td></tr>
+</table>
+<div class="ok" style="margin-top:12px;"><strong>Next action:</strong> File 4 critical P1 TCs under TCD 22022421004 (HWP Native Mode) and 1 P2 TC under TCD 22022420986 (EPB/SAPM-DLL). P2 items G5+G6 can be added as additional steps to existing TCs 22022422298 and 22022422305 respectively.</div>
 </div>
 
 </div>
