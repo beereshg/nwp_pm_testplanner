@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PCT/DLCP Feature Analysis — NWP PM</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;font-size:13px;color:#1f2937;}
+.hdr{background:#0f4c81;color:#fff;padding:16px 28px;}
+.hdr h1{font-size:20px;font-weight:600;}
+.hdr .sub{font-size:12px;opacity:.82;margin-top:4px;}
+.wrap{max-width:1100px;margin:20px auto;padding:0 18px 50px;}
+.card{background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;margin-bottom:18px;}
+h2{color:#0f4c81;font-size:15px;font-weight:700;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #cce4f7;}
+h3{color:#1a5fa8;font-size:13px;font-weight:700;margin:14px 0 6px;}
+p{margin:6px 0;line-height:1.6;}
+ul,ol{margin:6px 0 6px 22px;line-height:1.7;}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:12px;}
+th{background:#e8f0fe;color:#0f4c81;padding:7px 10px;text-align:left;border:1px solid #c8d9f0;}
+td{padding:6px 10px;border:1px solid #d9e2ec;vertical-align:top;}
+tr:nth-child(even) td{background:#f8fafc;}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;}
+.supported{background:#c8e6c9;color:#1b5e20;}
+.zbb{background:#ffccbc;color:#bf360c;}
+.tbd{background:#fff9c4;color:#f57f17;}
+.new{background:#e1bee7;color:#4a148c;}
+.gap{background:#fce4ec;color:#880e4f;}
+.kept{background:#e3f2fd;color:#0d47a1;}
+code{background:#f3f6fb;border:1px solid #d9e2ec;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:11px;}
+.step-table th{background:#cce4f7;color:#004a80;}
+.notice{background:#fff8e1;border-left:4px solid #f9a825;padding:10px 14px;margin:10px 0;border-radius:0 4px 4px 0;font-size:12px;}
+.ok{background:#e8f5e9;border-left:4px solid #2e7d32;padding:10px 14px;margin:10px 0;border-radius:0 4px 4px 0;font-size:12px;}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>PCT Feature — DLCP Analysis &amp; Proposed New TCD/TCs</h1>
+  <div class="sub">NWP PM · Generated 2026-07-01 · Based on KB/pm_features/sst/pct.md + PCT HAS + NWP PM MAS</div>
+</div>
+<div class="wrap">
+
+<!-- SECTION 1: PCT FEATURE SUMMARY -->
+<div class="card">
+<h2>1. PCT Feature Summary (NWP)</h2>
+<div class="ok"><strong>NWP Status: SUPPORTED ✅</strong> — PCT (Priority Core Turbo) is one of only 2 SST features supported on NWP. All others (SST-PP/CP/BF) are ZBB'd.</div>
+
+<h3>Architecture</h3>
+<p>PCT uses SST-TF's CLOS-based frequency partitioning to elevate <strong>8 HP cores</strong> to P0max (4.4 GHz target) while clipping the remaining 88 LP cores to ~P1. BIOS divides all 96 NWP cores (2 CBBs × 48) into <strong>4 partitions of 24 cores</strong>; the first 2 cores per partition (lowest APIC ID in MADT order) become HP (CLOS[0]); all others become LP (CLOS[3]).</p>
+<table>
+<tr><th>Parameter</th><th>NWP Value</th><th>Source</th></tr>
+<tr><td>HP core count</td><td><strong>8</strong> (2 per partition × 4 partitions)</td><td>CCB HSD 14026595435</td></tr>
+<tr><td>PCT frequency target</td><td><strong>4.4 GHz</strong> (POR-1)</td><td>CCB HSD 14026595435</td></tr>
+<tr><td>CBB topology</td><td>2 CBBs × 48 cores = <strong>96 total</strong></td><td>NWP architecture</td></tr>
+<tr><td>RAPL ordered throttle</td><td>LP throttled first; HP maintained until LP at minimum</td><td>SST HAS §Ordered Throttling</td></tr>
+<tr><td>PCT Enable knob</td><td>Integrated into <strong>PCT Partition Count</strong> (default=0=disabled); standalone knob eliminated on DMR+</td><td>DMR+ evolution</td></tr>
+<tr><td>DLCP status on NWP</td><td><span class="badge tbd">⚠ TBD — needs confirmation</span></td><td>KB pct.md note</td></tr>
+</table>
+
+<h3>Key Registers</h3>
+<table>
+<tr><th>Register</th><th>Access</th><th>Purpose</th></tr>
+<tr><td><code>SST_CLOS_CONFIG[0]</code></td><td>RW (BIOS)</td><td>HP core min=P1, max=HP TRL (4.4 GHz)</td></tr>
+<tr><td><code>SST_CLOS_CONFIG[3]</code></td><td>RW (BIOS)</td><td>LP core min=Pn, max=LP_CLIP_RATIO</td></tr>
+<tr><td><code>SST_CLOS_ASSOC[core]</code></td><td>RW (BIOS)</td><td>HP cores → CLOS[0], LP cores → CLOS[3]</td></tr>
+<tr><td><code>SST_CP_CONTROL.SST_CP_PRIORITY_TYPE</code></td><td>RW (BIOS)</td><td>= 1 → Ordered Throttling</td></tr>
+<tr><td><code>SST_PP_CONTROL.feature_state[1]</code></td><td>RW (BIOS)</td><td>= 1 → SST-TF/PCT active</td></tr>
+<tr><td><code>SST_TF_INFO_10</code></td><td>RO (TPMI)</td><td><strong>DLCP</strong>: PCT HP module mask per die; populated from PCT_Module_Mask fuse</td></tr>
+<tr><td><code>PCT_Module_Mask</code></td><td>Fuse (RO)</td><td><strong>DLCP</strong>: Fixes HP core positions at specific die locations</td></tr>
+<tr><td><code>MSR 0x1AD</code></td><td>RW (BIOS override)</td><td>HP TRL ratio set to SST_TF_INFO_2.RATIO_0 when PCT active</td></tr>
+<tr><td><code>IA32_HWP_CAPABILITIES.highest_perf</code></td><td>RO per core</td><td>HP cores report P0max; LP cores report LP clip (DLCP mode)</td></tr>
+</table>
+</div>
+
+<!-- SECTION 2: DLCP ANALYSIS -->
+<div class="card">
+<h2>2. DLCP (Die Location Core Pinning) — Relevance Assessment</h2>
+<h3>What is DLCP?</h3>
+<p><strong>DLCP (Die Location Core Pinning)</strong> is a variant of PCT where HP core positions are fixed at specific die/module locations using the <code>PCT_Module_Mask</code> fuse, rather than being computed from APIC ID ordering at boot. This provides manufacturing-level determinism about which physical cores are always "HP".</p>
+<table>
+<tr><th>Aspect</th><th>Standard PCT</th><th>DLCP Variant</th></tr>
+<tr><td>HP core selection</td><td>BIOS-computed from APIC ID order (MADT); first core per partition</td><td>Fuse-fixed: <code>PCT_Module_Mask</code> specifies exact die locations</td></tr>
+<tr><td>SST_TF_INFO_10</td><td>May be zero/unused</td><td>Populated by PrimeCode from PCT_Module_Mask fuse; OS-discoverable RO mask</td></tr>
+<tr><td>IA32_HWP_CAPABILITIES.highest_perf</td><td>All HP cores report same highest_perf</td><td>HP cores report P0max; LP cores report LP clip</td></tr>
+<tr><td>Override flexibility</td><td>BIOS knob can shift HP core selection offset</td><td>Fuse is OTP; manufacturing-fixed</td></tr>
+</table>
+
+<h3>NWP DLCP Status</h3>
+<div class="notice">⚠️ <strong>Confirmation needed:</strong> The NWP KB notes "NWP: DLCP not explicitly referenced — manufacturing fused core masks via CLOS used instead." The existing PCT TCs (22022422100–22022422118) do NOT test DLCP-specific behavior (SST_TF_INFO_10 readback, PCT_Module_Mask fuse verification). Two scenarios are possible:</div>
+<ul>
+  <li><strong>Scenario A — DLCP present on NWP:</strong> <code>PCT_Module_Mask</code> fuse is programmed; <code>SST_TF_INFO_10</code> is non-zero; HP core positions are manufacturing-fixed. → <em>Current TCs miss DLCP-specific coverage.</em></li>
+  <li><strong>Scenario B — DLCP absent on NWP:</strong> <code>PCT_Module_Mask</code> = 0; <code>SST_TF_INFO_10</code> = 0; BIOS uses APIC-ID-order selection. → <em>DLCP TCs would be N/A, but a negative check verifying SST_TF_INFO_10 = 0 is still useful.</em></li>
+</ul>
+<div class="ok"><strong>Recommendation:</strong> DLCP is architecturally present in the NWP PCT HW path. A dedicated DLCP TCD is justified to either validate the feature (Scenario A) or confirm its absence with a negative check (Scenario B). Either way — the tests are needed.</div>
+</div>
+
+<!-- SECTION 3: CURRENT TC ANALYSIS -->
+<div class="card">
+<h2>3. Current PCT TC Coverage Analysis</h2>
+<table>
+<tr><th>TC ID</th><th>Title</th><th>Type</th><th>Status</th><th>Coverage Assessment</th><th>DLCP Gap?</th></tr>
+<tr><td>22022422100</td><td>PCT - BIOS Menu</td><td>FV</td><td>open/new</td><td><span class="badge kept">KEEP</span> Verify PCT Partition Count knob; update for DMR+ (no standalone Enable knob)</td><td>—</td></tr>
+<tr><td>22022422103</td><td>PCT - TPMI register check</td><td>FV</td><td>open/new</td><td><span class="badge kept">KEEP</span> Verify CLOS_CONFIG, CLOS_ASSOC, SST_PP_CONTROL post-boot; add <code>SST_TF_INFO_10</code></td><td>✅ Add SST_TF_INFO_10</td></tr>
+<tr><td>22022422104</td><td>PCT - All HP cores in C6</td><td>FV</td><td>open/new</td><td><span class="badge kept">KEEP</span> Verify policy resumes after all HP cores idle</td><td>—</td></tr>
+<tr><td>22022422105</td><td>PCT - Default HP core selection</td><td>FV</td><td>open/new</td><td><span class="badge kept">KEEP</span> Verify MADT-order HP selection; <strong>add DLCP vs non-DLCP path check</strong></td><td>✅ DLCP path</td></tr>
+<tr><td>22022422116</td><td>PCT - Turbo frequency check</td><td>FV</td><td>open/new</td><td><span class="badge kept">KEEP</span> Verify HP cores reach 4.4 GHz; LP cores at LP_CLIP</td><td>—</td></tr>
+<tr><td>22022422117</td><td>PCT - Verify TDP convergence</td><td>FV</td><td>open/new</td><td><span class="badge kept">KEEP</span> Verify ordered throttle: LP first, HP maintained</td><td>—</td></tr>
+<tr><td>22022422118</td><td>PCT - DQ Rules (FlexconPM)</td><td>FV</td><td>open/new</td><td><span class="badge kept">KEEP</span> DQ register baseline check</td><td>—</td></tr>
+<tr><td>16030768619</td><td>PCT - Default Enabled</td><td>FV</td><td>open/new</td><td><span class="badge kept">KEEP</span> Verify partition count default = 0 (disabled); confirm enable path</td><td>—</td></tr>
+<tr><td>16030768620</td><td>PCT - TPMI runtime enable/disable</td><td>FV</td><td>open/new</td><td><span class="badge kept">KEEP</span> Runtime TPMI feature_state toggle</td><td>—</td></tr>
+<tr><td>16030768621</td><td>PCT - TPMI runtime negative validation</td><td>FV</td><td>open/new</td><td><span class="badge kept">KEEP</span> Invalid values rejected; lock semantics</td><td>—</td></tr>
+<tr><td colspan="6" style="background:#e8f0fe;font-weight:600;">PSS TCs (ready_for_execution — keep as-is)</td></tr>
+<tr><td>16030715676–16030715694</td><td>[PSS] PCT - 8 scenarios</td><td>PSS</td><td>ready</td><td><span class="badge kept">KEEP</span> PSS baseline already ready; add SST_TF_INFO_10 check to TPMI TC</td><td>—</td></tr>
+<tr><td colspan="6" style="background:#fce4ec;font-weight:600;">⚠ Missing Coverage — Needs New TCs</td></tr>
+<tr><td>NEW</td><td>PCT - DLCP SST_TF_INFO_10 register check</td><td>FV</td><td>proposed</td><td><span class="badge new">NEW</span> Verify PCT_Module_Mask fuse → SST_TF_INFO_10 propagation; or confirm = 0 if non-DLCP</td><td>✅ Core DLCP TC</td></tr>
+<tr><td>NEW</td><td>PCT - DLCP HP core position verification</td><td>FV</td><td>proposed</td><td><span class="badge new">NEW</span> Verify HP cores match SST_TF_INFO_10 mask; IA32_HWP_CAPABILITIES per core in DLCP mode</td><td>✅ Core DLCP TC</td></tr>
+<tr><td>NEW</td><td>PCT - Per-SST-instance programming completeness</td><td>FV</td><td>proposed</td><td><span class="badge new">NEW</span> Verify BIOS programs ALL SST TPMI instances (both CBBs, not just one); NWP-specific</td><td>—</td></tr>
+<tr><td>NEW</td><td>PCT - NWP MADT partition algorithm validation</td><td>FV</td><td>proposed</td><td><span class="badge new">NEW</span> Verify NWP 2-CBB MADT ordering → correct 4-partition HP selection</td><td>—</td></tr>
+</table>
+</div>
+
+<!-- SECTION 4: PROPOSED NEW TCD -->
+<div class="card">
+<h2>4. Proposed New TCD: PCT — DLCP (Die Location Core Pinning)</h2>
+<div class="notice">⚠️ This TCD is justified regardless of Scenario A or B. In Scenario A (DLCP active), it validates the feature. In Scenario B (DLCP absent), it provides the negative confirmation test.</div>
+
+<h3>TCD Metadata</h3>
+<table>
+<tr><th>Field</th><th>Proposed Value</th></tr>
+<tr><td>Title</td><td>PCT — DLCP (Die Location Core Pinning)</td></tr>
+<tr><td>Parent</td><td>SST PCT TPF (under NWP PM SST/PCT test plan)</td></tr>
+<tr><td>Feature</td><td>SST / PCT / DLCP</td></tr>
+<tr><td>NWP Disposition</td><td>Runnable_On_N-1 (TBD pending DLCP fuse confirmation)</td></tr>
+<tr><td>Priority</td><td>P2 — Feature validation; P1 if fused parts confirm DLCP active</td></tr>
+</table>
+
+<h3>TCD Architecture Section</h3>
+<p><strong>DLCP (Die Location Core Pinning)</strong> is a PCT variant where HP core positions are fixed at manufacturing time via the <code>PCT_Module_Mask</code> fuse, rather than computed by BIOS at boot from APIC ID order. PrimeCode reads this fuse at Reset Phase 5 and populates <code>SST_TF_INFO_10</code> TPMI register with the HP module mask. The OS/BIOS SST enumeration tool reads <code>SST_TF_INFO_10</code> to discover which cores are manufacturing-designated HP cores.</p>
+
+<p><strong>Key functional difference vs standard PCT:</strong></p>
+<ul>
+<li>Standard PCT: BIOS picks HP cores from MADT order (flexible, changeable via BIOS knob)</li>
+<li>DLCP PCT: HP cores are fuse-fixed; BIOS must honor the mask; <code>SST_CLOS_ASSOC</code> assignment follows <code>PCT_Module_Mask</code></li>
+<li>In DLCP mode: <code>IA32_HWP_CAPABILITIES.highest_perf</code> differs per core — HP reports P0max, LP reports LP clip ratio</li>
+</ul>
+</div>
+
+<!-- SECTION 5: PROPOSED NEW TCs -->
+<div class="card">
+<h2>5. Proposed New TCs (4 TCs)</h2>
+
+<!-- TC 1 -->
+<div style="border:1px solid #c8d9f0;border-radius:6px;padding:16px;margin-bottom:16px;">
+<h3>TC 1: PCT - DLCP SST_TF_INFO_10 Fuse-to-Register Verification</h3>
+<table><tr><th>Field</th><th>Value</th></tr>
+<tr><td>NWP Disposition</td><td>Runnable_On_N-1</td></tr>
+<tr><td>Priority</td><td>P1 (if fused parts confirm DLCP); P2 as negative check otherwise</td></tr>
+<tr><td>Tool</td><td>PythonSV / namednodes; flexconPM.py</td></tr>
+</table>
+
+<h3>Validation Scope</h3>
+<p>Verify <code>PCT_Module_Mask</code> fuse is correctly propagated to <code>SST_TF_INFO_10</code> TPMI register by PrimeCode at Reset Phase 5. If DLCP is absent on this NWP SKU, verify <code>SST_TF_INFO_10 = 0</code> and confirm standard APIC-order selection is used.</p>
+
+<table class="step-table">
+<tr><th>#</th><th>Action</th><th>Expected (PASS)</th><th>Failure</th></tr>
+<tr><td>1</td><td>Read <code>PCT_Module_Mask</code> fuse.<br><code>fuse_mask = sv.socket0.imh0.fuses.punit.pct_module_mask.read()</code></td><td>Non-zero if DLCP SKU; 0 if non-DLCP</td><td>Read error — check fuse path</td></tr>
+<tr><td>2</td><td>Read <code>SST_TF_INFO_10</code> from both CBBs.<br><code>info10_cbb0 = sv.socket0.cbb0.base.tpmi.sst_tf_info_10.read()</code><br><code>info10_cbb1 = sv.socket0.cbb1.base.tpmi.sst_tf_info_10.read()</code></td><td>Value matches <code>PCT_Module_Mask</code> fuse (per die); both CBBs populated if DLCP active; both = 0 if non-DLCP</td><td>Mismatch — PrimeCode Phase 5 init failure</td></tr>
+<tr><td>3</td><td>Verify <code>SST_TF_INFO_10</code> is read-only; attempt write; verify no change.</td><td>Register remains unchanged after write attempt</td><td>Value changed — register incorrectly writable</td></tr>
+<tr><td>4</td><td>Run flexconPM DLCP check.<br><code>python flexconPM.py -i NWPSV.ini --onlyspecifiedmodules -m flexconPM_dlcp</code></td><td>flexconPM PASS</td><td>flexconPM FAIL</td></tr>
+</table>
+</div>
+
+<!-- TC 2 -->
+<div style="border:1px solid #c8d9f0;border-radius:6px;padding:16px;margin-bottom:16px;">
+<h3>TC 2: PCT - DLCP HP Core Position and HWP Capabilities Verification</h3>
+<table><tr><th>Field</th><th>Value</th></tr>
+<tr><td>NWP Disposition</td><td>Runnable_On_N-1 (requires DLCP-fused parts)</td></tr>
+<tr><td>Dependency</td><td>TC 1 must confirm SST_TF_INFO_10 ≠ 0</td></tr>
+</table>
+
+<h3>Validation Scope</h3>
+<p>Verify that HP cores identified by <code>SST_TF_INFO_10</code> mask are correctly assigned CLOS[0], and that <code>IA32_HWP_CAPABILITIES.highest_perf</code> differs between HP (P0max) and LP (LP_CLIP) cores in DLCP mode.</p>
+
+<table class="step-table">
+<tr><th>#</th><th>Action</th><th>Expected (PASS)</th><th>Failure</th></tr>
+<tr><td>1</td><td>Decode HP core positions from <code>SST_TF_INFO_10</code> mask; list expected HP core APIC IDs.</td><td>HP cores identified; mask decoded correctly</td><td>Zero mask — DLCP not active; skip TC</td></tr>
+<tr><td>2</td><td>Read <code>SST_CLOS_ASSOC</code> for each core; verify HP cores → CLOS[0], LP → CLOS[3].<br><code>for core in hp_cores: assert sv.socket0.cbb_x.tpmi.sst_clos_assoc[core].read() == 0</code></td><td>All HP cores in CLOS[0]; all LP in CLOS[3]; consistent with mask</td><td>Mismatch — BIOS did not honor DLCP mask</td></tr>
+<tr><td>3</td><td>Enable HWP (<code>IA32_PM_ENABLE[0] = 1</code>); read <code>IA32_HWP_CAPABILITIES</code> per core for HP and LP samples.<br><code>hp_cap = rdmsr(0x771) on hp_core_n; lp_cap = rdmsr(0x771) on lp_core_n</code></td><td>HP cores: <code>highest_perf = P0max ratio</code>; LP cores: <code>highest_perf = LP_CLIP ratio</code></td><td>HP/LP same value — DLCP not reflected in HWP caps</td></tr>
+<tr><td>4</td><td>Run workload; verify HP cores reach PCT frequency (~4.4 GHz) and LP cores capped at LP_CLIP.</td><td>HP at 4.4 GHz; LP at ~P1 (LP clip)</td><td>HP not reaching PCT target — CLOS config or TRL issue</td></tr>
+</table>
+</div>
+
+<!-- TC 3 -->
+<div style="border:1px solid #c8d9f0;border-radius:6px;padding:16px;margin-bottom:16px;">
+<h3>TC 3: PCT - Per-SST-Instance Programming Completeness (NWP 2-CBB)</h3>
+<table><tr><th>Field</th><th>Value</th></tr>
+<tr><td>NWP Disposition</td><td>Runnable_On_N-1</td></tr>
+<tr><td>Priority</td><td>P1 — NWP-specific die topology coverage</td></tr>
+</table>
+
+<h3>Validation Scope</h3>
+<p>Verify BIOS programs <code>SST_CLOS_CONFIG</code>, <code>SST_CLOS_ASSOC</code>, <code>SST_CP_CONTROL</code>, and <code>SST_PP_CONTROL</code> correctly on <strong>both CBB SST TPMI instances</strong> (cbb0 and cbb1). This is NWP-specific — DMR had 4 CBBs; NWP has 2 larger ones and a different MADT structure.</p>
+
+<table class="step-table">
+<tr><th>#</th><th>Action</th><th>Expected (PASS)</th><th>Failure</th></tr>
+<tr><td>1</td><td>Boot with PCT Partition Count = 4 (enabled). Enumerate SST TPMI instances for cbb0 and cbb1.<br><code>for cbb in [0,1]: sv.socket0.cbb[cbb].base.tpmi.sst_pp_control.read()</code></td><td>Both CBB SST instances accessible; feature_state[1] = 1 on both</td><td>One CBB missing SST activation — partial programming</td></tr>
+<tr><td>2</td><td>Read <code>SST_CLOS_CONFIG[0]</code> and <code>SST_CLOS_CONFIG[3]</code> on both CBBs.</td><td>Both CBBs: CLOS[0].max = HP TRL; CLOS[3].max = LP_CLIP; values match spec and are non-zero</td><td>One CBB has wrong or zero values — BIOS missed an instance</td></tr>
+<tr><td>3</td><td>Read <code>SST_CLOS_ASSOC</code> for a sample of HP and LP cores on each CBB; verify CLOS assignment correct.</td><td>Consistent CLOS assignment on both CBBs per partition algorithm</td><td>CBB mismatch — per-instance programming incomplete</td></tr>
+<tr><td>4</td><td>Read <code>SST_CP_CONTROL.SST_CP_PRIORITY_TYPE</code> on both CBBs.</td><td>Both = 1 (Ordered Throttling) on both CBBs</td><td>One CBB = 0 (Proportional) — ordered throttle not globally set</td></tr>
+</table>
+</div>
+
+<!-- TC 4 -->
+<div style="border:1px solid #c8d9f0;border-radius:6px;padding:16px;margin-bottom:16px;">
+<h3>TC 4: PCT - NWP MADT Partition Algorithm Validation</h3>
+<table><tr><th>Field</th><th>Value</th></tr>
+<tr><td>NWP Disposition</td><td>Runnable_On_N-1</td></tr>
+<tr><td>Priority</td><td>P2 — NWP MADT topology change from DMR</td></tr>
+</table>
+
+<h3>Validation Scope</h3>
+<p>Verify that BIOS correctly maps NWP's 96 cores (2 CBBs × 48, no SMT) into 4 equal partitions of 24, and that HP core selection follows MADT APIC ID order (lowest APIC ID in each partition = HP core). NWP's MADT structure differs from DMR's (NIO + 2 CBBs vs 2 IMH + 4 CBBs).</p>
+
+<table class="step-table">
+<tr><th>#</th><th>Action</th><th>Expected (PASS)</th><th>Failure</th></tr>
+<tr><td>1</td><td>Boot with PCT Partition Count = 4. Read MADT (via ACPI tool or SVOS interface); list all physical APIC IDs in enumeration order.</td><td>96 unique APIC IDs; NIO root die ≠ compute die IDs; 2 CBB compute ranges visible</td><td>Fewer cores or wrong topology — MADT construction error</td></tr>
+<tr><td>2</td><td>Compute expected partition boundaries (96 cores ÷ 4 = 24 per partition) and expected HP cores (first 2 APIC IDs per partition).</td><td>4 partitions of 24; HP cores = cores 0, 1, 24, 25, 48, 49, 72, 73 in MADT order</td><td>Wrong boundary — partition algorithm uses wrong core count</td></tr>
+<tr><td>3</td><td>Read <code>SST_CLOS_ASSOC</code> for all 96 cores; verify assignment matches computed HP/LP mapping.</td><td>8 HP cores exactly match expected MADT-order selection; 88 LP cores in CLOS[3]</td><td>Mismatch — BIOS using wrong APIC IDs or wrong partition count</td></tr>
+<tr><td>4</td><td>Change PCT Partition Count BIOS knob to 2; reboot; verify 2 partitions of 48; HP = first 2 of each partition (4 HP total).</td><td>4 HP cores for partition count = 2; topology consistent with new partition count</td><td>Still showing 8 HP cores — BIOS knob not taking effect</td></tr>
+</table>
+</div>
+
+</div>
+
+<!-- SECTION 6: SUMMARY TABLE -->
+<div class="card">
+<h2>6. Final Recommendation Summary</h2>
+<table>
+<tr><th>Action</th><th>TCs</th><th>Rationale</th></tr>
+<tr><td><span class="badge kept">KEEP as-is</span></td><td>All 18 existing TCs (22022422100–22022422118, PSS TCs)</td><td>Cover BIOS menu, TPMI registers, enable/disable, turbo freq, TDP convergence, DQ rules, C6 behavior</td></tr>
+<tr><td><span class="badge kept">UPDATE</span></td><td>22022422103 (TPMI register check), 22022422105 (Default HP core selection)</td><td>Add SST_TF_INFO_10 check; add DLCP vs non-DLCP path note</td></tr>
+<tr><td><span class="badge new">NEW TCD</span></td><td>PCT — DLCP (Die Location Core Pinning)</td><td>Feature present in HW but missing from current test plan</td></tr>
+<tr><td><span class="badge new">NEW TC 1</span></td><td>PCT - DLCP SST_TF_INFO_10 Fuse-to-Register Verification</td><td>Core DLCP verification or negative confirmation</td></tr>
+<tr><td><span class="badge new">NEW TC 2</span></td><td>PCT - DLCP HP Core Position and HWP Capabilities Verification</td><td>Full DLCP functional validation (DLCP-fused parts)</td></tr>
+<tr><td><span class="badge new">NEW TC 3</span></td><td>PCT - Per-SST-Instance Programming Completeness (NWP 2-CBB)</td><td>NWP topology-specific; both CBBs must be programmed</td></tr>
+<tr><td><span class="badge new">NEW TC 4</span></td><td>PCT - NWP MADT Partition Algorithm Validation</td><td>NWP 2-CBB MADT order differs from DMR; partition calc must be verified</td></tr>
+<tr><td><span class="badge zbb">DLCP status</span></td><td>Needs confirmation from NWP PM MAS + fuse map</td><td>If PCT_Module_Mask = 0 on NWP: TCs 1-2 become negative checks (still valid)</td></tr>
+</table>
+<p style="margin-top:12px;"><strong>References:</strong> 
+<a href="https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html">PCT HAS</a> · 
+<a href="https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html">NWP PM MAS</a> · 
+<a href="https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html">SST HAS</a> · 
+CCB HSD 14026595435 · 
+NWP KB pm_features/sst/pct.md
+</p>
+</div>
+
+</div>
+</body>
+</html>
