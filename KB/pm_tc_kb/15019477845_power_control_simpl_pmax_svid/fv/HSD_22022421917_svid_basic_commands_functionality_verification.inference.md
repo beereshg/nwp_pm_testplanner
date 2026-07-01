@@ -87,7 +87,7 @@ Verify SVID bus returns to clean state: no residual SBE bits. Restore any modifi
 
 ### References
 
-- [NWP PAS VR Table](https://docs.intel.com/documents/custom-xeon/newport-docs/pas/nwp_pas.html) — NWP SVID rail map: PVCCIN_EHV0/01h, PVCCANA0/02h, PVCCINF/03h, **PVCCC2C/05h (new)**; VCCFA_EHV removed
+- [NWP PAS VR Table](https://docs.intel.com/documents/custom-xeon/newport-docs/platform/pas/NwpPAS.html) — NWP SVID rail map: PVCCIN_EHV0/01h, PVCCANA0/02h, PVCCINF/03h, **PVCCC2C/05h (new)**; VCCFA_EHV removed
 - [NWP HAS Impact — SVID §2.1](c:\github\nwp_testplan\KB\pm_features\nwp_architecture\nwp_has_impact_on_pm_fv.md) — VCCFA_EHV removed (HSD 14027235624); VCCC2C new SVID rail (HSD 14027373379); address SVID0/05h
 - [NWP PM Telemetry — RC_MIO_EW SVID Accumulators](c:\github\nwp_testplan\KB\pm_features\nwp_architecture\nwp_nio_pm_telemetry.md) — SVID accumulator index map; VCCFC_EHV removed; VCCC2C in RC_CFCMEM_EW
 - [Primecode RAPL DMR](https://docs.intel.com/documents/primecode/primecode_two/firmware_architecture/ip_drivers_and_libraries/rapl_dmr.html) — SVID IMON polling for RAPL power measurement
