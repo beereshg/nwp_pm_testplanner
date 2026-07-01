@@ -14,6 +14,65 @@
 
 ---
 
+### Test Case Intent
+
+Verify **legacy P-states via IA32_PERF_CTL (0x199) / IA32_PERF_STATUS (0x198)** MSR interface. Pre-condition: HWP disabled. Collect P1/P0/Pm ratios; issue per-core P-state requests; confirm PEGA voting resolves to expected ratio; verify executed ratio in IA32_PERF_STATUS. NWP: 2 CBBs × 48 cores = 96 cores (no SMT); `NGA_MAIN` priority.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| SV session | `sv.socket0.imh0` and per-core MSR access reachable |
+| HWP | Disabled (`ProcessorHWPMEnable = 0` in BIOS) |
+| SpeedStep | Enabled (`IA32_MISC_ENABLES[16] = 1`) |
+| PMx | `python runPmx.py -x nwp.xml -p pstates_check -tM 6` |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Verify HWP disabled and SpeedStep enabled. `misc = rdmsr(0x1A0); assert not (misc >> 18 & 1), 'HWP must be 0'; assert (misc >> 16 & 1), 'SpeedStep must be 1'` | HWP=0; SpeedStep=1 | HWP=1 — BIOS knob not set; SpeedStep=0 — GV3 disabled |
+| 2 | Collect P0, P1, Pm ratios from IMH and CBBs. `p0=sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.max_perf_ratio.read(); print(f'P0={p0}')` | P0 >= P1 > Pm > 0 | Zero ratios — init failure |
+| 3 | Issue P-state requests per core via IA32_PERF_CTL; verify IA32_PERF_STATUS matches. `python runPmx.py -x nwp.xml -p pstates_check -tM 6` | Per-core executed ratio = requested ratio; PMx PASS | PMx FAIL; ratio mismatch per core |
+| 4 | Verify PEGA voting: issue different ratios on different cores; verify max wins. | Max-requested ratio resolves across package | Voting failure — wrong ratio enforced |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: IA32_PERF_STATUS reflects correct per-core executed ratio; PEGA voting correct; PMx PASS.
+- **FAIL**: Ratio mismatch; PEGA voting wrong; PMx FAIL.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| IA32_PERF_CTL | Per-core MSR 0x199 | Write target ratio |
+| IA32_PERF_STATUS | Per-core MSR 0x198 | Read executed ratio = requested |
+| IA32_MISC_ENABLES[16] | MSR 0x1A0 | = 1 (GV3/SpeedStep enabled) |
+| MISC_PWR_MGMT | MSR 0x1AA | Coordination mode per BIOS |
+
+---
+
+### Post-Process
+
+Collect PMx log on failure. Verify no RAPL/thermal throttle interfering with ratio check.
+
+---
+
+### References
+
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — Legacy P-state MSR support; IA32_PERF_CTL/STATUS; NWP ratio registers
+- [Intel SDM Vol. 3](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html) — IA32_PERF_CTL (0x199) / IA32_PERF_STATUS (0x198) definitions
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

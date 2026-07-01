@@ -14,6 +14,63 @@
 
 ---
 
+### Test Case Intent
+
+Verify **Solar tool** drives random Legacy P-state requests (P0…Pn sweep, random order) on NWP SVOS and system is stable throughout. Solar is platform-agnostic (no NWP-specific XML needed). Pre-condition: HWP disabled, Legacy P-states enabled. `plc.feature.p1` priority.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| SVOS | Running on NWP silicon |
+| Solar | Installed at `/usr/bin/solar/` |
+| HWP | Disabled (`ProcessorHWPMEnable = 0`) |
+| SpeedStep | Enabled in BIOS |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Verify Solar installed and HWP/SpeedStep preconditions. `ls /usr/bin/solar/solar.sh; rdmsr 0x1A0` | Solar present; HWP=0; SpeedStep=1 | Solar missing — install; HWP not disabled — BIOS knob |
+| 2 | Run Solar P-state random sweep from P0 to Pn. `/usr/bin/solar/solar.sh /pstate -gvpoints P0..Pn -r /logpath .` | Solar completes; log shows PASS for all ratio steps | Solar FAIL — check output log for which ratio failed |
+| 3 | Verify no MCAs during Solar sweep. `dmesg | grep -i mce; mcelog` | No MCA events logged | MCA present — collect mcelog and crash dump |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: Solar P0…Pn random sweep completes; log PASS; no MCAs.
+- **FAIL**: Solar FAIL; any MCA during sweep.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| Solar output log | /logpath/solar_*.log | All ratio validation entries = PASS |
+| MCA events | dmesg / mcelog | No MCA during sweep |
+| IA32_PERF_STATUS | Per-core MSR 0x198 | Executed ratio matches Solar target at each step |
+
+---
+
+### Post-Process
+
+Collect Solar log on failure. Check mcelog for MCA details.
+
+---
+
+### References
+
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP Legacy P-state support; SVOS operation
+- Solar tool documentation — platform-agnostic SVOS-based P-state stress tool
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

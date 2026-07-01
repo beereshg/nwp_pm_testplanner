@@ -14,6 +14,62 @@
 
 ---
 
+### Test Case Intent
+
+Verify **random per-core P-state requests under concurrent IO/memory traffic**: PEGA voting resolves to max-requested ratio; executed ratio achievable under load; no unexpected RAPL/thermal throttle during ratio verification. `pm.xproducts.traffic` cross-product. NWP: 2 CBBs × 48 cores; HWP disabled. `NGA_MAIN` priority.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| SV session | `sv.socket0.imh0` and CBBs reachable |
+| HWP | Disabled (`ProcessorHWPMEnable = 0`) |
+| Traffic tools | memicals or supercollider available in NWP environment |
+| PMx | `python runPmx.py -x nwp.xml -p pstates_check -p cpu_traffic -tM 6` |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Verify HWP disabled; start memory/IO traffic. `import time; # start memicals or supercollider; time.sleep(5)` | Traffic running; no RAPL/thermal throttle visible | Traffic not starting — check tool installation |
+| 2 | Issue random per-core P-state requests across all 96 NWP cores under traffic. `python runPmx.py -x nwp.xml -p pstates_check -p cpu_traffic -tM 6` | PEGA resolves to max-requested ratio; PMx PASS | PMx FAIL — collect log |
+| 3 | Verify executed ratio per core via IA32_PERF_STATUS with traffic running. | Executed ratio matches PEGA resolved ratio under load | Ratio lower than requested — unexpected RAPL/thermal throttle |
+| 4 | Stop traffic; verify ratio returns to autonomous. | No residual throttle after traffic stops | Stuck ratio — debug RAPL/thermal state |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: Random per-core P-state requests resolve correctly under traffic; no unexpected throttle; PMx PASS.
+- **FAIL**: Ratio mismatch under traffic; unexpected RAPL/thermal limiting; PMx FAIL.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| IA32_PERF_STATUS | Per-core MSR 0x198 | Executed ratio = PEGA resolved under traffic |
+| perf_limit_reasons | sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.perf_limit_reasons | No unexpected RAPL/thermal PLR during ratio check |
+
+---
+
+### Post-Process
+
+Stop traffic. Collect PMx log on failure. Verify no residual PLR bits.
+
+---
+
+### References
+
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP PEGA; traffic cross-product; ratio enforcement
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

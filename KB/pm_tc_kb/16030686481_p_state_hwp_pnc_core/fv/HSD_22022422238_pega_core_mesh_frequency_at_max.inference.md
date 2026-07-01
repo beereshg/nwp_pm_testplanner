@@ -14,6 +14,65 @@
 
 ---
 
+---
+
+### Test Case Intent
+
+Verify system stability when **core frequency = Pm (min) while mesh/ring = P0 (max)** and vice versa, with concurrent IDI traffic (Supercollider/Memicals). Tests cross-domain dependency between core and ring/mesh clocks. Motivated by GNR risk HSD 14014839301. NWP: ring on CBB die; IMH fabric managed separately. `NGA_MAIN` priority.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| SV session | `sv.socket0.imh0` and CBBs reachable |
+| Traffic tools | Supercollider or Memicals available |
+| PMx | `python runPmx.py -x nwp.xml -p cpu_traffic -p pega_uncore -tM 6` |
+| HWP | Disabled |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Scenario A: Set core to Pm, mesh/ring to P0; start IDI traffic. `python runPmx.py -x nwp.xml -p cpu_traffic -p pega_uncore -tM 6` | System stable; no MCA, no IERR, no hang | MCA or IERR — core/mesh cross-dependency issue |
+| 2 | Scenario B: Set core to P0, mesh/ring to Pm; start IDI traffic. | System stable for full test duration | Hang or coherency error |
+| 3 | Scenario C: Sweep core and mesh frequencies with Memicals. | Stable transitions; no errors | Stuck ratio or crash |
+| 4 | Verify no MCAs. `import time; time.sleep(30)` per scenario | No machine check errors | MCA — critical; collect crash dump |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: All 3 scenarios without MCA, IERR, hang; frequency transitions stable.
+- **FAIL**: Any MCA, IERR, hang, or crash.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| MCA status | MCi_STATUS per core/uncore | = 0 throughout |
+| perf_limit_reasons | sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.perf_limit_reasons | No unexpected PLR |
+| NLOG | peg_client --nlog | No fatal events |
+
+---
+
+### Post-Process
+
+Stop traffic. Collect MCA state and NLOG on failure.
+
+---
+
+### References
+
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP ring/mesh frequency; CBB ring clock
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

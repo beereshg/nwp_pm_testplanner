@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
+  <title>TC: Legacy Pstate Bios cofigurations</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:4px;}
+    .header .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+    .chip{background:rgba(255,255,255,.18);border-radius:12px;padding:2px 10px;font-size:11px;}
+    .chip.disp{background:#1565c0;font-weight:bold;}
+    a.hsd-link{color:#90caf9;font-size:11px;margin-left:8px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar button{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 18px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar button:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar button.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    .panel code{font-family:Consolas,monospace;}
+    table.md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    table.md-table th,table.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    table.md-table th{background:#e8eef7;font-weight:600;}
+    table.md-table tr:nth-child(even){background:#f8fafc;}
+    .tc-content{font-size:12.5px;}
+    .tc-content h3{color:#004a80;font-size:13px;margin:14px 0 4px;
+        background:#cce4f7;padding:8px 14px;border-left:4px solid #0071c5;border-radius:0 4px 4px 0;font-weight:bold;}
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>Legacy Pstate Bios cofigurations
+    <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022422219" target="_blank" rel="noopener">HSD 22022422219 ↗</a>
+  </h1>
+  <div class="chips">
+    <span class="chip">Pstate Stack › Legacy P-states / EIST BIOS menu verification</span>
+    <span class="chip disp">Runnable_On_N-1</span>
+    <span class="chip">Env: virtual_platform</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="active" data-tab="tc">Test Case</button>
+  <button data-tab="sec-a">A: NWP Delta</button>
+  <button data-tab="sec-b">B: Interactions</button>
+  <button data-tab="sec-c">C: Coverage</button>
+  <button data-tab="sec-d">D: Spec Refs</button>
+  <button data-tab="sec-e">E: Risks</button>
+  <button data-tab="sec-f">F: Recommendations</button>
+</div>
+
+<div class="panels">
+  <div id="tc" class="panel active tc-content">
+
+
+
+
+<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
+<br/><p style="margin:10px 0 16px 0;">Verify that BIOS menu knobs for <strong>Legacy P-states (EIST / Enhanced Intel SpeedStep Technology)</strong> are present and functional on Newport. The test exercises all supported BIOS combinations — SpeedStep enable/disable, Single PCTL enable, and EIST PSD coordination type (HW_ALL, SW_ALL, SW_ANY) — and confirms the programmed values are reflected in the corresponding architectural MSRs after reboot.</p>
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Preconditions</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;padding:8px;">NWP platform (virtual_platform / SVOS) booted with flexcon test framework available</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;padding:8px;">NWPSV.ini (or equivalent NWP platform config) available for flexcon</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;padding:8px;">BIOS supports SpeedStep, Single PCTL, and EIST PSD knobs (verify with NWP BIOS team)</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;padding:8px;">Platform stable enough to reboot between BIOS knob changes</td></tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Test Steps</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 8px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">#</th>
+  <th style="text-align:left;padding:8px;">Action</th>
+  <th style="text-align:left;padding:8px;">Expected Result (PASS)</th>
+  <th style="text-align:left;padding:8px;">Failure Indication</th>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Configure BIOS: SpeedStep = Enable; reboot</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`IA32_MISC_ENABLES[16] = 1` after boot</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`IA32_MISC_ENABLES[16] = 1` after boot</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read `IA32_MISC_ENABLES` MSR (0x1A0)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Bit 16 = 1 (GV3 enabled)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Bit 16 = 1 (GV3 enabled)</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Configure BIOS: SpeedStep = Disable; reboot</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`IA32_MISC_ENABLES[16] = 0` after boot</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`IA32_MISC_ENABLES[16] = 0` after boot</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read `IA32_MISC_ENABLES` MSR</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Bit 16 = 0 (GV3 disabled)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Bit 16 = 0 (GV3 disabled)</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Configure BIOS: Single PCTL = Enable; reboot</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`MISC_PWR_MGMT[0] = 1`, PSD coord = SW_ANY</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`MISC_PWR_MGMT[0] = 1`, PSD coord = SW_ANY</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read `MISC_PWR_MGMT` MSR (0x1AA)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Bit 0 = 1</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Bit 0 = 1</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Configure BIOS: EIST PSD coord = HW_ALL; reboot</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PSD ACPI object reports HW_ALL coordination</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PSD ACPI object reports HW_ALL coordination</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">8</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Configure BIOS: EIST PSD coord = SW_ALL; reboot</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PSD ACPI object reports SW_ALL coordination</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PSD ACPI object reports SW_ALL coordination</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">9</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Run flexcon PM validation</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">No failures / hangs</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">No failures / hangs</td>
+</tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Pass / Fail Criteria</div>
+<br/>
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
+  <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
+  <p style="margin:0;font-size:0.9em;">**</p>
+</div>
+
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
+  <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
+  <p style="margin:0;font-size:0.9em;">**</p>
+</div>
+
+
+
+
+
+<h3>NOTEs</h3>
+<div style="font-size:0.85em;color:#555;margin-left:12px;padding:10px;background:#f8f9fa;border-left:3px solid #999;border-radius:3px;">
+
+<p style="margin:6px 0;">NWP BIOS knob names differ from DMR (e.g. SpeedStep renamed) — Confirm with NWP BIOS team before running; check NWP BIOS setup documentation</p>
+
+<p style="margin:6px 0;">`virtual_platform` BIOS model may not fully emulate all BIOS menu options for legacy P-states — Run pre-check: enumerate available BIOS knobs via xmlcli; skip inapplicable knobs with documented N/A note</p>
+
+<p style="margin:6px 0;">`NWPSV.ini` flexcon config missing or incomplete for legacy P-state test scenarios — Verify config covers flexconPM legacy mode; adapt from `DMRSV.ini` if needed</p>
+
+<p style="margin:6px 0;">`IA32_MISC_ENABLES` path differs on NWP (`nio` vs `imh0`) — Use NWP path `sv.socket0.nio.punit.ptpcioregs.ia32_misc_enables`; path-swap only</p>
+
+<p style="margin:6px 0;">PSD ACPI object not populated in virtual_platform — If PSD not available, document as sim limitation; verify on real hardware / emulation</p>
+
+</div>
+
+
+
+
+<h3>OPENs</h3>
+<div style="font-size:0.85em;color:#c62828;margin-left:12px;padding:10px;background:#fff3f3;border-left:3px solid #c62828;border-radius:3px;">
+<ul style="margin:4px 0;padding-left:20px;">
+
+<li style="margin:4px 0;">`virtual_platform` BIOS model may not fully emulate all BIOS menu options for legacy P-states → Run pre-check: enumerate available BIOS knobs via xmlcli; skip inapplicable knobs with documented N/A note</li>
+
+<li style="margin:4px 0;">`NWPSV.ini` flexcon config missing or incomplete for legacy P-state test scenarios → Verify config covers flexconPM legacy mode; adapt from `DMRSV.ini` if needed</li>
+
+</ul>
+</div>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Health Check — Registers &amp; Logs to Collect</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">Register / Log</th>
+  <th style="text-align:left;padding:8px;">Access</th>
+  <th style="text-align:left;padding:8px;">Pass/Fail Criteria</th>
+</tr>
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">Intel SDM Vol. 3B §14.1</td>
+  <td style="text-align:left;padding:8px;">`IA32_MISC_ENABLES` (MSR 0x1A0), bit 16 = Enhanced Intel SpeedStep Enable</td>
+  <td style="text-align:left;padding:8px;">Primary MSR for SpeedStep BIOS knob effect</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">Intel SDM Vol. 3B §14.3</td>
+  <td style="text-align:left;padding:8px;">`MISC_PWR_MGMT` (MSR 0x1AA), bit 0 = single PCTL coordination</td>
+  <td style="text-align:left;padding:8px;">MSR for Single PCTL BIOS knob</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">Intel SDM Vol. 3B §8.7</td>
+  <td style="text-align:left;padding:8px;">ACPI PSD object — P-state dependency (coordination type HW_ALL/SW_ALL/SW_ANY)</td>
+  <td style="text-align:left;padding:8px;">PSD coordination verification</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">NWP PM MAS §2</td>
+  <td style="text-align:left;padding:8px;">"No plans to add nor deprecate any CBB PM flow"</td>
+  <td style="text-align:left;padding:8px;">Legacy P-states confirmed supported on NWP</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">CBB PEGA HAS</td>
+  <td style="text-align:left;padding:8px;">PEGA P-state mode selection — reads `IA32_MISC_ENABLES[16]` to determine legacy vs HWP mode</td>
+  <td style="text-align:left;padding:8px;">FW touchpoint for GV3 enable</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">KB: `KB/pm_features/pstate_stack/pstate_stack_main.md`</td>
+  <td style="text-align:left;padding:8px;">P-state stack KB article — EIST/Legacy section; NWP delta table</td>
+  <td style="text-align:left;padding:8px;">Project-local reference</td>
+</tr>
+
+
+</table>
+
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
+<br/><p style="margin:10px 0;">N/A</p>
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">References</div>
+<br/>
+
+<p>N/A</p>
+
+
+</div>
+  </div>
+  <div id="sec-a" class="panel"><p>**Disposition: Runnable_On_N-1**</p>
+<p>Legacy P-states (EIST/GV3) are **fully supported on NWP with no architectural changes** from DMR. The test can run as-is with a flexcon platform config substitution.</p>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>Legacy P-states (EIST)</td>
+<td>Supported</td>
+<td>**Supported — no change** (NWP PM MAS)</td>
+<td>No functional delta</td>
+</tr>
+<tr>
+<td>`IA32_MISC_ENABLES[16]` (GV3)</td>
+<td>MSR 0x1A0, bit 16</td>
+<td>Identical architectural MSR</td>
+<td>Direct reuse</td>
+</tr>
+<tr>
+<td>`MISC_PWR_MGMT[0]` (Single PCTL)</td>
+<td>MSR 0x1AA, bit 0</td>
+<td>Identical</td>
+<td>Direct reuse</td>
+</tr>
+<tr>
+<td>PSD ACPI coord type</td>
+<td>HW_ALL / SW_ALL / SW_ANY</td>
+<td>Same ACPI structure</td>
+<td>Direct reuse</td>
+</tr>
+<tr>
+<td>Register path</td>
+<td>`sv.socket0.imh0.punit.*`</td>
+<td>`sv.socket0.nio.punit.*`</td>
+<td>Path prefix swap only</td>
+</tr>
+<tr>
+<td>CBB count</td>
+<td>4</td>
+<td>2</td>
+<td>No impact on BIOS knob test</td>
+</tr>
+<tr>
+<td>flexcon config</td>
+<td>`DMRSV.ini`</td>
+<td>`NWPSV.ini`</td>
+<td>**Single adaptation required**</td>
+</tr>
+<tr>
+<td>BIOS knob names</td>
+<td>DMR BIOS</td>
+<td>NWP BIOS — may use identical names; confirm</td>
+<td>Low risk</td>
+</tr>
+</tbody></table>
+<p>**Key Justification:**</p>
+<ul>
+<li>NWP PM MAS explicitly states: &quot;No plans to add nor deprecate any CBB PM flow&quot; — legacy P-states included</li>
+<li>`IA32_MISC_ENABLES` and `MISC_PWR_MGMT` are architectural x86 MSRs — identical on NWP</li>
+<li>`PMSS_NWP_READINESS_CHECK` tag confirms this TC is in NWP readiness scope</li>
+<li>No `DMR_PO` tag — not a DMR bring-up blocker; generally applicable</li>
+</ul>
+<p>---</p></div>
+  <div id="sec-b" class="panel"><table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Actor</th>
+<th>Action</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>OS/Test</td>
+<td>Configure BIOS knob (SpeedStep, Single PCTL, PSD coord) via xmlcli/BIOS menu</td>
+<td>[Test logic]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>BIOS</td>
+<td>At boot: write `IA32_MISC_ENABLES[16]` per SpeedStep knob</td>
+<td>[CSR]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>BIOS</td>
+<td>At boot: write `MISC_PWR_MGMT[0]` per Single PCTL knob</td>
+<td>[CSR]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>BIOS</td>
+<td>At boot: configure PSD ACPI object with selected coordination type</td>
+<td>[ACPI]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>PCode (CBB×2)</td>
+<td>Read `IA32_MISC_ENABLES[16]`; set PEGA GV3 mode (legacy or HWP) accordingly</td>
+<td>[Internal]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>OS/Test</td>
+<td>Post-boot: read MSRs to verify BIOS programming</td>
+<td>[CSR]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>OS/Test</td>
+<td>Run flexcon PM module; verify P-state coordination type matches BIOS</td>
+<td>[Test logic]</td>
+</tr>
+</tbody></table>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>From</th>
+<th>To</th>
+<th>Message</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>OS/Test</td>
+<td>BIOS</td>
+<td>Set SpeedStep knob value (Enable/Disable)</td>
+<td>[Test logic]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>BIOS</td>
+<td>HW</td>
+<td>Write `IA32_MISC_ENABLES[16]` at boot</td>
+<td>[CSR]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>BIOS</td>
+<td>HW</td>
+<td>Write `MISC_PWR_MGMT[0]` at boot</td>
+<td>[CSR]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>BIOS</td>
+<td>HW</td>
+<td>Publish PSD ACPI object with coord type</td>
+<td>[ACPI]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>PCode (CBB×2)</td>
+<td>HW</td>
+<td>Read MSR state; configure PEGA P-state arbitration mode</td>
+<td>[Internal]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>OS/Test</td>
+<td>HW</td>
+<td>Read `IA32_MISC_ENABLES` and `MISC_PWR_MGMT` for post-boot verification</td>
+<td>[CSR]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>OS/Test</td>
+<td>PCode (CBB×2)</td>
+<td>flexcon: exercise P-state transitions under legacy coordination</td>
+<td>[Test logic]</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-c" class="panel"><table class="md-table"><thead><tr>
+<th>Coverage Dimension</th>
+<th>Details</th>
+</tr></thead><tbody>
+<tr>
+<td>**BIOS knob combinations**</td>
+<td>SpeedStep Enable, SpeedStep Disable, Single PCTL Enable, EIST PSD HW_ALL, SW_ALL, SW_ANY</td>
+</tr>
+<tr>
+<td>**MSRs verified**</td>
+<td>`IA32_MISC_ENABLES` (0x1A0) bit 16; `MISC_PWR_MGMT` (0x1AA) bit 0</td>
+</tr>
+<tr>
+<td>**ACPI coverage**</td>
+<td>PSD coordination type (HW_ALL, SW_ALL, SW_ANY) via ACPI _PSD object</td>
+</tr>
+<tr>
+<td>**GV3 path**</td>
+<td>SpeedStep enable → PEGA operates in legacy OS-directed mode (`IA32_PERF_CTL`)</td>
+</tr>
+<tr>
+<td>**Not covered**</td>
+<td>P-state performance validation (covered by `22022422224`); HWP knobs (covered by `22022422301`); Turbo knobs (covered by `22022422408`)</td>
+</tr>
+<tr>
+<td>**NWP scope**</td>
+<td>All 2 CBBs share the same BIOS knob state; single verification pass covers both</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-d" class="panel"><table class="md-table"><thead><tr>
+<th>Reference</th>
+<th>Artifact</th>
+<th>Relevance</th>
+</tr></thead><tbody>
+<tr>
+<td>Intel SDM Vol. 3B §14.1</td>
+<td>`IA32_MISC_ENABLES` (MSR 0x1A0), bit 16 = Enhanced Intel SpeedStep Enable</td>
+<td>Primary MSR for SpeedStep BIOS knob effect</td>
+</tr>
+<tr>
+<td>Intel SDM Vol. 3B §14.3</td>
+<td>`MISC_PWR_MGMT` (MSR 0x1AA), bit 0 = single PCTL coordination</td>
+<td>MSR for Single PCTL BIOS knob</td>
+</tr>
+<tr>
+<td>Intel SDM Vol. 3B §8.7</td>
+<td>ACPI PSD object — P-state dependency (coordination type HW_ALL/SW_ALL/SW_ANY)</td>
+<td>PSD coordination verification</td>
+</tr>
+<tr>
+<td>NWP PM MAS §2</td>
+<td>&quot;No plans to add nor deprecate any CBB PM flow&quot;</td>
+<td>Legacy P-states confirmed supported on NWP</td>
+</tr>
+<tr>
+<td>CBB PEGA HAS</td>
+<td>PEGA P-state mode selection — reads `IA32_MISC_ENABLES[16]` to determine legacy vs HWP mode</td>
+<td>FW touchpoint for GV3 enable</td>
+</tr>
+<tr>
+<td>KB: `KB/pm_features/pstate_stack/pstate_stack_main.md`</td>
+<td>P-state stack KB article — EIST/Legacy section; NWP delta table</td>
+<td>Project-local reference</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-e" class="panel"><table class="md-table"><thead><tr>
+<th>Risk</th>
+<th>Severity</th>
+<th>Likelihood</th>
+<th>Mitigation</th>
+</tr></thead><tbody>
+<tr>
+<td>NWP BIOS knob names differ from DMR (e.g. SpeedStep renamed)</td>
+<td>Medium</td>
+<td>Low</td>
+<td>Confirm with NWP BIOS team before running; check NWP BIOS setup documentation</td>
+</tr>
+<tr>
+<td>`virtual_platform` BIOS model may not fully emulate all BIOS menu options for legacy P-states</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Run pre-check: enumerate available BIOS knobs via xmlcli; skip inapplicable knobs with documented N/A note</td>
+</tr>
+<tr>
+<td>`NWPSV.ini` flexcon config missing or incomplete for legacy P-state test scenarios</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Verify config covers flexconPM legacy mode; adapt from `DMRSV.ini` if needed</td>
+</tr>
+<tr>
+<td>`IA32_MISC_ENABLES` path differs on NWP (`nio` vs `imh0`)</td>
+<td>Low</td>
+<td>Low</td>
+<td>Use NWP path `sv.socket0.nio.punit.ptpcioregs.ia32_misc_enables`; path-swap only</td>
+</tr>
+<tr>
+<td>PSD ACPI object not populated in virtual_platform</td>
+<td>Low</td>
+<td>Low</td>
+<td>If PSD not available, document as sim limitation; verify on real hardware / emulation</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-f" class="panel"><p>**Recommendation: ADOPT — Architecturally identical; single config adaptation required**</p>
+<p>Legacy P-state BIOS knob verification maps cleanly to NWP with minimal adaptation.</p>
+<p>**Required adaptations:**</p>
+<p>1. Replace `DMRSV.ini` with `NWPSV.ini` in flexcon invocation</p>
+<p>2. Confirm NWP BIOS knob names for SpeedStep and Single PCTL with NWP BIOS team</p>
+<p>3. Update register path: `sv.socket0.imh0.*` → `sv.socket0.nio.*`</p>
+<p>4. Verify `flexconPM` module supports NWP legacy P-state scenario</p>
+<p>**PythonSV verification snippet (NWP paths):**</p>
+<pre><code>
+</code></pre></div>
+</div>
+
+<script>
+const btns  = Array.from(document.querySelectorAll('.tab-bar button'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+btns.forEach(btn => btn.addEventListener('click', () => {
+  btns.forEach(b => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const p = document.getElementById(btn.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

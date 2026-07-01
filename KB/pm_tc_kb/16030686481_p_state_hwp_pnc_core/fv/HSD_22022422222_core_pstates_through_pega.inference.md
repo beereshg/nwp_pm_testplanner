@@ -14,6 +14,65 @@
 
 ---
 
+### Test Case Intent
+
+Verify **core P-states through PEGA** (P-state Engine for GV Approval) interface: collect P1/P0/Pm ratios from CBB/IMH/MSR/TPMI; issue per-core P-state requests; confirm PEGA voting resolves to expected ratio; verify executed ratio observable in cores. NWP: 2 CBBs × 48 cores = 96 cores (no SMT); single IMH (imh0); adapt core loop from DMR range.
+
+---
+
+### Pre-Conditions
+
+| Item | Requirement |
+|------|-------------|
+| SV session | `sv.socket0.imh0` and `sv.socket0.cbb{0,1}` reachable |
+| PMx | `python runPmx.py -x nwp.xml -p pstates_check -tM 6` available |
+| BIOS | SpeedStep enabled; HWP disabled (`ProcessorHWPMEnable = 0`) |
+| NWP topology | 2 CBBs (cbb0, cbb1); 48 cores per CBB; no SMT |
+
+---
+
+### Test Steps
+
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|----------------------|-------------------|
+| 1 | Collect P1, P0, Pm ratios from IMH. `p1=sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.min_perf_ratio.read(); p0=sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.max_perf_ratio.read(); print(f'P0={p0} P1={p1}')` | P0 >= P1 > 0; ratios match fused TDP/turbo values | P0 or P1 = 0 — ratio registers not initialized |
+| 2 | Collect ratios from CBB0 and CBB1; verify consistency with IMH. `for i in [0,1]: max_r=sv.socket0.cbb[i].base.ptpcioregs.max_perf_ratio.read(); print(f'CBB{i} max_ratio={max_r}')` | CBB P0/P1 ratios consistent with IMH; no mismatch | Ratio mismatch — PEGA init failure |
+| 3 | Issue per-core P-state requests across all 96 NWP cores; verify PEGA voting resolves to max-requested ratio. `python runPmx.py -x nwp.xml -p pstates_check -tM 6` | PMx PASS; PEGA voting resolves correctly | PMx FAIL — collect log |
+| 4 | Verify executed ratio per core via APERF/MPERF or PEGA feedback register. | Per-core executed ratio matches PEGA resolved ratio | Core stuck at wrong ratio |
+
+---
+
+### Pass / Fail Criteria
+
+- **PASS**: Ratios collected correctly; PEGA voting resolves to max-requested; executed ratio observable; PMx pstates_check PASS.
+- **FAIL**: Ratio mismatch; PEGA voting incorrect; PMx FAIL.
+
+---
+
+### Health Checks
+
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|-------------------|
+| max_perf_ratio | sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.max_perf_ratio | = P0 turbo ratio |
+| min_perf_ratio | sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.min_perf_ratio | = P1 base ratio |
+| PEGA_REQ resolved | sv.socket0.cbb{0,1} PEGA register | Max-requested wins |
+| IA32_PERF_STATUS | Per-core MSR 0x198 | Executed ratio matches PEGA |
+
+---
+
+### Post-Process
+
+Collect PMx log on failure. Verify no residual throttle (RAPL/thermal) affecting ratios.
+
+---
+
+### References
+
+- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP P-state / PEGA topology; 2 CBBs; 96 cores
+- [NWP PM MAS — P-state](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — PEGA voting; ratio registers; core P-state enforcement
+
+---
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**
