@@ -82,8 +82,8 @@ No writes performed. Collect NLOG on any SVID error. Report address values if VC
 ### References
 
 - [NWP PAS VR Table](https://docs.intel.com/documents/custom-xeon/newport-docs/platform/pas/NwpPAS.html) — NWP SVID address map: PVCCIN_EHV0/01h, PVCCANA0/02h, PVCCINF/03h, PVCCC2C/05h, PVCC3P3_AUX/0Dh
-- [NWP HAS Impact §2.1 — VCCC2C SVID Rail](c:\github\nwp_testplan\KB\pm_features\nwp_architecture\nwp_has_impact_on_pm_fv.md) — VCCC2C at SVID0/05h (HSD 14027373379); VCCFA_EHV removed (HSD 14027235624)
-- [DMR SVID HAS](https://docs.intel.com/documents/pm_doc/src/server/dmr/pm_features/svid/svid.html) — SVID addressing protocol; NACK behavior; address uniqueness requirements
+- [NWP PM MAS — VCCC2C SVID Rail](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — VCCC2C at SVID0/05h (HSD 14027373379); VCCFA_EHV removed (HSD 14027235624); NWP SVID address table
+- [10nm SVID HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SVID/10nm%20SVID%20HAS.html) — SVID addressing protocol; NACK behavior; address uniqueness requirements; bus topology (1 master, 15 slaves max, 4-bit addressing)
 
 ---
 ## Section A: NWP Disposition & Justification

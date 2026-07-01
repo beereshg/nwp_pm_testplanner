@@ -73,10 +73,11 @@ Stop workload. Collect NLOG if any accumulator stuck or Imon out of tolerance. V
 ### References
 
 - [NWP PAS VR Table](https://docs.intel.com/documents/custom-xeon/newport-docs/platform/pas/NwpPAS.html) — NWP SVID rail map; ICCmax.max values per rail
-- [NWP PM Telemetry — RC_MIO_EW SVID Accumulators](c:\github\nwp_testplan\KB\pm_features\nwp_architecture\nwp_nio_pm_telemetry.md) — SVID accumulator index 24-37; VCCFC_EHV removed; VCCC2C in RC_CFCMEM_EW
-- [NWP HAS Impact §2.1](c:\github\nwp_testplan\KB\pm_features\nwp_architecture\nwp_has_impact_on_pm_fv.md) — add VCCC2C Imon telemetry (HSD 14027373379); remove VCCFA_EHV
+- [NWP PM MAS — RC_MIO_EW SVID Accumulators](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — SVID accumulator index 24-37; VCCFC_EHV removed; VCCC2C in RC_CFCMEM_EW
+- [NWP PM MAS — VCCC2C Imon](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — add VCCC2C Imon telemetry (HSD 14027373379); remove VCCFA_EHV
 - [Primecode RAPL DMR](https://docs.intel.com/documents/primecode/primecode_two/firmware_architecture/ip_drivers_and_libraries/rapl_dmr.html) — SVID IMON polling for RAPL socket power measurement
-- [DMR SVID HAS](https://docs.intel.com/documents/pm_doc/src/server/dmr/pm_features/svid/svid.html) — SVID Imon command (GetImon); calibration; tolerance spec
+- [10nm SVID HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SVID/10nm%20SVID%20HAS.html) — SVID Imon command (GetImon); IMON calibration; tolerance spec; SVID_IMON_MASK register
+- [SVID Standalone IP HAS](https://docs.intel.com/documents/sysip_pm/HAS_gen4/IPPUNIT-177_Feature_HAS.html) — SVID telemetry configuration; SVID_TELE_CFG; SVID_TELEMETRY_MAP_CFG; push enable/masking
 
 ---
 

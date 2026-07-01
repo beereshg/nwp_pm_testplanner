@@ -69,8 +69,9 @@ Read-only test — no writes. Collect NLOG if any error bits observed: `peg_clie
 ### References
 
 - [NWP PAS VR Table](https://docs.intel.com/documents/custom-xeon/newport-docs/platform/pas/NwpPAS.html) — NWP SVID rail map; register defaults after BIOS SVID init
-- [DMR SVID HAS](https://docs.intel.com/documents/pm_doc/src/server/dmr/pm_features/svid/svid.html) — SVID control/status/vendor register definitions; error bit encoding
-- [NWP HAS Impact §2.1](c:\github\nwp_testplan\KB\pm_features\nwp_architecture\nwp_has_impact_on_pm_fv.md) — VCCFA_EHV removed; VCCC2C added; update register map
+- [10nm SVID HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SVID/10nm%20SVID%20HAS.html) — SVID control/status/vendor register definitions; error bit encoding; VRCI CR map
+- [SVID Standalone IP HAS](https://docs.intel.com/documents/sysip_pm/HAS_gen4/IPPUNIT-177_Feature_HAS.html) — Gen4 SVID; full CR list; SVID_CONFIG, SVID_STATUS, SVID_VR_ERROR_STATUS registers
+- [NWP PM MAS — SVID changes](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — VCCFA_EHV removed; VCCC2C added; NWP SVID rail register map updates
 - [Primecode RAPL DMR](https://docs.intel.com/documents/primecode/primecode_two/firmware_architecture/ip_drivers_and_libraries/rapl_dmr.html) — SVID register state required for RAPL power accounting
 
 ---

@@ -72,10 +72,11 @@ Stop workload. Verify RAPL energy counter continues incrementing. Collect NLOG o
 ### References
 
 - [NWP PAS VR Table](https://docs.intel.com/documents/custom-xeon/newport-docs/platform/pas/NwpPAS.html) — NWP SVID rails; Vnom per rail (needed for Pmon = V × I calculation)
-- [NWP PM Telemetry — RC_MIO_EW SVID Accumulators](c:\github\nwp_testplan\KB\pm_features\nwp_architecture\nwp_nio_pm_telemetry.md) — SVID accumulator map; VCCC2C in RC_CFCMEM_EW; VCCFA_EHV removed
-- [NWP HAS Impact §2.1](c:\github\nwp_testplan\KB\pm_features\nwp_architecture\nwp_has_impact_on_pm_fv.md) — add VCCC2C Pmon; remove VCCFA_EHV Pmon
+- [NWP PM MAS — RC_MIO_EW SVID Accumulators](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — SVID accumulator map; VCCC2C in RC_CFCMEM_EW; VCCFA_EHV removed
+- [NWP PM MAS — VCCC2C Pmon](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — add VCCC2C Pmon; remove VCCFA_EHV Pmon
 - [Primecode RAPL DMR](https://docs.intel.com/documents/primecode/primecode_two/firmware_architecture/ip_drivers_and_libraries/rapl_dmr.html) — SVID Pmon as input to Socket RAPL NN-PID power estimate (1 ms polling)
-- [DMR SVID HAS](https://docs.intel.com/documents/pm_doc/src/server/dmr/pm_features/svid/svid.html) — SVID Pmon command (GetPmon); P = V × I calculation; calibration
+- [10nm SVID HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SVID/10nm%20SVID%20HAS.html) — SVID Pmon command (GetPmon); P = V × I calculation; calibration; SVID_PWRIN_MASK register
+- [IccMax Pmax Management HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Power%20Delivery/IccMax%20Pmax%20Management%20HAS.html) — DC loadline read from VCCIN VR via SVID (reg 23h+36h); Pmon for Pmax budgeting
 
 ---
 

@@ -39,7 +39,7 @@
 <body>
   <div class="header">
     <h1>Deep Analysis: SVID Basic Commands Functionality Verification</h1>
-    <p>Segment: FV | Source: HSD_22022421917_svid_basic_commands_functionality_verification.inference.md | Generated: 2026-07-01 08:52:35</p>
+    <p>Segment: FV | Source: HSD_22022421917_svid_basic_commands_functionality_verification.inference.md | Generated: 2026-07-01 09:03:04</p>
   </div>
   <div class="tab-bar">
     <button class="tab active" data-tab="tab0">Overview</button>
@@ -268,10 +268,11 @@
 <h3>References</h3>
 <ul>
 <li>[NWP PAS VR Table](https://docs.intel.com/documents/custom-xeon/newport-docs/platform/pas/NwpPAS.html) — NWP SVID rail map: PVCCIN_EHV0/01h, PVCCANA0/02h, PVCCINF/03h, **PVCCC2C/05h (new)**; VCCFA_EHV removed</li>
-<li>[NWP HAS Impact — SVID §2.1](c:\github\nwp_testplan\KB\pm_features\nwp_architecture\nwp_has_impact_on_pm_fv.md) — VCCFA_EHV removed (HSD 14027235624); VCCC2C new SVID rail (HSD 14027373379); address SVID0/05h</li>
-<li>[NWP PM Telemetry — RC_MIO_EW SVID Accumulators](c:\github\nwp_testplan\KB\pm_features\nwp_architecture\nwp_nio_pm_telemetry.md) — SVID accumulator index map; VCCFC_EHV removed; VCCC2C in RC_CFCMEM_EW</li>
+<li>[NWP PM MAS — SVID §2.1 (VCCC2C new / VCCFA_EHV removed)](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — VCCFA_EHV removed (HSD 14027235624); VCCC2C new SVID rail (HSD 14027373379); address SVID0/05h</li>
+<li>[NWP PM MAS — Telemetry / RC_MIO_EW SVID Accumulators](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — SVID accumulator index map; VCCFC_EHV removed; VCCC2C in RC_CFCMEM_EW</li>
 <li>[Primecode RAPL DMR](https://docs.intel.com/documents/primecode/primecode_two/firmware_architecture/ip_drivers_and_libraries/rapl_dmr.html) — SVID IMON polling for RAPL power measurement</li>
-<li>[DMR SVID HAS](https://docs.intel.com/documents/pm_doc/src/server/dmr/pm_features/svid/svid.html) — SVID command set (GetVID, SetVID, SetPS, GetImon); timing requirements; SBE handling</li>
+<li>[10nm SVID HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SVID/10nm%20SVID%20HAS.html) — SVID command set (GetVID, SetVID, SetPS, GetImon); timing requirements; SBE handling; VRCI register interface</li>
+<li>[SVID Standalone IP HAS](https://docs.intel.com/documents/sysip_pm/HAS_gen4/IPPUNIT-177_Feature_HAS.html) — Gen4 SVID separation from Punit; own PMSB endpoint; full CR list; error aggregation</li>
 </ul>
 <p>---</p></div>
   <div id="tab1" class="panel"><p>**Disposition: Runnable_On_N-1**</p>
