@@ -70,7 +70,7 @@ code{background:#f3f6fb;border:1px solid #d9e2ec;padding:1px 5px;border-radius:3
 <!-- GAP TABLE -->
 <div class="card">
 <h2>HWP Micro-Architectural Flow</h2>
-<p style="margin-bottom:10px;">End-to-end HWP processing pipeline from SW inputs through final V/F application. Gap markers show where current validation is missing.</p>
+<p style="margin-bottom:10px;">End-to-end HWP processing pipeline from SW inputs through final V/F application. Gap markers show where current validation is missing. TC coverage details are in the APS detail card and gap table below.</p>
 <div class="flow-diagram">
 <span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
 <span class="layer-label">  LAYER 0 — SW / EXTERNAL INPUTS</span>
@@ -88,10 +88,10 @@ code{background:#f3f6fb;border:1px solid #d9e2ec;padding:1px 5px;border-radius:3
   <span class="decision">◆ PACKAGE_CONTROL = 1?</span>  ──yes──►  use IA32_HWP_REQUEST_PKG
                             ──no───►  use thread IA32_HWP_REQUEST
 
-  <span class="decision">◆ PECI override active?</span>   ──yes──►  Apply PECI/BIOS override  (replaces thread/pkg)    [ TC 22022422303 ✅ ]
+  <span class="decision">◆ PECI override active?</span>   ──yes──►  Apply PECI/BIOS override  (replaces thread/pkg)
                             ──no───►  keep selected source
 
-  Resolve EPP  →  if EPP not explicit, derive from EPB×4             [ TC 22022422303 ✅ ]
+  Resolve EPP  →  if EPP not explicit, derive from EPB×4
   Clip Min/Max to HWP_CAPABILITIES bounds
   <span class="decision">◆ ACTIVITY_WINDOW = 0?</span>   ──yes──►  Use internal AW default = f(EPP)   <span class="gap-marker">⚠ G5: edge case not tested</span>
                             ──no───►  use programmed AW
@@ -101,16 +101,17 @@ code{background:#f3f6fb;border:1px solid #d9e2ec;padding:1px 5px;border-radius:3
   Core resolution:  core_req = max(all thread requests)
 
 <span class="arrow">                                          │
-                                          ▼  [ TC 22022422305 / 22022422312 ✅ ]</span>
+                                          ▼</span>
 <span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
 <span class="layer-label">  LAYER 2 — APS / UBPS AUTONOMOUS PATH  (when DESIRED = 0)          ✅ Well covered</span>
 <span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
   Inputs:  resolved_thread_EPP  |  thread C0 cycles  |  core C0 cycles
            UBPS gain  |  ratio decay  |  Activity Window
   Compute utilization  →  compute aps_thread_ratio[t]
-  Substitute: desired  ←  aps_thread_ratio                          [ TC 22022422298 ✅ ]
-  EPP = performance-oriented  →  aggressive ramp  (APSrocketing)    [ TC 22022422301 ✅ ]
+  Substitute: desired  ←  aps_thread_ratio
+  EPP = performance-oriented  →  aggressive ramp  (APSrocketing)
   EPP = energy-oriented       →  conservative ramp
+  → See APS Detail card below for full 25-step breakdown
 
 <span class="arrow">                                          │
                                           ▼</span>
@@ -118,10 +119,10 @@ code{background:#f3f6fb;border:1px solid #d9e2ec;padding:1px 5px;border-radius:3
 <span class="layer-label">  LAYER 3 — ENERGY-EFFICIENCY REFINEMENT                          ❌ Critical gaps G1 G7</span>
 <span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
   Input EPB  →  resolve:  min(thread EPB) or BIOS/OOB selection
-  SAPM-DLL:  process thread C0 + resolved thread request             [ TC 22022422284 ✅ standalone ]
+  SAPM-DLL:  process thread C0 + resolved thread request
     └─► compute resolved_thread_EPB  /  resolved_core_EPB            <span class="gap-marker">❌ G7: HWP EPP → SAPM-DLL link not tested</span>
 
-  EET inputs:  core stall count  |  L1/L2/L3 stall cycles           [ TC 16030734092 ✅ standalone ]
+  EET inputs:  core stall count  |  L1/L2/L3 stall cycles
                SQ occupancy  |  resolved_core_EPB
     └─► compute scalability  →  frequency deration factor
     └─► derate core request   ( EET can REDUCE, never INCREASE )     <span class="gap-marker">❌ G1: EET deration WITH HWP active not tested</span>
@@ -134,7 +135,7 @@ code{background:#f3f6fb;border:1px solid #d9e2ec;padding:1px 5px;border-radius:3
   Clip derated request to [core_min, core_max]
   Apply workpoint limits:  WP1.Fceil  |  F_floor  |  WP4
   Apply higher-level constraints (all dominate HWP):
-    ├── Turbo / TRL / FACT                                           [ TC 22022422337 OOB ✅ ; G8 in-band gap ]
+    ├── Turbo / TRL / FACT                                            <span class="gap-marker">⚠ G8: in-band Turbo + HWP not tested</span>
     ├── RAPL PL1 / PL2  (NWP: TPMI path, MSR 0x610 deprecated)      <span class="gap-marker">❌ G2: HWP + RAPL not tested</span>
     ├── Thermal / TCC throttle                                        <span class="gap-marker">❌ G3: HWP + Thermal not tested</span>
     └── C-state entry/exit  (HWP state + APS history)                <span class="gap-marker">❌ G4: HWP + C-state not tested</span>
@@ -147,8 +148,8 @@ code{background:#f3f6fb;border:1px solid #d9e2ec;padding:1px 5px;border-radius:3
 <span class="layer-label">  OBSERVABILITY</span>
 <span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
   <span class="reg">IA32_PERF_STATUS (0x198)</span>         ← observed executed ratio / effective frequency
-  <span class="reg">IA32_HWP_STATUS (0x777)</span>          ← notification: min excursion | guaranteed change  [ TC 22022422311 ✅ ]
-  <span class="reg">perf_limit_reasons (TPMI)</span>        ← PLR: RAPL / Thermal / PMAX bits               [ test when gaps are closed ]
+  <span class="reg">IA32_HWP_STATUS (0x777)</span>          ← notification: min excursion | guaranteed change
+  <span class="reg">perf_limit_reasons (TPMI)</span>        ← PLR: RAPL / Thermal / PMAX bits
 
 <span class="note">  DFx / debug hooks:  disable SW request handling  |  disable UBPS  |  disable PECI override
                        disable SAPM-DLL switching  |  disable EET deration</span>
