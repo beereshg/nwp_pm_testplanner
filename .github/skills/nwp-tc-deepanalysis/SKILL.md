@@ -195,7 +195,40 @@ Commit KB updates together with the enrichment output so the repo always reflect
 7. **TC content discipline**: remove instructional/template boilerplate from final TC output; mandatory sections must be filled.
 8. **Toolkit-first execution**: prefer `hsd_utils` reusable modules for fetch/traverse/compare/update operations; do not create new one-off root scripts for repeat jobs.
 9. **ID validation before write**: treat TP/TPF/TCD/TC IDs in this file as examples; always read-back and confirm parent chain before any mutation.
-10. **Description preservation on overwrite**: before replacing a TC description with LLM-backed/template-updated content, preserve the prior description in an HSD comment or equivalent traceable snapshot.
+10. **Description preservation on overwrite**: before replacing a TC description with LLM-backed/template-updated content, you MUST back up the existing description as a visible HSD comment first. Use the `subject="comments"` POST pattern below (NOT `test_case.notes`, NOT `/rest/article/{id}/comment` — both are wrong). This is mandatory for the first time a TC description is changed; skip only if the description is empty/placeholder.
+
+    ```python
+    # Step A — read existing description
+    r = S.get(f"{BASE}/article/{tc_id}?fields=description")
+    orig_desc = r.json()["data"][0]["description"]  # may be empty
+
+    # Step B — post as comment (only if orig_desc is non-empty)
+    if orig_desc and orig_desc.strip():
+        cmt_payload = {
+            "subject": "comments",        # MUST be plural — 'comment' returns 400
+            "tenant": "server",
+            "fieldValues": [
+                {"parent_id": str(tc_id)}, # MUST be inside fieldValues, NOT top-level
+                {"description": "<p><strong>[Original description preserved before template update]</strong></p>" + orig_desc},
+                {"send_mail": "false"}
+            ]
+        }
+        cmt_r = S.post(f"{BASE}/article/", json=cmt_payload)
+        assert cmt_r.status_code == 200, f"Comment backup failed: {cmt_r.text}"
+        comment_id = cmt_r.json().get("new_id")
+        # comment_id is now a child article of tc_id, visible in HSD Comments tab
+
+    # Step C — now overwrite description with new template content
+    # (only after comment backup is confirmed)
+    ```
+
+    **Verified pitfalls** (from session 2026-07-02):
+    - `/rest/article/{id}/comment` → 404 (wrong path)
+    - `/rest/comment/{id}` → 404 (wrong path)
+    - `test_case.notes` field → saves in Notes section, NOT the Comments tab
+    - `forum` / `community` / `notes` as fieldValues keys → "NOT a valid field" error
+    - `article_comment` endpoint → 200 with empty body, silently no-ops
+    - `parent_id` at top JSON level → HTTP 400
 
 ### Post-Cleanup Operating Model (2026-06)
 
@@ -213,7 +246,12 @@ This repo is primarily used for three kinds of work. Optimize agent behavior aro
 
 1. **TC Description Modernization**
   - Update HSD test-case descriptions using LLM-backed content plus the current repo template structure.
-  - Preserve the old description in HSD comments before overwrite.
+  - **Mandatory backup-first procedure** (for first-time description replacement on a TC with existing content):
+    1. `GET /rest/article/{tc_id}?fields=description` — read the current description.
+    2. If non-empty: `POST /rest/article/` with `subject="comments"`, `parent_id` in `fieldValues`, and the original description as the comment body. Verify HTTP 200 and record `new_id`.
+    3. Only then: `PUT /rest/article/{tc_id}` with the new template description.
+    4. Read-back verify the new description is live.
+  - **Reference format**: use the same HTML structure as TC [22022421939](https://hsdes.intel.com/appstore/article-one/#/22022421939) — `Validation Scope`, `Preconditions` (table), `Test Steps` (table with #/Action/Expected), `Health Check - Registers and Logs`, `Post-Process`, `HAS Reference`. Section headers use `background:#cce4f7;color:#004a80;border-left:4px solid #0071c5`.
   - Preferred inputs: neighboring cache exemplars, KB feature docs, current HSD metadata, and any approved generated HTML preview.
 
 2. **Per-TC Deep Analysis for NWP Readiness**
