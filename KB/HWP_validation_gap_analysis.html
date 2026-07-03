@@ -67,308 +67,205 @@ code{background:#f3f6fb;border:1px solid #d9e2ec;padding:1px 5px;border-radius:3
 <div class="notice">⚠️ <strong>Architecture note:</strong> EET can reduce granted frequency but does not increase it. HWP operates <em>inside</em> the broader platform envelope — RAPL and Thermal always dominate. If <code>ACTIVITY_WINDOW = 0</code>, pCode uses an internal EPP-derived default. EET feeds into Autonomous HWP / LegacyP through the energy-efficiency layer.</div>
 </div>
 
-<!-- GAP TABLE -->
+
+<!-- COMBINED MICRO-ARCH -->
 <div class="card">
-<h2>HWP Micro-Architectural Flow</h2>
-<p style="margin-bottom:10px;">End-to-end HWP processing pipeline from SW inputs through final V/F application. Gap markers show where current validation is missing. TC coverage details are in the APS detail card and gap table below.</p>
-<div class="flow-diagram">
-<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
-<span class="layer-label">  LAYER 0 — SW / EXTERNAL INPUTS</span>
-<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
-  OS / BIOS / OOB / PECI  ──►  <span class="reg">IA32_HWP_REQUEST (0x774)</span>   [ Min | Max | Desired | EPP | AW | PkgCtl ]
-                           ──►  <span class="reg">IA32_HWP_REQUEST_PKG (0x772)</span>  [ Package-level policy ]
-                           ──►  PECI / BIOS / Global overrides
-  <span class="reg">IA32_HWP_CAPABILITIES (0x771)</span>  [ Highest | Guaranteed | Efficient | Lowest ]  ──►  bounds all clipping
+<h2>APS + SAPM-DLL + EET — Combined Micro-Architecture (within HWP Stack)</h2>
+<p style="margin-bottom:10px;">Box-diagram of the complete HWP autonomous path from request resolution through final applied frequency, with gap markers inline on every uncovered layer. Source: <em>aps_minimal_flow.puml</em></p>
+<pre style="background:#1a202c;color:#e2e8f0;border-radius:8px;padding:18px 22px;font-family:Consolas,monospace;font-size:11px;line-height:1.55;overflow-x:auto;margin:12px 0;">
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+APS + SAPM-DLL + EET  COMBINED ASCII MICRO-ARCHITECTURE  (within HWP stack)
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
 
-<span class="arrow">                                          │ MSR/OOB write event
-                                          ▼</span>
-<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
-<span class="layer-label">  LAYER 1 — FASTPATH REQUEST RESOLUTION                              ✅ Well covered</span>
-<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
-  <span class="decision">◆ PACKAGE_CONTROL = 1?</span>  ──yes──►  use IA32_HWP_REQUEST_PKG
-                            ──no───►  use thread IA32_HWP_REQUEST
-
-  <span class="decision">◆ PECI override active?</span>   ──yes──►  Apply PECI/BIOS override  (replaces thread/pkg)
-                            ──no───►  keep selected source
-
-  Resolve EPP  →  if EPP not explicit, derive from EPB×4
-  Clip Min/Max to HWP_CAPABILITIES bounds
-  <span class="decision">◆ ACTIVITY_WINDOW = 0?</span>   ──yes──►  Use internal AW default = f(EPP)   <span class="gap-marker">⚠ G5: edge case not tested</span>
-                            ──no───►  use programmed AW
-  <span class="decision">◆ DESIRED = 0?</span>           ──yes──►  defer to APS output  ──► (Layer 2 below)
-                            ──no───►  use explicit desired
-  Shape:  min ≤ desired ≤ max   [clamp to capabilities]             <span class="gap-marker">⚠ G6: out-of-range not tested</span>
-  Core resolution:  core_req = max(all thread requests)
-
-<span class="arrow">                                          │
-                                          ▼</span>
-<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
-<span class="layer-label">  LAYER 2 — APS / UBPS AUTONOMOUS PATH  (when DESIRED = 0)          ✅ Well covered</span>
-<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
-  Inputs:  resolved_thread_EPP  |  thread C0 cycles  |  core C0 cycles
-           UBPS gain  |  ratio decay  |  Activity Window
-  Compute utilization  →  compute aps_thread_ratio[t]
-  Substitute: desired  ←  aps_thread_ratio
-  EPP = performance-oriented  →  aggressive ramp  (APSrocketing)
-  EPP = energy-oriented       →  conservative ramp
-  → See APS Detail card below for full 25-step breakdown
-
-<span class="arrow">                                          │
-                                          ▼</span>
-<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
-<span class="layer-label">  LAYER 3 — ENERGY-EFFICIENCY REFINEMENT                          ❌ Critical gaps G1 G7</span>
-<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
-  Input EPB  →  resolve:  min(thread EPB) or BIOS/OOB selection
-  SAPM-DLL:  process thread C0 + resolved thread request
-    └─► compute resolved_thread_EPB  /  resolved_core_EPB            <span class="gap-marker">❌ G7: HWP EPP → SAPM-DLL link not tested</span>
-
-  EET inputs:  core stall count  |  L1/L2/L3 stall cycles
-               SQ occupancy  |  resolved_core_EPB
-    └─► compute scalability  →  frequency deration factor
-    └─► derate core request   ( EET can REDUCE, never INCREASE )     <span class="gap-marker">❌ G1: EET deration WITH HWP active not tested</span>
-
-<span class="arrow">                                          │ derated_core_request
-                                          ▼</span>
-<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
-<span class="layer-label">  LAYER 4 — FINAL CLIPPING / PLATFORM CONSTRAINTS                ❌ Critical gaps G2 G3 G4</span>
-<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
-  Clip derated request to [core_min, core_max]
-  Apply workpoint limits:  WP1.Fceil  |  F_floor  |  WP4
-  Apply higher-level constraints (all dominate HWP):
-    ├── Turbo / TRL / FACT                                            <span class="gap-marker">⚠ G8: in-band Turbo + HWP not tested</span>
-    ├── RAPL PL1 / PL2  (NWP: TPMI path, MSR 0x610 deprecated)      <span class="gap-marker">❌ G2: HWP + RAPL not tested</span>
-    ├── Thermal / TCC throttle                                        <span class="gap-marker">❌ G3: HWP + Thermal not tested</span>
-    └── C-state entry/exit  (HWP state + APS history)                <span class="gap-marker">❌ G4: HWP + C-state not tested</span>
-  Submit to GPSS  →  WP download  →  GV / AGV flow
-  <span class="arrow">▼</span>  <span class="layer-label">Final applied V/F</span>
-
-<span class="arrow">                                          │
-                                          ▼</span>
-<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
-<span class="layer-label">  OBSERVABILITY</span>
-<span class="layer-label">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>
-  <span class="reg">IA32_PERF_STATUS (0x198)</span>         ← observed executed ratio / effective frequency
-  <span class="reg">IA32_HWP_STATUS (0x777)</span>          ← notification: min excursion | guaranteed change
-  <span class="reg">perf_limit_reasons (TPMI)</span>        ← PLR: RAPL / Thermal / PMAX bits
-
-<span class="note">  DFx / debug hooks:  disable SW request handling  |  disable UBPS  |  disable PECI override
-                       disable SAPM-DLL switching  |  disable EET deration</span>
-</div>
-<p style="font-size:11px;color:#888;margin-top:4px;">Source: hwp_micro_architectural_flow.puml · Layer annotations from Core P-state HAS + ACP PM HAS</p>
-</div>
-
-<!-- APS DETAIL -->
-<div class="card">
-<h2>APS / UBPS — Autonomous P-State Selection: Detailed Flow (25 Steps)</h2>
-<p style="margin-bottom:10px;">Complete step-by-step pipeline for the autonomous HWP path (<code>IA32_HWP_REQUEST.Desired = 0</code>). APS resolves EPP / Activity Window, reads telemetry, runs the UBPS gain/decay competition or rocket shortcut, and feeds the result back into HWP as the effective Desired. Source: <em>aps_minimal_flow.puml</em></p>
-<div class="flow-diagram">
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-<span class="layer-label">  SW / POLICY INPUTS</span>
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-  OS / PECI / BIOS provide HWP-related policy via <span class="reg">IA32_HWP_REQUEST (0x774)</span>:
-    MIN performance  |  MAX performance  |  DESIRED performance
-    EPP (Energy Performance Preference)  |  ACTIVITY WINDOW
-    optional PACKAGE_CONTROL / overrides
-<span class="arrow">                              │
-                              ▼</span>
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-<span class="layer-label">  STEP 1 — HWP REQUEST ARRIVES</span>
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-  HWP request context available from thread/core request path.
-  Package / override resolution may already be applied.
-<span class="arrow">                              │
-                              ▼</span>
-  <span class="decision">◆ STEP 2 — IS DESIRED = 0 ?</span>
-        │
-        ├── NO  ──►  Explicit HWP path  →  use programmed Desired value  →  <span class="note">[END for APS]</span>
-        │
-        └── YES ──►  APS / Autonomous HWP is active  →  continue below
-
-<span class="note">  APS is used ONLY when HWP Desired = 0. If Desired != 0, HWP uses the explicit desired hint.</span>
-
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-<span class="layer-label">  APS INPUT PREPARATION</span>
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-<span class="layer-label">  STEP 3 — RESOLVE EPP</span>
-<span class="layer-label">────────────────────────────────────────────────────────────────────────</span>
-  EPP is the key policy knob for APS behavior.
-    Lower EPP  →  more performance oriented
-    Higher EPP →  more energy oriented
-
-  EPP influences:
-    ubps_gain            |  ratio_decay       |  rocket_threshold
-    default_activity_window  |  hcpm_timer behavior / responsiveness context
-<span class="arrow">                              │
-                              ▼</span>
-  <span class="decision">◆ STEP 4 — IS ACTIVITY WINDOW = 0 ?</span>            <span class="gap-marker">⚠ G5: AW=0 default path not explicitly tested</span>
-        │
-        ├── YES ──►  Use internal default AW = f(EPP)   <span class="note">(pcode derives default from EPP)</span>
-        │
-        └── NO  ──►  Use programmed Activity Window as the APS dampening window
-        │
-        └─────────────────┬──────────────────────────
-                          │
-                          ▼
-<span class="layer-label">  STEP 5 — APS TIMING CONTEXT IS READY</span>
-<span class="layer-label">────────────────────────────────────────────────────────────────────────</span>
-  EPP resolved  |  AW determined  |  hcpm_timer selected  |  APS parameters set:
-    ubps_gain  |  ratio_decay  |  rocket_threshold
-<span class="arrow">                              │
-                              ▼</span>
-<span class="layer-label">  STEP 6 — WAIT FOR HCPM TIMER EXPIRY</span>
-<span class="layer-label">────────────────────────────────────────────────────────────────────────</span>
-  APS does NOT run every cycle. It executes when hcpm_timer expires.
-  On expiry: APS updates utilization and computes the next APS ratio.
-
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-<span class="layer-label">  TELEMETRY COLLECTION AND UTILIZATION UPDATE</span>
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-<span class="layer-label">  STEP 7 — READ TELEMETRY</span>
-<span class="layer-label">────────────────────────────────────────────────────────────────────────</span>
-  Gather:
-    thread C0 cycles  |  core C0 cycles  |  current thread/core ratio context
-<span class="arrow">                              │
-                              ▼</span>
-<span class="layer-label">  STEP 8 — COMPUTE THREAD INSTANT UTILIZATION</span>
-<span class="layer-label">────────────────────────────────────────────────────────────────────────</span>
-  APS computes current thread utilization from delta C0 activity over time.
-  This is the raw / instantaneous utilization estimate.
-<span class="arrow">                              │
-                              ▼</span>
-<span class="layer-label">  STEP 9 — UPDATE THREAD AVERAGE UTILIZATION (EWMA DAMPING)</span>
-<span class="layer-label">────────────────────────────────────────────────────────────────────────</span>
-  APS uses Activity Window to smooth utilization history:
-    shorter AW  →  faster response
-    longer  AW  →  smoother / slower response
-  Yields: thread_avg_util
-<span class="arrow">                              │
-                              ▼</span>
-<span class="layer-label">  STEP 10 — COMPUTE CORE AVERAGE UTILIZATION</span>
-<span class="layer-label">────────────────────────────────────────────────────────────────────────</span>
-  APS computes core-level utilization.
-  Core utilization can replace thread utilization if core activity &gt; residency threshold.
-<span class="arrow">                              │
-                              ▼</span>
-  <span class="decision">◆ STEP 11 — IS CORE AVG UTIL &gt; CORE THRESHOLD ?</span>
-        │
-        ├── YES ──►  Use core_avg_util as effective util for APS thread decision
-        │
-        └── NO  ──►  Keep thread_avg_util as effective utilization for APS
-        │
-        └─────────────────┬──────────────────────────
-                          │
-<span class="layer-label">  STEP 12 — EFFECTIVE UTILIZATION READY</span>
-
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-<span class="layer-label">  ROCKET CHECK                                                           ✅ TC 22022422301</span>
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-  <span class="decision">◆ STEP 13 — ROCKET CONDITION MET ?</span>
-  Conditions:
-    rocket enabled  AND  thread_instant_util &gt; rocket_threshold  AND  EPP = 0
-        │
-        ├── YES ──►  STEP 14A: ROCKET PATH
-        │              thread_aps_ratio = max_turbo_ratio                    [ TC 22022422301 ✅ ]
-        │              └──────────────────────────────────────────────┐
-        │                                                             │
-        └── NO  ──►  STEP 14B: NORMAL UBPS PATH                      │
-                       │                                              │
-                       ▼                                              │
-        STEP 15 — COMPUTE UBPS GAIN TERM                             │
-          gain_term  = ubps_gain × avg_util × current_ratio          │
-                       │                                              │
-                       ▼                                              │
-        STEP 16 — COMPUTE UBPS DECAY TERM                            │
-          decay_term = ratio_decay × current_ratio                   │
-                       │                                              │
-                       ▼                                              │
-        STEP 17 — SELECT APS RATIO                                   │
-          thread_aps_ratio = max( ceil(gain_term),                   │
-                                  floor(decay_term) )                │
-                       │                                              │
-                       └──────────────────────────────────────────────┘
+                         ┌────────────────────────────────────────────┐
+                         │  <span style="color:#fbd38d">SOFTWARE / EXTERNAL INPUTS</span>                  │
+                         ├────────────────────────────────────────────┤
+                         │  <span style="color:#fbd38d">IA32_HWP_REQUEST</span>  MIN|MAX|DESIRED|EPP|AW  │
+                         │  <span style="color:#fbd38d">IA32_HWP_REQUEST_PKG</span>                      │
+                         │  PECI / BIOS / OOB overrides              │
+                         └─────────────────────┬──────────────────────┘
                                           │
-                                          ▼
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-<span class="layer-label">  STEP 18 — UBPS BEHAVIORAL INTUITION</span>
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-<span class="note">  Workload RAMPING UP:
-    utilization rises  →  gain_term tends to dominate  →  APS ratio rises faster
+                                          v
 
-  Workload TAPERING DOWN:
-    utilization drops  →  decay_term tends to dominate  →  APS ratio ramps down in a controlled way
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+1) HWP REQUEST RESOLUTION LAYER                                                          ✔ Well covered
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
 
-  Therefore: gain wins on ramp-up, decay wins on ramp-down
-             This prevents frequency hunting while remaining responsive to real load changes.</span>
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Resolve source of request                                                                        │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ thread request  ⟵--or--  package request  ⟵--or--  PECI/global override                           │
+└──────────────────────────────────────────────┬─────────────────────────────────────────────────┘
+                                                │
+                                                v
 
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-<span class="layer-label">  APS OUTPUT RE-INTEGRATED INTO HWP                                     ✅ TC 22022422298</span>
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-<span class="layer-label">  STEP 19 — SUBSTITUTE APS OUTPUT INTO HWP</span>
-<span class="layer-label">────────────────────────────────────────────────────────────────────────</span>
-  APS output becomes effective Desired value:
-    Desired_from_APS = thread_aps_ratio
-<span class="arrow">                              │
-                              ▼</span>
-<span class="layer-label">  STEP 20 — CLIP THREAD REQUEST TO RESOLVED MIN / MAX</span>
-<span class="layer-label">────────────────────────────────────────────────────────────────────────</span>
-  APS output must be clipped within resolved HWP thread bounds:
-    MIN &lt;= APS-derived request &lt;= MAX
-<span class="arrow">                              │
-                              ▼</span>
-<span class="layer-label">  STEP 21 — RESOLVE THREAD REQUESTS TO CORE REQUEST</span>
-<span class="layer-label">────────────────────────────────────────────────────────────────────────</span>
-  Thread-level resolved requests combined to form core-level request.
-  core_request = max(all thread requests)
+          ┌──────────────────────────────────────────────────────────────┐
+          │  <span style="color:#fc8181;font-weight:600">◆ DESIRED == 0 ?</span>                                              │
+          ├──────────────────────────────────────────────────────────────┤
+          │  YES → Autonomous HWP path (APS)                            │
+          │  NO  → Explicit desired path → skip APS entirely     │
+          └──────────────────────────────┬───────────────────────────────┘
+                                 │
+                                 v
 
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-<span class="layer-label">  DOWNSTREAM OF APS (STILL INSIDE HWP STACK)                         ❌ G1 G7 gaps</span>
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-<span class="layer-label">  STEP 22 — SAPM-DLL STAGE</span>
-<span class="layer-label">────────────────────────────────────────────────────────────────────────</span>
-  SAPM-DLL adjusts / resolves EPB-related behavior based on activity.
-  Affects internal energy-performance bias used downstream.
-  <span class="gap-marker">❌ G7: HWP EPP → SAPM-DLL interaction with APS active not tested</span>
-<span class="arrow">                              │
-                              ▼</span>
-<span class="layer-label">  STEP 23 — EET STAGE</span>
-<span class="layer-label">────────────────────────────────────────────────────────────────────────</span>
-  EET uses scalability behavior and resolved EPB.
-  EET can DERATE the core request for energy efficiency.
-  <span class="note">Important: EET can reduce granted frequency, NEVER increase it.</span>
-  <span class="gap-marker">❌ G1: EET deration with HWP/APS active not tested</span>
-<span class="arrow">                              │
-                              ▼</span>
-<span class="layer-label">  STEP 24 — FINAL CLIPPING / PLATFORM CONSTRAINTS</span>
-<span class="layer-label">────────────────────────────────────────────────────────────────────────</span>
-  Final request clipped by broader platform / pcode constraints:
-    WP1.Fceil  |  F_floor  |  WP4 / TRL / FACT-like limits  |  Turbo policy
-    RAPL power limits            <span class="gap-marker">❌ G2: HWP + RAPL not tested</span>
-    Thermal / TCC throttle       <span class="gap-marker">❌ G3: HWP + Thermal not tested</span>
-    C-state constraints          <span class="gap-marker">❌ G4: HWP + C-state not tested</span>
-<span class="arrow">                              │
-                              ▼</span>
-<span class="layer-label">  STEP 25 — FINAL APPLIED FREQUENCY / RATIO</span>
-<span class="layer-label">────────────────────────────────────────────────────────────────────────</span>
-  Final operating point applied after APS + HWP + downstream clipping.
-  Observable via <span class="reg">IA32_PERF_STATUS (0x198)</span>   |   <span class="reg">IA32_HWP_STATUS (0x777)</span>
+     ┌──────────────────────────────────────────────────────────────────┐
+     │  Resolve EPP and Activity Window context                              │
+     ├──────────────────────────────────────────────────────────────────┤
+     │  If AW=0 → use EPP-derived default Activity Window  <span style="color:#fc8181;font-weight:600">⚠ G5</span>          │
+     │  EPP drives APS behavior and downstream policy                        │
+     └────────────────────────────────┬─────────────────────────────────┘
+                                   │
+                                   v
 
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-<span class="layer-label">  SHORT SUMMARY</span>
-<span class="layer-label">════════════════════════════════════════════════════════════════════════</span>
-  APS is the autonomous frequency-selection engine used by HWP when DESIRED = 0.
-  APS does this:
-    1. resolves EPP / AW context        (Steps 3-5)
-    2. waits for hcpm_timer             (Step 6)
-    3. reads telemetry                  (Step 7)
-    4. computes effective utilization   (Steps 8-12)
-    5. checks rocket path               (Step 13-14A)
-    6. otherwise runs UBPS gain/decay   (Steps 14B-17)
-    7. produces thread_aps_ratio        (Step 17)
-    8. feeds ratio back into HWP as effective Desired  (Steps 19-21)
-    9. then SAPM-DLL / EET / platform limits finish the path  (Steps 22-25)
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+2) APS / UBPS AUTONOMOUS SELECTION LAYER                                                 ✔ Well covered
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ APS scheduler: wait for hcpm_timer expiry — APS executes periodically, not every cycle          │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Telemetry: Thread C0 cycles  |  Core C0 cycles  |  Current ratio / operating context            │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Utilization engine: thread_instant_util | thread_avg_util(EWMA) | core_avg_util                  │
+│ If core_avg_util &gt; threshold → APS uses core util instead of thread util                    │
+└──────────────────────────────────────────────┬─────────────────────────────────────────────────┘
+                                                │
+                                                v
+          ┌──────────────────────────────────────────────────────────────┐
+          │  <span style="color:#fc8181;font-weight:600">◆ Rocket check</span>                                                    │
+          ├──────────────────────────────────────────────────────────────┤
+          │  If rocket enabled AND util &gt; rocket_threshold AND EPP=0  │
+          │    YES → thread_aps_ratio = max_turbo_ratio  (APSrocketing)  │
+          │    NO  → UBPS gain/decay path (below)                        │
+          └──────────────────────────────┬───────────────────────────────┘
+                                 │ (NO → UBPS path)
+                                 v
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ UBPS path                                                                                        │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ gain_term  = ubps_gain  × avg_util × current_ratio       (ramp-up driver)                         │
+│ decay_term = ratio_decay × current_ratio                   (ramp-down driver)                    │
+│ thread_aps_ratio = max(ceil(gain_term), floor(decay_term))                                       │
+│ Intuition: gain wins on ramp-up → higher ratio   |  decay wins on ramp-down → lower ratio    │
+└──────────────────────────────────────────────┬─────────────────────────────────────────────────┘
+                                                │
+                                                v
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ APS reintegration: thread_aps_ratio → effective Desired, clip to [Min,Max], core=max(threads)      │
+└────────────────────────────────────────────────────────────────────────────────────────────────┘
+                                                │
+                                                v
+
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+3) SAPM-DLL ENERGY-BIAS REFINEMENT LAYER                                         <span style="color:#fc8181;font-weight:600">❌ G7 — gap</span>
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Input EPB: from thread policy / BIOS / OOB                                                        │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ SAPM-DLL: uses resolved thread request + activity behavior                                        │
+│ Dynamically switches internal EPB toward performance mode when heuristics justify it             │
+│ Produces resolved_thread_EPB and resolved_core_EPB                                               │
+│ <span style="color:#fc8181;font-weight:600">❌ G7: HWP EPP → SAPM-DLL interaction with HWP/APS active not tested</span>                                 │
+└──────────────────────────────────────────────┬─────────────────────────────────────────────────┘
+                                                │
+                                                v
+
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+4) EET SCALABILITY / DERATION LAYER                                              <span style="color:#fc8181;font-weight:600">❌ G1 — gap</span>
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ EET inputs: core request (from APS/HWP) | core EPB (from SAPM-DLL)                             │
+│ scalability: stall count | L1/L2/L3 stall cycles | SQ occupancy                                  │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ EET: compute scalability → derate frequency (REDUCE only, never increase)                         │
+│ core_req_after_EET = derated(core_req, resolved_core_EPB, scalability)                           │
+│ <span style="color:#fc8181;font-weight:600">❌ G1: EET deration with HWP/APS active not tested</span>                                                │
+└──────────────────────────────────────────────┬─────────────────────────────────────────────────┘
+                                                │
+                                                v
+
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+5) FINAL CLIPPING / PLATFORM CONSTRAINT LAYER                          <span style="color:#fc8181;font-weight:600">❌ G2 G3 G4 — gaps</span>
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Core-level clipping: clip derated request to resolved core Min / Max                             │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ WP1.Fceil | F_floor | WP4 / TRL / FACT-like limits | IccMax / electrical constraints       │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Turbo policy                                   <span style="color:#fc8181;font-weight:600">⚠ G8: in-band Turbo + HWP gap</span>               │
+│ RAPL / power limits                            <span style="color:#fc8181;font-weight:600">❌ G2: HWP + RAPL not tested</span>                 │
+│ Thermal / TCC throttle                         <span style="color:#fc8181;font-weight:600">❌ G3: HWP + Thermal not tested</span>              │
+│ C-state / HWP state history                    <span style="color:#fc8181;font-weight:600">❌ G4: HWP + C-state not tested</span>              │
+└──────────────────────────────────────────────┬─────────────────────────────────────────────────┘
+                                                │
+                                                v
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ <span style="color:#68d391">Final applied frequency / ratio</span>                                                                  │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Delivered via HWP + APS + SAPM-DLL + EET + final clipping                                       │
+│ Observable: <span style="color:#fbd38d">IA32_PERF_STATUS (0x198)</span> | <span style="color:#fbd38d">IA32_HWP_STATUS (0x777)</span>                                │
+└────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+END-TO-END DATAFLOW SUMMARY
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+HWP Request
+   │
+   ├── if Desired != 0 → explicit desired path → skip APS
+   │
+   └── if Desired == 0 → APS path
+                          │
+                          ├── telemetry + EPP + AW
+                          ├── rocket check OR UBPS gain/decay
+                          └── thread_aps_ratio
+                                  │
+                                  v
+                       HWP effective Desired
+                                  │
+                                  v
+                           thread/core request
+                                  │
+                                  v
+                        SAPM-DLL  <span style="color:#fc8181;font-weight:600">❌ G7</span>
+                                  │
+                                  v
+                            resolved core EPB
+                                  │
+                                  v
+                                  EET  <span style="color:#fc8181;font-weight:600">❌ G1</span>
+                                  │
+                                  v
+                            derated core req
+                                  │
+                                  v
+                      final platform clipping  <span style="color:#fc8181;font-weight:600">❌ G2 G3 G4</span>
+                                  │
+                                  v
+                           applied frequency  → <span style="color:#fbd38d">IA32_PERF_STATUS</span>
+
+<span style="color:#b794f4">════════════════════════════════════════════════════════════════════════════════════════════════════
+PRACTICAL INTERPRETATION
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+APS      answers: "What performance ratio should autonomous HWP ask for based on utilization?"
+SAPM-DLL answers: "Should internal EPB / performance bias switch toward performance mode?"
+EET      answers: "Given resolved EPB and workload scalability, should frequency be derated?"
+Clipping answers: "Even after all of the above, what is the maximum legal / allowed frequency?"
+
+Effective order:
+  APS selects autonomous target
+    → SAPM-DLL resolves bias context
+      → EET may derate
+        → pcode / platform limits clip
+          → final ratio is applied
+</pre>
+<p style="font-size:11px;color:#888;margin-top:4px;">Source: aps_minimal_flow.puml · APS + SAPM-DLL + EET combined from Core P-state HAS</p>
 </div>
-<p style="font-size:11px;color:#888;margin-top:4px;">Source: aps_minimal_flow.puml + aps_wrt_hwp.puml · Algorithm from Core P-state HAS §APS / §UBPS</p>
-</div>
+
 
 <!-- GAP TABLE -->
 <div class="card">

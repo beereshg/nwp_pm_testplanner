@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>NWP P-State Stack Architecture — ACP Ownership &amp; Algorithm Flow</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",Arial,sans-serif;background:#f0f4f9;font-size:13px;color:#1f2937;}
+.hdr{background:#0f4c81;color:#fff;padding:16px 28px;}
+.hdr h1{font-size:20px;font-weight:600;}
+.hdr .meta{font-size:12px;opacity:.82;margin-top:4px;}
+.wrap{max-width:1200px;margin:20px auto;padding:0 18px 50px;}
+.card{background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;margin-bottom:18px;}
+h2{color:#0f4c81;font-size:15px;font-weight:700;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #cce4f7;}
+h3{color:#1a5fa8;font-size:13px;font-weight:700;margin:14px 0 5px;}
+p{margin:6px 0;line-height:1.65;}
+ul{margin:6px 0 8px 22px;line-height:1.75;}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:12px;}
+th{background:#e8f0fe;color:#0f4c81;padding:7px 10px;text-align:left;border:1px solid #c8d9f0;font-weight:600;}
+td{padding:7px 10px;border:1px solid #d9e2ec;vertical-align:top;line-height:1.55;}
+tr:nth-child(even) td{background:#f8fafc;}
+code{background:#f3f6fb;border:1px solid #d9e2ec;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:11px;}
+.acode{background:#e6f9f0;color:#1a6640;border-left:4px solid #38a169;padding:10px 14px;margin:8px 0;border-radius:0 4px 4px 0;font-size:12px;}
+.pcode{background:#e8f0fe;color:#1a4a8a;border-left:4px solid #3182ce;padding:10px 14px;margin:8px 0;border-radius:0 4px 4px 0;font-size:12px;}
+.global{background:#fef9e7;color:#7d5a00;border-left:4px solid #d69e2e;padding:10px 14px;margin:8px 0;border-radius:0 4px 4px 0;font-size:12px;}
+pre.flow{background:#1a202c;color:#e2e8f0;border-radius:8px;padding:18px 22px;font-family:Consolas,monospace;font-size:11px;line-height:1.55;overflow-x:auto;margin:12px 0;}
+.badge-acode{background:#c6f6d5;color:#22543d;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;}
+.badge-pcode{background:#bee3f8;color:#2a4a8a;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;}
+.badge-shared{background:#fbd38d;color:#7b341e;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;}
+</style></head>
+<body>
+<div class="hdr">
+  <h1>NWP P-State Stack Architecture</h1>
+  <div class="meta">ACP (Acode) vs pCode Ownership &bull; Algorithm Flow &bull; Interface Boundaries &bull; Source: ACP PM HAS + KB articles 2026-07</div>
+</div>
+<div class="wrap">
+<div class="card">
+<h2>What is the P-State Stack?</h2>
+<p>The <strong>P-state stack</strong> is the complete chain of algorithms and constraints that determine the final core operating frequency on every evaluation cycle. It is not just HWP and not just legacy P-state control — it is the full layered path from request generation to V/F application.</p>
+<p>The ACP PM HAS defines it as comprising <strong>9 functional groups</strong>, owned by either Acode (ACP-local, per-core) or pCode/SoC (global, slow constraints):</p>
+<ul>
+  <li><strong>Request layer</strong>: Legacy P-state, HWP Native, HWP PECI Override</li>
+  <li><strong>Autonomous selection layer</strong>: UBPS / APS</li>
+  <li><strong>Efficiency refinement layer</strong>: SAPM-DLL, EET</li>
+  <li><strong>Limit/constraint layer</strong>: GPSS, TRL/FACT, WP Calc</li>
+  <li><strong>Apply layer</strong>: AGV (Acode-initiated GV sequence)</li>
+</ul>
+<div class="acode"><strong>Acode (ACP) owns</strong> — local, per-core dynamic computation: thread request processing, resolved thread/core request, APS, SAPM-DLL, EET, local clipping against provided ceilings/floors, AGV initiation.</div>
+<div class="pcode"><strong>pCode / SoC owns</strong> — global slow constraints: PECI/PKG/BIOS global source resolution, TRL/FACT tables, WP4 row writes, slow-limit resolution into WP1.Fceil and F_floor.</div>
+<p style="margin-top:8px;font-size:12px;color:#555;">Key architectural principle: <em>ACP/Acode computes the local requested operating point; pCode provides the global envelope and slow constraints.</em></p>
+</div>
+<div class="card">
+<h2>ACP Interaction with P-State Stack (from ACP PM HAS)</h2>
+<table>
+<tr><th style="width:14%">Feature</th><th style="width:8%">Owner</th><th style="width:36%">GLC ACP (Intercept)</th><th style="width:42%">ACP Long Term</th></tr>
+<tr><td><strong>Legacy P-state</strong></td><td><span class="badge-acode">Acode</span></td><td>Same as Legacy</td><td>Acode processes thread_reqs, computes resolved thread_req and core_req. Uses freq_deration factor from EET. Exposes resolved P_req to SoC.</td></tr>
+<tr><td><strong>HWP Native</strong></td><td><span class="badge-acode">Acode</span></td><td>Same as Legacy (with P04 guardrail)</td><td>Acode owns HWP. Processes OS thread req (min, max, desired, EPP, AW). Computes thread &amp; core min/max. Computes resolved thread_req and core_req. Writes Thread0 MSR (Min, Max, Req, EPB). Exposes &quot;core efficiency&quot; metric to SoC.</td></tr>
+<tr><td><strong>HWP PECI Override</strong></td><td><span class="badge-shared">Shared</span></td><td>Same as Legacy</td><td>pCode handles PECI write, broadcasts to HWP Global CCP CR. pCode resolves all global sources (PKG, PECI, BIOS) into single value. Acode reads HWP_REQ + HWP_GLOBAL to calculate min, max, req, EPP.</td></tr>
+<tr><td><strong>UBPS / APS</strong></td><td><span class="badge-acode">Acode</span></td><td>Same as Legacy</td><td>APS runs in Acode Slowloop. Processes resolved thread EPP, thread/core C0 cycles, ubps_gain, ratio_decay, AW. Computes thread/core utilization. Calculates aps_thread_ratio[t] as thread_req. Output of APS is input to HWP — no visible outputs to CCP.</td></tr>
+<tr><td><strong>EET</strong></td><td><span class="badge-acode">Acode</span></td><td>Same as Legacy</td><td>EET moves to Acode Slowloop. Processes core stall count, L1/L2/L3 stall cycles, SQ Occupancy. Computes avg core scalability via table lookup. Computes freq_deration_factor[c] using resolved EPB from SAPM-DLL. freq_deration_factor[c] is input to Autonomous HWP / Legacy P-state.</td></tr>
+<tr><td><strong>SAPM-DLL</strong></td><td><span class="badge-acode">Acode</span></td><td>Same as Legacy</td><td>SAPM-DLL moves into Acode. Processes thread C0 cycles and resolved thread_req. Computes avg_thread_c0 / avg_thread_c0p0 cycles. Uses ratio and thread_epb[t] to compute resolved_thread_epb and resolved_core_epb = min(thread_epb). Exposes resolved_core_epb to SoC.</td></tr>
+<tr><td><strong>GPSS</strong></td><td><span class="badge-acode">Acode (opt)</span></td><td>Same as Legacy</td><td>GPSS will not exist at global level — only slow limits resolve into WP1.Fceil or F_floor CR. ACP may or may not implement GPSS — IP decision.</td></tr>
+<tr><td><strong>TRL / FACT</strong></td><td><span class="badge-pcode">pCode</span></td><td>Resolved using WP4</td><td>TRL and FACT tables remain with pCode. pCode is unaware of Core License. pCode looks at #ActiveCCPs and #HP/LP cores, takes Max(TRL, FACT) rows, sends entire row as WP4 write to all HP/LP cores.</td></tr>
+<tr><td><strong>WP Calc</strong></td><td><span class="badge-shared">Shared</span></td><td>Same as Legacy</td><td>All global slow limits reside in pCode. pCode writes WP1.Fceil and F_floor. Acode clips resolved core_req[c] against WP1.Fceil, WP4 limits, F_floor. Acode needs to know which algorithms can override Fceil/F_floor (e.g. TRL, IccMax). Acode initiates AGV to apply V&amp;F corresponding to resolved_core_req[c].</td></tr>
+</table>
+</div>
+<div class="card">
+<h2>P-State Stack Layers — Algorithm Decomposition</h2>
+
+<h3>Layer A — Request / Resolution</h3>
+<p>Establishes the effective min/max/request/EPP inputs that enter the algorithm stack.</p>
+<table>
+<tr><th>Feature</th><th>Owner</th><th>Inputs</th><th>Output</th><th>Key MSR</th></tr>
+<tr><td>Legacy P-state (EIST)</td><td><span class="badge-acode">Acode</span></td><td>IA32_PERF_CTL (0x199)</td><td>thread_req</td><td>0x199 / 0x198</td></tr>
+<tr><td>HWP Native</td><td><span class="badge-acode">Acode</span></td><td>IA32_HWP_REQUEST (0x774) Min/Max/Desired/EPP/AW</td><td>resolved_thread_req, resolved_core_req</td><td>0x774 / 0x198</td></tr>
+<tr><td>HWP PECI Override</td><td><span class="badge-shared">pCode+Acode</span></td><td>PECI write / PKG / BIOS override</td><td>HWP_GLOBAL CCP CR (pCode) → Acode reads and resolves</td><td>0x772 / TPMI</td></tr>
+</table>
+
+<h3>Layer B — Autonomous Selection (DESIRED = 0 path)</h3>
+<p>APS computes <code>aps_thread_ratio[t]</code> which becomes the thread request. Output of APS is input to HWP — no visible outputs to CCP.</p>
+<table>
+<tr><th>Feature</th><th>Owner</th><th>Inputs</th><th>Output</th></tr>
+<tr><td>UBPS / APS</td><td><span class="badge-acode">Acode Slowloop</span></td><td>resolved_thread_EPP, thread C0 cycles, core C0 cycles, ubps_gain, ratio_decay, AW</td><td>aps_thread_ratio[t] → thread_req (feeds Layer A HWP)</td></tr>
+</table>
+
+<h3>Layer C — Efficiency Refinement</h3>
+<p>Resolves EPB context and optionally derates the core request based on workload scalability. EET can REDUCE frequency — never increase it.</p>
+<table>
+<tr><th>Feature</th><th>Owner</th><th>Inputs</th><th>Output</th></tr>
+<tr><td>SAPM-DLL</td><td><span class="badge-acode">Acode</span></td><td>thread C0 cycles, resolved thread_req, thread_epb[t]</td><td>resolved_thread_epb, resolved_core_epb (exposed to SoC)</td></tr>
+<tr><td>EET</td><td><span class="badge-acode">Acode Slowloop</span></td><td>core stall count, L1/L2/L3 stall cycles, SQ occupancy, resolved_core_epb</td><td>freq_deration_factor[c] → input to HWP / Legacy P-state</td></tr>
+</table>
+
+<h3>Layer D — Limit / Constraint</h3>
+<p>Global slow limits from pCode bound the locally-computed request. Acode must clip its resolved_core_req against these before initiating AGV.</p>
+<table>
+<tr><th>Feature</th><th>Owner</th><th>Inputs</th><th>Output</th></tr>
+<tr><td>GPSS</td><td><span class="badge-acode">Acode (optional)</span></td><td>Only slow limits go global — may be IP decision</td><td>WP1.Fceil or F_floor contribution</td></tr>
+<tr><td>TRL / FACT</td><td><span class="badge-pcode">pCode</span></td><td>#ActiveCCPs, #HP/LP cores</td><td>WP4 row written to all HP/LP cores</td></tr>
+<tr><td>WP Calc</td><td><span class="badge-pcode">pCode (slow) + Acode (clip)</span></td><td>All global slow limits</td><td>WP1.Fceil (ceiling), F_floor (floor) → CR written by pCode; Acode clips local req</td></tr>
+</table>
+
+<h3>Layer E — Apply V/F</h3>
+<table>
+<tr><th>Feature</th><th>Owner</th><th>Inputs</th><th>Output</th></tr>
+<tr><td>AGV (GV sequence)</td><td><span class="badge-acode">Acode</span></td><td>resolved_core_req[c] after clipping</td><td>Core FIVR + PLL transition → applied V/F; observable via IA32_PERF_STATUS</td></tr>
+</table>
+</div>
+<div class="card">
+<h2>P-State Stack — Full Algorithm Flow Box Diagram</h2>
+<p style="margin-bottom:8px;">End-to-end dataflow from OS/BMC inputs through all five stack layers to applied V/F. <span style="color:#38a169;font-weight:600">Green</span> = Acode-owned. <span style="color:#3182ce;font-weight:600">Blue</span> = pCode-owned. <span style="color:#fc8181;font-weight:600">Red</span> = gaps in NWP validation coverage.</p>
+<pre class="flow">
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+NWP P-STATE STACK — FULL ALGORITHM FLOW (ACP Long Term)
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+                    ┌──────────────────────────────────────────────┐
+                    │  <span style="color:#fbd38d">OS / BIOS / OOB / PECI INPUTS</span>                │
+                    ├──────────────────────────────────────────────┤
+                    │  <span style="color:#fbd38d">IA32_PERF_CTL (0x199)</span>  Legacy P-state      │
+                    │  <span style="color:#fbd38d">IA32_HWP_REQUEST (0x774)</span>  HWP Native         │
+                    │    Min | Max | Desired | EPP | AW         │
+                    │  <span style="color:#fbd38d">IA32_HWP_REQUEST_PKG (0x772)</span>  Package level  │
+                    │  PECI / BIOS / OOB overrides               │
+                    └──────────────────────┬───────────────────────┘
+                                       │
+                                       v
+
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+LAYER A — REQUEST / RESOLUTION                                    <span style="color:#68d391">✔ Acode owns</span>
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ pCode resolves global sources (PKG / PECI / BIOS) → writes HWP_GLOBAL CCP CR        │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Acode reads HWP_REQ + HWP_GLOBAL → resolves per-thread min, max, req, EPP, AW     │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Legacy path: Acode processes thread_req from IA32_PERF_CTL                             │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│     <span style="color:#fc8181;font-weight:600">◆ DESIRED == 0 ?</span>  YES → APS path (Layer B)   |   NO → use explicit desired     │
+└────────────────────────────────────────────────┬───────────────────────────────────────────────┘
+                                                │
+                                                v
+
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+LAYER B — AUTONOMOUS SELECTION (APS / UBPS)                       <span style="color:#68d391">✔ Acode Slowloop</span>
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ APS inputs: resolved_thread_EPP  |  thread C0 cycles  |  core C0 cycles              │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│            ubps_gain  |  ratio_decay  |  Activity Window                               │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Utilization: thread_instant_util → EWMA → thread_avg_util                            │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   <span style="color:#fc8181;font-weight:600">◆ Rocket: util > threshold AND EPP=0</span>  YES → aps_ratio=max_turbo  |  NO → UBPS   │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ UBPS: gain_term = ubps_gain x avg_util x ratio   |   decay_term = ratio_decay x ratio  │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│       aps_thread_ratio[t] = max(ceil(gain), floor(decay))                                │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Output: aps_thread_ratio[t] → thread_req (feeds Layer A HWP)  No output to CCP   │
+└────────────────────────────────────────────────┬───────────────────────────────────────────────┘
+                                                │
+                                                v
+
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+LAYER C — EFFICIENCY REFINEMENT (SAPM-DLL + EET)                  <span style="color:#fc8181;font-weight:600">❌ G1 G7 gaps</span>
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ SAPM-DLL: thread C0 cycles + resolved thread_req + thread_epb[t]                        │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   → resolved_thread_epb, resolved_core_epb = min(thread_epb)                       │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   → exposes resolved_core_epb to SoC                                                     │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ EET: core stall count  |  L1/L2/L3 stall cycles  |  SQ occupancy                      │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   → avg core scalability (table lookup) → freq_deration_factor[c]             │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   freq_deration_factor[c] → input to HWP + Legacy P-state  (REDUCE only)           │
+└────────────────────────────────────────────────┬───────────────────────────────────────────────┘
+                                                │
+                                                v
+
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+LAYER D — LIMIT / CONSTRAINT (WP Calc + TRL/FACT)                 <span style="color:#fc8181;font-weight:600">❌ G2 G3 G4 gaps</span>
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ <span style="color:#76e4f7">pCode (global slow loop):</span> resolves all slow limits → writes WP1.Fceil + F_floor CRs   │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   TRL/FACT tables: pCode takes Max(TRL, FACT) row, writes entire row as WP4            │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ <span style="color:#76e4f7">Acode (local):</span> clips resolved_core_req[c] against WP1.Fceil, WP4, F_floor      │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   Note: TRL, IccMax can override Fceil — Acode must know which algorithms can do this  │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   RAPL PL1/PL2 limits from PrimeCode also cap TRL headroom                             │
+└────────────────────────────────────────────────┬───────────────────────────────────────────────┘
+                                                │
+                                                v
+
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+LAYER E — APPLY V/F (AGV)
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Acode initiates AGV (Geyserville) to apply V&F for resolved_core_req[c]               │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Core FIVR + PLL transition (voltage-first on up, frequency-first on down)              │
+└────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  → Observable via <span style="color:#fbd38d">IA32_PERF_STATUS (0x198)</span>  |  <span style="color:#fbd38d">IA32_HWP_STATUS (0x777)</span>  |  PLR (0x64F)
+
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+INTERFACE BOUNDARIES
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+  OS/BMC  →  [MSR 0x774 / TPMI]  →  pCode resolves globals  →  HWP_GLOBAL CCP CR
+                                                   →  Acode reads per-thread + global  →  resolved_thread_req
+                                                                            →  APS  →  aps_thread_ratio[t]
+                                                                                        →  SAPM-DLL  →  resolved_core_epb (to SoC)
+                                                                                        →  EET  →  freq_deration_factor[c]
+                                                            pCode: WP1.Fceil + F_floor  →  [CR writes]
+                                                            pCode: WP4 row              →  [CR writes to CCP]
+                                                                            Acode clips →  resolved_core_req[c]
+                                                                            Acode AGV   →  applied V/F
+</pre>
+<p style="font-size:11px;color:#888;margin-top:4px;">Source: ACP PM HAS (Autonomous Core Perimeter PM HAS) &bull; NWP PM MAS &bull; CBB PEGA HAS</p>
+</div>
+<div class="card">
+<h2>Practical Interpretation &amp; Validation Guidance</h2>
+<h3>What each layer answers</h3>
+<table>
+<tr><th>Layer</th><th>Question it answers</th><th>Owner</th><th>NWP Gap</th></tr>
+<tr><td>Legacy P-state / HWP Native</td><td>"What did the OS ask for?"</td><td><span class="badge-acode">Acode</span></td><td>&#10003; Well covered</td></tr>
+<tr><td>PECI Override</td><td>"Did an external agent override the OS request?"</td><td><span class="badge-shared">pCode+Acode</span></td><td>&#10003; Well covered</td></tr>
+<tr><td>APS / UBPS</td><td>"What frequency should autonomous HWP autonomously target?"</td><td><span class="badge-acode">Acode</span></td><td>&#10003; Well covered</td></tr>
+<tr><td>SAPM-DLL</td><td>"Should internal EPB switch toward performance mode?"</td><td><span class="badge-acode">Acode</span></td><td><span style="color:#e53e3e">&#10007; G7 — not tested with HWP active</span></td></tr>
+<tr><td>EET</td><td>"Given scalability and EPB, should we derate frequency?"</td><td><span class="badge-acode">Acode</span></td><td><span style="color:#e53e3e">&#10007; G1 — not tested with HWP active</span></td></tr>
+<tr><td>WP Calc / TRL / FACT</td><td>"What is the legal maximum frequency the platform allows?"</td><td><span class="badge-pcode">pCode</span> + <span class="badge-acode">Acode clips</span></td><td><span style="color:#e53e3e">&#10007; G2 RAPL, G3 Thermal, G4 C-state</span></td></tr>
+<tr><td>AGV</td><td>"Apply the final operating point."</td><td><span class="badge-acode">Acode</span></td><td>&#10003; Not a gap (execution, not selection)</td></tr>
+</table>
+<h3>Effective order</h3>
+<div class="acode">
+APS selects autonomous target (Layer B)<br>
+&nbsp;&nbsp;&rarr; SAPM-DLL resolves bias context (Layer C)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&rarr; EET computes deration factor (Layer C)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rarr; pCode slow limits clip to WP1.Fceil / WP4 / F_floor (Layer D)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rarr; Acode clips resolved_core_req and initiates AGV (Layer E)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rarr; Final ratio applied via Core FIVR + PLL
+</div>
+<h3>Key MSRs and interfaces</h3>
+<table>
+<tr><th>MSR / Register</th><th>Address</th><th>Owner</th><th>Role in Stack</th></tr>
+<tr><td>IA32_PERF_CTL</td><td>0x199</td><td>OS write / Acode exec</td><td>Legacy P-state request</td></tr>
+<tr><td>IA32_PM_ENABLE</td><td>0x770</td><td>BIOS (write-once)</td><td>Enables HWP mode</td></tr>
+<tr><td>IA32_HWP_CAPABILITIES</td><td>0x771</td><td>pCode/Acode expose</td><td>P0n, P1, Pn bounds</td></tr>
+<tr><td>IA32_HWP_REQUEST_PKG</td><td>0x772</td><td>OS / OOB write; pCode resolves</td><td>Package-level HWP policy</td></tr>
+<tr><td>IA32_HWP_REQUEST</td><td>0x774</td><td>OS write; Acode processes</td><td>Min/Max/Desired/EPP/AW per thread</td></tr>
+<tr><td>IA32_ENERGY_PERF_BIAS</td><td>0x1B0</td><td>OS / OOB; Acode uses</td><td>EPB (4-bit) input to SAPM-DLL + EET</td></tr>
+<tr><td>IA32_PERF_STATUS</td><td>0x198</td><td>Acode writes (via GV)</td><td>Current applied ratio — OS observability</td></tr>
+<tr><td>IA32_HWP_STATUS</td><td>0x777</td><td>Acode updates</td><td>HWP state change notification</td></tr>
+<tr><td>CORE_PERF_LIMIT_REASONS</td><td>0x64F</td><td>pCode/Acode writes</td><td>PLR — diagnostic for all limiting reasons</td></tr>
+<tr><td>WP1.Fceil / F_floor</td><td>CCP CR</td><td>pCode writes; Acode reads</td><td>Slow-limit ceiling/floor — Acode clips against these</td></tr>
+<tr><td>WP4</td><td>CCP CR</td><td>pCode writes</td><td>TRL/FACT row — Acode clips against this</td></tr>
+</table>
+</div>
+<div class="card" style="background:#f8fafc;border-color:#cce4f7;">
+<h2>Sources</h2>
+<ul>
+  <li><a href="https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Autonomous%20Core%20Perimeter/Autonomous%20Core%20Perimeter%20PM%20HAS.html">ACP PM HAS — Autonomous Core Perimeter PM HAS</a> (primary: ACP P-state stack table)</li>
+  <li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/Features/PEGA/PEGA.html">CBB PEGA HAS</a> (pCode P-state engine)</li>
+  <li>NWP PM MAS (Newport Power Management MAS — P-state stack unchanged from DMR)</li>
+  <li>KB: pstate_stack_main.md, pstate_hwp.md, pstate_eet.md, pstate_epb_and_sapm_dll.md</li>
+  <li>Intel SDM: IA32_HWP_REQUEST, IA32_PERF_STATUS, IA32_ENERGY_PERF_BIAS</li>
+</ul>
+</div>
+</div></body></html>

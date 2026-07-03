@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>NWP ITD Validation Gap Analysis</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",Arial,sans-serif;background:#f0f4f9;font-size:13px;color:#1f2937;}
+.hdr{background:#0f4c81;color:#fff;padding:16px 28px;}
+.hdr h1{font-size:20px;font-weight:600;}
+.hdr .meta{font-size:12px;opacity:.82;margin-top:4px;}
+.wrap{max-width:1200px;margin:20px auto;padding:0 18px 50px;}
+.card{background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;margin-bottom:18px;}
+h2{color:#0f4c81;font-size:15px;font-weight:700;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #cce4f7;}
+h3{color:#1a5fa8;font-size:13px;font-weight:700;margin:14px 0 5px;}
+p{margin:6px 0;line-height:1.65;}
+ul{margin:6px 0 8px 22px;line-height:1.75;}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:12px;}
+th{background:#e8f0fe;color:#0f4c81;padding:7px 10px;text-align:left;border:1px solid #c8d9f0;font-weight:600;}
+td{padding:7px 10px;border:1px solid #d9e2ec;vertical-align:top;line-height:1.55;}
+tr:nth-child(even) td{background:#f8fafc;}
+code{background:#f3f6fb;border:1px solid #d9e2ec;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:11px;}
+.ok{background:#c8e6c9;color:#1b5e20;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;}
+.gap{background:#ffcdd2;color:#b71c1c;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;}
+.partial{background:#fff9c4;color:#f57f17;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;}
+.p1{background:#ffcdd2;color:#b71c1c;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;}
+.p2{background:#fff3e0;color:#e65100;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;}
+.p3{background:#e8f5e9;color:#1b5e20;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:700;}
+.acode{background:#e6f9f0;color:#1a6640;border-left:4px solid #38a169;padding:10px 14px;margin:8px 0;border-radius:0 4px 4px 0;font-size:12px;}
+.pcode{background:#e8f0fe;color:#1a4a8a;border-left:4px solid #3182ce;padding:10px 14px;margin:8px 0;border-radius:0 4px 4px 0;font-size:12px;}
+.warn{background:#fffbeb;border-left:4px solid #d69e2e;padding:10px 14px;margin:8px 0;border-radius:0 4px 4px 0;font-size:12px;color:#7d5a00;}
+pre.flow{background:#1a202c;color:#e2e8f0;border-radius:8px;padding:18px 22px;font-family:Consolas,monospace;font-size:11px;line-height:1.55;overflow-x:auto;margin:12px 0;}
+</style></head>
+<body>
+<div class="hdr">
+  <h1>NWP ITD (Inverse Temperature Dependence) &mdash; Validation Gap Analysis</h1>
+  <div class="meta">TCD: 22022420603 &bull; Parent TP: 16030763137 [NWP PM Thermal Management] &bull; Complexity: Medium-High &bull; Source: ITD HAS + NWP PM MAS + KB:itd.md &bull; 2026-07</div>
+</div>
+<div class="wrap">
+<div class="card">
+<h2>What is ITD?</h2>
+<p><strong>ITD (Inverse Temperature Dependence)</strong> is a <strong>temperature-dependent voltage compensation mechanism</strong> — not a frequency-throttle feature. It corrects per-domain FIVR/MBVR voltage targets to track the physics of how transistor behavior changes with temperature at low voltages.</p>
+<p><strong>Physics basis</strong>: At low voltages, carrier mobility increases as temperature drops (beneficial), but threshold voltage also increases (harmful). Below the ITD crossover point, the net effect is that <em>cold silicon needs more voltage at the same frequency</em>. Without dynamic compensation, a fixed worst-case static guardband wastes significant power margin at nominal temperatures.</p>
+<h3>Algorithm (per-domain, per evaluation tick)</h3>
+<div class="acode">
+  V_comp = slope &times; (ITD_CUTOFF_V &minus; V_uncompensated) &times; (ITD_CUTOFF_TJ &minus; T_DTS)<br>
+  Dual-slope: slope1 if V &lt; ITD_CUTOFF_V_X, slope2 if V &ge; ITD_CUTOFF_V_X<br>
+  True TD (TTD): negative compensation for hot silicon (enabled by TRUE_TD_ENABLE fuse)<br>
+  Result written to: <code>RESCTRL_CR_VOLTAGE_OFFSET.OFFSET</code> per RC channel
+</div>
+<h3>Complexity Rating: <span style="color:#c53030;font-weight:700">Medium-High</span></h3>
+<ul>
+  <li><strong>Algorithmic</strong>: 2-slope piecewise + True TD + per-domain fuse interpretation</li>
+  <li><strong>Domain/rail mapping</strong>: 3 firmware agents, 12+ domains, NWP adds VCCCAB + VCCC2CDIG</li>
+  <li><strong>Interaction</strong>: PkgC, D2D handshake, reset/unwind, DCM concurrency</li>
+  <li><strong>Validation</strong>: Not smoke-test only — requires algorithm correctness + electrical + interaction testing</li>
+  <li><strong>Estimate</strong>: ~3 weeks class feature</li>
+</ul>
+</div>
+<div class="card">
+<h2>ITD Domain Map &mdash; Owner &amp; Mechanism</h2>
+<table>
+<tr><th style="width:14%">Domain / Rail</th><th style="width:10%">Owner</th><th style="width:12%">Mechanism</th><th style="width:18%">DTS Source</th><th style="width:14%">Timing</th><th style="width:12%">NWP Delta</th><th style="width:20%">Gaps</th></tr>
+<tr><td><code>VCCCORE</code> (per-core FIVR)</td><td>Acode (CCP)</td><td>RC V_OFFSET</td><td>Core DTS Gen2.6 (per-core); DTD non-sticky &plusmn;3&deg;C</td><td>Interrupt: ~30&ndash;60&mu;S; Periodic: ~300&mu;S</td><td>Same as DMR</td><td><span class="gap">G1: interrupt path</span> <span class="gap">G2: periodic path</span></td></tr>
+<tr><td><code>VCCMLC_SSA</code> (FIVR)</td><td>Acode (CCP)</td><td>RC V_OFFSET</td><td>Same as VccCore (shared fuses)</td><td>Same as VccCore</td><td>Same as DMR</td><td><span class="gap">G2: coverage</span></td></tr>
+<tr><td><code>VCCR</code> (CCF, 8 domains)</td><td>CBB PCode</td><td>RC V_OFFSET</td><td>PCU_CR_DTS_TEMP_CCF (4 shadows &times; 2 FIVRs)</td><td>~1 mS slow loop</td><td>Same as DMR</td><td><span class="gap">G3: slope1/slope2 boundary</span></td></tr>
+<tr><td><code>VCCC2IA</code> (UCIe/D2D)</td><td>CBB PCode</td><td>RC V_OFFSET</td><td>SOC DTS Gen1</td><td>One-time at PH2.40 (boot)</td><td>Same as DMR</td><td><span class="gap">G4: boot-time ITD + D2D handshake</span></td></tr>
+<tr><td><code>VCCINF</code> (MBVR)</td><td>PrimeCode (root IMH)</td><td>Dispatcher WP &rarr; SVID</td><td>CBB min-temp via SOCKET_THERMAL HPM</td><td>~1 mS slow loop</td><td>Same as DMR</td><td><span class="gap">G5: MBVR path</span></td></tr>
+<tr><td><code>VCCCFCMEM_W/E</code> (FIVR)</td><td>PrimeCode</td><td>RC V_OFFSET</td><td>IMH DTS (RC 0x7E00/0x7E04)</td><td>~1 mS slow loop</td><td>Same as DMR</td><td><span class="gap">G6</span></td></tr>
+<tr><td><code>VCCCFCIO</code> (FIVR)</td><td>PrimeCode</td><td>GV path</td><td>IMH DTS</td><td>~1 mS slow loop</td><td>Same as DMR</td><td><span class="gap">G6</span></td></tr>
+<tr><td><code>VCCCAB / VCCC2CDIG</code> (FIVR)</td><td>PrimeCode / Acode</td><td>RC V_OFFSET</td><td>DTS mapping TBD (MAS TODO)</td><td>TBD</td><td><span style="color:#c53030;font-weight:700">NWP NEW</span></td><td><span class="gap">G11: new domain bring-up</span></td></tr>
+<tr><td><code>VCCFIXDIG / VCCUCIEA</code> (FIVR)</td><td>PrimeCode</td><td>RC V_OFFSET</td><td>IMH DTS</td><td>N/A (slope=0)</td><td>ITD_SLOPE=0 in production</td><td>No test needed (fuse=0)</td></tr>
+</table>
+</div>
+<div class="card">
+<h2>Validation Gap Table (12 Gaps)</h2>
+<table>
+<tr><th>Gap</th><th>Area</th><th>What is Missing</th><th>Priority</th><th>Complexity</th><th>Phase</th></tr>
+<tr>
+  <td><strong>G1</strong></td>
+  <td>Core Acode ITD &mdash; Interrupt Path</td>
+  <td>Verify DTD non-sticky &plusmn;3&deg;C threshold triggers Acode ITD recalc; verify RESCTRL_CR_VOLTAGE_OFFSET.OFFSET updated within ~30&ndash;60&mu;S; verify correct slope/compensation applied at interrupt</td>
+  <td><span class="p1">P1</span></td><td>Medium</td><td>Phase 2a</td>
+</tr>
+<tr>
+  <td><strong>G2</strong></td>
+  <td>Core Acode ITD &mdash; Periodic Path</td>
+  <td>Verify periodic ~300&mu;S Acode ITD recalc; verify compensation tracks temperature ramp at baseline; verify VCCCORE and VCCMLC_SSA both updated</td>
+  <td><span class="p1">P1</span></td><td>Low-Medium</td><td>Phase 2a</td>
+</tr>
+<tr>
+  <td><strong>G3</strong></td>
+  <td>CBB PCode CCF ITD &mdash; Dual-Slope Boundary</td>
+  <td>Verify slope1/slope2 selection at ITD_CUTOFF_V_X boundary; verify all 8 VCCR domains compensated independently; verify correct fuse (ITD_SLOPE/SLOPE2) applied per domain</td>
+  <td><span class="p1">P1</span></td><td>Medium</td><td>Phase 2a</td>
+</tr>
+<tr>
+  <td><strong>G4</strong></td>
+  <td>UCIe Boot-Time ITD + D2D Handshake</td>
+  <td>Verify VCCC2IA one-time ITD at PH2.40 before D2D training; verify PHY calibration handshake on voltage change; verify ~11.7% UCIe power saving vs worst-case boot voltage</td>
+  <td><span class="p1">P1</span></td><td>High</td><td>Phase 2b</td>
+</tr>
+<tr>
+  <td><strong>G5</strong></td>
+  <td>PrimeCode VCCINF ITD (MBVR Path)</td>
+  <td>Verify PrimeCode receives CBB min-temp via SOCKET_THERMAL HPM; verify VCCINF compensation via Dispatcher WP &rarr; SVID Controller; verify MBVR voltage offset tracking with temperature change</td>
+  <td><span class="p1">P1</span></td><td>Medium-High</td><td>Phase 2a</td>
+</tr>
+<tr>
+  <td><strong>G6</strong></td>
+  <td>PrimeCode VCCCFCMEM / VCCCFCIO ITD</td>
+  <td>Verify VCCCFCMEM_W/E (RC V_OFFSET) and VCCCFCIO (GV path) compensation via IMH DTS; verify domain-specific slope fuses applied correctly; verify IMH DTS min-temp selection from 5 RC channels</td>
+  <td><span class="p2">P2</span></td><td>Medium</td><td>Phase 2b</td>
+</tr>
+<tr>
+  <td><strong>G7</strong></td>
+  <td>True TD (TTD) / Negative Compensation</td>
+  <td>Verify TRUE_TD_ENABLE fuse gates TTD path; verify negative voltage compensation applied for hot silicon (above crossover); verify NEGATIVE_ITD_DISABLED OC mailbox disables TTD at runtime</td>
+  <td><span class="p2">P2</span></td><td>Medium</td><td>Phase 2b</td>
+</tr>
+<tr>
+  <td><strong>G8</strong></td>
+  <td>PkgC Interaction</td>
+  <td>Verify ITD worst-case compensation is calculated for idle voltage during PkgC entry; verify ITD behavior persists / resumes correctly after PkgC exit; verify no ITD-induced voltage spike on C-state exit</td>
+  <td><span class="p1">P1</span></td><td>High</td><td>Phase 2b</td>
+</tr>
+<tr>
+  <td><strong>G9</strong></td>
+  <td>Reset / Unwind Path</td>
+  <td>Verify ITD is safely disabled/unwound before reset flows; verify RESCTRL_CR_VOLTAGE_OFFSET.OFFSET cleared on reset; verify no voltage overshoot after ITD disable during warm reset / unwind</td>
+  <td><span class="p1">P1</span></td><td>High</td><td>Phase 2b</td>
+</tr>
+<tr>
+  <td><strong>G10</strong></td>
+  <td>DTS Sensor Mask / MIN_ACCURATE_TEMP</td>
+  <td>Verify disabled DTS sensors are masked from ITD calculation; verify MIN_ACCURATE_TEMP clamp applied before compensation math; verify ITD_MIN_OVERRIDE_TEMP fuse behavior</td>
+  <td><span class="p2">P2</span></td><td>Low</td><td>Phase 2a</td>
+</tr>
+<tr>
+  <td><strong>G11</strong></td>
+  <td>NWP New Domains: VCCCAB + VCCC2CDIG</td>
+  <td>Verify ITD support on 2 new NWP FIVR domains (MAS TODO: DTS mapping to be finalized); verify correct DTS-to-domain assignment; verify compensation math correct on new domains</td>
+  <td><span class="p1">P1</span></td><td>High</td><td>Phase 2b &mdash; depends on MAS TODO resolution</td>
+</tr>
+<tr>
+  <td><strong>G12</strong></td>
+  <td>ITD vs DVFS Concurrency (D2D)</td>
+  <td>Verify ITD voltage change does not conflict with concurrent DVFS/P-state transitions on shared rails; verify D2D handshake serialization for voltage-only ITD changes; verify no mutex violation with retraining/L1 flows</td>
+  <td><span class="p2">P2</span></td><td>High</td><td>Phase 2c</td>
+</tr>
+</table>
+</div>
+<div class="card">
+<h2>ITD Hierarchical Flow &mdash; Box Diagram (3 Agents)</h2>
+<p style="margin-bottom:8px;">Three firmware agents split ITD ownership across die hierarchy. <span style="color:#fc8181;font-weight:600">Red</span> = gap in current NWP validation coverage.</p>
+<pre class="flow">
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+NWP ITD — HIERARCHICAL VOLTAGE COMPENSATION FLOW
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+                   ┌────────────────────────────────────────────────┐
+                   │  <span style="color:#fbd38d">FUSE INPUTS (programmed at HVM)</span>             │
+                   ├────────────────────────────────────────────────┤
+                   │  ITD_SLOPE_1 / SLOPE_2 (per domain)        │
+                   │  ITD_CUTOFF_TJ   (temperature threshold)    │
+                   │  ITD_CUTOFF_V / V2 / V_X (voltage thresholds)│
+                   │  TRUE_TD_ENABLE  (negative comp gate)       │
+                   └────────────────────────┬───────────────────────┘
+                                    │
+                                    v
+
+      ┌────────────────────────────────┐                  ┌────────────────────────────────┐
+      │  <span style="color:#fbd38d">Core DTS Gen2.6</span>           │  <span style="color:#fbd38d">CBB SOC/CCF DTS Gen1</span>      │
+      │  DTD non-sticky ±3°C      │  PCU_CR_DTS_TEMP_CCF[N]    │
+      └───────────────┬────────────────┘   └───────────────┬────────────────┘
+
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+LAYER 1 — ACODE (PER-CORE, AUTONOMOUS)                          <span style="color:#68d391">✔ VCCCAB TBD (G11)</span>
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Domain: VCCCORE + VCCMLC_SSA (per-core FIVR)                                             │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Interrupt path: DTD non-sticky ±3°C  → recalc in ~30–60 μS               <span style="color:#fc8181;font-weight:600">← G1</span>   │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Periodic path: ~300 μS (folded into Acode WP recalc per DCM)                <span style="color:#fc8181;font-weight:600">← G2</span>   │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ V_comp = slope × (ITD_CUTOFF_V − V) × (ITD_CUTOFF_TJ − T_DTS)                             │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Dual-slope: slope1 if V < ITD_CUTOFF_V_X   |   slope2 if V ≥ ITD_CUTOFF_V_X            │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ True TD: negative comp if hot + TRUE_TD_ENABLE fuse set                    <span style="color:#fc8181;font-weight:600">← G7</span>   │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Result: CORE_PMA_CR write → RESCTRL_CR_VOLTAGE_OFFSET.OFFSET per core FIVR         │
+└────────────────────────────────────────────────────────────────────────────────────────────────┘
+                                                │
+                                                v
+
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+LAYER 2 — CBB PCODE (~1 mS slow loop)                           <span style="color:#fc8181;font-weight:600">❌ G3 G4 gaps</span>
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Domain: VCCR CCF (8 FIVR domains, 4 top-die shadows × 2 FIVRs)              <span style="color:#fc8181;font-weight:600">← G3</span>   │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   min(PCU_CR_DTS_TEMP_CCF[N]) per domain  → apply ITD_SLOPE_1/SLOPE_2               │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   dual-slope boundary at ITD_CUTOFF_V_X — verify correct slope selection                    │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Domain: VCCC2IA UCIe/D2D  — one-time at PH2.40 (boot)                      <span style="color:#fc8181;font-weight:600">← G4</span>   │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   one-time ITD before D2D PHY training  → D2D handshake for PHY calibration         │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   saves ~11.7% UCIe power vs worst-case fixed boot voltage                                   │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   CBB sends min_temp to root via SOCKET_THERMAL HPM for VCCINF                               │
+└────────────────────────────────────────────────────────────────────────────────────────────────┘
+                                                │
+                                                v
+
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+LAYER 3 — PRIMECODE / ROOT IMH (~1 mS slow loop)                <span style="color:#fc8181;font-weight:600">❌ G5 G6 G11 gaps</span>
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Domain: VCCINF (MBVR)  — receives CBB min_temp via SOCKET_THERMAL HPM       <span style="color:#fc8181;font-weight:600">← G5</span>   │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   ITD comp → Dispatcher WP → SVID Controller  (MBVR voltage update)                     │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Domain: VCCCFCMEM_W/E (FIVR)  — IMH DTS min-temp (5 RC channels, 0x7E00/0x7E04)<span style="color:#fc8181;font-weight:600">← G6</span> │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Domain: VCCCFCIO (FIVR GV path)  — IMH DTS  → GV + RC V_OFFSET             <span style="color:#fc8181;font-weight:600">← G6</span>   │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Domain: VCCFIXDIG / VCCUCIEA — ITD_SLOPE=0 in production (no compensation needed)         │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Domain: VCCCAB / VCCC2CDIG  — NWP NEW; DTS mapping TODO in MAS             <span style="color:#fc8181;font-weight:600">← G11</span>  │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Result: RESCTRL_CR_VOLTAGE_OFFSET.OFFSET per RC channel (FIVR) or Dispatcher (MBVR)     │
+└────────────────────────────────────────────────────────────────────────────────────────────────┘
+                                                │
+                                                v
+
+<span style="color:#90cdf4;font-weight:700">════════════════════════════════════════════════════════════════════════════════════════════════════
+CROSS-CUTTING FLOWS                                              <span style="color:#fc8181;font-weight:600">❌ G8 G9 G10 G12</span>
+════════════════════════════════════════════════════════════════════════════════════════════════════</span>
+
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ PkgC Interaction: calculate worst-case idle-voltage ITD at PkgC entry        <span style="color:#fc8181;font-weight:600">← G8</span>   │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   ITD must track idle voltage correctly; verify no spike on PkgC exit                        │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Reset / Unwind: ITD disabled/unwound before reset flows; OFFSET cleared       <span style="color:#fc8181;font-weight:600">← G9</span>   │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   verify no voltage overshoot when ITD offset removed during warm reset                      │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ DTS Mask: disabled DTS masked from min-temp; MIN_ACCURATE_TEMP clamp          <span style="color:#fc8181;font-weight:600">← G10</span>  │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   ITD_MIN_OVERRIDE_TEMP fuse behavior verified                                                   │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ DVFS Concurrency: ITD voltage change during concurrent DVFS / P-state        <span style="color:#fc8181;font-weight:600">← G12</span>  │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   D2D handshake serialization for voltage-only ITD changes (D2D rails)                       │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│   no mutex violation with retraining / L1 flows                                                 │
+└────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Final:  RESCTRL_CR_VOLTAGE_OFFSET applied per domain  →  FIVR/MBVR tracks temperature
+          Observable via SVID/PMBus voltage monitor (indirect)  |  PLR (no ITD PLR bit)
+</pre>
+<p style="font-size:11px;color:#888;margin-top:4px;">Source: ITD HAS &bull; ACP PM HAS &bull; DMR Thermal HAS &bull; NWP PM MAS &bull; KB:itd.md</p>
+</div>
+<div class="card">
+<h2>Proposed Validation Test Cases</h2>
+<div class="warn"><strong>Note:</strong> TCD 22022420603 is reused from DMR. The test cases below cover NWP-specific gaps (G11: new domains) and areas not explicitly covered in existing DMR-reused TCs (G4, G8, G9, G12). Verify existing TC coverage before creating new ones.</div>
+
+<h3>Phase 2a — P1 Must-Close</h3>
+<table>
+<tr><th>Proposed TC</th><th>Gap</th><th>Stimulus</th><th>Observability</th><th>Environment</th></tr>
+<tr><td>ITD-TC-01: Core ITD Interrupt Path</td><td>G1</td><td>Force DTD non-sticky &plusmn;3&deg;C threshold crossing; monitor RESCTRL_CR_VOLTAGE_OFFSET.OFFSET update within ~60&mu;S</td><td>RESCTRL_CR_VOLTAGE_OFFSET per core RC; timestamp delta</td><td>Silicon</td></tr>
+<tr><td>ITD-TC-02: Core ITD Periodic Path</td><td>G2</td><td>Ramp core temperature via workload; verify periodic OFFSET updates every ~300&mu;S; verify VCCCORE + VCCMLC_SSA both updated</td><td>RESCTRL_CR_VOLTAGE_OFFSET[VCCCORE/MLCSSA]; periodic sampling</td><td>Silicon</td></tr>
+<tr><td>ITD-TC-03: CCF Dual-Slope Boundary</td><td>G3</td><td>Configure voltage near ITD_CUTOFF_V_X; verify slope1 vs slope2 selection; verify all 8 VccR domains independent</td><td>RESCTRL_CR_VOLTAGE_OFFSET per VccR domain; compare to expected compensation math</td><td>Silicon</td></tr>
+<tr><td>ITD-TC-04: VCCINF MBVR Compensation</td><td>G5</td><td>Verify SOCKET_THERMAL HPM delivery of CBB min-temp to PrimeCode; verify VCCINF Dispatcher WP &rarr; SVID voltage update tracks temperature</td><td>SVID/PMBus voltage readback; SOCKET_THERMAL HPM trace</td><td>Silicon</td></tr>
+<tr><td>ITD-TC-05: DTS Mask + MIN_ACCURATE_TEMP</td><td>G10</td><td>Disable a DTS sensor; verify masked from ITD min-temp selection; verify MIN_ACCURATE_TEMP clamp applied</td><td>RESCTRL_CR_VOLTAGE_OFFSET unchanged when disabled DTS would have been minimum</td><td>Silicon/sim</td></tr>
+</table>
+
+<h3>Phase 2b — P1/P2 Interaction &amp; New Domains</h3>
+<table>
+<tr><th>Proposed TC</th><th>Gap</th><th>Stimulus</th><th>Observability</th><th>Environment</th></tr>
+<tr><td>ITD-TC-06: Boot-Time UCIe ITD + D2D Handshake</td><td>G4</td><td>Capture PH2.40 UCIe ITD offset applied before D2D training; verify PHY handshake ACK; measure UCIe voltage reduction vs worst-case boot</td><td>D2D handshake completion; VCCC2IA voltage at PH2.40; UCIe PHY cal status</td><td>Silicon</td></tr>
+<tr><td>ITD-TC-07: VCCCFCMEM / VCCCFCIO Compensation</td><td>G6</td><td>Force IMH temperature via heater/test mode; verify VCCCFCMEM_W/E RC V_OFFSET and VCCCFCIO GV path compensation</td><td>RESCTRL_CR_VOLTAGE_OFFSET per IMH RC channel; VCCCFCIO GV trace</td><td>Silicon</td></tr>
+<tr><td>ITD-TC-08: True TD (Negative Compensation)</td><td>G7</td><td>Enable TRUE_TD_ENABLE fuse; force hot-silicon condition; verify negative OFFSET applied; verify NEGATIVE_ITD_DISABLED OC mailbox overrides</td><td>RESCTRL_CR_VOLTAGE_OFFSET negative delta; OC mailbox write effect</td><td>Silicon</td></tr>
+<tr><td>ITD-TC-09: PkgC Interaction</td><td>G8</td><td>Enter PkgC with active ITD compensation; verify idle-voltage ITD calculated at entry; verify correct OFFSET on PkgC exit; verify no overshoot</td><td>RESCTRL_CR_VOLTAGE_OFFSET at PkgC entry/exit; SVID voltage monitor</td><td>Silicon</td></tr>
+<tr><td>ITD-TC-10: Reset / Unwind Path</td><td>G9</td><td>Trigger warm reset with active ITD offset; verify RESCTRL_CR_VOLTAGE_OFFSET cleared; verify no voltage spike; verify ITD re-activates correctly post-reset</td><td>SVID voltage trace across reset; RESCTRL_CR_VOLTAGE_OFFSET before/after</td><td>Silicon</td></tr>
+<tr><td>ITD-TC-11: NWP New Domains (VCCCAB / VCCC2CDIG)</td><td>G11</td><td>Verify ITD enabled on VCCCAB and VCCC2CDIG; verify DTS-to-domain mapping (pending MAS TODO resolution); verify compensation math correct on new domains</td><td>RESCTRL_CR_VOLTAGE_OFFSET for VCCCAB/VCCC2CDIG RCs; DTS sensor assignment</td><td>Silicon (post MAS finalization)</td></tr>
+</table>
+
+<h3>Phase 2c — Concurrency &amp; Multi-Die</h3>
+<table>
+<tr><th>Proposed TC</th><th>Gap</th><th>Stimulus</th><th>Observability</th><th>Environment</th></tr>
+<tr><td>ITD-TC-12: DVFS + ITD Concurrency (D2D Rails)</td><td>G12</td><td>Drive concurrent P-state transition and ITD voltage change on shared D2D rail; verify D2D handshake serialization; verify no mutex violation</td><td>D2D handshake ordering; voltage rail stability; no retraining/L1 flow abort</td><td>Silicon</td></tr>
+</table>
+</div>
+<div class="card">
+<h2>Scheduling Assessment</h2>
+<table>
+<tr><th>Dimension</th><th>Assessment</th><th>Rationale</th></tr>
+<tr><td>Overall complexity</td><td><span style="color:#c53030;font-weight:700">Medium-High</span></td><td>2-slope piecewise algorithm + 3 agents + 12 domains + NWP new domains + multi-die interactions</td></tr>
+<tr><td>Reuse from DMR</td><td>Moderate</td><td>Feature model and flows exist; NWP explicitly similar to DMR. But: new domains (VCCCAB, VCCC2CDIG), changed DTS mapping, D2D handshake changes</td></tr>
+<tr><td>Blocker: MAS TODO</td><td><span style="color:#c53030;font-weight:700">High risk</span></td><td>NWP PM MAS lists DTS-to-VCCCAB/VCCC2CDIG mapping as TODO — G11 cannot be validated until resolved</td></tr>
+<tr><td>Phase dependency</td><td>Phase 2b/2c</td><td>Depends on thermal/electrical bring-up maturity; D2D links up; PkgC functional</td></tr>
+<tr><td>Estimated effort</td><td><strong>~3 weeks</strong></td><td>Not a 1-week knob. 2 weeks algorithm+domain coverage + 1 week interaction/concurrency testing</td></tr>
+<tr><td>P1 gaps blocking</td><td>G1, G2, G3, G4, G5, G8, G9, G11</td><td>Core ITD + MBVR + UCIe D2D + PkgC + Reset + New Domains are all P1</td></tr>
+</table>
+</div>
+<div class="card" style="background:#f8fafc;border-color:#cce4f7;">
+<h2>Sources</h2>
+<ul>
+  <li><a href="https://docs.intel.com/documents/pm_doc/src/server/wave3_common/itd/itd_has.html">ITD HAS</a> (algorithm, fuses, domain list)</li>
+  <li><a href="https://docs.intel.com/documents/primecode/primecode_two/firmware architecture/flows - pm features/itd_page.html">PrimeCode ITD flow</a></li>
+  <li><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html">NWP IMH SoC PM MAS</a> (NWP delta, new domains, DTS TODO)</li>
+  <li><a href="https://docs.intel.com/documents/pm_doc/src/server/dmr/pm features/thermals/dmr_thermal.html">DMR Thermal HAS</a></li>
+  <li><a href="https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Socket_Thermal_Mgmt/Socket_Thermal_Mgmt_HAS.html">Socket Thermal Mgmt HAS</a></li>
+  <li><a href="https://docs.intel.com/documents/pm_doc/src/server/DMR/IP_PM_Features/D2D_PM/D2D_PM.html">D2D PM HAS</a> (D2D handshake for ITD voltage changes)</li>
+  <li><a href="https://docs.intel.com/documents/arch_datacenter/RCF/Reset/Xeon_2025_2026/Xeon_25_26_RCF_HAS.html">Reset/unwind HAS</a></li>
+  <li>TCD: <a href="https://hsdes.intel.com/appstore/article-one/#/22022420603">22022420603 [SoC Thermal Management] ITD</a> &bull; Parent TP: 16030763137</li>
+  <li>KB: itd.md &bull; soc_thermal_main.md</li>
+</ul>
+</div>
+</div></body></html>

@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TC-to-Script Alignment: Thermal Management TP 16030763137</title>
+<style>
+body {font-family: Arial, sans-serif; font-size:13px; margin:20px;}
+h1 {font-size:18px; color:#1a1a2e;}
+h2 {font-size:15px; color:#16213e; margin-top:20px;}
+.summary {display:flex; gap:20px; margin:10px 0 20px;}
+.badge {padding:8px 16px; border-radius:6px; font-weight:bold; font-size:14px;}
+.b-total {background:#e0e0e0;}
+.b-strong {background:#d4edda; color:#155724;}
+.b-weak {background:#fff3cd; color:#856404;}
+.b-none {background:#f8d7da; color:#721c24;}
+table {width:100%; border-collapse:collapse; margin-top:8px;}
+th {background:#2d3561; color:white; padding:6px 8px; text-align:left; font-size:12px;}
+td {padding:5px 8px; border-bottom:1px solid #dee2e6; font-size:12px;}
+tr.strong {background:#f0fff4;}
+tr.weak {background:#fffdf0;}
+tr.none {background:#fff5f5;}
+tr:hover {background:#e8f0fe;}
+a {color:#1a73e8;}
+</style>
+</head>
+<body>
+<h1>TC-to-Script Alignment Report: TP 16030763137 — [NWP PM] Thermal Management</h1>
+<div class="summary">
+  <div class="badge b-total">Total: 114</div>
+  <div class="badge b-strong">&#10003; STRONG: 40</div>
+  <div class="badge b-weak">&#9888; WEAK: 68</div>
+  <div class="badge b-none">&#10007; NO MATCH: 6</div>
+  <div class="badge" style="background:#e8eaf6">PSS TCs: 11</div>
+</div>
+
+<h2>&#10003; Strong Matches (40) — Script clearly implements TC intent</h2>
+<table>
+<thead><tr><th>TC ID</th><th>TC Title</th><th>Script</th><th>Score</th><th>Matched Keywords</th></tr></thead>
+<tbody><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421452" target="_blank">22022421452</a></td>
+      <td>[ACP] Verify Core EMTTM Disable</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/EMTTM_pmx.py" target="_blank">EMTTM_pmx.py</a></td>
+      <td>3</td>
+      <td>emttm, core emttm, emttm disable</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421475" target="_blank">22022421475</a></td>
+      <td>[CBB Thermal Management] Verify CBB EMTTM Disable</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalManagement.py" target="_blank">thermalManagement.py</a></td>
+      <td>3</td>
+      <td>emttm, cbb emttm, emttm disable</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421476" target="_blank">22022421476</a></td>
+      <td>[CBB Thermal Management] Verify CBB EMTTM Soft Throttle due to Cross Throttle</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalManagement.py" target="_blank">thermalManagement.py</a></td>
+      <td>4</td>
+      <td>emttm, throttle, cbb emttm, emttm soft throttle</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421477" target="_blank">22022421477</a></td>
+      <td>[CBB Thermal Management] Verify CBB EMTTM Soft Throttle due to Self Throttle</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalManagement.py" target="_blank">thermalManagement.py</a></td>
+      <td>4</td>
+      <td>emttm, throttle, cbb emttm, emttm soft throttle</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421481" target="_blank">22022421481</a></td>
+      <td>[GPIO Interface] Verify XX_MEMHOT_IN_N input pin assertion</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/memhot_dfx.py" target="_blank">memhot_dfx.py</a></td>
+      <td>3</td>
+      <td>memhot, memhot_in, xx_memhot</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421482" target="_blank">22022421482</a></td>
+      <td>[GPIO Interface] Verify XX_MEMHOT_OUT_N output pin assertion</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/memhot_dfx.py" target="_blank">memhot_dfx.py</a></td>
+      <td>3</td>
+      <td>memhot, memhot_out, xx_memhot</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421483" target="_blank">22022421483</a></td>
+      <td>[GPIO Interface] Verify XX_MEMTRIP_N output pin assertion</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/Memtrip.py" target="_blank">Memtrip.py</a></td>
+      <td>3</td>
+      <td>memtrip, memtrip_n, xx_memtrip</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421484" target="_blank">22022421484</a></td>
+      <td>[GPIO Interface] Verify XX_PROCHOT_N input pin assertion</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Prochot.py" target="_blank">Prochot.py</a></td>
+      <td>3</td>
+      <td>prochot, prochot_n, xx_prochot</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421485" target="_blank">22022421485</a></td>
+      <td>[GPIO Interface] Verify XX_THERMTRIP_N input/output pin assertion</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/ThermTrip.py" target="_blank">ThermTrip.py</a></td>
+      <td>3</td>
+      <td>thermtrip, thermtrip_n, xx_thermtrip</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421547" target="_blank">22022421547</a></td>
+      <td>[MCAs] Verify Pcode generates firmware MCA &quot;DIE TOO HOT&quot; on invalid temperature</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/MCA_recoverable_die_too_hot.py" target="_blank">MCA_recoverable_die_too_hot.py</a></td>
+      <td>4</td>
+      <td>mca, die too hot, firmware mca, pcode generates firmware mca</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715696" target="_blank">16030715696</a></td>
+      <td>[PSS]Injected Prochot Entry</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/pss/prochot/pm_mcp_prochot.py" target="_blank">pm_mcp_prochot.py</a></td>
+      <td>3</td>
+      <td>pss, prochot, prochot entry</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421588" target="_blank">22022421588</a></td>
+      <td>[Thermal Interrupts] HW_FEEDBACK_NOTIFICATION interrupt</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalInterrupt.py" target="_blank">thermalInterrupt.py</a></td>
+      <td>3</td>
+      <td>interrupt, thermal interrupt, notification interrupt</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421610" target="_blank">22022421610</a></td>
+      <td>[Thermal Interrupts] Verify IA32_PACKAGE_THERM_INTERRUPT (Pkg MSR 0x1b2)</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalInterrupt.py" target="_blank">thermalInterrupt.py</a></td>
+      <td>3</td>
+      <td>interrupt, thermal interrupt, ia32_package_therm_interrupt</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421614" target="_blank">22022421614</a></td>
+      <td>[Thermal Interrupts] Verify IA32_THERM_INTERRUPT (Core MSR 0x19b)</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalInterrupt.py" target="_blank">thermalInterrupt.py</a></td>
+      <td>3</td>
+      <td>interrupt, thermal interrupt, ia32_therm_interrupt</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421627" target="_blank">22022421627</a></td>
+      <td>[Thermal Interrupts] Verify PROCHOT Interrupt</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalInterrupt.py" target="_blank">thermalInterrupt.py</a></td>
+      <td>3</td>
+      <td>interrupt, thermal interrupt, prochot interrupt</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421671" target="_blank">22022421671</a></td>
+      <td>[Thermtrip] Verify Thermtrip shuts down all FIVRs and MBVRs</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/ThermTrip.py" target="_blank">ThermTrip.py</a></td>
+      <td>3</td>
+      <td>thermtrip, thermtrip shuts, fivr</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421317" target="_blank">22022421317</a></td>
+      <td>[MR4] Verify DIMM Thresholds match with default values programed by BIOS</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/cltt.py" target="_blank">cltt.py</a></td>
+      <td>4</td>
+      <td>dimm, dimm threshold, mr4, dimm thresholds</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421328" target="_blank">22022421328</a></td>
+      <td>[MR4] Verify DIMM temp is updated by the MC</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/cltt.py" target="_blank">cltt.py</a></td>
+      <td>3</td>
+      <td>dimm, dimm temp, mr4</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421331" target="_blank">22022421331</a></td>
+      <td>[MR4] Verify DIMM temp is updated by the MC_emulation</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/cltt.py" target="_blank">cltt.py</a></td>
+      <td>3</td>
+      <td>dimm, dimm temp, mr4</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421334" target="_blank">22022421334</a></td>
+      <td>[MR4] Verify DIMM throttle levels values match with default values</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/cltt.py" target="_blank">cltt.py</a></td>
+      <td>4</td>
+      <td>dimm, dimm throttle, mr4, throttle levels</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421347" target="_blank">22022421347</a></td>
+      <td>[PECI] Verify DIMM temp in MC is being updated by TPMI</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/mt_basic_checks.py" target="_blank">mt_basic_checks.py</a></td>
+      <td>3</td>
+      <td>dimm, dimm temp, mc is</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421352" target="_blank">22022421352</a></td>
+      <td>[PECI] Verify DIMM thresholds match with default values programed by BIOS</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/cltt.py" target="_blank">cltt.py</a></td>
+      <td>3</td>
+      <td>dimm, dimm threshold, dimm thresholds</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421372" target="_blank">22022421372</a></td>
+      <td>[PECI]Verify DIMM throttle levels values match with default values</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/cltt.py" target="_blank">cltt.py</a></td>
+      <td>3</td>
+      <td>dimm, dimm throttle, throttle levels</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421391" target="_blank">22022421391</a></td>
+      <td>[TSOD] Verify DIMM Thresholds match with default values programed by BIOS_emulation</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/cltt.py" target="_blank">cltt.py</a></td>
+      <td>4</td>
+      <td>dimm, dimm threshold, tsod, dimm thresholds</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421405" target="_blank">22022421405</a></td>
+      <td>[TSOD] Verify DIMM temp in MC is being updated by SPD controller_emulation</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/cltt.py" target="_blank">cltt.py</a></td>
+      <td>3</td>
+      <td>dimm, dimm temp, tsod</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421408" target="_blank">22022421408</a></td>
+      <td>[TSOD] Verify DIMM throttle levels values match with default values_emulation</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/cltt.py" target="_blank">cltt.py</a></td>
+      <td>4</td>
+      <td>dimm, dimm throttle, tsod, throttle levels</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421425" target="_blank">22022421425</a></td>
+      <td>[Memtrip] Disables Memtrip MR4-based</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/Memtrip.py" target="_blank">Memtrip.py</a></td>
+      <td>3</td>
+      <td>memtrip, memtrip mr4, disables memtrip</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421427" target="_blank">22022421427</a></td>
+      <td>[Memtrip] Disables Memtrip MR4-based_emulation</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/Memtrip.py" target="_blank">Memtrip.py</a></td>
+      <td>3</td>
+      <td>memtrip, memtrip mr4, disables memtrip</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421456" target="_blank">22022421456</a></td>
+      <td>[CBB DTS &amp; Telemetry] Verify AON DTS Functionality</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Thermal_DTS.py" target="_blank">Thermal_DTS.py</a></td>
+      <td>3</td>
+      <td>dts, aon dts, dts function</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421458" target="_blank">22022421458</a></td>
+      <td>[CBB DTS &amp; Telemetry] Verify CBO Cluster DTS Functionality</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Thermal_DTS.py" target="_blank">Thermal_DTS.py</a></td>
+      <td>3</td>
+      <td>dts, cbo cluster dts, dts function</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421465" target="_blank">22022421465</a></td>
+      <td>[CBB DTS &amp; Telemetry] Verify Core DTS Functionality</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Thermal_DTS.py" target="_blank">Thermal_DTS.py</a></td>
+      <td>3</td>
+      <td>dts, core dts, dts function</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421468" target="_blank">22022421468</a></td>
+      <td>[CBB DTS &amp; Telemetry] Verify Core Disabled DTS operation</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/coreDisableDts.py" target="_blank">coreDisableDts.py</a></td>
+      <td>3</td>
+      <td>core disabled dts, disabled dts, core disable</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421469" target="_blank">22022421469</a></td>
+      <td>[CBB DTS &amp; Telemetry] Verify SOC DTS Functionality</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Thermal_DTS.py" target="_blank">Thermal_DTS.py</a></td>
+      <td>3</td>
+      <td>dts, soc dts, dts function</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421487" target="_blank">22022421487</a></td>
+      <td>[IMH DTS &amp; Telemetry] Verify Accelerator DTS Functionality</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Thermal_DTS.py" target="_blank">Thermal_DTS.py</a></td>
+      <td>3</td>
+      <td>dts, accelerator dts, dts function</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421498" target="_blank">22022421498</a></td>
+      <td>[IMH DTS &amp; Telemetry] Verify CGU DTS Functionality</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Thermal_DTS.py" target="_blank">Thermal_DTS.py</a></td>
+      <td>3</td>
+      <td>dts, cgu dts, dts function</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421501" target="_blank">22022421501</a></td>
+      <td>[IMH DTS &amp; Telemetry] Verify D2D DTS Functionality</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Thermal_DTS.py" target="_blank">Thermal_DTS.py</a></td>
+      <td>3</td>
+      <td>dts, d2d dts, dts function</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421504" target="_blank">22022421504</a></td>
+      <td>[IMH DTS &amp; Telemetry] Verify IO Fabric DTS Functionality</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Thermal_DTS.py" target="_blank">Thermal_DTS.py</a></td>
+      <td>3</td>
+      <td>dts, io fabric dts, dts function</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421506" target="_blank">22022421506</a></td>
+      <td>[IMH DTS &amp; Telemetry] Verify MIO DTS Functionality</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Thermal_DTS.py" target="_blank">Thermal_DTS.py</a></td>
+      <td>3</td>
+      <td>dts, mio dts, dts function</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421508" target="_blank">22022421508</a></td>
+      <td>[IMH DTS &amp; Telemetry] Verify Memory DTS Functionality</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Thermal_DTS.py" target="_blank">Thermal_DTS.py</a></td>
+      <td>3</td>
+      <td>dts, memory dts, dts function</td>
+    </tr><tr class="strong">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421515" target="_blank">22022421515</a></td>
+      <td>[IMH DTS &amp; Telemetry] Verify Memory Fabric DTS Functionality</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Thermal_DTS.py" target="_blank">Thermal_DTS.py</a></td>
+      <td>3</td>
+      <td>dts, memory fabric dts, dts function</td>
+    </tr></tbody>
+</table>
+
+<h2>&#9888; Weak Matches (68) — Partial alignment, needs review</h2>
+<table>
+<thead><tr><th>TC ID</th><th>TC Title</th><th>Best Candidate</th><th>Score</th><th>Matched Keywords</th></tr></thead>
+<tbody><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421444" target="_blank">22022421444</a></td>
+      <td>[ACP] Verify Configuration of Core&#x27;s Temperature Target</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalManagement.py" target="_blank">thermalManagement.py</a></td>
+      <td>1</td>
+      <td>temperature target</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421445" target="_blank">22022421445</a></td>
+      <td>[ACP] Verify Core Cross Throttle</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalManagement.py" target="_blank">thermalManagement.py</a></td>
+      <td>2</td>
+      <td>throttle, core cross throttle</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421449" target="_blank">22022421449</a></td>
+      <td>[ACP] Verify Core Cross Throttle_emulation</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalManagement.py" target="_blank">thermalManagement.py</a></td>
+      <td>2</td>
+      <td>throttle, core cross throttle</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421453" target="_blank">22022421453</a></td>
+      <td>[ACP] Verify Core Thermal Information</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Thermal_DTS.py" target="_blank">Thermal_DTS.py</a></td>
+      <td>1</td>
+      <td>thermal information</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715595" target="_blank">16030715595</a></td>
+      <td>[PSS]IMH Thermal Throttling</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/pss/thermal/pm_dts_stim.py" target="_blank">pm_dts_stim.py</a></td>
+      <td>1</td>
+      <td>pss</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715597" target="_blank">16030715597</a></td>
+      <td>[PSS]PLR Status registers Check for Thermal Events</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/pss/thermal/pm_dts_stim.py" target="_blank">pm_dts_stim.py</a></td>
+      <td>1</td>
+      <td>pss</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421478" target="_blank">22022421478</a></td>
+      <td>[CBB Thermal Management] Verify CBB Temperature Target Handling</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalManagement.py" target="_blank">thermalManagement.py</a></td>
+      <td>2</td>
+      <td>temperature target, cbb temperature</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421479" target="_blank">22022421479</a></td>
+      <td>[CBB Thermal Management] Verify Core Cross Throttle Due to Ring</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalManagement.py" target="_blank">thermalManagement.py</a></td>
+      <td>2</td>
+      <td>throttle, core cross throttle</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421518" target="_blank">22022421518</a></td>
+      <td>[IMH Thermal Management] Verify Cold Action</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalManagement.py" target="_blank">thermalManagement.py</a></td>
+      <td>1</td>
+      <td>cold action</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421519" target="_blank">22022421519</a></td>
+      <td>[IMH Thermal Management] Verify Disabling Uncore Thermal Throttling</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermal_debug.py" target="_blank">thermal_debug.py</a></td>
+      <td>1</td>
+      <td>uncore thermal</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421520" target="_blank">22022421520</a></td>
+      <td>[IMH Thermal Management] Verify Uncore Throttling (PID)</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalManagement.py" target="_blank">thermalManagement.py</a></td>
+      <td>2</td>
+      <td>uncore throttl, pid</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715632" target="_blank">16030715632</a></td>
+      <td>[PSS]VCCFCFCAB</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/pss/ITD/python/itd_cbb.py" target="_blank">itd_cbb.py</a></td>
+      <td>2</td>
+      <td>pss, vccfcfcab</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421521" target="_blank">22022421521</a></td>
+      <td>[ITD] Fuse checkout</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Thermal_DTS_Check.py" target="_blank">Thermal_DTS_Check.py</a></td>
+      <td>1</td>
+      <td>fuse checkout</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421522" target="_blank">22022421522</a></td>
+      <td>[ITD] Verify ACP (VccCore) ITD</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/itd.py" target="_blank">itd.py</a></td>
+      <td>1</td>
+      <td>itd</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421524" target="_blank">22022421524</a></td>
+      <td>[ITD] Verify CCF (VccRing) ITD</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/itd.py" target="_blank">itd.py</a></td>
+      <td>1</td>
+      <td>itd</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421525" target="_blank">22022421525</a></td>
+      <td>[ITD] Verify Core MLC SSA (VCC MLC SSA) ITD</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/itd.py" target="_blank">itd.py</a></td>
+      <td>2</td>
+      <td>itd, core mlc ssa</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421527" target="_blank">22022421527</a></td>
+      <td>[ITD] Verify ITD and PkgC6 Interaction_emulation</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/itd.py" target="_blank">itd.py</a></td>
+      <td>1</td>
+      <td>itd</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421528" target="_blank">22022421528</a></td>
+      <td>[ITD] Verify ITD disable</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/itd.py" target="_blank">itd.py</a></td>
+      <td>2</td>
+      <td>itd, itd disable</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421534" target="_blank">22022421534</a></td>
+      <td>[ITD] Verify ITD during reset</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/itd.py" target="_blank">itd.py</a></td>
+      <td>2</td>
+      <td>itd, itd during reset</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421535" target="_blank">22022421535</a></td>
+      <td>[ITD] Verify Inf (VccInf) ITD</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/itd.py" target="_blank">itd.py</a></td>
+      <td>1</td>
+      <td>itd</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421536" target="_blank">22022421536</a></td>
+      <td>[ITD] Verify UCIe (VCCC2IA) ITD</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/itd.py" target="_blank">itd.py</a></td>
+      <td>1</td>
+      <td>itd</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421538" target="_blank">22022421538</a></td>
+      <td>[ITD] Verify VCCCFCIO ITD</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/itd.py" target="_blank">itd.py</a></td>
+      <td>2</td>
+      <td>itd, vcccfcio itd</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421540" target="_blank">22022421540</a></td>
+      <td>[ITD] Verify VCCCFCMEM ITD</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/itd.py" target="_blank">itd.py</a></td>
+      <td>2</td>
+      <td>itd, vcccfcmem itd</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421542" target="_blank">22022421542</a></td>
+      <td>[ITD] Verify VCCFIXDIG ITD</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/itd.py" target="_blank">itd.py</a></td>
+      <td>2</td>
+      <td>itd, vccfixdig itd</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421546" target="_blank">22022421546</a></td>
+      <td>[ITD] Verify VCCUCIEA ITD</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/itd.py" target="_blank">itd.py</a></td>
+      <td>2</td>
+      <td>itd, vccuciea itd</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022458470" target="_blank">22022458470</a></td>
+      <td>[ITD] Verify VCCFCFCAB ITD</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/itd.py" target="_blank">itd.py</a></td>
+      <td>2</td>
+      <td>itd, vccfcfcab itd</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715698" target="_blank">16030715698</a></td>
+      <td>[PSS]PLR Status registers Check for Prochot Events</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/pss/prochot/pm_mcp_prochot.py" target="_blank">pm_mcp_prochot.py</a></td>
+      <td>2</td>
+      <td>pss, prochot</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421548" target="_blank">22022421548</a></td>
+      <td>[Prochot Flow] Verify Prochot CBB Entry and Exit Flow</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Prochot.py" target="_blank">Prochot.py</a></td>
+      <td>2</td>
+      <td>prochot, prochot cbb</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421553" target="_blank">22022421553</a></td>
+      <td>[Prochot Flow] Verify Prochot IMH Entry and Exit Flow</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Prochot.py" target="_blank">Prochot.py</a></td>
+      <td>2</td>
+      <td>prochot, prochot imh</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421557" target="_blank">22022421557</a></td>
+      <td>[Prochot Flow] Verify operation of Prochot Response Power</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Prochot.py" target="_blank">Prochot.py</a></td>
+      <td>2</td>
+      <td>prochot, prochot response power</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421595" target="_blank">22022421595</a></td>
+      <td>[Thermal Interrupts] Verify HIGH_TEMP Interrupt</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalInterrupt.py" target="_blank">thermalInterrupt.py</a></td>
+      <td>2</td>
+      <td>interrupt, thermal interrupt</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421618" target="_blank">22022421618</a></td>
+      <td>[Thermal Interrupts] Verify LOW_TEMP Interrupt</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalInterrupt.py" target="_blank">thermalInterrupt.py</a></td>
+      <td>2</td>
+      <td>interrupt, thermal interrupt</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421620" target="_blank">22022421620</a></td>
+      <td>[Thermal Interrupts] Verify OUT_OF_SPEC Interrupt</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalInterrupt.py" target="_blank">thermalInterrupt.py</a></td>
+      <td>2</td>
+      <td>interrupt, thermal interrupt</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421629" target="_blank">22022421629</a></td>
+      <td>[Thermal Interrupts] Verify THRESHOLD_1 Interrupt</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalInterrupt.py" target="_blank">thermalInterrupt.py</a></td>
+      <td>2</td>
+      <td>interrupt, thermal interrupt</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421633" target="_blank">22022421633</a></td>
+      <td>[Thermal Interrupts] Verify THRESHOLD_2 Interrupt</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalInterrupt.py" target="_blank">thermalInterrupt.py</a></td>
+      <td>2</td>
+      <td>interrupt, thermal interrupt</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421666" target="_blank">22022421666</a></td>
+      <td>[Thermtrip] Verify Thermtrip Disable</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/ThermTrip.py" target="_blank">ThermTrip.py</a></td>
+      <td>2</td>
+      <td>thermtrip, thermtrip disable</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421672" target="_blank">22022421672</a></td>
+      <td>[Thermtrip] Verify functionality of thermtrip pin from various sources</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/ThermTrip.py" target="_blank">ThermTrip.py</a></td>
+      <td>2</td>
+      <td>thermtrip, thermtrip pin</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715740" target="_blank">16030715740</a></td>
+      <td>[PSS]iMH North VR Hot Detection</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Prochot.py" target="_blank">Prochot.py</a></td>
+      <td>1</td>
+      <td>vr hot</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421673" target="_blank">22022421673</a></td>
+      <td>[VR Hot] Verify CBB VR Hot Actions</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Prochot.py" target="_blank">Prochot.py</a></td>
+      <td>1</td>
+      <td>vr hot</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421674" target="_blank">22022421674</a></td>
+      <td>[VR Hot] Verify IMH VR Hot Actions</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Prochot.py" target="_blank">Prochot.py</a></td>
+      <td>1</td>
+      <td>vr hot</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421676" target="_blank">22022421676</a></td>
+      <td>[VR Hot] Verify VR_THERM_ALERT_DISABLE</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Prochot.py" target="_blank">Prochot.py</a></td>
+      <td>1</td>
+      <td>vr hot</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421679" target="_blank">22022421679</a></td>
+      <td>[VR Hot] Verify VR_THERM_ALERT_DISABLE_emulation</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Prochot.py" target="_blank">Prochot.py</a></td>
+      <td>1</td>
+      <td>vr hot</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715640" target="_blank">16030715640</a></td>
+      <td>[PSS]Mclos0 Throttling Status</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/pss/thermal/pm_dts_stim.py" target="_blank">pm_dts_stim.py</a></td>
+      <td>1</td>
+      <td>pss</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715643" target="_blank">16030715643</a></td>
+      <td>[PSS]MemClos Feature Discovery</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/pss/thermal/pm_dts_stim.py" target="_blank">pm_dts_stim.py</a></td>
+      <td>1</td>
+      <td>pss</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715742" target="_blank">16030715742</a></td>
+      <td>[PSS]MR4-based CLTT</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/cltt.py" target="_blank">cltt.py</a></td>
+      <td>2</td>
+      <td>cltt, mr4</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421341" target="_blank">22022421341</a></td>
+      <td>[MR4] Verify end to end Functionality</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/Memtrip.py" target="_blank">Memtrip.py</a></td>
+      <td>2</td>
+      <td>end to end, functionality</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421361" target="_blank">22022421361</a></td>
+      <td>[PECI] Verify end to end functionality</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/Memtrip.py" target="_blank">Memtrip.py</a></td>
+      <td>2</td>
+      <td>end to end, functionality</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421409" target="_blank">22022421409</a></td>
+      <td>[DDRIO Temperature Compensation] Temperature compensation</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermal_debug.py" target="_blank">thermal_debug.py</a></td>
+      <td>1</td>
+      <td>temperature</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421411" target="_blank">22022421411</a></td>
+      <td>[Memhot] MR4 Verify Memhot_In mode functionality</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/cltt.py" target="_blank">cltt.py</a></td>
+      <td>2</td>
+      <td>mr4, memhot</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421412" target="_blank">22022421412</a></td>
+      <td>[Memhot] MR4 Verify Memhot_Out mode functionality (copy)</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/cltt.py" target="_blank">cltt.py</a></td>
+      <td>2</td>
+      <td>mr4, memhot</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421415" target="_blank">22022421415</a></td>
+      <td>[Memhot] Memhot Disables MR4-based</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/cltt.py" target="_blank">cltt.py</a></td>
+      <td>2</td>
+      <td>mr4, memhot</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421419" target="_blank">22022421419</a></td>
+      <td>[Memhot] Memhot Disables MR4-based_emulation</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/cltt.py" target="_blank">cltt.py</a></td>
+      <td>2</td>
+      <td>mr4, memhot</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421422" target="_blank">22022421422</a></td>
+      <td>[Memhot] Verify Memhot_In mode functionality</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/memhot_dfx.py" target="_blank">memhot_dfx.py</a></td>
+      <td>2</td>
+      <td>memhot, memhot_in</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421423" target="_blank">22022421423</a></td>
+      <td>[Memhot] Verify Memhot_Out mode functionality</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/memhot_dfx.py" target="_blank">memhot_dfx.py</a></td>
+      <td>2</td>
+      <td>memhot, memhot_out</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421434" target="_blank">22022421434</a></td>
+      <td>[Memtrip] MR4 based</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/cltt.py" target="_blank">cltt.py</a></td>
+      <td>2</td>
+      <td>mr4, memtrip</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421437" target="_blank">22022421437</a></td>
+      <td>[Memtrip] Memtrip to Thermtrip</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/Memtrip.py" target="_blank">Memtrip.py</a></td>
+      <td>2</td>
+      <td>memtrip, thermtrip</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421439" target="_blank">22022421439</a></td>
+      <td>[Memtrip] PECI based</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/arden_pmx.py" target="_blank">arden_pmx.py</a></td>
+      <td>2</td>
+      <td>peci, peci based</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421441" target="_blank">22022421441</a></td>
+      <td>[Memtrip] PECI based_emulation</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/Memory_Thermals_Management/arden_pmx.py" target="_blank">arden_pmx.py</a></td>
+      <td>2</td>
+      <td>peci, peci based</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715736" target="_blank">16030715736</a></td>
+      <td>[PSS]CBB DTS Thermal Telemetry</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/pss/thermal/pm_mcp_tm2_cbb.py" target="_blank">pm_mcp_tm2_cbb.py</a></td>
+      <td>2</td>
+      <td>pss, cbb</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421461" target="_blank">22022421461</a></td>
+      <td>[CBB DTS &amp; Telemetry] Verify CCP Thermal Telemetry</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Thermal_DTS.py" target="_blank">Thermal_DTS.py</a></td>
+      <td>1</td>
+      <td>dts</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715738" target="_blank">16030715738</a></td>
+      <td>[PSS]IMH DTS Thermal Telemetry</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Thermal_DTS.py" target="_blank">Thermal_DTS.py</a></td>
+      <td>1</td>
+      <td>dts</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421641" target="_blank">22022421641</a></td>
+      <td>[Thermal Reporting] Verify DTS temperature reporting during reset</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Thermal_DTS.py" target="_blank">Thermal_DTS.py</a></td>
+      <td>2</td>
+      <td>dts, dts temperature</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421642" target="_blank">22022421642</a></td>
+      <td>[Thermal Reporting] Verify IA32_MISC_ENABLES (Thread vMSR 0x1a0)</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalInterrupt.py" target="_blank">thermalInterrupt.py</a></td>
+      <td>1</td>
+      <td>ia32_misc_enables</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421643" target="_blank">22022421643</a></td>
+      <td>[Thermal Reporting] Verify IA32_PACKAGE_THERM_MARGIN</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalInterrupt.py" target="_blank">thermalInterrupt.py</a></td>
+      <td>1</td>
+      <td>ia32_package_therm_margin</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421644" target="_blank">22022421644</a></td>
+      <td>[Thermal Reporting] Verify IA32_PACKAGE_THERM_STATUS</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalInterrupt.py" target="_blank">thermalInterrupt.py</a></td>
+      <td>1</td>
+      <td>ia32_package_therm_status</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421646" target="_blank">22022421646</a></td>
+      <td>[Thermal Reporting] Verify IA32_TEMPERATURE_TARGET</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalInterrupt.py" target="_blank">thermalInterrupt.py</a></td>
+      <td>1</td>
+      <td>ia32_temperature_target</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421647" target="_blank">22022421647</a></td>
+      <td>[Thermal Reporting] Verify IA32_THERM_STATUS (Core MSR 0x19c)</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalInterrupt.py" target="_blank">thermalInterrupt.py</a></td>
+      <td>1</td>
+      <td>ia32_therm_status</td>
+    </tr><tr class="weak">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421660" target="_blank">22022421660</a></td>
+      <td>[Thermal Reporting] Verify POWER_CTL</td>
+      <td><a href="https://github.com/intel-sandbox/frameworks.validation.pythonsv.projects.diamondrapids/blob/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalInterrupt.py" target="_blank">thermalInterrupt.py</a></td>
+      <td>1</td>
+      <td>power_ctl</td>
+    </tr></tbody>
+</table>
+
+<h2>&#10007; No Match (6) — No corresponding script found</h2>
+<table>
+<thead><tr><th>TC ID</th><th>TC Title</th><th colspan="3">Action Needed</th></tr></thead>
+<tbody><tr class="none">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421454" target="_blank">22022421454</a></td>
+      <td>[ACP] Verify Report out of Frequency Reduction Reason</td>
+      <td colspan="3">— No matching script found</td>
+    </tr><tr class="none">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421480" target="_blank">22022421480</a></td>
+      <td>[GPIO Interface] Verify GPIO_BUMP Thermals fuses</td>
+      <td colspan="3">— No matching script found</td>
+    </tr><tr class="none">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421640" target="_blank">22022421640</a></td>
+      <td>[Thermal Reporting] Verify CORE_PERF_LIMIT_REASONS</td>
+      <td colspan="3">— No matching script found</td>
+    </tr><tr class="none">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421649" target="_blank">22022421649</a></td>
+      <td>[Thermal Reporting] Verify MSR 0x1A3 MCP_THERMAL_REPORT_1</td>
+      <td colspan="3">— No matching script found</td>
+    </tr><tr class="none">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421650" target="_blank">22022421650</a></td>
+      <td>[Thermal Reporting] Verify MSR 0x1A4 MCP_THERMAL_REPORT_2</td>
+      <td colspan="3">— No matching script found</td>
+    </tr><tr class="none">
+      <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421665" target="_blank">22022421665</a></td>
+      <td>[Thermal Reporting][BEAT] Extended C6 validation for Thermal Die Level PLR</td>
+      <td colspan="3">— No matching script found</td>
+    </tr></tbody>
+</table>
+
+</body>
+</html>
