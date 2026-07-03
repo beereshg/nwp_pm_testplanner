@@ -1,0 +1,314 @@
+[
+  {
+    "id": "22022423030",
+    "status": "ok",
+    "title": "CState Bios_knobs checkout",
+    "http": 200
+  },
+  {
+    "id": "22022423031",
+    "status": "ok",
+    "title": "CState Bios_knobs checkout PIV",
+    "http": 200
+  },
+  {
+    "id": "22022423032",
+    "status": "ok",
+    "title": "CState C6 residency check",
+    "http": 200
+  },
+  {
+    "id": "22022423036",
+    "status": "ok",
+    "title": "CState C6 residency counters and CStates residency KPI",
+    "http": 200
+  },
+  {
+    "id": "22022423038",
+    "status": "ok",
+    "title": "CState MSR Control",
+    "http": 200
+  },
+  {
+    "id": "22022423039",
+    "status": "ok",
+    "title": "CState dfx_ctrl_unprotected.core_cstate_limit checkout_silicon",
+    "http": 200
+  },
+  {
+    "id": "22022423042",
+    "status": "ok",
+    "title": "Enable PEGA C-States",
+    "http": 200
+  },
+  {
+    "id": "22022423044",
+    "status": "ok",
+    "title": "Multiple B2B cstates on same core",
+    "http": 200
+  },
+  {
+    "id": "22022423047",
+    "status": "ok",
+    "title": "[Solar] CStates - CStates_unsupported -- Exercise",
+    "http": 200
+  },
+  {
+    "id": "22022423050",
+    "status": "ok",
+    "title": "[Solar] CStates - CStates_unsupported_Random -- Exercise",
+    "http": 200
+  },
+  {
+    "id": "22022423053",
+    "status": "ok",
+    "title": "[Solar] CStates - CStates_unsupported_Random -- Verify",
+    "http": 200
+  },
+  {
+    "id": "22022423057",
+    "status": "ok",
+    "title": "[Solar]_CStates-CStates_unsupported--Verify",
+    "http": 200
+  },
+  {
+    "id": "16030768408",
+    "status": "ok",
+    "title": "CState C6 residency counters",
+    "http": 200
+  },
+  {
+    "id": "16030768409",
+    "status": "ok",
+    "title": "CState Fuse dfx_ctrl_unprotected.core_cstate_limit checkout_silicon",
+    "http": 200
+  },
+  {
+    "id": "22022423062",
+    "status": "ok",
+    "title": "CState Entry Actions: Verify Flow C6A",
+    "http": 200
+  },
+  {
+    "id": "22022423064",
+    "status": "ok",
+    "title": "CState Entry Actions: Verify Flow C6S",
+    "http": 200
+  },
+  {
+    "id": "22022423067",
+    "status": "ok",
+    "title": "CState Entry Actions: Verify flow C6S-P",
+    "http": 200
+  },
+  {
+    "id": "16030715579",
+    "status": "ok",
+    "title": "[PSS]PEGA/Solar Based C6 injection",
+    "http": 200
+  },
+  {
+    "id": "16030715587",
+    "status": "ok",
+    "title": "[PSS]C6 Residency Counter",
+    "http": 200
+  },
+  {
+    "id": "16030715592",
+    "status": "ok",
+    "title": "[PSS]PLR Status registers Check during Cstates",
+    "http": 200
+  },
+  {
+    "id": "16030768411",
+    "status": "ok",
+    "title": "CState MWAIT Encodings (Place Holder)",
+    "http": 200
+  },
+  {
+    "id": "22022423070",
+    "status": "ok",
+    "title": "CState Exit Actions: verify flow C6A",
+    "http": 200
+  },
+  {
+    "id": "22022423074",
+    "status": "ok",
+    "title": "CState Exit Actions: verify flow C6S",
+    "http": 200
+  },
+  {
+    "id": "22022423076",
+    "status": "ok",
+    "title": "CState Exit Actions: verify flow C6S-P",
+    "http": 200
+  },
+  {
+    "id": "22022423078",
+    "status": "ok",
+    "title": "CState Exit Actions: verify flow MC6",
+    "http": 200
+  },
+  {
+    "id": "22022423079",
+    "status": "ok",
+    "title": "CStates C1 residency counter",
+    "http": 200
+  },
+  {
+    "id": "16030715581",
+    "status": "ok",
+    "title": "[PSS]C1 Residency Counter",
+    "http": 200
+  },
+  {
+    "id": "22022423091",
+    "status": "ok",
+    "title": "CState Fast C1E: bios_knob C1E autopromotion_silicon",
+    "http": 200
+  },
+  {
+    "id": "22022423088",
+    "status": "ok",
+    "title": "[BEAT] [FV PM/UBOX]GNR: Add a PEGA C1e cross-product test case which uses a PCIe card to generate 38 million+/sec back to back legacy interrupts(INTx)",
+    "http": 200
+  },
+  {
+    "id": "22022423093",
+    "status": "ok",
+    "title": "CState Fast C1E: Entry flow_silicon",
+    "http": 200
+  },
+  {
+    "id": "22022423096",
+    "status": "ok",
+    "title": "CState Fast C1E: Exit flow_silicon",
+    "http": 200
+  },
+  {
+    "id": "22022423099",
+    "status": "ok",
+    "title": "CState Fast C1E: registers_checks_silicon",
+    "http": 200
+  },
+  {
+    "id": "22022423083",
+    "status": "ok",
+    "title": "CStates: C6A Demotion policy check",
+    "http": 200
+  },
+  {
+    "id": "22022423084",
+    "status": "ok",
+    "title": "CStates: C6S Demotion policy check",
+    "http": 200
+  },
+  {
+    "id": "22022423085",
+    "status": "ok",
+    "title": "CStates: C6SP Demotion policy check",
+    "http": 200
+  },
+  {
+    "id": "22022423086",
+    "status": "ok",
+    "title": "CStates: Demotion/Undemotion: CLOCK_CST_CONFIG_CONTROL_MSR(0XE2) silicon",
+    "http": 200
+  },
+  {
+    "id": "22022423087",
+    "status": "ok",
+    "title": "CStates: Demotion: Acode interaction_silicon",
+    "http": 200
+  },
+  {
+    "id": "16030715552",
+    "status": "ok",
+    "title": "[PSS]C1/C6 Demotion/Undemotion BIOSKnobs",
+    "http": 200
+  },
+  {
+    "id": "22022423069",
+    "status": "ok",
+    "title": "CState Entry Actions: Verify flow MC6",
+    "http": 200
+  },
+  {
+    "id": "22022423081",
+    "status": "ok",
+    "title": "CStates MC6 residency counter  and flow check",
+    "http": 200
+  },
+  {
+    "id": "16030715590",
+    "status": "ok",
+    "title": "[PSS]MC6 Residency Counter",
+    "http": 200
+  },
+  {
+    "id": "16030768415",
+    "status": "ok",
+    "title": "CStates MC6 residency counter",
+    "http": 200
+  },
+  {
+    "id": "22022423101",
+    "status": "ok",
+    "title": "AshTree PRT_Long OS Idle",
+    "http": 200
+  },
+  {
+    "id": "22022423102",
+    "status": "ok",
+    "title": "AshTree PRT_PEGA CStates / PStates",
+    "http": 200
+  },
+  {
+    "id": "22022423104",
+    "status": "ok",
+    "title": "AshTree PRT_Solar CStates/PStates/DVFS",
+    "http": 200
+  },
+  {
+    "id": "22022423105",
+    "status": "ok",
+    "title": "AshTree PRT_silicon",
+    "http": 200
+  },
+  {
+    "id": "22022423106",
+    "status": "ok",
+    "title": "PMX ccx_test",
+    "http": 200
+  },
+  {
+    "id": "16030768416",
+    "status": "ok",
+    "title": "PMX cstate_check",
+    "http": 200
+  },
+  {
+    "id": "22022423108",
+    "status": "ok",
+    "title": "[Solar] CStates - CStates_AnyCore -- Exercise",
+    "http": 200
+  },
+  {
+    "id": "22022423109",
+    "status": "ok",
+    "title": "[Solar] CStates - CStates_AnyCore_Random -- Exercise",
+    "http": 200
+  },
+  {
+    "id": "22022423110",
+    "status": "ok",
+    "title": "[Solar] CStates - CStates_AnyCore_Random -- Verify",
+    "http": 200
+  },
+  {
+    "id": "22022423113",
+    "status": "ok",
+    "title": "[Solar]_CStates-CStates_AnyCore--Verify",
+    "http": 200
+  }
+]
