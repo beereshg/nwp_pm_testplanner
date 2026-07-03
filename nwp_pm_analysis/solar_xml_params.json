@@ -1,0 +1,130 @@
+{
+  "22022423047": {
+    "mode": "Exercise",
+    "knobs": "AllMwaitReq",
+    "exeC": "CC6|sec:1|sec:1",
+    "cycles": "Cycles:10",
+    "ftCC6": [
+      "CC6:10"
+    ],
+    "ssCC6": [
+      "CC6:[0x0,0x1,0x2,0x3,0x4,0x5]"
+    ],
+    "scope": "0:0:100",
+    "perSC": "0x00000008",
+    "dispOff": "PC6.2;PC9;PC10;PC10.2;PC10.3;",
+    "xml": "Cstates_unsupported_Mwait_exercise.xml"
+  },
+  "22022423050": {
+    "mode": "Exercise",
+    "knobs": "Random;AllMwaitReq",
+    "exeC": "CC6|sec:1|sec:1",
+    "cycles": "Cycles:10",
+    "ftCC6": [
+      "CC6:10"
+    ],
+    "ssCC6": [
+      "CC6:[0x0,0x1,0x2,0x3,0x4,0x5]"
+    ],
+    "scope": "0:0:100",
+    "perSC": "0x00000008",
+    "dispOff": "PC6.2;PC9;PC10;PC10.2;PC10.3;",
+    "xml": "Cstates_unsupported_Mwait_random_exercise.xml"
+  },
+  "22022423053": {
+    "mode": "Verify",
+    "knobs": "Random;AllMwaitReq",
+    "exeC": "CC6|sec:1|sec:1",
+    "cycles": "Cycles:10",
+    "ftCC6": [
+      "CC6:10"
+    ],
+    "ssCC6": [
+      "CC6:[0x0,0x1,0x2,0x3,0x4,0x5]"
+    ],
+    "scope": "0:0:100",
+    "perSC": "0x00000008",
+    "dispOff": "PC6.2;PC9;PC10;PC10.2;PC10.3;",
+    "xml": "Cstates_unsupported_Mwait_random_verify.xml"
+  },
+  "22022423057": {
+    "mode": "Verify",
+    "knobs": "AllMwaitReq",
+    "exeC": "CC6|sec:1|sec:1",
+    "cycles": "Cycles:10",
+    "ftCC6": [
+      "CC6:5"
+    ],
+    "ssCC6": [
+      "CC6:[0x0,0x1,0x2,0x3,0x4,0x5]"
+    ],
+    "scope": "0:0:100",
+    "perSC": "0x00000008",
+    "dispOff": "PC6.2;PC9;PC10;PC10.2;PC10.3;",
+    "xml": "Cstates_unsupported_Mwait_verify.xml"
+  },
+  "22022423108": {
+    "mode": "Exercise",
+    "knobs": "",
+    "exeC": "CC6|sec:1|sec:1",
+    "cycles": "Cycles:10",
+    "ftCC6": [
+      "CC6:0"
+    ],
+    "ssCC6": [
+      "CC6:[0x0,0x3,0x4]"
+    ],
+    "scope": "0:0:100",
+    "perSC": "0x00000000",
+    "dispOff": "",
+    "xml": "Cstates_anycore_exercise.xml"
+  },
+  "22022423109": {
+    "mode": "Exercise",
+    "knobs": "Random",
+    "exeC": "CC6|sec:1|sec:1",
+    "cycles": "Cycles:10",
+    "ftCC6": [
+      "CC6:5"
+    ],
+    "ssCC6": [
+      "CC6:[0x0,0x3,0x4]"
+    ],
+    "scope": "0:0:100",
+    "perSC": "0x00000000",
+    "dispOff": "",
+    "xml": "Cstates_anycore_random_exercise.xml"
+  },
+  "22022423110": {
+    "mode": "Verify",
+    "knobs": "Random",
+    "exeC": "CC6|sec:1|sec:1",
+    "cycles": "Cycles:10",
+    "ftCC6": [
+      "CC6:5"
+    ],
+    "ssCC6": [
+      "CC6:[0x0,0x3,0x4]"
+    ],
+    "scope": "0:0:100",
+    "perSC": "0x00000000",
+    "dispOff": "",
+    "xml": "Cstates_anycore_random_verify.xml"
+  },
+  "22022423113": {
+    "mode": "Verify",
+    "knobs": "",
+    "exeC": "CC6|sec:1|sec:1",
+    "cycles": "Cycles:10",
+    "ftCC6": [
+      "CC6:10"
+    ],
+    "ssCC6": [
+      "CC6:[0x0,0x3,0x4]"
+    ],
+    "scope": "0:0:100",
+    "perSC": "0x00000000",
+    "dispOff": "",
+    "xml": "Cstates_anycore_verify.xml"
+  }
+}
