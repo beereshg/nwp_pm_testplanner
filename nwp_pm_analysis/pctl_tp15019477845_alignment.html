@@ -1,0 +1,322 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Power Control TP 15019477845 — TC-to-Script Alignment</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:"Segoe UI",Arial,sans-serif;background:#f0f4f9;font-size:12px;color:#1f2937}.hdr{background:#0f4c81;color:#fff;padding:14px 24px}.hdr h1{font-size:18px;font-weight:700;margin-bottom:4px}.hdr a{color:#90caf9}.hdr .sub{font-size:10px;opacity:.8}.stats{display:flex;gap:14px;background:#1a5fa8;padding:7px 24px;flex-wrap:wrap}.stat{background:rgba(255,255,255,.18);border-radius:6px;padding:5px 14px;text-align:center;color:#fff}.stat .n{font-size:20px;font-weight:700;display:block}.stat .l{font-size:9px;opacity:.8}.wrap{max-width:1600px;margin:14px auto;padding:0 14px 40px}.legend{font-size:11px;background:#e8f0fe;border-radius:6px;padding:8px 14px;margin-bottom:10px;line-height:1.8}.key-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:14px}th{background:#0f4c81;color:#fff;padding:8px 10px;text-align:left;font-size:10px;font-weight:600;position:sticky;top:0;z-index:10}td{padding:6px 9px;vertical-align:top;border-bottom:1px solid #e8eef7;font-size:11px}.stp-hdr td{background:#0d47a1;color:#fff;font-size:12px;font-weight:700;padding:8px 14px}.stp-hdr a{color:#90caf9;text-decoration:none}.tcd-hdr td{background:#e3f2fd;color:#0f4c81;font-size:11px;padding:6px 14px;font-weight:600}.tcd-hdr a{color:#0f4c81;text-decoration:none}.rs{background:#f1fff4}.rw{background:#fffbf0}.rn{background:#fff5f5}tr:hover td{background:#e8f0ff!important}.ti{font-weight:700;color:#0f4c81;text-decoration:none}.ev{font-size:10px;color:#555;white-space:nowrap}.bs{display:inline-block;background:#d4edda;color:#155724;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700}.bw{display:inline-block;background:#fff3cd;color:#856404;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700}.bn{display:inline-block;background:#f8d7da;color:#721c24;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700}code,.sn{font-family:Consolas,monospace;font-size:10px;background:#f3f6fb;padding:1px 4px;border-radius:3px}.nt{font-size:9px;color:#666}.dc{max-width:360px}.sc{font-size:10px;color:#444;line-height:1.4;margin-bottom:2px}.e{font-size:10px;color:#5d4037;background:#fff8e1;border-left:3px solid #fb8c00;padding:2px 6px;margin-top:2px;border-radius:0 4px 4px 0}.si-tag{background:#e53935;color:#fff;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:600}.pss-tag{background:#7986cb;color:#fff;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:600}.cnt{float:right;background:rgba(255,255,255,.25);border-radius:10px;padding:2px 8px;font-size:10px;font-weight:400}</style></head><body>
+<div class="hdr">
+  <h1>Power Control (SIMPL/PMAX/SVID) — TC-to-Script Alignment
+    <a href="https://hsdes.intel.com/appstore/article-one/#/15019477845" target="_blank">TP 15019477845 ↗</a>
+  </h1>
+  <div class="sub">3 sub-TPs: PMAX · SIMPL/DFC · SVID &nbsp;|&nbsp; Script root: <code>C:\github\...\pm</code> &nbsp;|&nbsp; 2026-07-03</div>
+</div>
+<div class="stats">
+  <div class="stat"><span class="n">32</span><span class="l">Total TCs</span></div>
+  <div class="stat"><span class="n">28</span><span class="l">✅ STRONG</span></div>
+  <div class="stat"><span class="n">4</span><span class="l">⚠️ WEAK</span></div>
+  <div class="stat"><span class="n">0</span><span class="l">❌ No Match</span></div>
+  <div class="stat"><span class="n">1</span><span class="l">Empty TCD (SIMPL Telemetry)</span></div>
+</div>
+<div class="wrap">
+<div class="legend">
+<div class="key-row">
+  <strong>PMAX:</strong>
+  <code>pmax_focus_pmx.py</code> (registers, disable, runPmx -p pmax_focus) &nbsp;·&nbsp;
+  <code>pmax_soft_throttle_pmx.py</code> &nbsp;·&nbsp;
+  <code>pmax_hard_throttle_pmx.py</code> &nbsp;·&nbsp;
+  <code>pmax_bios_pmx.py</code> (BIOS knobs) &nbsp;·&nbsp;
+  <code>pl4_focus_pmx.py</code> (PL4) &nbsp;·&nbsp;
+  <code>pmax_harasser.py</code> (DAC, cross-products) &nbsp;·&nbsp;
+  <code>pmax_fuse_verification.py</code> &nbsp;·&nbsp;
+  <code>pss/pmax/pmax_dfx_inject.py</code> / <code>pmax_inject_mcp.py</code>
+</div>
+<div class="key-row">
+  <strong>SIMPL:</strong>
+  <code>simpl_pmx.py</code> (Policy 0, cross-products, runPmx -p simpl_policy_0) &nbsp;·&nbsp;
+  <code>simpl_imh_pmx.py</code> (asymmetric/IMH-level) &nbsp;·&nbsp;
+  <code>simpl.py</code> (fuses, PSS path)
+  &nbsp;|&nbsp; <strong>SVID:</strong>
+  <code>svid_pmx.py</code> (basic, addressing) &nbsp;·&nbsp;
+  <code>svid_telemetry_tests.py</code> (IMON/PMON)
+</div>
+<div style="font-size:10px;color:#666;margin-top:4px"><span class="si-tag">[Si Only]</span> = Silicon-only TC &nbsp;&nbsp; <span class="pss-tag">[PSS]</span> = Pre-Si Simulation TC</div>
+</div>
+<table>
+<thead><tr>
+  <th style="width:90px">TC ID</th><th style="width:220px">Title</th>
+  <th style="width:80px">Env</th><th style="width:90px">Match</th>
+  <th style="width:185px">Script</th><th>Scope / Enhancement</th>
+</tr></thead>
+<tbody><tr class="stp-hdr"><td colspan="6"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477947">15019477947</a> — PMAX (Maximum Power Protection) <span class="cnt">17 TCs · 16 strong</span></td></tr>
+<tr class="tcd-hdr"><td colspan="6">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420688">22022420688</a>: MT Pmax Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421764" class="ti">22022421764</a></td>
+  <td>PMAX CONTROL Register Verification</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">pmax_focus_pmx.py</code><br><small class="nt">PMAX_CONTROL register; runPmx -p pmax_focus</small></td>
+  <td class="dc"><div class="sc">Validation Scope Verify PMAX_CONTROL is correctly programmed after boot on NWP, and verify PMAX is not spuriously active at idle. Key assertions: pmax_control fields are readable and match BIOS/fuse p</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421770" class="ti">22022421770</a></td>
+  <td><span class="si-tag">[Si Only]</span> : PMAX Soft Throttle Verification using FT PMAX INJECT</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">pmax_soft_throttle_pmx.py</code><br><small class="nt">soft throttle via FT PMAX INJ; runPmx -p pmax_soft_throttle</small></td>
+  <td class="dc"><div class="sc">Verify PCode applies soft (bandwidth-based) PMAX throttle when the fast-threshold PMAX wire is asserted via FT inject. Soft throttle reduces frequency proportionally rather than causing an immediate hard collapse. Key as</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421773" class="ti">22022421773</a></td>
+  <td><span class="si-tag">[Si Only]</span> PMAX Disable Verification</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">pmax_focus_pmx.py</code><br><small class="nt">PMAX disable; pmax_focus covers enable/disable register</small></td>
+  <td class="dc"><div class="sc">Verify that when PMAX is disabled ( punit_supervises_pmax=0 / pmax_disable=0 ), injecting a PMAX event does not cause throttle. Key assertion: package_therm_status.pmax_log = 0 despite inject active. Confirms the disable</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421775" class="ti">22022421775</a></td>
+  <td><span class="si-tag">[Si Only]</span> PMAX Hard Throttle Verification using Global PMAX Inject</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">pmax_hard_throttle_pmx.py</code><br><small class="nt">hard throttle via Global PMAX INJ; runPmx -p pmax_hard_throttle</small></td>
+  <td class="dc"><div class="sc">Verify PCode applies hard (immediate) PMAX throttle when global_pmax_inject is asserted with punit_root_supervisor=0 . Hard throttle causes immediate frequency collapse (PROCHOT-like), not a gradual bandwidth reduction.</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="6">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420691">22022420691</a>: PL4 Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421777" class="ti">22022421777</a></td>
+  <td>PL4 Fuses Verification</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">pl4_focus_pmx.py</code><br><small class="nt">PL4 fuse checkout; runPmx -p pl4_focus</small></td>
+  <td class="dc"><div class="sc">Verify SOCKET_PL4_POWER_DEFAULT fuse is non-zero and correctly propagated to socket_rapl_pl4_control.pwr_lim . PL4 is the hardware instantaneous power cap; its fuse must reflect the platform-rated maximum. NWP: single IM</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421778" class="ti">22022421778</a></td>
+  <td>PL4 Perf Limit Verification</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">pl4_focus_pmx.py</code><br><small class="nt">PL4 perf limit threshold</small></td>
+  <td class="dc"><div class="sc">Verify socket_rapl_pl4_control register has correct defaults: pwr_lim_en=0 (not enforced by default), pwr_lim set to 1.5–3× TDP, lock=0 (unlocked). PL4 is the hardware power cap; verifying its register state confirms cor</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421782" class="ti">22022421782</a></td>
+  <td>PL4 Power Limit Register Verification</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">pl4_focus_pmx.py</code><br><small class="nt">PL4 power limit register (CSR/TPMI)</small></td>
+  <td class="dc"><div class="sc">Comprehensive verification of PL4 TPMI and PMAX hardware registers: socket_rapl_pl4_control (pwr_lim_en, pwr_lim, lock) and pmax_config MT offset registers (mt0_offset, mt1_offset, mt2_offset). MT offsets adjust Vtrip th</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="6">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420695">22022420695</a>: PMAX Bios Knobs Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421787" class="ti">22022421787</a></td>
+  <td>PMAX Offset and Offset Sign Bios Knob Verification</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">pmax_bios_pmx.py</code><br><small class="nt">PMAX offset + offset_sign BIOS knob; runPmx -p pmax_bios</small></td>
+  <td class="dc"><div class="sc">Verify PMAX Vtrip offset BIOS knob correctly programs pmax_control.pmax_vtrip_0_offset (and sign bit) via EFI Shell. BIOS PMAX Detector Configuration menu shows VccIn 0 Adjustment with configurable offset and sign. NWP:</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421788" class="ti">22022421788</a></td>
+  <td>PMAX TRIGGER IO Bios Knobs Verification</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">pmax_bios_pmx.py</code><br><small class="nt">PMAX TRIGGER_IO BIOS knob propagation</small></td>
+  <td class="dc"><div class="sc">Verify PMAX Trigger Setup BIOS knob correctly programs pmax_control.pmax_gpio_trigger_enable (and related trigger config). Default is 0 (disabled). BIOS configures trigger; test reads TPMI post-boot to confirm. NWP: sing</div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715664" class="ti">16030715664</a></td>
+  <td><span class="pss-tag">[PSS]</span> BIOS configuration checks for Pmax</td>
+  <td class="ev">—</td>
+  <td><span class="bw">⚠️ WEAK</span></td>
+  <td><code class="sn">pmax_inject_mcp.py</code><br><small class="nt">[PSS] BIOS config via MCP injection; pmax_inject_mcp.py</small></td>
+  <td class="dc"><div class="sc">Objective: [PSS] Verify PMAX BIOS configuration is correctly applied on PSS (VP/HSLE) model — lock, Vtrip offset, GPIO trigger registers programmed correctly from BIOS knobs. PSS environment: VP (Simics) — validates BIOS</div><div class="e">⚠️ PSS PMAX BIOS config: existing &lt;code&gt;pss/pmax/&lt;/code&gt; scripts use DFX injection (not BIOS knobs). Need a dedicated &lt;code&gt;tc_16030715664_bios_config.py&lt;/code&gt; that reads NVRAM and validates TPMI propagation</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="6">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420701">22022420701</a>: PMAX Cross Products</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421790" class="ti">22022421790</a></td>
+  <td>PMAX Cross Fast Rapl</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">pmax_harasser.py</code><br><small class="nt">PMAX × Fast RAPL; pmax_harasser cross-product</small></td>
+  <td class="dc"><div class="sc">Verify system stability when PMAX hard throttle is concurrent with Fast RAPL limiting. Both features activate simultaneously; the min(PMax ceiling, Fast RAPL ceiling) should be enforced without MCA or system hang. NGA_MA</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421791" class="ti">22022421791</a></td>
+  <td>PMAX Cross Thermals</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">pmax_harasser.py</code><br><small class="nt">PMAX × Thermals; pmax_harasser cross-product</small></td>
+  <td class="dc"><div class="sc">Verify system stability when PMAX hard throttle is concurrent with thermal throttle (PROCHOT inject). Both features activate simultaneously; PMAX hard throttle should dominate over thermal throttle. NGA_MAIN / ti_gate.b0</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="6">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420704">22022420704</a>: PMAX DFX Injection Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421792" class="ti">22022421792</a></td>
+  <td><span class="si-tag">[Si Only]</span> PMAX DFX INJECT Register Verification using pmoncntr_0 counter (P</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">pmax_dfx_inject.py</code><br><small class="nt">DFX INJECT via pmoncntrcfg/pss/pmax_dfx_inject</small></td>
+  <td class="dc"><div class="sc">Verify PMAX_DFX_DETECT_INJECT uCR provides valid TAP-based injection to spoof FTPmaxDetectXXnnnH[0] and [1] pulses (100 ns PMAX events) and that Punit correctly responds to each wire. Provides low-level PMAX trigger simu</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421794" class="ti">22022421794</a></td>
+  <td><span class="si-tag">[Si Only]</span> PMAX Hard Throttle using DAC</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">pmax_harasser.py</code><br><small class="nt">hard throttle via DAC; pmax_dac in pmax_harasser</small></td>
+  <td class="dc"><div class="sc">Verify PMAX hard throttle triggered via DAC code correctly increments pmax_status6.mt0_cbb_trig_count and fires hard throttle. The DAC provides analog VccIN droop simulation independent of the digital inject path. NGA_MA</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715666" class="ti">16030715666</a></td>
+  <td><span class="pss-tag">[PSS]</span> PLR Status registers Check for PMAX Events</td>
+  <td class="ev">—</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">pmax_inject_mcp.py</code><br><small class="nt">[PSS] PLR status for PMAX events; pmax_inject_mcp_monitoring</small></td>
+  <td class="dc"><div class="sc">Objective: [PSS] Verify PLR Status registers correctly reflect PMAX events on PSS (VP/HSLE) model when PMAX DFX injection is triggered. PSS value: Validates PCode PLR reporting path for PMAX before silicon — finds firmwa</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715669" class="ti">16030715669</a></td>
+  <td><span class="pss-tag">[PSS]</span> PMAX DFX Injection Throttle</td>
+  <td class="ev">—</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">pmax_dfx_inject.py</code><br><small class="nt">[PSS] PMAX DFX injection throttle</small></td>
+  <td class="dc"><div class="sc">Objective: [PSS] Verify PMAX DFX injection causes the expected throttle on the PSS model. PSS environment: HSLE preferred (RTL-level PMAX signal response). 2.</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="6">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420708">22022420708</a>: PMAX fuses Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421799" class="ti">22022421799</a></td>
+  <td>PMAX Related fuses Verification</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">pmax_fuse_verification.py</code><br><small class="nt">pmax_fuse_verification.py; all fuse fields</small></td>
+  <td class="dc"><div class="sc">Verify PMAX control fuses are correctly programmed and propagated to runtime registers: punit_supervises_pmax = 1 , punit_root_supervisor = 1 , pmax_mt_en = 1 , pmax_l1_en = 1 . Fuse-to-register propagation confirms Prim</div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="6"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477948">15019477948</a> — SIMPL / DFC (Dynamic Frequency Control) <span class="cnt">10 TCs · 7 strong</span></td></tr>
+<tr class="tcd-hdr"><td colspan="6">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420756">22022420756</a>: SIMPL Cross Products</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421891" class="ti">22022421891</a></td>
+  <td>SIMPL Cross Cold Reset</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">simpl_pmx.py</code><br><small class="nt">SIMPL × Cold Reset; simpl_pmx cross test</small></td>
+  <td class="dc"><div class="sc">Verify that after a cold reset , SIMPL reverts to Policy 0 (default safe policy): current_policy = 0 and target_policy = 0 on IMH0. The SIMPL Cold Reset Handshake must terminate correctly. NGA_MAIN / ti_gate.b0 cross-pro</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421894" class="ti">22022421894</a></td>
+  <td>SIMPL Cross Warm Reset</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">simpl_pmx.py</code><br><small class="nt">SIMPL × Warm Reset; simpl_pmx cross test</small></td>
+  <td class="dc"><div class="sc">Verify that after a warm reset , SIMPL retains (does not reset) its current policy state. Unlike cold reset (which restores Policy 0), warm reset should preserve the previously active policy. ti_gate.b0 cross-product tes</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="6">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420759">22022420759</a>: SIMPL Fuse Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421902" class="ti">22022421902</a></td>
+  <td>SIMPL - All Fuses Verification</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">simpl.py</code><br><small class="nt">all SIMPL fuse fields verification</small></td>
+  <td class="dc"><div class="sc">Verify all SIMPL policy fuse values for IMH0 are correctly programmed and propagated to simpl_max_freq_* pcudata registers. 4 policies, 2 domains (IO=0, Mem=1): fuse → register match required for correct SIMPL frequency</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="6">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420763">22022420763</a>: SIMPL Policy Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421906" class="ti">22022421906</a></td>
+  <td>SIMPL Policy 0 Verification</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">simpl_pmx.py</code><br><small class="nt">Policy 0 (default); runPmx -p simpl_policy_0</small></td>
+  <td class="dc"><div class="sc">Verify SIMPL Policy 0 is selected under core-heavy + light IO/Mem workload, and that IO/Mem fabric frequency limits match Policy 0 spec values. Policy 0 = maximum IO/Mem fabric frequency (least restrictive). ti_gate.b0 /</div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421909" class="ti">22022421909</a></td>
+  <td>SIMPL Policy 1 Verification</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bw">⚠️ WEAK</span></td>
+  <td><code class="sn">simpl_pmx.py</code><br><small class="nt">Policy 1 — PMX XML only has policy_0 entry; needs --policy 1 option</small></td>
+  <td class="dc"><div class="sc">Verify SIMPL Policy 1 is selected when IO/Mem fabric bandwidth demand crosses the Policy-0→Policy-1 threshold, and that frequency limits match Policy 1 spec (IO=0x14 = 2.0 GHz). ti_gate.b0 / NGA_MAIN . NWP: single IMH (i</div><div class="e">⚠️ SIMPL Policy 1: PMX XML only has &lt;code&gt;simpl_policy_0&lt;/code&gt; tag. Add &lt;code&gt;simpl_policy_1&lt;/code&gt; entry in dmr.xml and corresponding test function in &lt;code&gt;simpl_pmx.py&lt;/code&gt;</div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421910" class="ti">22022421910</a></td>
+  <td>SIMPL Policy 2 Verification</td>
+  <td class="ev">virtual_platform</td>
+  <td><span class="bw">⚠️ WEAK</span></td>
+  <td><code class="sn">simpl_pmx.py</code><br><small class="nt">Policy 2 — no dedicated PMX tag; needs extension</small></td>
+  <td class="dc"><div class="sc">Verify SIMPL Policy 2 is selected under heavy IO/Mem bandwidth demand and that frequency limits match Policy 2 spec (IO=0x14, typically same cap as Policy 1 but different Mem limit). ti_gate.b0 / NGA_MAIN . NWP: single I</div><div class="e">⚠️ SIMPL Policy 2: same gap as Policy 1 — no PMX entry. Extend script with &lt;code&gt;--policy&lt;/code&gt; argument covering all 4 policies</div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421912" class="ti">22022421912</a></td>
+  <td>SIMPL Policy 3 Verification</td>
+  <td class="ev">virtual_platform</td>
+  <td><span class="bw">⚠️ WEAK</span></td>
+  <td><code class="sn">simpl_pmx.py</code><br><small class="nt">Policy 3 — no dedicated PMX tag; needs extension</small></td>
+  <td class="dc"><div class="sc">Verify SIMPL Policy 3 (most aggressive frequency reduction) is selected under maximum combined IO+Mem BW demand. Policy 3 = lowest IO/Mem fabric frequency limits protecting IccMax envelope. ti_gate.b0 / NGA_MAIN . NWP: s</div><div class="e">⚠️ SIMPL Policy 3: same gap — no PMX entry. Consider unified &lt;code&gt;simpl_policy_sweep_pmx.py&lt;/code&gt; covering policies 0-3</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421914" class="ti">22022421914</a></td>
+  <td>SIMPL Policy asymmetric workload</td>
+  <td class="ev">virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">simpl_imh_pmx.py</code><br><small class="nt">asymmetric workload; simpl_imh_pmx for IMH-level test</small></td>
+  <td class="dc"><div class="sc">Verify SIMPL policy selection under asymmetric IO/Mem workload on IMH0. Original intent: two IMHs with different load profiles to drive different policies. NWP adaptation: single IMH0 only — test verifies policy selectio</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715700" class="ti">16030715700</a></td>
+  <td><span class="pss-tag">[PSS]</span> SIMPL - All Fuses Verification</td>
+  <td class="ev">—</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">simpl.py</code><br><small class="nt">[PSS] all fuses via simpl.py PSS path</small></td>
+  <td class="dc"><div class="sc">Objective: [PSS] Verify all SIMPL fuses on PSS (VP/HSLE) model are correctly initialized. PSS value: Validates SIMPL fuse loading path and policy count on pre-silicon model. 2.</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715702" class="ti">16030715702</a></td>
+  <td><span class="pss-tag">[PSS]</span> SIMPL Policy 0 Verification</td>
+  <td class="ev">—</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">simpl_pmx.py</code><br><small class="nt">[PSS] Policy 0 via simpl_pmx PSS</small></td>
+  <td class="dc"><div class="sc">Objective: [PSS] Verify SIMPL policy 0 (default/idle) is active at boot on PSS model. PSS value: Confirms PCode initializes SIMPL to policy 0 on VP/HSLE before any workload. 2.</div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="6"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477949">15019477949</a> — SVID (Serial Voltage ID) <span class="cnt">5 TCs · 5 strong</span></td></tr>
+<tr class="tcd-hdr"><td colspan="6">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420771">22022420771</a>: SVID Basic functionality Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421917" class="ti">22022421917</a></td>
+  <td>SVID Basic commands functionality Verification</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">svid_pmx.py</code><br><small class="nt">SVID basic commands (GetVID, SetVID, FastCmd); runPmx -p svid_check</small></td>
+  <td class="dc"><div class="sc">Verify SVID (Serial Voltage ID) basic commands function correctly on NWP for all active SVID rails. NWP has a modified rail map vs DMR: VCCFA_EHV removed from SVID bus; VCCC2C added at SVID address 05h. Key assertions: G</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421920" class="ti">22022421920</a></td>
+  <td>SVID Registers Verification</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">svid_pmx.py</code><br><small class="nt">SVID register verification (CSR + TPMI)</small></td>
+  <td class="dc"><div class="sc">Verify SVID-related registers (control, status, vendor, capability) contain correct power-on defaults and match spec after BIOS initialization. This is a foundational register-state checkout confirming BIOS SVID init seq</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="6">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420775">22022420775</a>: SVID Mapping/Priority Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421922" class="ti">22022421922</a></td>
+  <td>SVID Addressing Verification</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">svid_pmx.py</code><br><small class="nt">SVID addressing (VR routing, slave address)</small></td>
+  <td class="dc"><div class="sc">Verify SVID bus addressing: each NWP die has a unique VR address on the SVID bus and responds correctly at that address. NWP has 2 CBBs + 1 IMH = 3 SVID-addressable dies (vs DMR’s 4 CBBs + 2 IMHs = 6). Key NWP delta: VCC</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="6">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420781">22022420781</a>: SVID Telemetry Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421924" class="ti">22022421924</a></td>
+  <td>SVID Imon telemetry Verification</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">svid_telemetry_tests.py</code><br><small class="nt">SVID IMON telemetry; svid_telemetry_tests.py</small></td>
+  <td class="dc"><div class="sc">Verify SVID Imon (current monitor) telemetry readings from each VR are non-zero under active workload, within tolerance vs measured/expected values, and correctly accumulate in the RC_MIO_EW SVID accumulator entries (ind</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421926" class="ti">22022421926</a></td>
+  <td>SVID Pmon Telemetry Verification</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="bs">✅ STRONG</span></td>
+  <td><code class="sn">svid_telemetry_tests.py</code><br><small class="nt">SVID PMON telemetry; svid_telemetry_tests.py</small></td>
+  <td class="dc"><div class="sc">Verify SVID Pmon (power monitor) telemetry readings from each VR reflect accurate per-VR power (P = V × I) under workload. Pmon feeds RAPL socket energy accounting: if Pmon is inaccurate, RAPL will over/under-throttle. N</div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="6"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477948">15019477948</a> — SIMPL/DFC — TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420767" style="color:#90caf9">22022420767</a>: SIMPL Telemetry Verification <span class="cnt">0 TCs — needs TC creation</span></td></tr>
+</tbody>
+</table>
+</div></body></html>
