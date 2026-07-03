@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>NWP PM TC-to-Script Alignment — PCT + CBB CCF PM</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",Arial,sans-serif;background:#f0f4f9;font-size:12px;color:#1f2937}
+.hdr{background:#0f4c81;color:#fff;padding:14px 24px}
+.hdr h1{font-size:19px;font-weight:700;margin-bottom:4px}
+.hdr .sub{font-size:10px;opacity:.82}
+.hdr a{color:#90caf9}
+.summary-bar{display:flex;gap:0;background:#fff;border-radius:8px;margin:14px auto;max-width:1600px;box-shadow:0 2px 8px rgba(0,0,0,.1);overflow:hidden}
+.tp-card{flex:1;padding:16px 20px;border-right:1px solid #e8eef7}
+.tp-card:last-child{border-right:none}
+.tp-card h2{font-size:13px;font-weight:600;color:#0f4c81;margin-bottom:8px}
+.tp-card a{color:#0f4c81;text-decoration:none}
+.tp-stats{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.ss{background:#d4edda;color:#155724;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;text-align:center}
+.sw{background:#fff3cd;color:#856404;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;text-align:center}
+.sn{background:#f8d7da;color:#721c24;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;text-align:center}
+.sg{background:#e3f2fd;color:#0d47a1;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;text-align:center}
+.ss .n,.sw .n,.sn .n,.sg .n{font-size:22px;display:block}
+.total-bar{background:#1a5fa8;color:#fff;display:flex;gap:16px;padding:8px 24px;flex-wrap:wrap}
+.ts{background:rgba(255,255,255,.18);border-radius:6px;padding:5px 12px;text-align:center}
+.ts .n{font-size:18px;font-weight:700;display:block}
+.ts .l{font-size:9px;opacity:.8}
+.section-title{font-size:15px;font-weight:700;color:#0f4c81;padding:14px 0 6px;max-width:1600px;margin:0 auto}
+.wrap{max-width:1600px;margin:0 auto;padding:0 14px 40px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:14px}
+th{background:#0f4c81;color:#fff;padding:8px 10px;text-align:left;font-size:10px;font-weight:600;position:sticky;top:0;z-index:10}
+td{padding:7px 9px;vertical-align:top;border-bottom:1px solid #e8eef7;font-size:11px}
+.stp-hdr td{background:#0d47a1;color:#fff;font-weight:700;font-size:12px;padding:8px 14px}
+.stp-hdr a{color:#90caf9;text-decoration:none}
+.tcd-hdr td{background:#e3f2fd;color:#0f4c81;font-size:11px;padding:6px 14px;font-weight:600}
+.tcd-hdr a{color:#0f4c81;text-decoration:none}
+.rs{background:#f1fff4} .rw{background:#fffbf0} .rn{background:#fff5f5}
+tr:hover td{background:#e8f0ff!important}
+.ti{font-weight:700;color:#0f4c81;text-decoration:none}
+.bs{color:#155724} .bw{color:#856404} .bn{color:#721c24}
+code{font-family:Consolas,monospace;font-size:10px;background:#f3f6fb;padding:1px 4px;border-radius:3px}
+.fl{background:#e8f0fe;color:#0f4c81}
+.sc{font-size:10px;color:#444;line-height:1.4;margin-bottom:3px}
+.e{font-size:10px;color:#5d4037;background:#fff8e1;border-left:3px solid #fb8c00;padding:3px 7px;margin-top:3px;border-radius:0 4px 4px 0}
+.emp{background:rgba(255,255,255,.25);border-radius:10px;padding:2px 8px;font-size:10px;float:right}
+</style>
+</head><body>
+<div class="hdr">
+  <h1>NWP PM — TC-to-Script Alignment Report</h1>
+  <div class="sub">Script root: <code>C:\githubrameworks.validation.pythonsv.projects.diamondrapids\pm</code> &nbsp;|&nbsp; Generated 2026-07-03 &nbsp;|&nbsp; 39 TCs across 2 TPs</div>
+</div>
+<div class="total-bar">
+  <div class="ts"><span class="n">39</span><span class="l">Total TCs</span></div>
+  <div class="ts"><span class="n">32</span><span class="l">✅ STRONG</span></div>
+  <div class="ts"><span class="n">7</span><span class="l">⚠️ WEAK</span></div>
+  <div class="ts"><span class="n">0</span><span class="l">❌ No Match</span></div>
+  <div class="ts"><span class="n">2</span><span class="l">TPs Analyzed</span></div>
+</div>
+<div style="max-width:1600px;margin:14px auto;padding:0 14px">
+<div class="summary-bar">
+  <div class="tp-card">
+    <h2><a href="https://hsdes.intel.com/appstore/article-one/#/16030762939">TP 16030762939</a> — PCT (Priority Core Turbo)</h2>
+    <div style="font-size:11px;color:#555;margin-bottom:8px">Parent TP → 5 TCDs (direct) → 28 TCs total → 24 in-scope (4 [PV] excluded)</div>
+    <div class="tp-stats">
+      <div class="ss"><span class="n">17</span>STRONG</div>
+      <div class="sw"><span class="n">7</span>WEAK</div>
+      <div class="sn"><span class="n">0</span>NO_MATCH</div>
+    </div>
+    <div style="margin-top:8px;font-size:10px;color:#666">Primary scripts: <code>pct_pmx.py</code>, <code>pct_focus.py</code>, <code>pss/pct/tc_*.py</code></div>
+  </div>
+  <div class="tp-card">
+    <h2><a href="https://hsdes.intel.com/appstore/article-one/#/22022420505">TP 22022420505</a> — CBB CCF PM</h2>
+    <div style="font-size:11px;color:#555;margin-bottom:8px">Parent TP → 5 Sub-TPs → 12 TCDs → 15 TCs (+ 7 empty TCDs in CBB UFS sub-TP)</div>
+    <div class="tp-stats">
+      <div class="ss"><span class="n">15</span>STRONG</div>
+      <div class="sw"><span class="n">0</span>WEAK</div>
+      <div class="sn"><span class="n">0</span>NO_MATCH</div>
+      <div class="sg"><span class="n">7</span>Empty TCDs</div>
+    </div>
+    <div style="margin-top:8px;font-size:10px;color:#666">Primary script: <code>pmx_ccf_cbo.py</code> (per-TC <code>--test_ccf_*</code> flags)</div>
+  </div>
+</div>
+</div>
+<div class="wrap">
+<div class="section-title">TP 16030762939 — PCT (Priority Core Turbo) &nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030762939" style="font-size:12px;color:#0f4c81;font-weight:400">↗</a></div>
+<table>
+<thead><tr>
+  <th style="width:90px">TC ID</th><th style="width:210px">Title</th>
+  <th style="width:100px">Match</th><th style="width:160px">Script</th>
+  <th>Scope / Enhancement</th>
+</tr></thead>
+<tbody><tr class="tcd-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/?">?</a> — PCT - Enabling &amp; Discovery</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422100" class="ti">22022422100</a></td>
+  <td>PCT - BIOS Menu</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pct_focus.py</code><br><small>pct, bios, capid4</small></td>
+  <td><div class="sc">Verify that the BIOS Setup menu exposes correct PCT configuration knobs with proper defaults and value ranges, as specified in PCT HAS Table 4. Specif</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422103" class="ti">22022422103</a></td>
+  <td>PCT - TPMI register check</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pct_focus.py</code><br><small>pct, bios, capid4, PctCapableSystem</small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/?">?</a> — PCT - Functionality</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422104" class="ti">22022422104</a></td>
+  <td>PCT - All HP cores in C6</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>tc_16030715676_all_hp_in_c6.py</code><br><small>all hp, c6, hp cores in c6, c-state</small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422105" class="ti">22022422105</a></td>
+  <td>PCT - Default HP core selection</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pct_focus.py</code><br><small>pct, bios, hp core</small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422110" class="ti">22022422110</a></td>
+  <td>PCT - SST-PP x PCT Basic Checks</td>
+  <td><span class="bw">⚠️</span> WEAK</td>
+  <td><code>run_pct_pss_suite.py</code><br><small>pct</small></td>
+  <td><div class="sc"></div><div class="e">🚫 ZBB — SST-PP not available on NWP</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422116" class="ti">22022422116</a></td>
+  <td>PCT - Turbo frequency check</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pct_pmx.py</code><br><small>pct, turbo, hp core, lp core</small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422117" class="ti">22022422117</a></td>
+  <td>PCT - Verify TDP convergence</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pct_pmx.py</code><br><small>pct, hp core, lp core, convergence</small></td>
+  <td><div class="sc">Verify the Socket RAPL x PCT cross-product behavior under PL1/TDP enforcement on NWP. When the socket is power-constrained by RAPL PL1, PCT Ordered Th</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715676" class="ti">16030715676</a></td>
+  <td>[PSS]PCT - All HP cores in C6</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>tc_16030715676_all_hp_in_c6.py</code><br><small>all hp, c6, hp cores in c6</small></td>
+  <td><div class="sc">Objective: Verify PCT behavior when all HP cores are in C6 on HSLE XOS. Validates that cross-die HPM protocol correctly handles the HP-idle state; MC6</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715678" class="ti">16030715678</a></td>
+  <td>[PSS]PCT - BIOS Menu</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pct_focus.py</code><br><small>pct, bios, nvram, capid4</small></td>
+  <td><div class="sc">Objective: Verify BIOS correctly enables/disables PCT via BIOS setup knobs and that NVRAM values are pushed and reflected in TPMI after boot. PSS Envi</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715680" class="ti">16030715680</a></td>
+  <td>[PSS]PCT - BIOS Negative Validation</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>tc_16030715680_bios_negative.py</code><br><small>negative, invalid, bios negative, nvram</small></td>
+  <td><div class="sc">Objective: Verify that BIOS correctly rejects invalid PCT BIOS knob values (non-multiple of 4, out-of-range) and that invalid values are not pushed to</div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715682" class="ti">16030715682</a></td>
+  <td>[PSS]PCT - DQ Rules (FlexconPM)</td>
+  <td><span class="bw">⚠️</span> WEAK</td>
+  <td><code>tc_16030715690_tpmi_register_check.py</code><br><small>tpmi, flexcon</small></td>
+  <td><div class="sc">Objective: Verify PCT fuse-to-TPMI propagation and DQ rule execution on PSS (VP/HSLE) via FlexconPM. FlexconPM runs DQ (Decision Queue) rule checks po</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715684" class="ti">16030715684</a></td>
+  <td>[PSS]PCT - Default Disabled</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pct_focus.py</code><br><small>pct, bios, nvram, capid4</small></td>
+  <td><div class="sc">Objective: Verify that PCT is disabled by default when PctHpModuleCount=0 or BIOS PCT knob=Disabled. When PCT is disabled: SST_CP_ENABLE=0; all cores </div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715686" class="ti">16030715686</a></td>
+  <td>[PSS]PCT - Default HP core selection</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pct_focus.py</code><br><small>pct, bios, nvram, hp core</small></td>
+  <td><div class="sc">Objective: Verify on PSS that the default HP core selection (first N modules per CBB, ordered, first core always HP) is correctly implemented by PCode</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715690" class="ti">16030715690</a></td>
+  <td>[PSS]PCT - TPMI register check (FlexconPM)</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>tc_16030715690_tpmi_register_check.py</code><br><small>tpmi, register check, clos, flexcon</small></td>
+  <td><div class="sc">Objective: Verify TPMI SST_CLOS registers reflect correct HP/LP assignment on PSS via FlexconPM. Uses FlexconPM automated register check on VP/HSLE. P</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715692" class="ti">16030715692</a></td>
+  <td>[PSS]PCT - Turbo frequency check</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pct_pmx.py</code><br><small>pct, turbo, hp core, lp core</small></td>
+  <td><div class="sc">Objective: Verify on PSS (HSLE XOS or VP) that HP cores are assigned to a higher SST-TF bucket than LP cores. On VP, actual frequency values are model</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715694" class="ti">16030715694</a></td>
+  <td>[PSS]PCT - enable/disable</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>tc_16030715694_enable_disable.py</code><br><small>sst_cp_enable, runtime, toggle</small></td>
+  <td><div class="sc">Objective: Verify PCT can be enabled and disabled at runtime on PSS via TPMI SST_CP_CONTROL. Validates PCode response to runtime PCT toggle on the PSS</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030768619" class="ti">16030768619</a></td>
+  <td>PCT - Default Enabled</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pct_focus.py</code><br><small>pct, bios, capid4</small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030768620" class="ti">16030768620</a></td>
+  <td>PCT - TPMI runtime enable/disable</td>
+  <td><span class="bw">⚠️</span> WEAK</td>
+  <td><code>tc_16030715690_tpmi_register_check.py</code><br><small>tpmi, register check</small></td>
+  <td><div class="sc">Verify that PCT can be dynamically enabled and disabled at runtime via TPMI write to SST_PP_CONTROL.feature_state[bit 1] , and that the system correct</div><div class="e">Gap: needs runtime TPMI write+re-read</div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030768621" class="ti">16030768621</a></td>
+  <td>PCT - TPMI runtime negative validation</td>
+  <td><span class="bw">⚠️</span> WEAK</td>
+  <td><code>tc_16030715680_bios_negative.py</code><br><small>negative, invalid</small></td>
+  <td><div class="sc">Objective: Verify that PCode correctly rejects or handles invalid PCT partition count configurations via TPMI. Invalid conditions tested: (1) HP count</div><div class="e">Gap: needs runtime TPMI write+re-read</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/?">?</a> — PCT - Fuse</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422118" class="ti">22022422118</a></td>
+  <td>PCT - DQ Rules (FlexconPM)</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pct_focus.py</code><br><small>pct, capability, bios, nvram</small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/?">?</a> — PCT - DLCP (Die Level Cherry Picking)</td></tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030982833" class="ti">16030982833</a></td>
+  <td>PCT - DLCP SST_TF_INFO_10 Fuse-to-Register Verification</td>
+  <td><span class="bw">⚠️</span> WEAK</td>
+  <td><code>tc_16030715690_tpmi_register_check.py</code><br><small>tpmi</small></td>
+  <td><div class="sc"></div><div class="e">Gap: no script for DLCP checks</div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030982837" class="ti">16030982837</a></td>
+  <td>PCT - DLCP HP Core Position and HWP Capabilities Verification</td>
+  <td><span class="bw">⚠️</span> WEAK</td>
+  <td><code>tc_16030715682_dq_rules.py</code><br><small>sst_tf_info, hp core</small></td>
+  <td><div class="sc"></div><div class="e">Gap: no script for DLCP checks</div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030982844" class="ti">16030982844</a></td>
+  <td>PCT - Per-SST-Instance Programming Completeness (NWP 2-CBB)</td>
+  <td><span class="bw">⚠️</span> WEAK</td>
+  <td><code>pct_focus.py</code><br><small>pct, bios</small></td>
+  <td><div class="sc"></div><div class="e">Gap: no script for DLCP checks</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030982850" class="ti">16030982850</a></td>
+  <td>PCT - NWP MADT Partition Algorithm Validation</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pct_pmx.py</code><br><small>pct, hp core, ratio</small></td>
+  <td><div class="sc">Verify BIOS correctly maps NWP 96 cores (2 CBBs x 48, no SMT) into N equal partitions using MADT/APIC ID order, and that HP cores are the first 2 per </div></td>
+</tr>
+</tbody>
+</table>
+<div class="section-title">TP 22022420505 — CBB CCF PM &nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420505" style="font-size:12px;color:#0f4c81;font-weight:400">↗</a></div>
+<table>
+<thead><tr>
+  <th style="width:90px">TC ID</th><th style="width:210px">Title</th>
+  <th style="width:100px">Match</th><th style="width:160px">Script / Flag</th>
+  <th>Scope / Enhancement</th>
+</tr></thead>
+<tbody><tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420507">22022420507</a> — CBB CCF Active States</td></tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421165">22022421165</a> — CBB CCF GV BIOS Configuration</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422850" class="ti">22022422850</a></td>
+  <td>CBB CCF GV BIOS Configuration</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pmx_ccf_cbo.py</code><br><code class="fl">--test_ccf_tpmi_gv</code></td>
+  <td><div class="sc"></div><div class="e">⚠️ GV BIOS config: <code>--test_ccf_tpmi_gv</code> covers TPMI GV requests but does not explicitly validate BIOS knob-to-register propagation chain; add NVRAM/BIOS knob read step</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421168">22022421168</a> — CBB CCF GV PEGA</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422851" class="ti">22022422851</a></td>
+  <td>CBB CCF GV PEGA Injection</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pmx_ccf_cbo.py</code><br><code class="fl">--test_ccf_pega_pstate</code></td>
+  <td><div class="sc">Objective: Verify that CBB CCF ring frequency responds correctly to synthetic PEGA (Power Engine Generic Agent) mailbox injections. PEGA injects P-state requests for fabric domains (meshgv, iagv, memg</div><div class="e">⚠️ PEGA injection: <code>--test_ccf_pega_pstate</code> option is present but function body is incomplete in template state — verify actual PEGA injection logic is implemented in <code>ccf_gv.py</code></div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421171">22022421171</a> — CBB CCF GV TPMI Interface</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422859" class="ti">22022422859</a></td>
+  <td>CBB CCF GV TPMI Request</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pmx_ccf_cbo.py</code><br><code class="fl">--test_ccf_tpmi_gv</code></td>
+  <td><div class="sc"></div><div class="e">⚠️ Same flag as BIOS Config TC (<code>--test_ccf_tpmi_gv</code>) — may need a separate flag to distinguish TPMI ring freq request from BIOS config checkout</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421174">22022421174</a> — CBB CCF VF Curves</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422863" class="ti">22022422863</a></td>
+  <td>CBB CCF VF Curves</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>vf_curves_check.py</code><br><code class="fl">standalone</code></td>
+  <td><div class="sc"></div><div class="e">⚠️ <code>vf_curves_check.py</code> is in <code>Active_PM/Pstate_Stack/</code> not CCF_GV — confirm this script handles CCF ring VF curves not just core VF; add ring-specific assertions</div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420512">22022420512</a> — CBB CCF Idle States</td></tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421179">22022421179</a> — CBB CCF Idle states</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422865" class="ti">22022422865</a></td>
+  <td>CBB CCF Fast Ring C3</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pmx_ccf_cbo.py</code><br><code class="fl">--test_ccf_fast_ring_c3</code></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422868" class="ti">22022422868</a></td>
+  <td>CBB CCF PM Cstate wake events across Activeidle</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pmx_ccf_cbo.py</code><br><code class="fl">--test_ccf_cstate_x_wake_event</code></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422873" class="ti">22022422873</a></td>
+  <td>CBB CCF Ring C3</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pmx_ccf_cbo.py</code><br><code class="fl">--test_ccf_ring_c3</code></td>
+  <td><div class="sc">Objective: Validate CBB CCF Ring C3 entry and exit — the deep CCF power-off state that shuts down the Ring PLLs, drains the CCF ring fabric, gates VCCRING, and transitions the D2D UCIe link to L1. On </div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420513">22022420513</a> — CBB CCF NonAutoGV</td></tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421183">22022421183</a> — CBB CCF NonAutoGV Mode - Drainless / Fast GV</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422878" class="ti">22022422878</a></td>
+  <td>CBB CCF NonAutoGV Mode -  Fast GV</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pmx_ccf_cbo.py</code><br><code class="fl">--test_ccf_fast_gv</code></td>
+  <td><div class="sc">Objective: Validate CBB CCF Non-Autonomous GV (NonAutoGV) mode and Fast GV (drainless frequency transition). In NonAutoGV mode, the TPMI UFS_CONTROL is programmed with UFS_THROTTLE_MODE=0 and MIN_RATI</div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420514">22022420514</a> — CBB CCF Ring Frequency Scalability</td></tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421190">22022421190</a> — CBB  CCF PMON</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422886" class="ti">22022422886</a></td>
+  <td>CBB CCF PMON</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pmx_ccf_cbo.py</code><br><code class="fl">--test_ccf_pmon</code></td>
+  <td><div class="sc">Objective: Validate CBB CCF Performance Monitor (PMON) counters that measure CCF ring activity: bandwidth utilization, stall cycles, snoop traffic, and frequency-state occupancy. Tests verify counters</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421194">22022421194</a> — CBB CCF CBO Telemetry</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422889" class="ti">22022422889</a></td>
+  <td>CBB CCF CBO Telemetry</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pmx_ccf_cbo.py</code><br><code class="fl">--test_ccf_cbo_telemetry</code></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421197">22022421197</a> — CBB CCF Distress Signal</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422894" class="ti">22022422894</a></td>
+  <td>CBB CCF Distress signal</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pmx_ccf_cbo.py</code><br><code class="fl">--test_ccf_distress_to_punit</code></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422895" class="ti">22022422895</a></td>
+  <td>CBB CCF Snoop Scalability/Distress</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pmx_ccf_cbo.py</code><br><code class="fl">--test_ccf_pmon</code></td>
+  <td><div class="sc"></div><div class="e">⚠️ Snoop scalability uses same flag as basic distress (<code>--test_ccf_pmon</code>) — needs a dedicated <code>--test_ccf_snoop_scalability</code> flag or combined distress+snoop test function</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421199">22022421199</a> — CBB CCF Message To Punit</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422896" class="ti">22022422896</a></td>
+  <td>CBB CCF Message to Punit</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pmx_ccf_cbo.py</code><br><code class="fl">--test_ccf_distress_to_punit</code></td>
+  <td><div class="sc"></div><div class="e">⚠️ 'Message to PUnit' overlaps with distress flag — needs explicit HPM/PCM mailbox message verification; consider <code>--test_ccf_message_to_punit</code> as separate option</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421202">22022421202</a> — CBB CCF SBO Telemetry</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422900" class="ti">22022422900</a></td>
+  <td>CBB CCF SBO Telemetry</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pmx_ccf_cbo.py</code><br><code class="fl">--test_ccf_sbo_telemetry</code></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421205">22022421205</a> — CCB CCF PCODE algorithm for distress input</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422905" class="ti">22022422905</a></td>
+  <td>CBB CCF PCODE algorithm for distress input</td>
+  <td><span class="bs">✅</span> STRONG</td>
+  <td><code>pmx_ccf_cbo.py</code><br><code class="fl">--test_ccf_pcode_to_distress_input</code></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420515">22022420515</a> — CBB Uniform Fabric Frequency <span class="emp">7 empty TCDs — No TCs</span></td></tr>
+</tbody>
+</table>
+</div>
+</body></html>
