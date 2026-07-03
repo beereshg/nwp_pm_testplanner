@@ -1,0 +1,3685 @@
+{
+  "tcs": [
+    {
+      "id": "14019957045",
+      "title": "[GPIO Interface] Verify XX_PROCHOT_N input pin assertion",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] GPIO Interface",
+      "cmd": "Manual execution + thermal debug script"
+    },
+    {
+      "id": "14019957052",
+      "title": "[GPIO Interface] Verify XX_THERMTRIP_N input/output pin assertion",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] GPIO Interface",
+      "cmd": "Manual execution + thermal debug script"
+    },
+    {
+      "id": "14019957069",
+      "title": "[GPIO Interface] Verify XX_MEMTRIP_N output pin assertion",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] GPIO Interface",
+      "cmd": "Manual execution + thermal debug script"
+    },
+    {
+      "id": "14019957078",
+      "title": "[GPIO Interface] Verify XX_MEMHOT_IN_N input pin assertion",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] GPIO Interface",
+      "cmd": "Manual execution + thermal debug script"
+    },
+    {
+      "id": "14019957087",
+      "title": "[GPIO Interface] Verify XX_MEMHOT_OUT_N output pin assertion",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] GPIO Interface",
+      "cmd": "Manual execution + thermal debug script"
+    },
+    {
+      "id": "14025494927",
+      "title": "[GPIO Interface] Verify GPIO_BUMP Thermals fuses",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] GPIO Interface",
+      "cmd": "pysvext.diamondrapids_flexcon.plugins.flexcon_pm.py"
+    },
+    {
+      "id": "14019959377",
+      "title": "[Throttle Mechanism Across IPs] Verify Mesh Primecode throttling",
+      "status": "rejected",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Throttle Mechanism Across IPs",
+      "cmd": ""
+    },
+    {
+      "id": "14019957139",
+      "title": "[Prochot Flow] Verify operation of Prochot Response Power",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Prochot Flow",
+      "cmd": "python runPmx.py -x dmr.xml -p prochot_thermal  -tM 20 -M 5"
+    },
+    {
+      "id": "14019957154",
+      "title": "[Prochot Flow] Verify Prochot IMH Entry and Exit Flow",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Prochot Flow",
+      "cmd": "python runPmx.py -x dmr.xml -p prochot_thermal  -tM 20 -M 5"
+    },
+    {
+      "id": "14019957162",
+      "title": "[Prochot Flow] Verify Prochot CBB Entry and Exit Flow",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Prochot Flow",
+      "cmd": "python runPmx.py -x dmr.xml -p prochot_thermal  -tM 20 -M 5"
+    },
+    {
+      "id": "14019957213",
+      "title": "[VR Hot] Verify CBB VR Hot Actions",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] VR Hot",
+      "cmd": "python runPmx.py -x dmr.xml -p prochot_thermal  -tM 20 -M 5"
+    },
+    {
+      "id": "14019957220",
+      "title": "[VR Hot] Verify IMH VR Hot Actions",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] VR Hot",
+      "cmd": "python runPmx.py -x dmr.xml -p prochot_thermal  -tM 20 -M 5"
+    },
+    {
+      "id": "14019957224",
+      "title": "[VR Hot] Verify VR_THERM_ALERT_DISABLE",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] VR Hot",
+      "cmd": "python runPmx.py -x dmr.xml -p prochot_thermal  -tM 20 -M 5"
+    },
+    {
+      "id": "14020916932",
+      "title": "[VR Hot] Verify VR_THERM_ALERT_DISABLE_emulation",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] VR Hot",
+      "cmd": ""
+    },
+    {
+      "id": "14019957812",
+      "title": "[IMH DTS & Telemetry] Verify Memory DTS Functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] IMH DTS & Telemetry",
+      "cmd": "runPmx.py -x dmr.xml -p dts_telemetry -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019957818",
+      "title": "[IMH DTS & Telemetry] Verify D2D DTS Functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] IMH DTS & Telemetry",
+      "cmd": "runPmx.py -x dmr.xml -p dts_telemetry -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019957828",
+      "title": "[IMH DTS & Telemetry] Verify MIO DTS Functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] IMH DTS & Telemetry",
+      "cmd": "runPmx.py -x dmr.xml -p dts_telemetry -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019957835",
+      "title": "[IMH DTS & Telemetry] Verify Accelerator DTS Functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] IMH DTS & Telemetry",
+      "cmd": "runPmx.py -x dmr.xml -p dts_telemetry -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019957850",
+      "title": "[IMH DTS & Telemetry] Verify Memory Fabric DTS Functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] IMH DTS & Telemetry",
+      "cmd": "runPmx.py -x dmr.xml -p dts_telemetry -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019957860",
+      "title": "[IMH DTS & Telemetry] Verify IO Fabric DTS Functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] IMH DTS & Telemetry",
+      "cmd": "runPmx.py -x dmr.xml -p dts_telemetry -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019957864",
+      "title": "[IMH DTS & Telemetry] Verify CGU DTS Functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] IMH DTS & Telemetry",
+      "cmd": "runPmx.py -x dmr.xml -p dts_telemetry -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019957904",
+      "title": "[ITD] Verify CCF (VccRing) ITD",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "python runPmx.py -x dmr.xml -p itd_thermal  -tM 9 -M 3"
+    },
+    {
+      "id": "14019957908",
+      "title": "[ITD] Verify UCIe (VCCC2IA) ITD",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "python runPmx.py -x dmr.xml -p itd_thermal  -tM 9 -M 3"
+    },
+    {
+      "id": "14019957931",
+      "title": "[ITD] Verify Inf (VccInf) ITD",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "python runPmx.py -x dmr.xml -p itd_thermal  -tM 9 -M 3"
+    },
+    {
+      "id": "14019957991",
+      "title": "[ITD] Verify Core MLC SSA (VCC MLC SSA) ITD",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "python runPmx.py -x dmr.xml -p itd_thermal  -tM 9 -M 3"
+    },
+    {
+      "id": "14019957996",
+      "title": "[ITD] Verify ACP (VccCore) ITD",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "python runPmx.py -x dmr.xml -p itd_thermal  -tM 9 -M 3"
+    },
+    {
+      "id": "14019958000",
+      "title": "[ITD] Verify ITD during reset",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "pm.Active_pm.Thermal_Management.CPU_thermals.itd.py"
+    },
+    {
+      "id": "14019958007",
+      "title": "[ITD] Verify ITD disable",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "python runPmx.py -x dmr.xml -p itd_thermal  -tM 9 -M 3"
+    },
+    {
+      "id": "14019958012",
+      "title": "[ITD] Verify VCCCFCMEM ITD",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "python runPmx.py -x dmr.xml -p itd_thermal  -tM 9 -M 3"
+    },
+    {
+      "id": "14019958021",
+      "title": "[ITD] Verify VCCCFCIO ITD",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "python runPmx.py -x dmr.xml -p itd_thermal  -tM 9 -M 3"
+    },
+    {
+      "id": "14019958025",
+      "title": "[ITD] Verify VCCFIXDIG ITD",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "python runPmx.py -x dmr.xml -p itd_thermal  -tM 9 -M 3"
+    },
+    {
+      "id": "14019958030",
+      "title": "[ITD] Verify VCCUCIEA ITD",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "python runPmx.py -x dmr.xml -p itd_thermal  -tM 9 -M 3"
+    },
+    {
+      "id": "14019958035",
+      "title": "[ITD] Verify ITD and PkgC6 Interaction",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "python runPmx.py -x dmr.xml -p itd_thermal  -tM 9 -M 3"
+    },
+    {
+      "id": "14020906454",
+      "title": "[ITD] Verify ITD and PkgC6 Interaction_emulation",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "pm.Active_pm.Thermal_Management.CPU_thermals.itd.py"
+    },
+    {
+      "id": "14020906589",
+      "title": "[ITD] Verify ITD during reset_emulation",
+      "status": "rejected",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "pm.Active_pm.Thermal_Management.CPU_thermals.itd.py"
+    },
+    {
+      "id": "14020906726",
+      "title": "[ITD] Verify VCCCFCIO ITD_emulation",
+      "status": "rejected",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "pm.Active_pm.Thermal_Management.CPU_thermals.itd.py"
+    },
+    {
+      "id": "14020906786",
+      "title": "[ITD] Verify VCCCFCMEM ITD_emulation",
+      "status": "rejected",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "pm.Active_pm.Thermal_Management.CPU_thermals.itd.py"
+    },
+    {
+      "id": "14021349691",
+      "title": "[ITD] Fuse checkout",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ITD",
+      "cmd": "python runPmx.py -x dmr.xml -p itd_thermal  -tM 9 -M 3"
+    },
+    {
+      "id": "14019959368",
+      "title": "[CBB DTS & Telemetry] Verify Core Disabled DTS operation",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] CBB DTS & Telemetry",
+      "cmd": "runPmx.py -x dmr.xml -p core_dts_disable -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020594280",
+      "title": "[CBB DTS & Telemetry] Verify CCP Thermal Telemetry",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] CBB DTS & Telemetry",
+      "cmd": "runPmx.py -x dmr.xml -p dts_telemetry -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020598542",
+      "title": "[CBB DTS & Telemetry] Verify Core DTS Functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] CBB DTS & Telemetry",
+      "cmd": "runPmx.py -x dmr.xml -p dts_telemetry -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020598557",
+      "title": "[CBB DTS & Telemetry] Verify AON DTS Functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] CBB DTS & Telemetry",
+      "cmd": "runPmx.py -x dmr.xml -p dts_telemetry -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020598568",
+      "title": "[CBB DTS & Telemetry] Verify SOC DTS Functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] CBB DTS & Telemetry",
+      "cmd": "runPmx.py -x dmr.xml -p dts_telemetry -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020598593",
+      "title": "[CBB DTS & Telemetry] Verify CBO Cluster DTS Functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] CBB DTS & Telemetry",
+      "cmd": "runPmx.py -x dmr.xml -p dts_telemetry -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020906398",
+      "title": "[CBB DTS & Telemetry] Verify Core DTS Functionality_emulation",
+      "status": "rejected",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] CBB DTS & Telemetry",
+      "cmd": ""
+    },
+    {
+      "id": "14019957688",
+      "title": "[Thermal Reporting] Verify IA32_THERM_STATUS (Core MSR 0x19c)",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Reporting",
+      "cmd": "python runPmx.py -x dmr.xml -p thermal_interrupt  -tM 60 -M 5"
+    },
+    {
+      "id": "14019957701",
+      "title": "[Thermal Reporting] Verify IA32_PACKAGE_THERM_STATUS",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Reporting",
+      "cmd": "python runPmx.py -x dmr.xml -p thermal_interrupt  -tM 60 -M 5"
+    },
+    {
+      "id": "14019957709",
+      "title": "[Thermal Reporting] Verify IA32_PACKAGE_THERM_MARGIN",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Reporting",
+      "cmd": "https://github.com/intel-restricted/frameworks.validation.pythonsv.projects.diamondrapids/tree/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalManagement.py"
+    },
+    {
+      "id": "14019957726",
+      "title": "[Thermal Reporting] Verify MSR 0x1A4 MCP_THERMAL_REPORT_2",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Reporting",
+      "cmd": "https://github.com/intel-restricted/frameworks.validation.pythonsv.projects.diamondrapids/tree/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalManagement.py"
+    },
+    {
+      "id": "14019957735",
+      "title": "[Thermal Reporting] Verify IA32_TEMPERATURE_TARGET",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Reporting",
+      "cmd": "https://github.com/intel-restricted/frameworks.validation.pythonsv.projects.diamondrapids/tree/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalManagement.py"
+    },
+    {
+      "id": "14019957745",
+      "title": "[Thermal Reporting] Verify IA32_MISC_ENABLES (Thread vMSR 0x1a0)",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Reporting",
+      "cmd": "Manual"
+    },
+    {
+      "id": "14019957752",
+      "title": "[Thermal Reporting] Verify CORE_PERF_LIMIT_REASONS",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Reporting",
+      "cmd": "this is covered by 3 different scripts (emttm, prochot and vr_hot TCs with PLR check); no dedicated command line for this TC"
+    },
+    {
+      "id": "14019957773",
+      "title": "[Thermal Reporting] Verify POWER_CTL",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Reporting",
+      "cmd": "https://github.com/intel-restricted/frameworks.validation.pythonsv.projects.diamondrapids/tree/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalManagement.py"
+    },
+    {
+      "id": "14021604196",
+      "title": "[Thermal Reporting] Verify DTS temperature reporting during reset",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Reporting",
+      "cmd": "TBD (New script)"
+    },
+    {
+      "id": "14021861938",
+      "title": "[Thermal Reporting] Verify MSR 0x1A3 MCP_THERMAL_REPORT_1",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Reporting",
+      "cmd": "PMX automated, need to edit xml"
+    },
+    {
+      "id": "14022077263",
+      "title": "[Thermal Reporting][BEAT] Extended C6 validation for Thermal Die Level PLR",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Reporting",
+      "cmd": "https://github.com/intel-restricted/frameworks.validation.pythonsv.projects.diamondrapids/tree/main/pm/Active_PM/Thermal_Management/CPU_Thermal_Management/thermalManagement.py"
+    },
+    {
+      "id": "14019959292",
+      "title": "[CBB Thermal Management] Verify CBB Temperature Target Handling",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] CBB Thermal Management",
+      "cmd": "pm.Active_pm.Thermal_Management.CPU_thermals.thermalManagement.py.thermTest"
+    },
+    {
+      "id": "14019959296",
+      "title": "[CBB Thermal Management] Verify CBB EMTTM Soft Throttle due to Self Throttle",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] CBB Thermal Management",
+      "cmd": "python runPmx.py -x dmr.xml -p emttm_thermal -tM 30 -M 6"
+    },
+    {
+      "id": "14019959298",
+      "title": "[CBB Thermal Management] Verify CBB EMTTM Soft Throttle due to Cross Throttle",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] CBB Thermal Management",
+      "cmd": "python runPmx.py -x dmr.xml -p emttm_thermal -tM 30 -M 6"
+    },
+    {
+      "id": "14019959301",
+      "title": "[CBB Thermal Management] Verify CBB EMTTM Disable",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] CBB Thermal Management",
+      "cmd": "python runPmx.py -x dmr.xml -p emttm_thermal -tM 30 -M 6"
+    },
+    {
+      "id": "14020593954",
+      "title": "[CBB Thermal Management] Verify Core Cross Throttle Due to Ring",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] CBB Thermal Management",
+      "cmd": "python runPmx.py -x dmr.xml -p emttm_thermal -tM 30 -M 6"
+    },
+    {
+      "id": "14019959340",
+      "title": "[IMH Thermal Management] Verify Cross Die Throttle Reporting",
+      "status": "rejected",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] IMH Thermal Management",
+      "cmd": "pm.Active_pm.Thermal_Management.CPU_thermals.thermalManagement.py.thermTest"
+    },
+    {
+      "id": "14019959344",
+      "title": "[IMH Thermal Management] Verify Uncore Throttling (PID)",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] IMH Thermal Management",
+      "cmd": "python runPmx.py -x dmr.xml -p emttm_thermal -tM 30 -M 6"
+    },
+    {
+      "id": "14019959349",
+      "title": "[IMH Thermal Management] Verify Cold Action",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] IMH Thermal Management",
+      "cmd": "pm.Active_pm.Thermal_Management.CPU_thermals.thermalManagement.py.thermTest"
+    },
+    {
+      "id": "14019959352",
+      "title": "[IMH Thermal Management] Verify Disabling Uncore Thermal Throttling",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] IMH Thermal Management",
+      "cmd": "pm.Active_pm.Thermal_Management.CPU_thermals.thermalManagement.py.thermTest"
+    },
+    {
+      "id": "14019957652",
+      "title": "[TPMI/PMT] Verify Package Thermal Status TPMI Register",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] TPMI/PMT",
+      "cmd": "runPmx.py -x dmr.xml -p pmt_thermal -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019957656",
+      "title": "[TPMI/PMT] Verify Thermal Monitor Filtering TPMI Register",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] TPMI/PMT",
+      "cmd": "thermalManagement.py\n[pm/Active_PM/Thermal_Management/CPU_Thermal_Management/Demo_DMR_TMF.py]"
+    },
+    {
+      "id": "14019957665",
+      "title": "[TPMI/PMT] Verify Package Temperature PMT Register",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] TPMI/PMT",
+      "cmd": "runPmx.py -x dmr.xml -p pmt_thermal -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019957669",
+      "title": "[TPMI/PMT] Verify Aggregate Margin to Tcontrol PMT Register",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] TPMI/PMT",
+      "cmd": "runPmx.py -x dmr.xml -p pmt_thermal -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019957673",
+      "title": "[TPMI/PMT] Verify Temperature Target PMT Register",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] TPMI/PMT",
+      "cmd": "runPmx.py -x dmr.xml -p pmt_thermal -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019957681",
+      "title": "[TPMI/PMT] Verify Thermal Constrained Time PMT Register",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] TPMI/PMT",
+      "cmd": "runPmx.py -x dmr.xml -p pmt_thermal -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019959390",
+      "title": "[ACP] Verify Configuration of Core's Temperature Target",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ACP (Autonomous Core Perimeter)",
+      "cmd": "thermalManagement.py"
+    },
+    {
+      "id": "14019959393",
+      "title": "[ACP] Verify Report out of Frequency Reduction Reason",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ACP (Autonomous Core Perimeter)",
+      "cmd": "pm.Active_pm.Thermal_Management.CPU_thermals.thermalManagement.py.thermTest"
+    },
+    {
+      "id": "14019959397",
+      "title": "[ACP] Verify Core Cross Throttle",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ACP (Autonomous Core Perimeter)",
+      "cmd": "python runPmx.py -x dmr.xml -p emttm_thermal -tM 30 -M 6"
+    },
+    {
+      "id": "14019959398",
+      "title": "[ACP] Verify Core EMTTM Disable",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ACP (Autonomous Core Perimeter)",
+      "cmd": "python runPmx.py -x dmr.xml -p emttm_thermal -tM 30 -M 6"
+    },
+    {
+      "id": "14020490258",
+      "title": "[ACP] Verify Core Thermal Information",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ACP (Autonomous Core Perimeter)",
+      "cmd": "pm.Active_pm.Thermal_Management.CPU_thermals.thermalManagement.py.thermTest"
+    },
+    {
+      "id": "14020906348",
+      "title": "[ACP] Verify Core Cross Throttle_emulation",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] ACP (Autonomous Core Perimeter)",
+      "cmd": "thermalManagement.py"
+    },
+    {
+      "id": "14019957545",
+      "title": "[Thermal Interrupts] Verify IA32_THERM_INTERRUPT (Core MSR 0x19b)",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Interrupts",
+      "cmd": "python runPmx.py -x dmr.xml -p thermal_interrupt  -tM 60 -M 5"
+    },
+    {
+      "id": "14019957551",
+      "title": "[Thermal Interrupts] Verify IA32_PACKAGE_THERM_INTERRUPT (Pkg MSR 0x1b2)",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Interrupts",
+      "cmd": "python runPmx.py -x dmr.xml -p thermal_interrupt  -tM 60 -M 5"
+    },
+    {
+      "id": "14019957563",
+      "title": "[Thermal Interrupts] HW_FEEDBACK_NOTIFICATION interrupt",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Interrupts",
+      "cmd": "pm/Active_PM/Thermal_Management/CPU_Thermal_Management/HWP_Interrupt.py"
+    },
+    {
+      "id": "14019957580",
+      "title": "[Thermal Interrupts] Verify HIGH_TEMP Interrupt",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Interrupts",
+      "cmd": "python runPmx.py -x dmr.xml -p thermal_interrupt  -tM 60 -M 5"
+    },
+    {
+      "id": "14019957595",
+      "title": "[Thermal Interrupts] Verify LOW_TEMP Interrupt",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Interrupts",
+      "cmd": "python runPmx.py -x dmr.xml -p thermal_interrupt  -tM 60 -M 5"
+    },
+    {
+      "id": "14019957603",
+      "title": "[Thermal Interrupts] Verify PROCHOT Interrupt",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Interrupts",
+      "cmd": "python runPmx.py -x dmr.xml -p thermal_interrupt  -tM 60 -M 5"
+    },
+    {
+      "id": "14019957617",
+      "title": "[Thermal Interrupts] Verify OUT_OF_SPEC Interrupt",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Interrupts",
+      "cmd": "python runPmx.py -x dmr.xml -p thermal_interrupt  -tM 60 -M 5"
+    },
+    {
+      "id": "14019957630",
+      "title": "[Thermal Interrupts] Verify THRESHOLD_1 Interrupt",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Interrupts",
+      "cmd": "python runPmx.py -x dmr.xml -p thermal_interrupt  -tM 60 -M 5"
+    },
+    {
+      "id": "14019957643",
+      "title": "[Thermal Interrupts] Verify THRESHOLD_2 Interrupt",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermal Interrupts",
+      "cmd": "python runPmx.py -x dmr.xml -p thermal_interrupt  -tM 60 -M 5"
+    },
+    {
+      "id": "14019959228",
+      "title": "[Thermtrip] Verify Thermtrip functionality with DTS override",
+      "status": "rejected",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermtrip",
+      "cmd": ""
+    },
+    {
+      "id": "14019959240",
+      "title": "[Thermtrip] Verify Thermtrip Disable",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermtrip",
+      "cmd": "runPmx.py -x dmr.xml -p therm_trip -tM 30 -M 6"
+    },
+    {
+      "id": "14019959245",
+      "title": "[Thermtrip] Verify Thermtrip shuts down all FIVRs and MBVRs",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermtrip",
+      "cmd": "runPmx.py -x dmr.xml -p therm_trip -tM 30 -M 6"
+    },
+    {
+      "id": "14019959248",
+      "title": "[Thermtrip] Verify functionality of thermtrip pin from various sources",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermtrip",
+      "cmd": "runPmx.py -x dmr.xml -p therm_trip -tM 30 -M 6"
+    },
+    {
+      "id": "14019959255",
+      "title": "[Thermtrip] Verify DFX Temperatures do not trigger thermtrip",
+      "status": "rejected",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermtrip",
+      "cmd": ""
+    },
+    {
+      "id": "14020916576",
+      "title": "[Thermtrip] Verify Thermtrip shuts down all FIVRs and MBVRs_emulation",
+      "status": "rejected",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] Thermtrip",
+      "cmd": ""
+    },
+    {
+      "id": "14019959333",
+      "title": "[MCAs] Verify Pcode generates firmware MCA \"DIE TOO HOT\" on invalid temperature",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "SoC Thermal Management",
+      "tcd": "[SoC Thermal Management] MCAs",
+      "cmd": "MCA_recoverable_die_too_hot.py"
+    },
+    {
+      "id": "14020145185",
+      "title": "[Memtrip] TSOD based",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] Memtrip",
+      "cmd": "runPmx.py -x dmr.xml -p memtrip_tsod -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020145186",
+      "title": "[Memtrip] MR4 based",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] Memtrip",
+      "cmd": "runPmx.py -x dmr.xml -p memtrip_mr4 -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020178286",
+      "title": "[Memtrip] PECI based_emulation",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] Memtrip",
+      "cmd": "Memtrip.py"
+    },
+    {
+      "id": "14020720610",
+      "title": "[Memtrip] Disables Memtrip TSOD-based",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] Memtrip",
+      "cmd": "runPmx.py -x dmr.xml -p mt_basic_checks -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020720618",
+      "title": "[Memtrip] Disables Memtrip MR4-based",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] Memtrip",
+      "cmd": "runPmx.py -x dmr.xml -p mt_basic_checks -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020721062",
+      "title": "[Memtrip] Memtrip to Thermtrip",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] Memtrip",
+      "cmd": "mem_thermals_debug.py"
+    },
+    {
+      "id": "14020905998",
+      "title": "[Memtrip] Disables Memtrip MR4-based_emulation",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] Memtrip",
+      "cmd": "mem_thermals_debug.py"
+    },
+    {
+      "id": "14020906026",
+      "title": "[Memtrip] PECI based",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] Memtrip",
+      "cmd": "runPmx.py -x dmr.xml -p memtrip_peci -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020145193",
+      "title": "[Memhot] Verify Memhot_In mode functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] Memhot",
+      "cmd": "runPmx.py -x dmr.xml -p memhot_tsod -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020145194",
+      "title": "[Memhot] Verify Memhot_Out mode functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] Memhot",
+      "cmd": "runPmx.py -x dmr.xml -p memhot_tsod -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020720566",
+      "title": "[Memhot] Memhot Disables TSOD-based",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] Memhot",
+      "cmd": "runPmx.py -x dmr.xml -p mt_basic_checks -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020720578",
+      "title": "[Memhot] Memhot Disables MR4-based",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] Memhot",
+      "cmd": "runPmx.py -x dmr.xml -p mt_basic_checks -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020905983",
+      "title": "[Memhot] Memhot Disables MR4-based_emulation",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] Memhot",
+      "cmd": ""
+    },
+    {
+      "id": "14025439754",
+      "title": "[Memhot] MR4 Verify Memhot_In mode functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] Memhot",
+      "cmd": "runPmx.py -x dmr.xml -p memhot_mr4 -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14025439757",
+      "title": "[Memhot] MR4 Verify Memhot_Out mode functionality (copy)",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] Memhot",
+      "cmd": "runPmx.py -x dmr.xml -p memhot_mr4 -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020145155",
+      "title": "[TSOD] Verify DIMM Thresholds match with default values programed by BIOS",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT TSOD based",
+      "cmd": "runPmx.py -x dmr.xml -p mt_basic_checks -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020145156",
+      "title": "[TSOD] Verify DIMM temp in MC is being updated by SPD controller",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT TSOD based",
+      "cmd": "mem_thermals_debug.py"
+    },
+    {
+      "id": "14020178266",
+      "title": "[TSOD] Verify DIMM throttle levels values match with default values",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT TSOD based",
+      "cmd": "runPmx.py -x dmr.xml -p mt_basic_checks -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020457637",
+      "title": "[TSOD] Verify CLTT TSOD end to end functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT TSOD based",
+      "cmd": "runPmx.py -x dmr,xml -p cltt_tsod -tM 60 -M 10 --retry_count 2"
+    },
+    {
+      "id": "14020905744",
+      "title": "[TSOD] Verify DIMM temp in MC is being updated by SPD controller_emulation",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT TSOD based",
+      "cmd": ""
+    },
+    {
+      "id": "14020905869",
+      "title": "[TSOD] Verify DIMM Thresholds match with default values programed by BIOS_emulation",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT TSOD based",
+      "cmd": "mem_thermals_debug.py"
+    },
+    {
+      "id": "14020905940",
+      "title": "[TSOD] Verify DIMM throttle levels values match with default values_emulation",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT TSOD based",
+      "cmd": "mem_thermals_debug.py"
+    },
+    {
+      "id": "22019688248",
+      "title": "[TSOD] Verify DIMM temp in MC is being updated by SPD controller via BMC/PECI/TPMI OOB",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT TSOD based",
+      "cmd": "mem_thermals_debug.py"
+    },
+    {
+      "id": "14020438553",
+      "title": "[DDRIO Temperature Compensation] Temperature compensation",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] DDRIO Temperature Compensation",
+      "cmd": ""
+    },
+    {
+      "id": "14020442816",
+      "title": "[PECI]Verify DIMM throttle levels values match with default values",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT PECI based",
+      "cmd": "runPmx.py -x dmr.xml -p mt_basic_checks -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020442817",
+      "title": "[PECI] Verify DIMM thresholds match with default values programed by BIOS",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT PECI based",
+      "cmd": "runPmx.py -x dmr.xml -p mt_basic_checks -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020442821",
+      "title": "[PECI] Verify DIMM temp in MC is being updated by TPMI",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT PECI based",
+      "cmd": "mem_thermals_debug.py"
+    },
+    {
+      "id": "14020450528",
+      "title": "[PECI] Verify end to end functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT PECI based",
+      "cmd": "runPmx.py -x dmr,xml -p cltt_peci -tM 60 -M 10 --retry_count 2"
+    },
+    {
+      "id": "14020905658",
+      "title": "[PECI] Verify DIMM temp in MC is being updated by TPMI_emulation",
+      "status": "rejected",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT PECI based",
+      "cmd": ""
+    },
+    {
+      "id": "14020442644",
+      "title": "[MR4] Verify DIMM Thresholds match with default values programed by BIOS",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT MR4 based",
+      "cmd": "runPmx.py -x dmr.xml -p mt_basic_checks -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020442689",
+      "title": "[MR4] Verify DIMM throttle levels values match with default values",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT MR4 based",
+      "cmd": "runPmx.py -x dmr.xml -p mt_basic_checks -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020442796",
+      "title": "[MR4] Verify DIMM temp is updated by the MC",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT MR4 based",
+      "cmd": "mem_thermals_debug.py"
+    },
+    {
+      "id": "14020450516",
+      "title": "[MR4] Verify end to end Functionality",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT MR4 based",
+      "cmd": "cltt.py"
+    },
+    {
+      "id": "14020904964",
+      "title": "[MR4] Verify DIMM temp is updated by the MC_emulation",
+      "status": "open",
+      "tp": "Thermal Management",
+      "tpf": "Memory Thermal Management",
+      "tcd": "[Memory Thermal Management] CLTT MR4 based",
+      "cmd": "mem_thermals_debug.py"
+    },
+    {
+      "id": "14019702124",
+      "title": "RAPL - Checkout fuses related to RAPL",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Fuse and Bios knobs",
+      "cmd": "flexconPM.py"
+    },
+    {
+      "id": "14019702157",
+      "title": "RAPL BIOS Knobs Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Fuse and Bios knobs",
+      "cmd": "flexconPM"
+    },
+    {
+      "id": "14019702265",
+      "title": "RAPL IMON Addressing and Telemetry",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL SVID reporting Verification",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019702288",
+      "title": "Verify capability to change rapl limits to custom-defined ones",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Algorithm & Functionality Verification",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019702293",
+      "title": "Sweep CPU RAPL limits",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Algorithm & Functionality Verification",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019702725",
+      "title": "RAPL Cold TDP checkout",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Algorithm & Functionality Verification",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019702773",
+      "title": "MAX_LONG_POWER_LIMIT=0 unlocking PL1",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Algorithm & Functionality Verification",
+      "cmd": ""
+    },
+    {
+      "id": "14019702784",
+      "title": "RAPL Response time and quality",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Algorithm & Functionality Verification",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019702790",
+      "title": "Uncore clipping",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Algorithm & Functionality Verification",
+      "cmd": ""
+    },
+    {
+      "id": "14019702797",
+      "title": "Throttling below Pm",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Algorithm & Functionality Verification",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14021006754",
+      "title": "RAPL E2E Flow Verification",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Algorithm & Functionality Verification",
+      "cmd": "pm.pmutils.cpu_rapl"
+    },
+    {
+      "id": "14019702859",
+      "title": "RAPL PL1/PL2 limits and Tau Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Registers Verification - CSR and TPMI",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019702874",
+      "title": "RAPL Energy status reporting",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Registers Verification - CSR and TPMI",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019702890",
+      "title": "Fine grain energy reporting - FIVR",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Registers Verification - CSR and TPMI",
+      "cmd": ""
+    },
+    {
+      "id": "14019702897",
+      "title": "RAPL Perf status",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Registers Verification - CSR and TPMI",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019702906",
+      "title": "RAPL Perf limit reasons - Fine & Coarse",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Registers Verification - CSR and TPMI",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019702946",
+      "title": "RAPL PEM (PnP Excursion Monitor)",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Registers Verification - CSR and TPMI",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019702960",
+      "title": "Socket Rapl verification - OOB",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Registers Verification - CSR and TPMI",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "16023021634",
+      "title": "RAPL MSR checks - Negative test case",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Registers Verification - CSR and TPMI",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019702991",
+      "title": "RAPL HPM verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL HPM verifcation",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019703034",
+      "title": "Fast RAPL with traffic",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "Fast RAPL",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019703059",
+      "title": "Fast RAPL - PLR Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "Fast RAPL",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019703069",
+      "title": "Fast RAPL - PEM Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "Fast RAPL",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019703095",
+      "title": "Fast rapl - hpm message verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "Fast RAPL",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019703119",
+      "title": "Socket Rapl x Core Traffic x IO Traffic",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Cross-products",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019703129",
+      "title": "Socket Rapl x Reset",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Cross-products",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019703139",
+      "title": "Socket Rapl x RACL x Psys",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Cross-products",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019703142",
+      "title": "Socket Rapl x UFS",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Cross-products",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019703144",
+      "title": "Socket rapl x Prochot",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Cross-products",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019703152",
+      "title": "Socket rapl x Pmax",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Cross-products",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14019703160",
+      "title": "Socket rapl x SST",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Cross-products",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "16023021675",
+      "title": "RAPL X Security (Mistletoe PRT) - Verification of Energy Fuzzing",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Cross-products",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "16023021724",
+      "title": "RAPL X Pkgc",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "RAPL Cross-products",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_rapl -tM 6 -M 3"
+    },
+    {
+      "id": "14025224297",
+      "title": "[BEAT][FV PM][AR] Validate RAPL=0 during OS Boot",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "BEAT learnings",
+      "cmd": ""
+    },
+    {
+      "id": "14028000227",
+      "title": "Bugeco 14027420681 - [DMR-Spec CCB][IMH][Collateral Update] [DMR-IMH1 B0 ][Google] Request Primecode updated fuse rdl to be integrated in SOC model for  \"PL1_tau less than 1S\" feature",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "DMR AP1 B0 Bug Fixes",
+      "cmd": ""
+    },
+    {
+      "id": "14028000230",
+      "title": "Bugeco 14027345157 - [DMR-IMH1 B0 ][Google] Request Primecode updated fuse rdl to be integrated in SOC model for  \"PL1_tau less than 1S\" feature",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Socket RAPL",
+      "tcd": "DMR AP1 B0 Bug Fixes",
+      "cmd": ""
+    },
+    {
+      "id": "14019731286",
+      "title": "RACL Fuse Verification per each IMH",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL Fuses Verification",
+      "cmd": "flexconPM.py"
+    },
+    {
+      "id": "14019731340",
+      "title": "RACL Disable Verification",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL Fuses Verification",
+      "cmd": "racl.py"
+    },
+    {
+      "id": "14019731494",
+      "title": "RACL - CHARGE_STATUS PMT counter Verification per each IMH",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL Counters Verification",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_racl -tM 6 -M 3"
+    },
+    {
+      "id": "14019731523",
+      "title": "RACL - PERF_STATUS Verification per each IMH",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL Counters Verification",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_racl -tM 6 -M 3"
+    },
+    {
+      "id": "14019731571",
+      "title": "RACL - Perf Limit Reason (Fine & Coarse Grain Reporting)  Verification per IMH",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL Counters Verification",
+      "cmd": "runPmx.py -x dmr.xml -p racl -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019731595",
+      "title": "RACL - PEM Verification per IMH",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL Counters Verification",
+      "cmd": "python runPmx.py -x dmr.xml -p cpu_racl -tM 6 -M 3"
+    },
+    {
+      "id": "14022942830",
+      "title": "RACL - RACL_CURRENT_LIMIT_CONTROL  Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL Counters Verification",
+      "cmd": "runPmx.py -x dmr.xml -p racl -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14024326090",
+      "title": "RACL - RACL_CURRENT_LIMIT_CONTROL Verification",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL Counters Verification",
+      "cmd": ""
+    },
+    {
+      "id": "14019731809",
+      "title": "RACL CHARGE STATUS Verification with Security Keys enabled",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL Security",
+      "cmd": ""
+    },
+    {
+      "id": "14019731830",
+      "title": "RACL HPM Verification_silicon",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL HPM Verification",
+      "cmd": "runPmx.py -x dmr.xml -p racl -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14021011980",
+      "title": "RACL E2E Verification_simics",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL HPM Verification",
+      "cmd": ""
+    },
+    {
+      "id": "14019731868",
+      "title": "RACL Cross Traffic - Symmertical Workload",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL Cross Product",
+      "cmd": "runPmx.py -x dmr.xml -p racl -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019731889",
+      "title": "RACL Cross Traffic - Asymmetrical Workload",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL Cross Product",
+      "cmd": "runPmx.py -x dmr.xml -p racl -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019731899",
+      "title": "RACL Cross Socket RAPL Cross Psys",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL Cross Product",
+      "cmd": "runPmx.py -x dmr.xml -p psys_cross -p racl_cross -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019731908",
+      "title": "RACL Cross Mesh Frequency Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL Cross Product",
+      "cmd": "runPmx.py -x dmr.xml -p racl -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14023618181",
+      "title": "RACL Cross Warm Reset",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL Cross Product",
+      "cmd": ""
+    },
+    {
+      "id": "14023618182",
+      "title": "RACL Cross Cold Reset",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "RACL",
+      "tcd": "RACL Cross Product",
+      "cmd": ""
+    },
+    {
+      "id": "22018517028",
+      "title": "PMAX Related fuses Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "PMAX fuses Verification",
+      "cmd": "flexconPM.py"
+    },
+    {
+      "id": "22018516920",
+      "title": "PMAX Offset and Offset Sign Bios Knob Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "PMAX Bios Knobs Verification",
+      "cmd": "runPmx.py -x dmr.xml -p pmax_bios -tM 60 -M 5"
+    },
+    {
+      "id": "22018516929",
+      "title": "PMAX TRIGGER IO Bios Knobs Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "PMAX Bios Knobs Verification",
+      "cmd": "runPmx.py -x dmr.xml -p pmax_bios -tM 60 -M 5"
+    },
+    {
+      "id": "22018516878",
+      "title": "PL4 Power Limit Register Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "PL4 Verification",
+      "cmd": "runPmx.py -x dmr.xml -p pmax -tM 60"
+    },
+    {
+      "id": "22018516879",
+      "title": "PL4 Perf Limit Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "PL4 Verification",
+      "cmd": "runPmx.py -x dmr.xml -p pmax -tM 60"
+    },
+    {
+      "id": "22018516883",
+      "title": "PL4 Vtrip Offset Programming Verification",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "PL4 Verification",
+      "cmd": "pmax_pmx.py"
+    },
+    {
+      "id": "22018516891",
+      "title": "PL4 Fuses Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "PL4 Verification",
+      "cmd": "flexconPM.py"
+    },
+    {
+      "id": "22018516950",
+      "title": "[Silicon Only]PMAX Disable Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "MT Pmax Verification",
+      "cmd": "runPmx.py -x dmr.xml -p pmax -tM 60"
+    },
+    {
+      "id": "22018516975",
+      "title": "PMAX CONTROL Register Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "MT Pmax Verification",
+      "cmd": "runPmx.py -x dmr.xml -p pmax -tM 60"
+    },
+    {
+      "id": "22018517023",
+      "title": "[Silicon Only]: PMAX Soft Throttle Verification using FT PMAX INJECT",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "MT Pmax Verification",
+      "cmd": "runPmx.py -x dmr.xml -p pmax -tM 60"
+    },
+    {
+      "id": "22018517024",
+      "title": "[Silicon Only]PMAX Hard Throttle Verification using Global PMAX Inject",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "MT Pmax Verification",
+      "cmd": "runPmx.py -x dmr.xml -p pmax -tM 60"
+    },
+    {
+      "id": "22018516847",
+      "title": "[Silicon Only] PMAX DFX INJECT Register Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "PMAX DFX Injection Verification",
+      "cmd": "pmax_pmx.py"
+    },
+    {
+      "id": "22018516851",
+      "title": "[Silicon Only]PMAX Hard Throttle using DAC",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "PMAX DFX Injection Verification",
+      "cmd": "pmax_pmx.py"
+    },
+    {
+      "id": "22018516853",
+      "title": "PMAX PerfMons Verification",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "PMAX DFX Injection Verification",
+      "cmd": "pmax_pmx.py"
+    },
+    {
+      "id": "14021006919",
+      "title": "PMAX DFX INJECT Register Verificatio_Simics",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "PMAX DFX Injection Verification",
+      "cmd": "pmax_pmx.py"
+    },
+    {
+      "id": "22018517075",
+      "title": "PMAX Cross Thermals",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "PMAX Cross Products",
+      "cmd": ""
+    },
+    {
+      "id": "22018517077",
+      "title": "PMAX Cross Pkgc",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "PMAX Cross Products",
+      "cmd": "pmax_pmx.py"
+    },
+    {
+      "id": "22018517080",
+      "title": "PMAX Cross Fast Rapl",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "PMAX Cross Products",
+      "cmd": ""
+    },
+    {
+      "id": "14028000144",
+      "title": "Bugeco 14026150793 - FWD:  FWD:  DMR iMH2 - Wrong Pmax Trigger Connection between Punit and GPIO",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "DMR AP1 B0 Bug Fixes",
+      "cmd": ""
+    },
+    {
+      "id": "14028000145",
+      "title": "Bugeco 13012697946 - PMAX TFDD feature Analog DFT pins need to be tied high for platform testing",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "PMAX",
+      "tcd": "DMR AP1 B0 Bug Fixes",
+      "cmd": ""
+    },
+    {
+      "id": "22018498542",
+      "title": "DRAM RAPL Disable Fuse Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL Fuse Verification",
+      "cmd": "flexcon_pm.py"
+    },
+    {
+      "id": "22018498623",
+      "title": "DRAM RAPL ENERGY STATUS Register Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL Registers Verification",
+      "cmd": "runPmx.py -x dmr.xml -p dram_rapl -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "22018498917",
+      "title": "DRAM RAPL PERF STATUS Register Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL Registers Verification",
+      "cmd": "runPmx.py -x dmr.xml -p dram_rapl -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "22018498939",
+      "title": "DRAM RAPL POWER LIMIT Register Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL Registers Verification",
+      "cmd": "runPmx.py -x dmr.xml -p dram_rapl -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "22018498955",
+      "title": "DRAM RAPL POWER INFO Register Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL Registers Verification",
+      "cmd": "runPmx.py -x dmr.xml -p dram_rapl -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "22018498960",
+      "title": "DRAM RAPL Lock Bit Bios Knob Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL Bios Knob Verification",
+      "cmd": "runPmx.py -x dmr.xml -p dram_rapl -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "22018498961",
+      "title": "DRAM RAPL BW Limit Bios Knob verification",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL Bios Knob Verification",
+      "cmd": "dram_rapl.py"
+    },
+    {
+      "id": "22018498964",
+      "title": "DRAM RAPL HPM Message - DRAM RAPL LIMIT Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL HPM Message Verification",
+      "cmd": "runPmx.py -x dmr.xml -p dram_rapl -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "22018498966",
+      "title": "DRAM RAPL HPM Message - TELE_MC_THROTTLE_COUNT Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL HPM Message Verification",
+      "cmd": "runPmx.py -x dmr.xml -p dram_rapl -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "22018499048",
+      "title": "DRAM RAPL PMON addressing Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL SVID Reporting",
+      "cmd": "runPmx.py -x dmr.xml -p dram_rapl -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "22018499049",
+      "title": "DRAM RAPL PMON Reporting Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL SVID Reporting",
+      "cmd": "runPmx.py -x dmr.xml -p dram_rapl -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "22018499062",
+      "title": "DRAM RAPL Telemetry Reporting Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL Telemetry",
+      "cmd": "runPmx.py -x dmr.xml -p dram_rapl -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "22018499089",
+      "title": "DRAM RAPL - Power Limits Sweep verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL Algorithm Scenarios",
+      "cmd": "runPmx.py -x dmr.xml -p dram_rapl -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14021006915",
+      "title": "DRAM RAPL - Power Limits Sweep verification_Simics",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL Algorithm Scenarios",
+      "cmd": ""
+    },
+    {
+      "id": "22018499076",
+      "title": "DRAM RAPL Cross Memory Traffic",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL Cross Products",
+      "cmd": "runPmx.py -x dmr.xml -p mem_traffic -p dram_rapl -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "22018499079",
+      "title": "DRAM RAPL Cross LPM Modes",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL Cross Products",
+      "cmd": "runPmx.py -x dmr.xml -p dram_rapl -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "22018499083",
+      "title": "DRAM RAPL Cross Socket RAPL",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL Cross Products",
+      "cmd": "runPmx.py -x dmr.xml -p dram_rapl -p cpu_rapl -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "22018499084",
+      "title": "DRAM RAPL Cross Shallow Self Refresh",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL Cross Products",
+      "cmd": "runPmx.py -x dmr.xml -p dram_rapl -p ssr -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "22018499085",
+      "title": "DRAM RAPL Cross DRAM Thermals",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "DRAM RAPL",
+      "tcd": "DRAM RAPL Cross Products",
+      "cmd": "runPmx.py -x dmr.xml -p mem_traffic -p dram_rapl -p cltt_tsod -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14019708745",
+      "title": "Platform RAPL Fuse checkout",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Fuse and Bios knobs",
+      "cmd": "flexconPM.py"
+    },
+    {
+      "id": "14019708774",
+      "title": "CSR (bios) interface",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Fuse and Bios knobs",
+      "cmd": ""
+    },
+    {
+      "id": "14019708867",
+      "title": "Psys IMON Addressing and Telemetry",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Psys SVID Reporting Verification",
+      "cmd": "python runPmx.py -x dmr.xml -p platform_rapl -H 1 -M 5"
+    },
+    {
+      "id": "14019708869",
+      "title": "VR14 based VRs/SVID measurements & reporting",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Psys SVID Reporting Verification",
+      "cmd": "python runPmx.py -x dmr.xml -p platform_rapl -H 1 -M 5"
+    },
+    {
+      "id": "14019708882",
+      "title": "Verify capability to change rapl limits to custom-defined ones",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Algorithm & Functionality",
+      "cmd": "python runPmx.py -x dmr.xml -p platform_rapl -H 1 -M 5"
+    },
+    {
+      "id": "14019708888",
+      "title": "Sweep Platform rapl limits",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Algorithm & Functionality",
+      "cmd": "python runPmx.py -x dmr.xml -p platform_rapl -H 1 -M 5"
+    },
+    {
+      "id": "14019708892",
+      "title": "Bios Configuration for root/leaf socket",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Algorithm & Functionality",
+      "cmd": "python runPmx.py -x dmr.xml -p platform_rapl -H 1 -M 5"
+    },
+    {
+      "id": "14019708898",
+      "title": "Multi Socket case - Verification of HPM message root/leaf",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Algorithm & Functionality",
+      "cmd": "python runPmx.py -x dmr.xml -p platform_rapl -H 1 -M 5"
+    },
+    {
+      "id": "14021006782",
+      "title": "E2E Platform RAPL verification Simics",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Algorithm & Functionality",
+      "cmd": "pm.pmutils.platform_rapl"
+    },
+    {
+      "id": "14019708902",
+      "title": "PPL1/PPL2 limits",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Registers & Reporting: CSR & TPMI",
+      "cmd": "python runPmx.py -x dmr.xml -p platform_rapl -H 1 -M 5"
+    },
+    {
+      "id": "14019708915",
+      "title": "Energy status reporting",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Registers & Reporting: CSR & TPMI",
+      "cmd": "python runPmx.py -x dmr.xml -p platform_rapl -H 1 -M 5"
+    },
+    {
+      "id": "14019708924",
+      "title": "Platform Power Info",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Registers & Reporting: CSR & TPMI",
+      "cmd": "python runPmx.py -x dmr.xml -p platform_rapl -H 1 -M 5"
+    },
+    {
+      "id": "14019708930",
+      "title": "Perf status",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Registers & Reporting: CSR & TPMI",
+      "cmd": "python runPmx.py -x dmr.xml -p platform_rapl -H 1 -M 5"
+    },
+    {
+      "id": "14019708934",
+      "title": "PLR and PEM Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Registers & Reporting: CSR & TPMI",
+      "cmd": "python runPmx.py -x dmr.xml -p platform_rapl -H 1 -M 5"
+    },
+    {
+      "id": "14019708942",
+      "title": "Psys cross oobmsm",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Registers & Reporting: CSR & TPMI",
+      "cmd": "python runPmx.py -x dmr.xml -p platform_rapl -H 1 -M 5"
+    },
+    {
+      "id": "16028778468",
+      "title": "[BEAT] Sweep MAX PPL1/PPL2 limits",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Registers & Reporting: CSR & TPMI",
+      "cmd": ""
+    },
+    {
+      "id": "14019708952",
+      "title": "HPM message verification for psys",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "HPM",
+      "cmd": "python runPmx.py -x dmr.xml -p platform_rapl -H 1 -M 5"
+    },
+    {
+      "id": "14019708961",
+      "title": "Psys x Core Traffic x IO Traffic",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "Cross-products",
+      "cmd": "python runPmx.py -x dmr.xml -p platform_rapl -p core_power -p cpu_traffic -H 1 -M 5"
+    },
+    {
+      "id": "14028000250",
+      "title": "Bugeco 14026073968 - FWD:  [DMR-CCB] Change Psys PWR_UNIT to 1W (from 1/8W)",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "Platform RAPL (Psys)",
+      "tcd": "DMR AP1 B0 Bug Fixes",
+      "cmd": ""
+    },
+    {
+      "id": "22018518521",
+      "title": "SIMPL - All Fuses Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "SIMPL - IccMax",
+      "tcd": "SIMPL Fuse Verification",
+      "cmd": "flexconPM.py"
+    },
+    {
+      "id": "22018518536",
+      "title": "SIMPL Policy 0 Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "SIMPL - IccMax",
+      "tcd": "SIMPL Policy Verification",
+      "cmd": "runPmx.py -x dmr.xml -p simpl -tM 60"
+    },
+    {
+      "id": "22018518543",
+      "title": "SIMPL Policy 1 Verification",
+      "status": "future",
+      "tp": "Power",
+      "tpf": "SIMPL - IccMax",
+      "tcd": "SIMPL Policy Verification",
+      "cmd": "import pm.Active_PM.Power.simpl.simpl_pmx as simpl_pmx\n\nsimpl_pmx.py --policy1"
+    },
+    {
+      "id": "22018518555",
+      "title": "SIMPL Policy 2 Verification",
+      "status": "future",
+      "tp": "Power",
+      "tpf": "SIMPL - IccMax",
+      "tcd": "SIMPL Policy Verification",
+      "cmd": "import pm.Active_PM.Power.simpl.simpl_pmx as simpl_pmx\n\nsimpl_pmx.py --policy2"
+    },
+    {
+      "id": "22018518558",
+      "title": "SIMPL Policy 3 Verification",
+      "status": "future",
+      "tp": "Power",
+      "tpf": "SIMPL - IccMax",
+      "tcd": "SIMPL Policy Verification",
+      "cmd": "import pm.Active_PM.Power.simpl.simpl_pmx as simpl_pmx\n\nsimpl_pmx.py --policy 3"
+    },
+    {
+      "id": "22018518561",
+      "title": "SIMPL Policy asymmetric workload",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "SIMPL - IccMax",
+      "tcd": "SIMPL Policy Verification",
+      "cmd": "runPmx.py -x dmr.xml -p simpl -tM 60"
+    },
+    {
+      "id": "14021012006",
+      "title": "SIMPL All Policy Verification Random",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "SIMPL - IccMax",
+      "tcd": "SIMPL Policy Verification",
+      "cmd": "import pm.Active_PM.Power.simpl.simpl_pmx as simpl_pmx\n\nsimpl_pmx.py --policy 4"
+    },
+    {
+      "id": "22018518580",
+      "title": "SIMPL IO BW Counters Telemetry Verification",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "SIMPL - IccMax",
+      "tcd": "SIMPL Telemetry Verification",
+      "cmd": ""
+    },
+    {
+      "id": "22018518589",
+      "title": "SIMPL Mem BW Counters Telemetry Verification",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "SIMPL - IccMax",
+      "tcd": "SIMPL Telemetry Verification",
+      "cmd": ""
+    },
+    {
+      "id": "14023618166",
+      "title": "SIMPL Cross Cold Reset",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "SIMPL - IccMax",
+      "tcd": "SIMPL Cross Products",
+      "cmd": "Covered by Reset Team"
+    },
+    {
+      "id": "14023618167",
+      "title": "SIMPL Cross Warm Reset",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "SIMPL - IccMax",
+      "tcd": "SIMPL Cross Products",
+      "cmd": "Covered by Reset Team"
+    },
+    {
+      "id": "22018518452",
+      "title": "SVID Imon telemetry Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "SVID",
+      "tcd": "SVID Telemetry Verification",
+      "cmd": "python runPmx.py -x dmr.xml -p svid -p core_power -tM 60 -M 5"
+    },
+    {
+      "id": "22018518472",
+      "title": "SVID Pmon Telemetry Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "SVID",
+      "tcd": "SVID Telemetry Verification",
+      "cmd": "python runPmx.py -x dmr.xml -p svid -p core_power -tM 60 -M 5"
+    },
+    {
+      "id": "22018518475",
+      "title": "SVID Registers Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "SVID",
+      "tcd": "SVID Basic functionality Verification",
+      "cmd": "python runPmx.py -x dmr.xml -p svid -p core_power -tM 60 -M 5"
+    },
+    {
+      "id": "22018518480",
+      "title": "SVID Basic commands functionality Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "SVID",
+      "tcd": "SVID Basic functionality Verification",
+      "cmd": "python runPmx.py -x dmr.xml -p svid -p core_power -tM 60 -M 5"
+    },
+    {
+      "id": "22018518498",
+      "title": "SVID Error Reporting Verification",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "SVID",
+      "tcd": "SVID Basic functionality Verification",
+      "cmd": ""
+    },
+    {
+      "id": "22018518502",
+      "title": "SVID Addressing Verification",
+      "status": "open",
+      "tp": "Power",
+      "tpf": "SVID",
+      "tcd": "SVID Mapping/Priority Verification",
+      "cmd": "python runPmx.py -x dmr.xml -p svid -p core_power -tM 60 -M 5"
+    },
+    {
+      "id": "22018518512",
+      "title": "SVID Priority Order Verification",
+      "status": "rejected",
+      "tp": "Power",
+      "tpf": "SVID",
+      "tcd": "SVID Mapping/Priority Verification",
+      "cmd": ""
+    },
+    {
+      "id": "15014251539",
+      "title": "[Memory Fabric DVFS] D2D Threshold Freq Change",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Memory Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "15014251542",
+      "title": "[Memory Fabric DVFS] Mem Fabric Freq based on RING BW Thresholds",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Memory Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "15014251683",
+      "title": "[Memory Fabric DVFS] Mem Fabric Freq sweep MEM_FABRIC_FREQ_LUT",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Memory Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "15014251756",
+      "title": "[Memory Fabric DVFS] CBB Bound VS Memory Bound Freq Reqs",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Memory Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "15014251758",
+      "title": "[Memory Fabric DVFS] Dynamic HSF PLL Scaling",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Memory Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "15014279037",
+      "title": "[Memory Fabric DVFS] Telemetry required for Memory Fabric DVFS",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Memory Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "15014369857",
+      "title": "[Memory Fabric DVFS]  Fabric DVFS Trigger FabricGV  with Pega_silicon",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Memory Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "15014369889",
+      "title": "[Memory Fabric DVFS] Fabric DVFS Trigger FabricGV using TPMI programming with Inband/OOB",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Memory Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "15014369920",
+      "title": "[Memory Fabric DVFS] Aggregated Mem BW >= 1.5TB/s <=> Mem Fabric Freq >= 2GHz",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Memory Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "15014252498",
+      "title": "[IO Fabric DVFS] Trigger IO Fabric Freq Changes with IO to Mem (ordered/unordered)",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "IO Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "15014252713",
+      "title": "[IO Fabric DVFS] Trigger IO Fabric Freq Changes with P2P Traffic",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "IO Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "15014252853",
+      "title": "[IO Fabric DVFS] Change ROCKET_IO_FREQ Values",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "IO Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "15014253005",
+      "title": "[IO Fabric DVFS] Perf Idle Condition",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "IO Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "15014279038",
+      "title": "[IO Fabric DVFS] Telemetry required for IO Fabric DVFS",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "IO Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "14020406706",
+      "title": "[IO Fabric DVFS] Trigger FabricGV using TPMI programming with Inband, OOB, Inband locked",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "IO Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "14020406781",
+      "title": "[IO Fabric DVFS] Trigger FabricGV  with Pega",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "IO Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "14020428257",
+      "title": "[IO Fabric DVFS] MIO per direction BW >= 128GB/s <=> IO Fabric Freq >= 2GHz",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "IO Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "14023290989",
+      "title": "[IO Fabric DVFS] IO Fast Response",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "IO Fabric DVFS",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "14020428424",
+      "title": "Fabric DVFS X PKGC",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Fabric DVFS cross products",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "14020428479",
+      "title": "Fabric DVFS X ITD",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Fabric DVFS cross products",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "14020435825",
+      "title": "Fabric DVFS X ADR",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Fabric DVFS cross products",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "14020435874",
+      "title": "Fabric DVFS X IP Disable",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Fabric DVFS cross products",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "14021055750",
+      "title": "Fabric DVFS X SST",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Fabric DVFS cross products",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "14021345046",
+      "title": "Fabric DVFS X Warm Reset",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Fabric DVFS cross products",
+      "cmd": "runPmx.py -x dmr.xml -p dvfs_focus-H 1 -M 5"
+    },
+    {
+      "id": "14019766004",
+      "title": "[Solar] DVFS-dvfs_all_random",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Solar DVFS",
+      "cmd": "/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/SOLAR_DMR_XMLS/Verify/GV_DVFS/Mesh_gv_verify_random.xml"
+    },
+    {
+      "id": "14023735484",
+      "title": "ELC Mode",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Fabric DVFS RAPL/RACL Limits and ELC Mode",
+      "cmd": ""
+    },
+    {
+      "id": "14023735485",
+      "title": "Fabric DVFS RAPL/RACL Limits",
+      "status": "open",
+      "tp": "Fabric DVFS",
+      "tpf": "Fabric DVFS",
+      "tcd": "Fabric DVFS RAPL/RACL Limits and ELC Mode",
+      "cmd": ""
+    },
+    {
+      "id": "14019740895",
+      "title": "SST-PP Dynamic  Fuse checks",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-PP Dynamic",
+      "tcd": "SST-PP Dynamic Fusing",
+      "cmd": "runPmx.py -x dmr.xml -p sst_pp -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019740926",
+      "title": "SST-PP Dynamic TPMI register check",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-PP Dynamic",
+      "tcd": "SST-PP Dynamic control and discovery interface",
+      "cmd": "runPmx.py -x dmr.xml -p sst_pp -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019740984",
+      "title": "SST-PP Dynamic Boot flow",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-PP Dynamic",
+      "tcd": "SST-PP Dynamic Boot flow",
+      "cmd": "runPmx.py -x dmr.xml -p sst_pp -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019740993",
+      "title": "SST-PP Dynamic - Verify P1 frequencies for each performance profile X License level",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-PP Dynamic",
+      "tcd": "SST-PP Dynamic - Functionality without HGS",
+      "cmd": "runPmx.py -x dmr.xml -p sst_pp -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019740998",
+      "title": "SST-PP Dynamic - Verify Dynamic-PP control and discovery via TPMI (Inband ,OOB, locking inband)",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-PP Dynamic",
+      "tcd": "SST-PP Dynamic - Functionality without HGS",
+      "cmd": "runPmx.py -x dmr.xml -p sst_pp -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019741001",
+      "title": "SST-PP Dynamic - Verify Dynamic-PP discoverable after reset",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-PP Dynamic",
+      "tcd": "SST-PP Dynamic - Functionality without HGS",
+      "cmd": "runPmx.py -x dmr.xml -p sst_pp -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020436619",
+      "title": "SST-PP Dynamic - Verify TRL X Cdyn level for each SST-PP level",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-PP Dynamic",
+      "tcd": "SST-PP Dynamic - Functionality without HGS",
+      "cmd": "runPmx.py -x dmr.xml -p sst_pp -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14019766026",
+      "title": "[Solar] SST",
+      "status": "rejected",
+      "tp": "SST",
+      "tpf": "SST-PP Dynamic",
+      "tcd": "SST-PP Solar",
+      "cmd": "solar"
+    },
+    {
+      "id": "14020459681",
+      "title": "SST-CP Functionality_silicon",
+      "status": "rejected",
+      "tp": "SST",
+      "tpf": "SST-CP",
+      "tcd": "SST-CP Functionality",
+      "cmd": ""
+    },
+    {
+      "id": "14020464614",
+      "title": "SST-CP - Verify ordered priority changes via TPMI (Inband-locked) are honored",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-CP",
+      "tcd": "SST-CP Functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_cp -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020465183",
+      "title": "SST-CP - Verify ordered priority changes via TPMI (Inband) are honored",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-CP",
+      "tcd": "SST-CP Functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_cp -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020465609",
+      "title": "SST-CP Verify core obeys frequency limits in dynamic CLOS config and association",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-CP",
+      "tcd": "SST-CP Functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_cp -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020465672",
+      "title": "SST-CP - Verify ordered priority changes via TPMI (OOB) are honored",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-CP",
+      "tcd": "SST-CP Functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_cp -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020465722",
+      "title": "SST-CP Fuse checks",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-CP",
+      "tcd": "SST-CP Fusing",
+      "cmd": "runPmx.py -x dmr.xml -p sst_cp -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020459683",
+      "title": "SST-CP - TPMI register check",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-CP",
+      "tcd": "SST-CP Enabling & Discovery",
+      "cmd": "runPmx.py -x dmr.xml -p sst_cp -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020464612",
+      "title": "SST-CP - Verify CLOS ID changes via TPMI are honored",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-CP",
+      "tcd": "SST-CP Enabling & Discovery",
+      "cmd": "runPmx.py -x dmr.xml -p sst_cp -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020465829",
+      "title": "SST-CP - Verify dynamic enable/disable via TPMI",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-CP",
+      "tcd": "SST-CP Enabling & Discovery",
+      "cmd": "runPmx.py -x dmr.xml -p sst_cp -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020438437",
+      "title": "SST-BF -Boot flow",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-BF",
+      "tcd": "SST-BF - Enabling & Discovery",
+      "cmd": "runPmx.py -x dmr.xml -p sst_bf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020438582",
+      "title": "SST-BF - new & Discovery via TPMI (Inband ,OOB and locking inband)",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-BF",
+      "tcd": "SST-BF - Enabling & Discovery",
+      "cmd": "runPmx.py -x dmr.xml -p sst_bf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020438624",
+      "title": "SST-BF - new without RAPL prioritization/SST-CP",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-BF",
+      "tcd": "SST-BF - Enabling & Discovery",
+      "cmd": "runPmx.py -x dmr.xml -p sst_bf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020438976",
+      "title": "SST-BF - Fusing",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-BF",
+      "tcd": "SST-BF - Fusing",
+      "cmd": "runPmx.py -x dmr.xml -p sst_bf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020438661",
+      "title": "SST-BF - Verify P1 on default core mask",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-BF",
+      "tcd": "SST-BF - Functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_bf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020438687",
+      "title": "SST-BF - Verify P1 on random assignment of high and low priority cores",
+      "status": "rejected",
+      "tp": "SST",
+      "tpf": "SST-BF",
+      "tcd": "SST-BF - Functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_bf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020438769",
+      "title": "SST-BF - Verify P1 with SST-CP ordered prioritization",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-BF",
+      "tcd": "SST-BF - Functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_bf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020438776",
+      "title": "SST-BF - Verify P1 with SST-CP proportional prioritization",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-BF",
+      "tcd": "SST-BF - Functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_bf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020917034",
+      "title": "SST-BF - Verify P1 on default core mask_emulation",
+      "status": "rejected",
+      "tp": "SST",
+      "tpf": "SST-BF",
+      "tcd": "SST-BF - Functionality",
+      "cmd": ""
+    },
+    {
+      "id": "22019840741",
+      "title": "SST-BF - Verify TDP and temperature variables",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-BF",
+      "tcd": "SST-BF - Functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_bf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020459828",
+      "title": "SST-TF - All high priority cores in C6",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-TF",
+      "tcd": "SST-TF Functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_tf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020465877",
+      "title": "SST-TF - Randomize CLOS groups across all cores",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-TF",
+      "tcd": "SST-TF Functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_tf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020465902",
+      "title": "SST-TF - Validate all TF buckets without power limiting",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-TF",
+      "tcd": "SST-TF Functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_tf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020466000",
+      "title": "SST-TF - All cores assigned to CLOS 0/1 (High Priority)",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-TF",
+      "tcd": "SST-TF Functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_tf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020466152",
+      "title": "SST-TF - All cores assigned to CLOS 2/3 (Low Priority)",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-TF",
+      "tcd": "SST-TF Functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_tf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020917008",
+      "title": "SST-TF - All high priority cores in C6_emulation",
+      "status": "blocked",
+      "tp": "SST",
+      "tpf": "SST-TF",
+      "tcd": "SST-TF Functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_tf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020459829",
+      "title": "SST-TF - verify fusing",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-TF",
+      "tcd": "SST-TF Fusing",
+      "cmd": "runPmx.py -x dmr.xml -p sst_tf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020459832",
+      "title": "SST-TF - TPMI register check",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-TF",
+      "tcd": "SST-TF Enabling & discovery",
+      "cmd": "runPmx.py -x dmr.xml -p sst_tf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020466180",
+      "title": "SST-TF - Verify dynamic enable/disable via TPMI",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-TF",
+      "tcd": "SST-TF Enabling & discovery",
+      "cmd": "runPmx.py -x dmr.xml -p sst_tf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020466190",
+      "title": "SST-TF - Works on all CLOS IDs regardless of configuration",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-TF",
+      "tcd": "SST-TF Enabling & discovery",
+      "cmd": "runPmx.py -x dmr.xml -p sst_tf -tM 60 -M 5 --retry_count 2"
+    },
+    {
+      "id": "14020459764",
+      "title": "HGS Enabling and Discovery",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-PP [HGS]",
+      "tcd": "HGS Enabling and Discovery",
+      "cmd": "runPmx.py -x dmr.xml -p sst_pp -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020459749",
+      "title": "HGS Functionality_silicon",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-PP [HGS]",
+      "tcd": "HGS Functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_pp -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020459740",
+      "title": "SST-PP Static Boot flow_silicon",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-PP Static",
+      "tcd": "SST-PP Static Boot flow",
+      "cmd": "runPmx.py -x dmr.xml -p sst_pp -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14021340467",
+      "title": "SST-PP Static Boot flow with OSPL",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "SST-PP Static",
+      "tcd": "SST-PP Static Boot flow",
+      "cmd": "runPmx.py -x dmr.xml -p sst_pp -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14024451725",
+      "title": "PCT - BIOS Menu",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "PCT - Priority Core Turbo",
+      "tcd": "PCT - Enabling & Discovery",
+      "cmd": "runPmx.py -x dmr.xml-p pct -tM 60 -M 10 --retry_count 2"
+    },
+    {
+      "id": "14024451726",
+      "title": "PCT - BIOS Negative Validation",
+      "status": "rejected",
+      "tp": "SST",
+      "tpf": "PCT - Priority Core Turbo",
+      "tcd": "PCT - Enabling & Discovery",
+      "cmd": ""
+    },
+    {
+      "id": "14024451727",
+      "title": "PCT - TPMI register check",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "PCT - Priority Core Turbo",
+      "tcd": "PCT - Enabling & Discovery",
+      "cmd": "runPmx.py -x dmr.xml-p pct -tM 60 -M 10 --retry_count 2"
+    },
+    {
+      "id": "14024451728",
+      "title": "PCT - All HP cores in C6",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "PCT - Priority Core Turbo",
+      "tcd": "PCT - Functionality",
+      "cmd": "runPmx.py -x dmr.xml-p pct -tM 60 -M 10 --retry_count 2"
+    },
+    {
+      "id": "14024451734",
+      "title": "PCT - Default Enabled",
+      "status": "rejected",
+      "tp": "SST",
+      "tpf": "PCT - Priority Core Turbo",
+      "tcd": "PCT - Functionality",
+      "cmd": ""
+    },
+    {
+      "id": "14024451737",
+      "title": "PCT - Default HP core selection",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "PCT - Priority Core Turbo",
+      "tcd": "PCT - Functionality",
+      "cmd": "runPmx.py -x dmr.xml-p pct -tM 60 -M 10 --retry_count 2"
+    },
+    {
+      "id": "14024451739",
+      "title": "PCT - SST-PP x PCT Basic Checks",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "PCT - Priority Core Turbo",
+      "tcd": "PCT - Functionality",
+      "cmd": "runPmx.py -x dmr.xml-p pct -tM 60 -M 10 --retry_count 2"
+    },
+    {
+      "id": "14024451741",
+      "title": "PCT - TPMI runtime enable/disable",
+      "status": "rejected",
+      "tp": "SST",
+      "tpf": "PCT - Priority Core Turbo",
+      "tcd": "PCT - Functionality",
+      "cmd": ""
+    },
+    {
+      "id": "14024451744",
+      "title": "PCT - TPMI runtime negative validation",
+      "status": "rejected",
+      "tp": "SST",
+      "tpf": "PCT - Priority Core Turbo",
+      "tcd": "PCT - Functionality",
+      "cmd": ""
+    },
+    {
+      "id": "14024451746",
+      "title": "PCT - Turbo frequency check",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "PCT - Priority Core Turbo",
+      "tcd": "PCT - Functionality",
+      "cmd": "runPmx.py -x dmr.xml-p pct -tM 60 -M 10 --retry_count 2"
+    },
+    {
+      "id": "14024451747",
+      "title": "PCT - Verify TDP convergence",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "PCT - Priority Core Turbo",
+      "tcd": "PCT - Functionality",
+      "cmd": "runPmx.py -x dmr.xml-p pct -tM 60 -M 10 --retry_count 2"
+    },
+    {
+      "id": "14024451748",
+      "title": "PCT - DQ Rules (FlexconPM)",
+      "status": "open",
+      "tp": "SST",
+      "tpf": "PCT - Priority Core Turbo",
+      "tcd": "PCT - Fuse",
+      "cmd": "flexcon_pm.py"
+    },
+    {
+      "id": "14020328865",
+      "title": "HWP EPP resolution",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-HWP",
+      "tcd": "HWP Native mode",
+      "cmd": "runPmx.py -x dmr.xml -p hwpm_check -tM 60"
+    },
+    {
+      "id": "14020330468",
+      "title": "HWP Autonomous P-state Selection (APS)",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-HWP",
+      "tcd": "HWP Native mode",
+      "cmd": "runPmx.py -x dmr.xml -p hwpm_aps_check -tM 60"
+    },
+    {
+      "id": "14020330628",
+      "title": "HWP Bios configuration",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-HWP",
+      "tcd": "HWP Native mode",
+      "cmd": "flexcon"
+    },
+    {
+      "id": "14020330719",
+      "title": "HWP Fuse Checks",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-HWP",
+      "tcd": "HWP Native mode",
+      "cmd": "flexcon"
+    },
+    {
+      "id": "14020340091",
+      "title": "HWP Functionality with OS Optin",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-HWP",
+      "tcd": "HWP Native mode",
+      "cmd": "runPmx.py -x dmr.xml -p hwpm_check -tM 60"
+    },
+    {
+      "id": "14020359312",
+      "title": "HWP_Package_level_and_thread_level_cross_product",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-HWP",
+      "tcd": "HWP Native mode",
+      "cmd": "runPmx.py -x dmr.xml -p hwpm_check -tM 60"
+    },
+    {
+      "id": "14022135967",
+      "title": "HWP Interruptions",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-HWP",
+      "tcd": "HWP Native mode",
+      "cmd": "runPmx.py -x dmr.xml -p hwpm_check -tM 60"
+    },
+    {
+      "id": "14022519735",
+      "title": "[Solar] P-States-HWP-P0_PN_random",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-HWP",
+      "tcd": "HWP Native mode",
+      "cmd": "/usr/bin/solar/solar.sh /hwp -hwpoints P1..Pn -r /logpath ."
+    },
+    {
+      "id": "14020394218",
+      "title": "HWP OOB Mode HWP Autonomous P-state Selection (APS)",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-HWP",
+      "tcd": "HWP OOB Mode",
+      "cmd": "runPmx.py -x dmr.xml -p hwpm_aps_check -tM 60"
+    },
+    {
+      "id": "14020394270",
+      "title": "HWP OOB Mode Bios configuration",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-HWP",
+      "tcd": "HWP OOB Mode",
+      "cmd": "Flexcon"
+    },
+    {
+      "id": "14020394612",
+      "title": "HWP OOB Mode EPP resolution",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-HWP",
+      "tcd": "HWP OOB Mode",
+      "cmd": "runPmx.py -x dmr.xml -p hwpm_check -tM 60"
+    },
+    {
+      "id": "14022175585",
+      "title": "HWP OOB Mode Turbo Disabled Request Resolution",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-HWP",
+      "tcd": "HWP OOB Mode",
+      "cmd": "runPmx.py -x dmr.xml -p hwpm_oob_turbo_dis -tM 60"
+    },
+    {
+      "id": "14020315795",
+      "title": "Legacy Pstate Bios cofigurations",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate Legacy",
+      "tcd": "Legacy Pstate Bios cofigurations",
+      "cmd": "flexcon"
+    },
+    {
+      "id": "14019762394",
+      "title": "Legacy_Pstate_through_MSR",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate Legacy",
+      "tcd": "Legacy Pstate Interfaces",
+      "cmd": "runPmx.py -x dmr.xml -p pstates_check -tM 6"
+    },
+    {
+      "id": "14019762405",
+      "title": "Core Pstates through PEGA",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate Legacy",
+      "tcd": "Legacy Pstate Interfaces",
+      "cmd": "runPmx.py -x dmr.xml -p pstates_check -tM 6"
+    },
+    {
+      "id": "14020315955",
+      "title": "Legacy Pstate Fast GV configuration",
+      "status": "rejected",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate Legacy",
+      "tcd": "Legacy Pstate Fast GV configuration",
+      "cmd": ""
+    },
+    {
+      "id": "14020317512",
+      "title": "Legacy Pstate TSC accuracy, PCNT, ACNT, MCNT_silicon",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate Legacy",
+      "tcd": "Legacy Pstate TSC accuracy, PCNT, ACNT, MCNT",
+      "cmd": "runPmx.py -x dmr.xml -p pstates_check -tM 6"
+    },
+    {
+      "id": "14020317553",
+      "title": "Legacy Pstate Scenarios: core random frequency with traffic",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate Legacy",
+      "tcd": "Legacy Pstate Scenarios",
+      "cmd": "runPmx.py -x dmr.xml -p pstates_check -p cpu_traffic -tM 6"
+    },
+    {
+      "id": "14020317757",
+      "title": "PEGA Core/Mesh frequency at max/min combinations w/ traffic",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate Legacy",
+      "tcd": "Legacy Pstate Scenarios",
+      "cmd": "runPmx.py -x dmr.xml -p cpu_traffic -p pega_uncore -tM 6"
+    },
+    {
+      "id": "14019765994",
+      "title": "[Solar] P-States-Legacy-P0_Pn_random",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate Legacy",
+      "tcd": "Legacy Pstate Solar",
+      "cmd": "/usr/bin/solar/solar.sh /pstate -gvpoints P0..Pn -r /logpath ."
+    },
+    {
+      "id": "14019762716",
+      "title": "Turbo configurations",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Turbo Mode",
+      "tcd": "Turbo functionality",
+      "cmd": "runPmx.py -x dmr.xml -p turbo -tM 60"
+    },
+    {
+      "id": "14022426192",
+      "title": "Turbo BIOS Configurations",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Turbo Mode",
+      "tcd": "Turbo functionality",
+      "cmd": "flexcon"
+    },
+    {
+      "id": "14023378399",
+      "title": "MSR 0xB2 TURBO_CONFIG",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Turbo Mode",
+      "tcd": "Turbo functionality",
+      "cmd": "runPmx.py -x dmr.xml -p turbo -tM 60"
+    },
+    {
+      "id": "14023838014",
+      "title": "Turbo X C1e",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Turbo Mode",
+      "tcd": "Turbo functionality",
+      "cmd": "runPmx.py -x dmr.xml -p turbo -tM 60"
+    },
+    {
+      "id": "14023838030",
+      "title": "Turbo X C6A",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Turbo Mode",
+      "tcd": "Turbo functionality",
+      "cmd": "runPmx.py -x dmr.xml -p turbo -tM 60"
+    },
+    {
+      "id": "14023838079",
+      "title": "Turbo X C6S",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Turbo Mode",
+      "tcd": "Turbo functionality",
+      "cmd": "runPmx.py -x dmr.xml -p turbo -tM 60"
+    },
+    {
+      "id": "14023838088",
+      "title": "Turbo C C6S-P",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Turbo Mode",
+      "tcd": "Turbo functionality",
+      "cmd": "runPmx.py -x dmr.xml -p turbo -tM 60"
+    },
+    {
+      "id": "14027591697",
+      "title": "1 Core Per Module Check",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Turbo Mode",
+      "tcd": "1CPM",
+      "cmd": "runPmx.py -x dmr.xml -p turbo -tM 60"
+    },
+    {
+      "id": "14020395102",
+      "title": "VF curve fuses",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-V-F curve",
+      "tcd": "VF curve fuses",
+      "cmd": "runPmx.py -x dmr.xml -p itd_thermal  -tM 9 -M 3"
+    },
+    {
+      "id": "14023344589",
+      "title": "Near TDP",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-V-F curve",
+      "tcd": "Near TDP",
+      "cmd": "runPmx.py -x dmr.xml -p neartdp_check -tM 60"
+    },
+    {
+      "id": "14020318752",
+      "title": "Flex ratio configuration and functionality",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Flex ratio",
+      "tcd": "Flex ratio configuration and functionality",
+      "cmd": "flexcon"
+    },
+    {
+      "id": "14020318786",
+      "title": "Flex ratio configuration and functionality X SST",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Flex ratio",
+      "tcd": "Flex ratio configuration and functionality",
+      "cmd": "runPmx.py -x dmr.xml -p sst_pp -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14020318932",
+      "title": "Guaranteed Ratio resolving",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Guaranteed Ratio P1",
+      "tcd": "Guaranteed Ratio resolving",
+      "cmd": "runPmx.py -x dmr.xml -p sst_pp -tM 60 --retry_count 2"
+    },
+    {
+      "id": "14022447399",
+      "title": "Avx P1 Level BIOS knob check",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Guaranteed Ratio P1",
+      "tcd": "Guaranteed Ratio resolving",
+      "cmd": "flexcon"
+    },
+    {
+      "id": "14020396009",
+      "title": "EET flow verification",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-EET",
+      "tcd": "EET",
+      "cmd": "runPmx.py -x dmr.xml -p eet -tM 60"
+    },
+    {
+      "id": "14020404789",
+      "title": "ICCP:  AVX 256 License request and grant flow",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Core ICCP",
+      "tcd": "ICCP: License request and grant flow",
+      "cmd": "runPmx.py -x dmr.xml -p turbo -tM 60"
+    },
+    {
+      "id": "14020404876",
+      "title": "ICCP:  AVX 512 License request and grant flow",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Core ICCP",
+      "tcd": "ICCP: License request and grant flow",
+      "cmd": "runPmx.py -x dmr.xml -p turbo -tM 60"
+    },
+    {
+      "id": "14020404881",
+      "title": "ICCP:  AMX License request and grant flow",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Core ICCP",
+      "tcd": "ICCP: License request and grant flow",
+      "cmd": "runPmx.py -x dmr.xml -p turbo -tM 60"
+    },
+    {
+      "id": "14021993729",
+      "title": "ICCP:  Min_ICCP_Level  B2P MB Functionality",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Core ICCP",
+      "tcd": "ICCP: License request and grant flow",
+      "cmd": "runPmx.py -x dmr.xml -p turbo -tM 60"
+    },
+    {
+      "id": "14022425429",
+      "title": "AVX License PreGrant and Level BIOS Knob checks",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-Core ICCP",
+      "tcd": "ICCP: License request and grant flow",
+      "cmd": "flexcon"
+    },
+    {
+      "id": "14021086687",
+      "title": "Platform Limit Reason Check",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-PLR",
+      "tcd": "Platform Limit Reason",
+      "cmd": "runPmx.py -x dmr.xml -p turbo -tM 60"
+    },
+    {
+      "id": "14021297679",
+      "title": "EPB check",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-EPB and SAPM - DLL",
+      "tcd": "EPB and SAPM - DLL",
+      "cmd": "runPmx.py -x dmr.xml -p epb -tM 60"
+    },
+    {
+      "id": "22019772964",
+      "title": "SAPM-DLL check",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-EPB and SAPM - DLL",
+      "tcd": "EPB and SAPM - DLL",
+      "cmd": "runPmx.py -x dmr.xml -p sapmdll -tM 60"
+    },
+    {
+      "id": "14023344597",
+      "title": "DCM FIT",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-DCM FIT",
+      "tcd": "DCM FIT",
+      "cmd": "runPmx.py -x dmr.xml -p fit_check -tM 60"
+    },
+    {
+      "id": "14023810643",
+      "title": "Inconsistent Throttling_silicon_I3C",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-PEM",
+      "tcd": "Inconsistent Throttling",
+      "cmd": "telemetryAPIs.py"
+    },
+    {
+      "id": "14023810644",
+      "title": "Inconsistent Throttling_silicon_PCIE",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-PEM",
+      "tcd": "Inconsistent Throttling",
+      "cmd": "telemetryAPIs.py"
+    },
+    {
+      "id": "14023810645",
+      "title": "Inconsistent Throttling_silicon_TPMI",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-PEM",
+      "tcd": "Inconsistent Throttling",
+      "cmd": "telemetryAPIs.py"
+    },
+    {
+      "id": "14023810646",
+      "title": "Inconsistent Throttling_silicon_vp",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-PEM",
+      "tcd": "Inconsistent Throttling",
+      "cmd": "telemetryAPIs.py"
+    },
+    {
+      "id": "14023810883",
+      "title": "Consistent throttling_silicon_I3C",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-PEM",
+      "tcd": "Consistent Throttling",
+      "cmd": "telemetryAPIs.py"
+    },
+    {
+      "id": "14023810884",
+      "title": "Consistent throttling_silicon_PCIE",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-PEM",
+      "tcd": "Consistent Throttling",
+      "cmd": "telemetryAPIs.py"
+    },
+    {
+      "id": "14023810886",
+      "title": "Consistent throttling_silicon_TPMI",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-PEM",
+      "tcd": "Consistent Throttling",
+      "cmd": "telemetryAPIs.py"
+    },
+    {
+      "id": "14023810890",
+      "title": "Consistent throttling_silicon_vp",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-PEM",
+      "tcd": "Consistent Throttling",
+      "cmd": "telemetryAPIs.py"
+    },
+    {
+      "id": "14023811001",
+      "title": "Corelating timings_silicon_I3C",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-PEM",
+      "tcd": "Corelating timings",
+      "cmd": "telemetryAPIs.py"
+    },
+    {
+      "id": "14023811004",
+      "title": "Corelating timings_silicon_PCIE",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-PEM",
+      "tcd": "Corelating timings",
+      "cmd": "telemetryAPIs.py"
+    },
+    {
+      "id": "14023811005",
+      "title": "Corelating timings_silicon_TPMI",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-PEM",
+      "tcd": "Corelating timings",
+      "cmd": "telemetryAPIs.py"
+    },
+    {
+      "id": "14023811007",
+      "title": "Corelating timings_silicon_vp",
+      "status": "open",
+      "tp": "Pstate Stack",
+      "tpf": "Pstate-PEM",
+      "tcd": "Corelating timings",
+      "cmd": "telemetryAPIs.py"
+    },
+    {
+      "id": "14019685987",
+      "title": "CBB CCF Message to Punit",
+      "status": "open",
+      "tp": "CBB CCF PM",
+      "tpf": "CBB CCF Ring Frequency Scalability",
+      "tcd": "CBB CCF Message To Punit",
+      "cmd": "python runPmx.py -x dmr.xml -p ccf_gv -H 1 -M 5"
+    },
+    {
+      "id": "15014691730",
+      "title": "CBB CCF Distress signal",
+      "status": "open",
+      "tp": "CBB CCF PM",
+      "tpf": "CBB CCF Ring Frequency Scalability",
+      "tcd": "CBB CCF Distress Signal",
+      "cmd": ""
+    },
+    {
+      "id": "14023291028",
+      "title": "CBB CCF Snoop Scalability/Distress",
+      "status": "open",
+      "tp": "CBB CCF PM",
+      "tpf": "CBB CCF Ring Frequency Scalability",
+      "tcd": "CBB CCF Distress Signal",
+      "cmd": "Active_PM\\CCF_GV\\cbb_ccf_pm_interface.py"
+    },
+    {
+      "id": "15014691740",
+      "title": "CBB CCF PCODE algorithm for distress input",
+      "status": "open",
+      "tp": "CBB CCF PM",
+      "tpf": "CBB CCF Ring Frequency Scalability",
+      "tcd": "CCB CCF PCODE algorithm for distress input",
+      "cmd": "python runPmx.py -x dmr.xml -p ccf_gv -H 1 -M 5"
+    },
+    {
+      "id": "14024325950",
+      "title": "CBB CCF Fast Ring C3 X Active Idle",
+      "status": "rejected",
+      "tp": "CBB CCF PM",
+      "tpf": "CBB CCF Idle States",
+      "tcd": "CBB CCF Idle states",
+      "cmd": "Active_PM\\CCF_GV\\cbb_ccf_pm_interface.py"
+    },
+    {
+      "id": "14028000177",
+      "title": "Bugeco 13012647561 - when FastC3 is disable and UDI was taken - PMA breaks Q-channel protocol and does not wait for all requests to be de-asserted",
+      "status": "open",
+      "tp": "CBB CCF PM",
+      "tpf": "CBB CCF Idle States",
+      "tcd": "DMR AP1 B0 Bug Fixes",
+      "cmd": ""
+    },
+    {
+      "id": "15014691712",
+      "title": "CBB CCF GV BIOS Configuration",
+      "status": "open",
+      "tp": "CBB CCF PM",
+      "tpf": "CBB CCF Active States",
+      "tcd": "CBB CCF GV BIOS Configuration",
+      "cmd": "flexconPM.xml"
+    },
+    {
+      "id": "14022604432",
+      "title": "CBB PMSB end point sweep",
+      "status": "open",
+      "tp": "Sideband Harasser",
+      "tpf": "PM Sideband Harasser",
+      "tcd": "EndPoint Sweep",
+      "cmd": "echo manual_execution"
+    },
+    {
+      "id": "14022604436",
+      "title": "iMH PMSB end point sweep",
+      "status": "open",
+      "tp": "Sideband Harasser",
+      "tpf": "PM Sideband Harasser",
+      "tcd": "EndPoint Sweep",
+      "cmd": "echo manual_execution"
+    },
+    {
+      "id": "14022604438",
+      "title": "iMH GPSB end point sweep",
+      "status": "open",
+      "tp": "Sideband Harasser",
+      "tpf": "PM Sideband Harasser",
+      "tcd": "EndPoint Sweep",
+      "cmd": "echo manual_execution"
+    },
+    {
+      "id": "14022604448",
+      "title": "CBB GPSB end point sweep",
+      "status": "open",
+      "tp": "Sideband Harasser",
+      "tpf": "PM Sideband Harasser",
+      "tcd": "EndPoint Sweep",
+      "cmd": "echo manual_execution"
+    },
+    {
+      "id": "14022604465",
+      "title": "PEGA C states x SB Harasser traffic",
+      "status": "open",
+      "tp": "Sideband Harasser",
+      "tpf": "PM Sideband Harasser",
+      "tcd": "Cross Products",
+      "cmd": "echo manual_execution"
+    },
+    {
+      "id": "14022604472",
+      "title": "Solar C States x SB Harasser traffic",
+      "status": "open",
+      "tp": "Sideband Harasser",
+      "tpf": "PM Sideband Harasser",
+      "tcd": "Cross Products",
+      "cmd": "echo manual_execution"
+    },
+    {
+      "id": "14022604487",
+      "title": "Solar P States x SB Harasser traffic",
+      "status": "open",
+      "tp": "Sideband Harasser",
+      "tpf": "PM Sideband Harasser",
+      "tcd": "Cross Products",
+      "cmd": "echo manual_execution"
+    },
+    {
+      "id": "14022604490",
+      "title": "CBB DVFS x SB Harasser traffic",
+      "status": "open",
+      "tp": "Sideband Harasser",
+      "tpf": "PM Sideband Harasser",
+      "tcd": "Cross Products",
+      "cmd": "echo manual_execution"
+    },
+    {
+      "id": "14022604496",
+      "title": "iMH DVFS x SB Harasser traffic",
+      "status": "open",
+      "tp": "Sideband Harasser",
+      "tpf": "PM Sideband Harasser",
+      "tcd": "Cross Products",
+      "cmd": "echo manual_execution"
+    },
+    {
+      "id": "14022604505",
+      "title": "DRAM RAPL x SB Harasser Traffic",
+      "status": "open",
+      "tp": "Sideband Harasser",
+      "tpf": "PM Sideband Harasser",
+      "tcd": "Cross Products",
+      "cmd": "echo manual_execution"
+    }
+  ]
+}
