@@ -8,7 +8,7 @@ from hsd_utils.session import get_session
 from hsd_utils.queries import get_article
 
 S=get_session()
-KB=pathlib.Path('KB/pm_tc_kb/core_c_states/fv')
+KB=pathlib.Path('KB/pm_tc_kb/fv')
 tcs=json.loads(pathlib.Path('nwp_pm_analysis/cstate_tcs.json').read_text(encoding='utf-8'))
 if isinstance(tcs,dict): tcs=[tcs]
 print(f'Processing {len(tcs)} TCs...')

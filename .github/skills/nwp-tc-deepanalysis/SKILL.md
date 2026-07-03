@@ -165,7 +165,7 @@ follows this loop — do not skip steps:
 | Feature architecture, fuses, frequency hierarchy | `KB/pm_features/{feature}/*.md` | PCT frequency hierarchy table from PCT HAS |
 | DMR vs NWP delta, BIOS knobs, DQ rules | `KB/pm_features/{feature}/*.md` | DMR vs GNR CAPID4/default differences |
 | TCD context: what scenario is tested, section content | `KB/pm_tcd_kb/{tp_slug}/TCD_{id}_{slug}.md` | Enabling & Discovery scope, MADT ordering requirement |
-| Per-TC NWP analysis, register paths, PythonSV code | `KB/pm_tc_kb/{feature}/{segment}/HSD_{id}_{slug}.inference.md` | NWP CLOS loop bounds, nio.punit path |
+| Per-TC NWP analysis, register paths, PythonSV code | `KB/pm_tc_kb/{fv\|pss}/HSD_{id}_{slug}.inference.md` | NWP CLOS loop bounds, nio.punit path |
 
 ### KB write rule
 
@@ -567,14 +567,14 @@ ok = set_planning_fields(tc_id, planning_status="Open", drive_to_date="2026-12-3
 |----------|----|-----|
 | Master list | `nwp_pm_fv/data/nwp_pm_fv_content.json` | `nwp_pm_pss/data/nwp_master_test_plan.csv` |
 | Metadata JSON | `nwp_pm_fv/data/metadata/HSD_{id}_metadata.json` | `nwp_pm_pss/data/metadata/HSD_{id}_metadata.json` |
-| Cache file | `KB/pm_tc_kb/**/HSD_{id}_{slug}.inference.md` | `KB/pm_tc_kb/**/HSD_{id}_{slug}.inference.md` |
+| Cache file | `KB/pm_tc_kb/fv/HSD_{id}_{slug}.inference.md` | `KB/pm_tc_kb/pss/HSD_{id}_{slug}.inference.md` |
 | HTML output | `tc_description_output/HSD_{id}_{slug}.html` | `tc_description_output/HSD_{id}_{slug}.html` |
 | HTML generator | `tools/html/generate_unified_html.py --segment fv|pss|all` | `tools/html/generate_unified_html.py --segment fv|pss|all` |
 | Index pages | `tc_description_output/nwp_pm_fv_test_cases.html` | `tc_description_output/nwp_pss_test_cases.html` |
 
 ### Practical Interpretation of These Paths
 
-- `KB/pm_tc_kb/`: primary editable deep-analysis/template corpus for both FV and PSS.
+- `KB/pm_tc_kb/fv/`: FV inference files (423 files). `KB/pm_tc_kb/pss/`: PSS inference files (73 files). Flat structure — no feature subfolders.
 - `tc_description_output/`: rendered unified presentation output for FV and PSS.
 - `nwp_pm_pss/`: PSS-specific source inputs and reporting metadata (master CSV, metadata chain), not the final HTML destination.
 

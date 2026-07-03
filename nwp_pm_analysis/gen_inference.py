@@ -2,7 +2,7 @@ import json,pathlib,re
 tcs=json.loads(pathlib.Path('nwp_pm_analysis/cstate_tcs.json').read_text(encoding='utf-8'))
 if isinstance(tcs,dict): tcs=[tcs]
 print('TCs:',len(tcs))
-KB=pathlib.Path('KB/pm_tc_kb/core_c_states/fv'); KB.mkdir(parents=True,exist_ok=True)
+KB=pathlib.Path('KB/pm_tc_kb/fv'); KB.mkdir(parents=True,exist_ok=True)
 slug=lambda t: re.sub(r'[^a-z0-9]+','_',t.lower())[:55].strip('_')
 strip=lambda h: re.sub(r'<[^>]+>','',h or '').replace('&nbsp;',' ').replace('&gt;','>').replace('&lt;','<').replace('&amp;','&').strip()
 def xs(desc,label):
