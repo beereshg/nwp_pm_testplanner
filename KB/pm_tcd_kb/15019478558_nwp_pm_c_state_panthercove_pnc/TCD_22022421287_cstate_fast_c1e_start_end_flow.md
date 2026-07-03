@@ -2,6 +2,45 @@
 
 **Fast C1E** (Enhanced Halt State) is a power optimization state on NWP (PantherCove PNC) that combines clock gating (like C1) with a FIVR voltage reduction. The **start/end flow** TCD validates that C1E entry and exit sequences complete correctly — voltage transitions, clock gating behavior, and residency counter tracking.
 
+### Block Decomposition
+
+```
+┌──────────────────────────────────────────────────────────────────────────┐
+│                  Fast C1E Start / End Flow (NWP)                          │
+└──────────────────────────────────────────────────────────────────────────┘
+
+  ┌────────────────────────────────┐             ┌───────────────────────────────┐
+  │         C1E START                │             │         C1E END                 │
+  └────────────────────────────────┘             └───────────────────────────────┘
+  │                                             │
+  ▼                                             ▼
+┌────────────────────┐                  ┌────────────────────┐
+│ OS: MWAIT 0x20 or   │                  │ Interrupt arrives   │
+│ HALT + autopromotion│                  │ (APIC timer, IPI)   │
+└─────────┬──────────┘                  └─────────┬──────────┘
+         │                                          │
+         ▼                                          ▼
+┌────────────────────┐                  ┌────────────────────┐
+│ Core enters C1      │                  │ APIC delivers IRQ   │
+│ (clock gate)         │                  │ Core wake signal    │
+└─────────┬──────────┘                  └─────────┬──────────┘
+         │                                          │
+         ▼  MSR 0x1FC bit[1]=1                       ▼
+┌────────────────────┐                  ┌────────────────────┐
+│ FIVR ramp-down       │                  │ FIVR ramp-up        │
+│ to C1E voltage       │                  │ to C0 nominal       │
+│ (voltage reduction)  │                  │ (~10 μs)            │
+└─────────┬──────────┘                  └─────────┬──────────┘
+         │                                          │
+         ▼                                          ▼
+┌────────────────────┐                  ┌────────────────────┐
+│ C1E Active           │                  │ Clock ungate        │
+│ Clk gated            │                  │ Resume at RIP       │
+│ FIVR at Vc1e        │                  │ ISR executes        │
+│ MSR 0x660 increments│                  └────────────────────┘
+└────────────────────┘
+```
+
 ### Fast C1E Start Flow
 
 ```

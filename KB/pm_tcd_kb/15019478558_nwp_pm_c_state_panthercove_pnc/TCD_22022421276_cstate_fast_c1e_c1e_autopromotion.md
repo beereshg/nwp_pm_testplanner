@@ -1,7 +1,48 @@
 ## Section 1: Architecture / Micro-architecture and Functionality
 
 **Fast C1E autopromotion** is a hardware mechanism on NWP (PantherCove PNC) that automatically promotes OS-requested C1 (`HALT`) entries to C1E (Enhanced Halt State with voltage reduction) when the BIOS knob `C1EAutopromotion` is enabled. This allows energy savings without requiring OS changes — the hardware transparently deepens the C-state.
+### Block Decomposition
 
+```
+┌──────────────────────────────────────────────────────────────────────────┐
+│            C1E Autopromotion: BIOS Knob → MSR → Hardware Flow             │
+└──────────────────────────────────────────────────────────────────────────┘
+
+  ┌──────────────────────────────┐
+  │  BIOS Setup (pre-OS)               │
+  │  C1EAutopromotion knob value       │
+  │  stored in UEFI variable           │
+  └────────────────┬─────────────┘
+                   │
+                   ▼  BIOS PEI/DXE phase
+  ┌──────────────────────────────┐
+  │  PCode programs MSR_POWER_CTL     │
+  │  (MSR 0x1FC) during init          │
+  │  bit[1] = C1EAutopromotion knob   │
+  └────────────────┬─────────────┘
+                   │
+                   │  propagated to all 96 cores
+                   ▼
+  ┌──────────────────────────────┐
+  │  OS executes HALT                 │
+  │  (C1 state requested)             │
+  └────────────────┬─────────────┘
+                   │
+          ┌───────────┴───────────┐
+          │ MSR 0x1FC bit[1]?           │
+          └───────┬───────────┬───────┘
+                  =0 |              | =1
+                   ▼              ▼
+     ┌───────────────┐    ┌──────────────────┐
+     │    C1 only     │    │   C1E (promoted)   │
+     │  Clock gate    │    │  Clock gate        │
+     │  FIVR unchanged│    │  FIVR reduced      │
+     │  < 1 μs exit   │    │  ~10 μs exit       │
+     └───────────────┘    └──────────────────┘
+
+  Validation: read MSR 0x1FC on all 96 cores
+  Verify bit[1] matches BIOS knob setting (enabled=1, disabled=0)
+```
 ### C1E Autopromotion Flow
 
 ```

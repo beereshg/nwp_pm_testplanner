@@ -2,6 +2,52 @@
 
 **C-State Demotion/Undemotion** is a PCode-managed policy mechanism on NWP (PantherCove PNC) that dynamically adjusts the maximum allowed C-state a core can enter. PCode can **demote** a core from C6 to C1 (or C6S to C6A) when system conditions (high-frequency wake-up rate, latency sensitivity) indicate deep C-states would hurt performance. **Undemotion** re-allows deeper C-states when conditions improve.
 
+### Block Decomposition
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│           Demotion / Undemotion Decision Flow (NWP)                    │
+└────────────────────────────────────────────────────────────────────────┘
+
+     ┌──────────────────────────────────────────────────┐
+     │ OS requests deep C-state (C6A via MWAIT 0x60)              │
+     └───────────────────────────┬──────────────────────┘
+                              │
+                              ▼
+     ┌──────────────────────────────────────────────────┐
+     │ Acode evaluates wake-rate sample                            │
+     │ Compare against MSR_C6_THRESHOLD (0x1A4)                   │
+     └───────────────────────────┬──────────────────────┘
+                              │
+          ┌─────────────────┴────────────────────┐
+   Wake-rate         |              Wake-rate
+   < threshold       |              >= threshold
+   (undemotion)      |              (demotion)
+         ▼           |                    ▼
+  ┌───────────────┐   |          ┌────────────────────┐
+  │  No demotion   │   |          │  Apply demotion:    │
+  │  Enter C6A as  │   |          │  C6A→C6S→C1→C0     │
+  │  requested     │   |          │  (via MSR 0xE2     │
+  │                │   |          │   bits [27:26])     │
+  └───────────────┘   |          └─────────┬──────────┘
+                         |                    │
+                         |                    ▼
+                         |     ┌────────────────────┐
+                         |     │ Core enters C1   │
+                         |     │ (not C6A)        │
+                         |     └─────────┬──────────┘
+                         |                    │
+                         |                    ▼  undemotion timer expires
+                         |     ┌────────────────────┐
+                         |     │ Undemotion:       │
+                         └─────► │ Allow C6A again  │
+                               └────────────────────┘
+
+  MSR 0xE2 key bits: [26]=C1_demotion_enable  [27]=C6→C1_demotion_enable
+  Acode drives decisions; PCode enforces the resulting C-state limit.
+  All 96 cores must have consistent demotion bits (validate all CBBs).
+```
+
 ### Demotion Policy Hierarchy
 
 ```

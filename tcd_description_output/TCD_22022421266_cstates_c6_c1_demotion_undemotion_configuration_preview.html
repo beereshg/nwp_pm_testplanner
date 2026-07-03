@@ -27,7 +27,7 @@
     <a href="https://hsdes.intel.com/appstore/article-one/#/22022421266" target="_blank">22022421266</a>
     &nbsp;|&nbsp; Status: open &nbsp;|&nbsp; Owner: thangama
     &nbsp;|&nbsp; Parent: <a href="https://hsdes.intel.com/appstore/article-one/#/15019478561" target="_blank">15019478561</a>
-    &nbsp;|&nbsp; 2026-07-03 14:10
+    &nbsp;|&nbsp; 2026-07-03 14:20
   </div>
 </div>
 <div class="wrap">
@@ -35,7 +35,47 @@
   <div class="tc-box">
     <h3>Test Cases (6)</h3><table style="width:100%;border-collapse:collapse;font-size:12px;margin:8px 0;"><thead><tr style="background:#e8eef7;"><th style="padding:6px 8px;text-align:left;">ID</th><th style="padding:6px 8px;text-align:left;">Title</th><th style="padding:6px 8px;text-align:left;">Status</th><th style="padding:6px 8px;text-align:left;">Val Env</th><th style="padding:6px 8px;text-align:left;">Feature</th></tr></thead><tbody><tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022423083" target="_blank">22022423083</a></td><td>CStates: C6A Demotion policy check</td><td style="color:#2e7d32">open</td><td>virtual_platform</td><td>Core C-States</td></tr><tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022423084" target="_blank">22022423084</a></td><td>CStates: C6S Demotion policy check</td><td style="color:#2e7d32">open</td><td>virtual_platform</td><td>Core C-States</td></tr><tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022423085" target="_blank">22022423085</a></td><td>CStates: C6SP Demotion policy check</td><td style="color:#2e7d32">open</td><td>virtual_platform</td><td>Core C-States</td></tr><tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022423086" target="_blank">22022423086</a></td><td>CStates: Demotion/Undemotion: CLOCK_CST_CONFIG_CONTROL_MSR(0XE2) silicon</td><td style="color:#2e7d32">open</td><td>virtual_platform</td><td>Core C-States</td></tr><tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022423087" target="_blank">22022423087</a></td><td>CStates: Demotion: Acode interaction_silicon</td><td style="color:#2e7d32">open</td><td>virtual_platform</td><td>Core C-States</td></tr><tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715552" target="_blank">16030715552</a></td><td>[PSS]C1/C6 Demotion/Undemotion BIOSKnobs</td><td style="color:#2e7d32">open</td><td></td><td></td></tr></tbody></table>
   </div>
-  <div class="desc-box"><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">1. Architecture / Micro-architecture and Functionality</div><div style="padding:25px;"><p style="margin:10px 0 12px;line-height:1.6;"><strong>C-State Demotion/Undemotion</strong> is a PCode-managed policy mechanism on NWP (PantherCove PNC) that dynamically adjusts the maximum allowed C-state a core can enter. PCode can <strong>demote</strong> a core from C6 to C1 (or C6S to C6A) when system conditions (high-frequency wake-up rate, latency sensitivity) indicate deep C-states would hurt performance. <strong>Undemotion</strong> re-allows deeper C-states when conditions improve. OS requests C6A → PCode evaluates demotion policy ├─► No demotion: Core enters C6A as requested</p><h3 style="color:rgb(0,113,197);border-bottom:2px solid rgb(0,113,197);padding-bottom:8px;margin-top:20px;">Demotion Policy Hierarchy</h3><pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">OS requests C6A → PCode evaluates demotion policy
+  <div class="desc-box"><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">1. Architecture / Micro-architecture and Functionality</div><div style="padding:25px;"><p style="margin:10px 0 12px;line-height:1.6;"><strong>C-State Demotion/Undemotion</strong> is a PCode-managed policy mechanism on NWP (PantherCove PNC) that dynamically adjusts the maximum allowed C-state a core can enter. PCode can <strong>demote</strong> a core from C6 to C1 (or C6S to C6A) when system conditions (high-frequency wake-up rate, latency sensitivity) indicate deep C-states would hurt performance. <strong>Undemotion</strong> re-allows deeper C-states when conditions improve. ┌────────────────────────────────────────────────────────────────────────┐ │           Demotion / Undemotion Decision Flow (NWP)                    │</p><h3 style="color:rgb(0,113,197);border-bottom:2px solid rgb(0,113,197);padding-bottom:8px;margin-top:20px;">Block Decomposition</h3><pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">┌────────────────────────────────────────────────────────────────────────┐
+│           Demotion / Undemotion Decision Flow (NWP)                    │
+└────────────────────────────────────────────────────────────────────────┘
+
+     ┌──────────────────────────────────────────────────┐
+     │ OS requests deep C-state (C6A via MWAIT 0x60)              │
+     └───────────────────────────┬──────────────────────┘
+                              │
+                              ▼
+     ┌──────────────────────────────────────────────────┐
+     │ Acode evaluates wake-rate sample                            │
+     │ Compare against MSR_C6_THRESHOLD (0x1A4)                   │
+     └───────────────────────────┬──────────────────────┘
+                              │
+          ┌─────────────────┴────────────────────┐
+   Wake-rate         |              Wake-rate
+   &lt; threshold       |              &gt;= threshold
+   (undemotion)      |              (demotion)
+         ▼           |                    ▼
+  ┌───────────────┐   |          ┌────────────────────┐
+  │  No demotion   │   |          │  Apply demotion:    │
+  │  Enter C6A as  │   |          │  C6A→C6S→C1→C0     │
+  │  requested     │   |          │  (via MSR 0xE2     │
+  │                │   |          │   bits [27:26])     │
+  └───────────────┘   |          └─────────┬──────────┘
+                         |                    │
+                         |                    ▼
+                         |     ┌────────────────────┐
+                         |     │ Core enters C1   │
+                         |     │ (not C6A)        │
+                         |     └─────────┬──────────┘
+                         |                    │
+                         |                    ▼  undemotion timer expires
+                         |     ┌────────────────────┐
+                         |     │ Undemotion:       │
+                         └─────► │ Allow C6A again  │
+                               └────────────────────┘
+
+  MSR 0xE2 key bits: [26]=C1_demotion_enable  [27]=C6→C1_demotion_enable
+  Acode drives decisions; PCode enforces the resulting C-state limit.
+  All 96 cores must have consistent demotion bits (validate all CBBs).</pre><h3 style="color:rgb(0,113,197);border-bottom:2px solid rgb(0,113,197);padding-bottom:8px;margin-top:20px;">Demotion Policy Hierarchy</h3><pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">OS requests C6A → PCode evaluates demotion policy
     ├─► No demotion: Core enters C6A as requested
     ├─► C6A→C6S demotion: Core enters C6S instead
     ├─► C6→C1 demotion: Core enters C1 (shallow save)

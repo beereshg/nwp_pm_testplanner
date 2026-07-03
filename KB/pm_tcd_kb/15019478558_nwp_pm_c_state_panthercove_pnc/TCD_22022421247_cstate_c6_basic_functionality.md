@@ -2,6 +2,49 @@
 
 **C6** is a deep core sleep state on NWP (PantherCove PNC) that minimizes power by flushing core caches, draining internal buffers, and gating power to the core logic. NWP supports three C6 variants: **C6A** (Autonomous — OS-requested via MWAIT), **C6S** (Supervised — PCode-managed), and **C6S-P** (Supervised with Power-Gate). PkgC6 is **Zero Bit Budget (ZBB)** on NWP and must not be entered; `IA32_PKG_C6_RESIDENCY` (MSR 0x3F9) must remain 0 throughout testing.
 
+### Block Decomposition
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                  NWP C6 State Hierarchy (PantherCove PNC)                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  C0 (Active)
+      │
+      ▼  MWAIT 0x00 / HALT
+  ┌───────────┐
+  │    C1     │  Clock gate only, FIVR unchanged, < 1 μs exit
+  └─────┬─────┘
+        │  c1e_enable=1  (MSR 0x1FC bit[1])
+        ▼
+  ┌───────────┐
+  │   C1E     │  Clock gate + FIVR voltage reduction, < 10 μs exit
+  └─────┬─────┘
+        │  MWAIT 0x60
+        ▼
+  ┌───────────────────────────────────────────────────┐
+  │                   C6 variants                     │
+  │                                                   │
+  │  ┌──────────┐   ┌──────────┐   ┌──────────────┐  │
+  │  │   C6A    │   │   C6S    │   │    C6S-P     │  │
+  │  │Autonomous│   │Supervised│   │Supervised+PG │  │
+  │  │LLC flush │   │LLC+DRAM  │   │LLC+DRAM+PG   │  │
+  │  │FIVR ret. │   │FIVR ret. │   │FIVR off      │  │
+  │  │No PG     │   │No PG     │   │Power Gate    │  │
+  │  └──────────┘   └──────────┘   └──────────────┘  │
+  └───────────────────────────────────────────────────┘
+        │
+        ▼  All cores in module idle
+  ┌───────────┐
+  │    MC6    │  Module clock gate + module FIVR off
+  └─────┬─────┘
+        │
+        ▼  (NWP: PkgC6 is ZBB — this transition NEVER occurs)
+  ┌──────────────────────────────┐
+  │  PkgC6  [ZBB on NWP]  ✗     │  IA32_PKG_C6_RESIDENCY (0x3F9) must stay 0
+  └──────────────────────────────┘
+```
+
 ### C6 Variant Summary
 
 | Variant | Trigger | LLC Flush | Power Gate | NWP Notes |

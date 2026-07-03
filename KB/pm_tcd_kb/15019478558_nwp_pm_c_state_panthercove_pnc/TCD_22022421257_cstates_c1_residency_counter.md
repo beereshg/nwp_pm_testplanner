@@ -2,6 +2,48 @@
 
 **C1** is the lightest core sleep state on NWP (PantherCove PNC), entered via the `HALT` instruction or via MWAIT with hint 0x00/0x10. C1 keeps the core powered and clock-gated, allowing the fastest exit latency (<1 μs). The **C1 residency counter** MSRs track the cumulative time a core has spent in C1, providing power management visibility to PCode and OS.
 
+### Block Decomposition
+
+```
+┌───────────────────────────────────────────────────────────────────────────┐
+│            C1 / C1E State Machine and Residency Counting (NWP)           │
+└───────────────────────────────────────────────────────────────────────────┘
+
+                 ┌─────────────────────────────┐
+                 │         C0 (Active)         │
+                 │  CPU executing instructions │
+                 └───────────────┬─────────────┘
+                                 │
+              ┌──────────────────┴──────────────────┐
+              │ HALT / MWAIT 0x00      MWAIT 0x10   │
+              ▼                                      ▼
+    ┌─────────────────────┐             ┌─────────────────────┐
+    │   C1 (Halt State)   │             │  C1E (Enhanced C1)  │
+    │                     │             │                     │
+    │ Clock gated only    │             │ Clock gated         │
+    │ FIVR unchanged      │  ◄──────── │ FIVR reduced        │
+    │ < 1 μs exit         │ autopromo  │ ~10 μs exit         │
+    │                     │  if knob=0 │                     │
+    └──────────┬──────────┘             └──────────┬──────────┘
+               │                                   │
+               │  MSR 0x660 (C1 residency)         │
+               │  per-thread counter               │
+               │  increments each cycle in C1/C1E  │
+               └──────────────┬────────────────────┘
+                               │
+                               │ Interrupt arrives
+                               ▼
+                 ┌─────────────────────────────┐
+                 │      C0 Resume              │
+                 │  Counter snapshot frozen    │
+                 │  Delta = time spent in C1   │
+                 └─────────────────────────────┘
+
+  NWP scope: 96 cores × 2 threads = 192 C1 residency counter instances
+  MSR range: 0x660–0x669 (per-thread C1 dwell, per-core physical)
+  PkgC6 residency (0x3F9) stays 0 throughout — ZBB invariant
+```
+
 ### C1 vs C1E on NWP
 
 | Feature | C1 | C1E (Fast C1E) |

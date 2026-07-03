@@ -12,6 +12,55 @@
 | 4 | Resume fetch @ RIP | Resume fetch @ RIP | Resume from save state | All module cores exit |
 | 5 | — | Snoop filter restore | Snoop filter restore | — |
 
+### Block Decomposition
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    C6 Exit Action Sequence (NWP)                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  ┌────────────────────────────────────────────────────────────────────────┐
+  │ C6 Active (C6A / C6S / C6S-P / MC6)                                   │
+  └────────────────────────────────┬───────────────────────────────────────┘
+                                   │
+                                   │  interrupt arrives (IPI, APIC timer,
+                                   │  external IRQ, NMI, SMI)
+                                   ▼
+                    ┌──────────────────────────────┐
+                    │   Interrupt delivered to APIC│
+                    │   Core wake-up signaled      │
+                    └──────────────────┬───────────┘
+                                       │
+              ┌────────────────────────┴──────────────────────────┐
+              │                        │                           │
+              ▼                        ▼                           ▼
+   ┌────────────────┐      ┌───────────────────┐      ┌────────────────────┐
+   │    C6A Exit    │      │    C6S Exit       │      │   C6S-P Exit       │
+   │                │      │                   │      │                    │
+   │ FIVR ramp-up   │      │ FIVR ramp-up      │      │ FIVR power-on      │
+   │ to C0 nominal  │      │ to C0 nominal     │      │ + ramp to nominal  │
+   │ Clock ungate   │      │ Clock ungate      │      │ Core reset exit    │
+   │ Resume @ RIP   │      │ Snoop filter      │      │ State restore from │
+   │                │      │ restore           │      │ save-state SRAM    │
+   └───────┬────────┘      └────────┬──────────┘      └─────────┬──────────┘
+           │                        │                            │
+           └────────────────────────┴──────────────┬────────────┘
+                                                   │
+                                                   ▼
+                                    ┌──────────────────────────┐
+                                    │ PLR Check                │
+                                    │ Exit latency ≤ PLR limit │
+                                    │ (MSR_PKGC_IRTL 0xA08)   │
+                                    └──────────────┬───────────┘
+                                                   │
+                                                   ▼
+                                    ┌──────────────────────────┐
+                                    │  C0 Active               │
+                                    │  Resume instruction      │
+                                    │  fetch at saved RIP      │
+                                    └──────────────────────────┘
+```
+
 ### Exit Latency KPI (PLR compliance)
 
 | C-State | Target Exit Latency | NWP Budget |

@@ -27,7 +27,7 @@
     <a href="https://hsdes.intel.com/appstore/article-one/#/22022421287" target="_blank">22022421287</a>
     &nbsp;|&nbsp; Status: open &nbsp;|&nbsp; Owner: thangama
     &nbsp;|&nbsp; Parent: <a href="https://hsdes.intel.com/appstore/article-one/#/15019478560" target="_blank">15019478560</a>
-    &nbsp;|&nbsp; 2026-07-03 14:10
+    &nbsp;|&nbsp; 2026-07-03 14:20
   </div>
 </div>
 <div class="wrap">
@@ -35,7 +35,40 @@
   <div class="tc-box">
     <h3>Test Cases (4)</h3><table style="width:100%;border-collapse:collapse;font-size:12px;margin:8px 0;"><thead><tr style="background:#e8eef7;"><th style="padding:6px 8px;text-align:left;">ID</th><th style="padding:6px 8px;text-align:left;">Title</th><th style="padding:6px 8px;text-align:left;">Status</th><th style="padding:6px 8px;text-align:left;">Val Env</th><th style="padding:6px 8px;text-align:left;">Feature</th></tr></thead><tbody><tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022423088" target="_blank">22022423088</a></td><td>[BEAT] [FV PM/UBOX]GNR: Add a PEGA C1e cross-product test case which uses a PCIe card to generate 38 million+/sec back to back legacy interrupts(INTx)</td><td style="color:#2e7d32">open</td><td>silicon</td><td></td></tr><tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022423093" target="_blank">22022423093</a></td><td>CState Fast C1E: Entry flow_silicon</td><td style="color:#2e7d32">open</td><td>silicon,virtual_platform</td><td>Core C-States</td></tr><tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022423096" target="_blank">22022423096</a></td><td>CState Fast C1E: Exit flow_silicon</td><td style="color:#2e7d32">open</td><td>silicon,virtual_platform</td><td>Core C-States</td></tr><tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022423099" target="_blank">22022423099</a></td><td>CState Fast C1E: registers_checks_silicon</td><td style="color:#2e7d32">open</td><td>silicon,virtual_platform</td><td>Core C-States</td></tr></tbody></table>
   </div>
-  <div class="desc-box"><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">1. Architecture / Micro-architecture and Functionality</div><div style="padding:25px;"><p style="margin:10px 0 12px;line-height:1.6;"><strong>Fast C1E</strong> (Enhanced Halt State) is a power optimization state on NWP (PantherCove PNC) that combines clock gating (like C1) with a FIVR voltage reduction. The <strong>start/end flow</strong> TCD validates that C1E entry and exit sequences complete correctly — voltage transitions, clock gating behavior, and residency counter tracking. OS: MWAIT 0x20 (or HALT with autopromotion) → Core enters C1 → Hardware checks c1e_enable bit</p><h3 style="color:rgb(0,113,197);border-bottom:2px solid rgb(0,113,197);padding-bottom:8px;margin-top:20px;">Fast C1E Start Flow</h3><pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">OS: MWAIT 0x20 (or HALT with autopromotion)
+  <div class="desc-box"><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">1. Architecture / Micro-architecture and Functionality</div><div style="padding:25px;"><p style="margin:10px 0 12px;line-height:1.6;"><strong>Fast C1E</strong> (Enhanced Halt State) is a power optimization state on NWP (PantherCove PNC) that combines clock gating (like C1) with a FIVR voltage reduction. The <strong>start/end flow</strong> TCD validates that C1E entry and exit sequences complete correctly — voltage transitions, clock gating behavior, and residency counter tracking. ┌──────────────────────────────────────────────────────────────────────────┐ │                  Fast C1E Start / End Flow (NWP)                          │</p><h3 style="color:rgb(0,113,197);border-bottom:2px solid rgb(0,113,197);padding-bottom:8px;margin-top:20px;">Block Decomposition</h3><pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">┌──────────────────────────────────────────────────────────────────────────┐
+│                  Fast C1E Start / End Flow (NWP)                          │
+└──────────────────────────────────────────────────────────────────────────┘
+
+  ┌────────────────────────────────┐             ┌───────────────────────────────┐
+  │         C1E START                │             │         C1E END                 │
+  └────────────────────────────────┘             └───────────────────────────────┘
+  │                                             │
+  ▼                                             ▼
+┌────────────────────┐                  ┌────────────────────┐
+│ OS: MWAIT 0x20 or   │                  │ Interrupt arrives   │
+│ HALT + autopromotion│                  │ (APIC timer, IPI)   │
+└─────────┬──────────┘                  └─────────┬──────────┘
+         │                                          │
+         ▼                                          ▼
+┌────────────────────┐                  ┌────────────────────┐
+│ Core enters C1      │                  │ APIC delivers IRQ   │
+│ (clock gate)         │                  │ Core wake signal    │
+└─────────┬──────────┘                  └─────────┬──────────┘
+         │                                          │
+         ▼  MSR 0x1FC bit[1]=1                       ▼
+┌────────────────────┐                  ┌────────────────────┐
+│ FIVR ramp-down       │                  │ FIVR ramp-up        │
+│ to C1E voltage       │                  │ to C0 nominal       │
+│ (voltage reduction)  │                  │ (~10 μs)            │
+└─────────┬──────────┘                  └─────────┬──────────┘
+         │                                          │
+         ▼                                          ▼
+┌────────────────────┐                  ┌────────────────────┐
+│ C1E Active           │                  │ Clock ungate        │
+│ Clk gated            │                  │ Resume at RIP       │
+│ FIVR at Vc1e        │                  │ ISR executes        │
+│ MSR 0x660 increments│                  └────────────────────┘
+└────────────────────┘</pre><h3 style="color:rgb(0,113,197);border-bottom:2px solid rgb(0,113,197);padding-bottom:8px;margin-top:20px;">Fast C1E Start Flow</h3><pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">OS: MWAIT 0x20 (or HALT with autopromotion)
     → Core enters C1 → Hardware checks c1e_enable bit
     → c1e_enable=1: FIVR ramp-down to C1E voltage target
     → Clock gate (same as C1)

@@ -2,6 +2,44 @@
 
 **AshTree PRT (Power Reference Test)** is a cross-product system-level test that exercises C-state behavior under realistic OS workloads, combining OS-Idle sequences, P-state transitions, and C-state stress into a single reference test suite. On NWP (PantherCove PNC), AshTree PRT validates that C-states interact correctly with P-state scaling, DVFS, and PMX (Power Management Extensions).
 
+### Block Decomposition
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                AshTree PRT Test Execution Flow (NWP)                     │
+└─────────────────────────────────────────────────────────────────────────┘
+
+  ┌────────────────────────────────────────────────────────────────┐
+  │  NWP SUT: SVOS booted, C-states + P-states enabled               │
+  └───────────────────────────────┬───────────────────────────────┘
+                                  │
+                 ┌──────────────┴────────────────┐
+                 │                              │
+          PRT variant?                    PRT variant?
+                 │                              │
+    ┌────────────┴───────┐        ┌─────────┬─────────────┐
+    ▼                  ▼              ▼             ▼
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│ Long OS Idle│ │ PEGA        │ │ Solar C+P+D│ │ Silicon    │
+│             │ │ CStates +   │ │            │ │ (full)     │
+│ System idle │ │ PStates     │ │ Solar +    │ │            │
+│ 30+ seconds │ │             │ │ DVFS +     │ │ All above  │
+│ Deep C-state│ │ PEGA enable │ │ C-states   │ │ combined   │
+│ entry check │ │ + P-state   │ │ concurrent │ │            │
+└──────┬──────┘ └──────┬──────┘ └──────┬──────┘ └──────┬──────┘
+       │             │             │             │
+       └────────────┴────────────┴────────────┘
+                           │
+                           ▼
+           ┌─────────────────────────┐
+           │  PythonSV post-run checks   │
+           │  · C6 residency advanced    │
+           │  · PkgC6 = 0 (ZBB) ✓       │ ← NWP invariant
+           │  · No MCA / IERR            │
+           │  · P-state achieved target  │
+           └─────────────────────────┘
+```
+
 ### AshTree PRT Test Modes
 
 | Test | Scope | Key Validation |
