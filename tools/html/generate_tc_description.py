@@ -10,7 +10,7 @@ Usage:
   python tools/html/generate_tc_description.py --hsd 22022422105 --force
 
 Output:
-  KB/pm_tc_deepanalysis/HSD_{id}_{slug}_tc_desc.html
+  tc_description_output/HSD_{id}_{slug}_tc_desc.html
 """
 from __future__ import annotations
 

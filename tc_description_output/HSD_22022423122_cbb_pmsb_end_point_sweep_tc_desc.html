@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
+  <title>TC: HSD_22022423122_cbb_pmsb_end_point_sweep</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:4px;}
+    .header .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+    .chip{background:rgba(255,255,255,.18);border-radius:12px;padding:2px 10px;font-size:11px;}
+    .chip.disp{background:#1565c0;font-weight:bold;}
+    a.hsd-link{color:#90caf9;font-size:11px;margin-left:8px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar button{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 18px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar button:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar button.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    .panel code{font-family:Consolas,monospace;}
+    table.md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    table.md-table th,table.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    table.md-table th{background:#e8eef7;font-weight:600;}
+    table.md-table tr:nth-child(even){background:#f8fafc;}
+    .tc-content{font-size:12.5px;}
+    .tc-content h3{color:#004a80;font-size:13px;margin:14px 0 4px;
+        background:#cce4f7;padding:8px 14px;border-left:4px solid #0071c5;border-radius:0 4px 4px 0;font-weight:bold;}
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>HSD_22022423122_cbb_pmsb_end_point_sweep
+    <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022423122" target="_blank" rel="noopener">HSD 22022423122 ↗</a>
+  </h1>
+  <div class="chips">
+    <span class="chip"> › </span>
+    <span class="chip disp"></span>
+    <span class="chip">Env: </span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="active" data-tab="tc">Test Case</button>
+  <button data-tab="sec-a">A: NWP Delta</button>
+  <button data-tab="sec-b">B: Interactions</button>
+  <button data-tab="sec-c">C: Coverage</button>
+  <button data-tab="sec-d">D: Spec Refs</button>
+  <button data-tab="sec-e">E: Risks</button>
+  <button data-tab="sec-f">F: Recommendations</button>
+</div>
+
+<div class="panels">
+  <div id="tc" class="panel active tc-content">
+
+
+
+
+<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
+<br/><p style="margin:10px 0 16px 0;">Systematically sweep all registered <strong>PMSB (Power Management Sideband)</strong> endpoints on the CBB (Compute Building Block) die(s). For each endpoint in <code>cbb_sb_portID.xlsx</code>, issue a PMSB read (and optionally write/RMW) transaction via the ACODE harasser path. The test verifies that every CBB PMSB endpoint: 1. Is reachable (no timeout, no NAK/unreachable response) 2. Returns a valid response within the sideband transaction timeout 3. Produces no MCA, soft-hang, or NLOG error on access 4. Returns read-back data consistent with written values (write-readback mode) The sweep is scoped to PMSB only (<code>pmsb=1, gpsb=0</code>); GPSB is covered by TC 22022423121.</p>
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Preconditions</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;padding:8px;">NWP silicon or emulation booted to SVOS; PythonSV initialized</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">CBB count</td><td style="text-align:left;padding:8px;">Confirm 2 CBBs active: `sv.socket0.cbbs.target_info` lists cbb0, cbb1</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Endpoint file</td><td style="text-align:left;padding:8px;">`pm/SB_Harasser/cbb_sb_portID.xlsx` present with NWP-validated port IDs</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Skip list</td><td style="text-align:left;padding:8px;">`skip_port_ids = [61, 62, 64]` confirmed correct for NWP</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">SAI policy</td><td style="text-align:left;padding:8px;">`sv.socket0.imhs.pcodeio_map.io_msg_sai_policy_check_disable` -- set if needed to allow harasser traffic</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">MCA baseline</td><td style="text-align:left;padding:8px;">Read `sv.sockets.cbbs.computes.module0.ml2_cr_mc3_status.uc` = 0 before start</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">NLOG clean</td><td style="text-align:left;padding:8px;">No pre-existing NLOG errors at harasser start</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">PkgC6 ZBB</td><td style="text-align:left;padding:8px;">Confirm NWP PkgC6 never entered during test (`pc6_entry_count` stays 0)</td></tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Test Steps</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 8px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">#</th>
+  <th style="text-align:left;padding:8px;">Action</th>
+  <th style="text-align:left;padding:8px;">Expected Result (PASS)</th>
+  <th style="text-align:left;padding:8px;">Failure Indication</th>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Load script: `import diamondrapids.pm.SB_Harasser.sb_harasser_DMR as hr`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Import succeeds; `cbb_sb_portID.xlsx` loaded into `df_cbb`; endpoint DataFrame populated</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">ImportError or FileNotFoundError -- check path and Excel engine (`openpyxl`)</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify endpoint count: `df = pd.read_excel(cbb_xls_path); df.set_index('local PorIDs'); print(len(df))`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">>= 20 CBB PMSB endpoints (PUnit, CorePM, FIVR0/1, PMA, RAPL, thermal, CCF); NWP port IDs validated</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Zero or unexpectedly low count -- missing NWP entries in xlsx</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Baseline MCA check: `ok, detail = hr.check_mca_errors(socket=0)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Returns `(False, {})` -- no MCA errors before sweep</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Pre-existing MCA: log details, abort, flag as pre-condition failure</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">CBB0 PMSB read sweep: `result = hr.run_acode_harasser(socket=0, die_id=[0], pmsb=1, gpsb=0, acode_operation=0, acode_operation_type=0)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">All CBB0 PMSB endpoints iterated from `df_cbb`; no NAK/timeout; `error_detected=False`; `result["acode"] > 0`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`error_detected=True` -- PMSB endpoint returned error; log port ID and row data</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">CBB1 PMSB read sweep: `result = hr.run_acode_harasser(socket=0, die_id=[1], pmsb=1, gpsb=0, acode_operation=0, acode_operation_type=0)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">All CBB1 PMSB endpoints respond; `result["acode"] > 0`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Same as step 4 -- log failing port ID</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">MCA check after read sweep: `ok, detail = hr.check_mca_errors(socket=0)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`ok == False` -- no MCA errors after PMSB read sweep across both CBBs</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">MCA detected -- capture `pmas.pmsb.io_spare0`, dump NLOG</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Write-readback sweep: `result = hr.run_acode_harasser(socket=0, die_id=[0,1], pmsb=1, gpsb=0, acode_operation=2, acode_operation_type=1)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Configurable PMSB registers accept write; read-back matches written value; no bus error</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Mismatch between written and read-back -- PMSB write path broken or register is read-only</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">8</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">NLOG scan for sideband timeouts: examine SVOS NLOG for `PMSB_TIMEOUT` or `SB_TIMEOUT`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Zero sideband timeout entries in NLOG for duration of sweep</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Timeout entry -- PMSB endpoint unreachable; record port ID and IP name</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">9</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Stop harasser and verify: `hr.stop_harasser()` then read `sv.socket0.cbbs.computes.pmas.pmsb.io_spare0`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">io_spare0 = 0 after stop -- confirms harasser stopped cleanly</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero value -- call `stop_harasser()` manually; check for stuck harasser</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">10</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Optional loop stability: `hr.run_harasser_loop(socket=0, die_id=[0,1], pmsb=1, gpsb=0, acode=1, pcode=0, ocode=0, interval=30, t_time=300)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">5-minute PMSB sweep loop completes; no hang/MCA/timeout; endpoint coverage increases each iteration</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Hang or MCA during loop -- capture timestamp, last port ID, NLOG snapshot</td>
+</tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Pass / Fail Criteria</div>
+<br/>
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
+  <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
+  <p style="margin:0;font-size:0.9em;">** All CBB PMSB endpoints in `cbb_sb_portID.xlsx` accessed successfully on both CBB0 and CBB1; no NAK, no timeout, no MCA, no NLOG error; write-readback matches; `check_mca_errors()` returns `(False, {})`.</p>
+</div>
+
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
+  <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
+  <p style="margin:0;font-size:0.9em;">** Any of: PMSB endpoint returns NAK or timeout; `error_detected=True`; MCA detected; NLOG contains `PMSB_TIMEOUT`; write-readback mismatch; CBB PMSB stops responding mid-sweep.</p>
+</div>
+
+
+
+
+
+<h3>NOTEs</h3>
+<div style="font-size:0.85em;color:#555;margin-left:12px;padding:10px;background:#f8f9fa;border-left:3px solid #999;border-radius:3px;">
+
+<p style="margin:6px 0;">`cbb_sb_portID.xlsx` may contain DMR-only port IDs not valid on NWP — Cross-check port IDs against NWP CBB PMSB HAS; add NWP-specific entries if missing</p>
+
+<p style="margin:6px 0;">NWP `die_id=[2]` or `[3]` will KeyError or access wrong CBB — Hardcode `die_id=[0,1]` for NWP; add guard assertion</p>
+
+<p style="margin:6px 0;">Posted write may trigger unexpected PMSB response on some NWP endpoints — Start with read-only (`acode_operation=0`) first; add write only after read sweep passes</p>
+
+<p style="margin:6px 0;">`check_mca_errors()` polls `compute0.module0` only -- may miss CBB1 errors — Explicitly call for both CBBs; extend to `sv.sockets.cbbs`</p>
+
+<p style="margin:6px 0;">SAI policy check may block harasser traffic if not disabled — Set `io_msg_sai_policy_check_disable.cmp_cmpd_sai_check_disable = 1` as precondition</p>
+
+</div>
+
+
+
+
+<h3>OPENs</h3>
+<div style="font-size:0.85em;color:#c62828;margin-left:12px;padding:10px;background:#fff3f3;border-left:3px solid #c62828;border-radius:3px;">
+<ul style="margin:4px 0;padding-left:20px;">
+
+<li style="margin:4px 0;">`cbb_sb_portID.xlsx` may contain DMR-only port IDs not valid on NWP → Cross-check port IDs against NWP CBB PMSB HAS; add NWP-specific entries if missing</li>
+
+<li style="margin:4px 0;">Posted write may trigger unexpected PMSB response on some NWP endpoints → Start with read-only (`acode_operation=0`) first; add write only after read sweep passes</li>
+
+</ul>
+</div>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Health Check — Registers &amp; Logs to Collect</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">Register / Log</th>
+  <th style="text-align:left;padding:8px;">Access</th>
+  <th style="text-align:left;padding:8px;">Pass/Fail Criteria</th>
+</tr>
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">`sv.socket0.cbbs.computes.module0.ml2_cr_mc3_status.uc`</td>
+  <td style="text-align:left;padding:8px;">bit 0 Uncorrectable Error</td>
+  <td style="text-align:left;padding:8px;">Must remain 0 throughout</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">`sv.socket0.cbbs.computes.pmas.pmsb.io_spare0`</td>
+  <td style="text-align:left;padding:8px;">full register</td>
+  <td style="text-align:left;padding:8px;">Must be 0 after `stop_harasser()`</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">`sv.socket0.cbbs.base.punit.pc6_entry_count`</td>
+  <td style="text-align:left;padding:8px;">full register</td>
+  <td style="text-align:left;padding:8px;">Must remain 0 (PkgC6 ZBB on NWP)</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">NLOG CBB</td>
+  <td style="text-align:left;padding:8px;">`PMSB_TIMEOUT`, `SB_TIMEOUT`, error-level events</td>
+  <td style="text-align:left;padding:8px;">Zero occurrences</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">`cbb_sb_portID.xlsx`</td>
+  <td style="text-align:left;padding:8px;">`local PorIDs` column</td>
+  <td style="text-align:left;padding:8px;">All entries iterated; `covered_endpoints > 0`</td>
+</tr>
+
+
+</table>
+
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
+<br/><p style="margin:10px 0;">N/A</p>
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">References</div>
+<br/>
+
+<p>N/A</p>
+
+
+</div>
+  </div>
+  <div id="sec-a" class="panel"><p>**NWP Adaptation Notes:**</p>
+<ul>
+<li>DMR supports CBB0-CBB3 (`die_id=[0,1,2,3]`). **NWP has 2 CBBs only** -- use `die_id=[0,1]`.</li>
+<li>`die_id_map` in `sb_harasser_DMR.py`: `{0:&#x27;cbb0&#x27;, 1:&#x27;cbb1&#x27;}` -- both valid for NWP.</li>
+<li>PkgC6 is **ZBB** on NWP -- any PC6 assertions must be removed; assert PC6 is NOT entered.</li>
+<li>Skip port IDs remain: `skip_port_ids = [61, 62, 64]` (hardcoded in script).</li>
+<li>CBB PMSB endpoint list comes from `cbb_sb_portID.xlsx` -- verify NWP-specific port IDs are included.</li>
+</ul>
+<p>Systematically sweep all registered **PMSB (Power Management Sideband)** endpoints on the CBB (Compute Building Block) die(s). For each endpoint in `cbb_sb_portID.xlsx`, issue a PMSB read (and optionally write/RMW) transaction via the ACODE harasser path. The test verifies that every CBB PMSB endpoint:</p>
+<p>1. Is reachable (no timeout, no NAK/unreachable response)</p>
+<p>2. Returns a valid response within the sideband transaction timeout</p>
+<p>3. Produces no MCA, soft-hang, or NLOG error on access</p>
+<p>4. Returns read-back data consistent with written values (write-readback mode)</p>
+<p>The sweep is scoped to PMSB only (`pmsb=1, gpsb=0`); GPSB is covered by TC 22022423121.</p>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Item</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Platform</td>
+<td>NWP silicon or emulation booted to SVOS; PythonSV initialized</td>
+</tr>
+<tr>
+<td>2</td>
+<td>CBB count</td>
+<td>Confirm 2 CBBs active: `sv.socket0.cbbs.target_info` lists cbb0, cbb1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Endpoint file</td>
+<td>`pm/SB_Harasser/cbb_sb_portID.xlsx` present with NWP-validated port IDs</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Skip list</td>
+<td>`skip_port_ids = [61, 62, 64]` confirmed correct for NWP</td>
+</tr>
+<tr>
+<td>5</td>
+<td>SAI policy</td>
+<td>`sv.socket0.imhs.pcodeio_map.io_msg_sai_policy_check_disable` -- set if needed to allow harasser traffic</td>
+</tr>
+<tr>
+<td>6</td>
+<td>MCA baseline</td>
+<td>Read `sv.sockets.cbbs.computes.module0.ml2_cr_mc3_status.uc` = 0 before start</td>
+</tr>
+<tr>
+<td>7</td>
+<td>NLOG clean</td>
+<td>No pre-existing NLOG errors at harasser start</td>
+</tr>
+<tr>
+<td>8</td>
+<td>PkgC6 ZBB</td>
+<td>Confirm NWP PkgC6 never entered during test (`pc6_entry_count` stays 0)</td>
+</tr>
+</tbody></table>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>**Load script:** `import diamondrapids.pm.SB_Harasser.sb_harasser_DMR as hr`</td>
+<td>Import succeeds; `cbb_sb_portID.xlsx` loaded into `df_cbb`; endpoint DataFrame populated</td>
+<td>ImportError or FileNotFoundError -- check path and Excel engine (`openpyxl`)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>**Verify endpoint count:** `df = pd.read_excel(cbb_xls_path); df.set_index(&#x27;local PorIDs&#x27;); print(len(df))`</td>
+<td>&gt;= 20 CBB PMSB endpoints (PUnit, CorePM, FIVR0/1, PMA, RAPL, thermal, CCF); NWP port IDs validated</td>
+<td>Zero or unexpectedly low count -- missing NWP entries in xlsx</td>
+</tr>
+<tr>
+<td>3</td>
+<td>**Baseline MCA check:** `ok, detail = hr.check_mca_errors(socket=0)`</td>
+<td>Returns `(False, {})` -- no MCA errors before sweep</td>
+<td>Pre-existing MCA: log details, abort, flag as pre-condition failure</td>
+</tr>
+<tr>
+<td>4</td>
+<td>**CBB0 PMSB read sweep:** `result = hr.run_acode_harasser(socket=0, die_id=[0], pmsb=1, gpsb=0, acode_operation=0, acode_operation_type=0)`</td>
+<td>All CBB0 PMSB endpoints iterated from `df_cbb`; no NAK/timeout; `error_detected=False`; `result[&quot;acode&quot;] &gt; 0`</td>
+<td>`error_detected=True` -- PMSB endpoint returned error; log port ID and row data</td>
+</tr>
+<tr>
+<td>5</td>
+<td>**CBB1 PMSB read sweep:** `result = hr.run_acode_harasser(socket=0, die_id=[1], pmsb=1, gpsb=0, acode_operation=0, acode_operation_type=0)`</td>
+<td>All CBB1 PMSB endpoints respond; `result[&quot;acode&quot;] &gt; 0`</td>
+<td>Same as step 4 -- log failing port ID</td>
+</tr>
+<tr>
+<td>6</td>
+<td>**MCA check after read sweep:** `ok, detail = hr.check_mca_errors(socket=0)`</td>
+<td>`ok == False` -- no MCA errors after PMSB read sweep across both CBBs</td>
+<td>MCA detected -- capture `pmas.pmsb.io_spare0`, dump NLOG</td>
+</tr>
+<tr>
+<td>7</td>
+<td>**Write-readback sweep:** `result = hr.run_acode_harasser(socket=0, die_id=[0,1], pmsb=1, gpsb=0, acode_operation=2, acode_operation_type=1)`</td>
+<td>Configurable PMSB registers accept write; read-back matches written value; no bus error</td>
+<td>Mismatch between written and read-back -- PMSB write path broken or register is read-only</td>
+</tr>
+<tr>
+<td>8</td>
+<td>**NLOG scan for sideband timeouts:** examine SVOS NLOG for `PMSB_TIMEOUT` or `SB_TIMEOUT`</td>
+<td>Zero sideband timeout entries in NLOG for duration of sweep</td>
+<td>Timeout entry -- PMSB endpoint unreachable; record port ID and IP name</td>
+</tr>
+<tr>
+<td>9</td>
+<td>**Stop harasser and verify:** `hr.stop_harasser()` then read `sv.socket0.cbbs.computes.pmas.pmsb.io_spare0`</td>
+<td>io_spare0 = 0 after stop -- confirms harasser stopped cleanly</td>
+<td>Non-zero value -- call `stop_harasser()` manually; check for stuck harasser</td>
+</tr>
+<tr>
+<td>10</td>
+<td>**Optional loop stability:** `hr.run_harasser_loop(socket=0, die_id=[0,1], pmsb=1, gpsb=0, acode=1, pcode=0, ocode=0, interval=30, t_time=300)`</td>
+<td>5-minute PMSB sweep loop completes; no hang/MCA/timeout; endpoint coverage increases each iteration</td>
+<td>Hang or MCA during loop -- capture timestamp, last port ID, NLOG snapshot</td>
+</tr>
+</tbody></table>
+<ul>
+<li>**PASS:** All CBB PMSB endpoints in `cbb_sb_portID.xlsx` accessed successfully on both CBB0 and CBB1; no NAK, no timeout, no MCA, no NLOG error; write-readback matches; `check_mca_errors()` returns `(False, {})`.</li>
+<li>**FAIL:** Any of: PMSB endpoint returns NAK or timeout; `error_detected=True`; MCA detected; NLOG contains `PMSB_TIMEOUT`; write-readback mismatch; CBB PMSB stops responding mid-sweep.</li>
+</ul>
+<p>---</p></div>
+  <div id="sec-b" class="panel"><table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Actor</th>
+<th>Action</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Test script</td>
+<td>Load `cbb_sb_portID.xlsx`; build endpoint iterator (`df_cbb.iterrows()`)</td>
+<td>Python / pandas</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Test script</td>
+<td>Call `run_acode_harasser(die_id=[0], pmsb=1, gpsb=0)`</td>
+<td>PythonSV namednodes</td>
+</tr>
+<tr>
+<td>3</td>
+<td>ACODE harasser</td>
+<td>Issue PMSB read to each `local PorID` in DataFrame</td>
+<td>CBB PMSB fabric</td>
+</tr>
+<tr>
+<td>4</td>
+<td>CBB PUnit/FIVR/CorePM/PMA</td>
+<td>Respond to PMSB read; return register data</td>
+<td>CBB PMSB sideband</td>
+</tr>
+<tr>
+<td>5</td>
+<td>ACODE harasser</td>
+<td>Log response; check NAK/timeout; increment `covered_endpoints`</td>
+<td>Internal harasser loop</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Test script</td>
+<td>Call `check_mca_errors()` after each CBB sweep</td>
+<td>PythonSV / MCA MSRs</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Test script</td>
+<td>Run RMW sweep (`acode_operation=2`), verify read-back</td>
+<td>CBB PMSB</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Test script</td>
+<td>Call `stop_harasser()`; verify `io_spare0 = 0`</td>
+<td>PMSB spare register</td>
+</tr>
+</tbody></table>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>From</th>
+<th>To</th>
+<th>Message</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Script</td>
+<td>`df_cbb`</td>
+<td>`iterrows()` -- iterate CBB PMSB port IDs</td>
+<td>pandas DataFrame</td>
+</tr>
+<tr>
+<td>2</td>
+<td>ACODE harasser</td>
+<td>CBB PMSB fabric</td>
+<td>NonPosted read (op=0) to `local PorID`</td>
+<td>PMSB sideband</td>
+</tr>
+<tr>
+<td>3</td>
+<td>CBB endpoint (PUnit/FIVR/CorePM)</td>
+<td>ACODE harasser</td>
+<td>Response data, no error flag</td>
+<td>PMSB response</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Script</td>
+<td>`check_mca_errors()`</td>
+<td>Poll `ml2_cr_mc3_status.uc` across both CBBs</td>
+<td>MSR / namednodes</td>
+</tr>
+<tr>
+<td>5</td>
+<td>ACODE harasser</td>
+<td>CBB PMSB fabric</td>
+<td>Posted RMW (op=2, type=1) to configurable registers</td>
+<td>PMSB sideband</td>
+</tr>
+<tr>
+<td>6</td>
+<td>CBB endpoint</td>
+<td>ACODE harasser</td>
+<td>Read-back confirms write</td>
+<td>PMSB response</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Script</td>
+<td>`stop_harasser()`</td>
+<td>Write 0 to `cbbs.computes.pmas.pmsb.io_spare0`</td>
+<td>namednodes</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-c" class="panel"><table class="md-table"><thead><tr>
+<th>Dimension</th>
+<th>Coverage</th>
+</tr></thead><tbody>
+<tr>
+<td>**CBBs covered**</td>
+<td>CBB0, CBB1 (NWP; DMR adds CBB2/3)</td>
+</tr>
+<tr>
+<td>**Bus type**</td>
+<td>PMSB only (`pmsb=1, gpsb=0`)</td>
+</tr>
+<tr>
+<td>**Operation types**</td>
+<td>Read (op=0, NonPosted), RMW (op=2, Posted)</td>
+</tr>
+<tr>
+<td>**IPs swept**</td>
+<td>PUnit, FIVR0/FIVR1, CorePM, PMA, RAPL unit, thermal sensors, CCF PM regs</td>
+</tr>
+<tr>
+<td>**Error detection**</td>
+<td>NAK/timeout detection, MCA check, NLOG scan, write-readback</td>
+</tr>
+<tr>
+<td>**Skipped ports**</td>
+<td>`[61, 62, 64]` -- reserved/unsafe for harasser access</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-d" class="panel"><table class="md-table"><thead><tr>
+<th>Register / Log</th>
+<th>Field / Offset</th>
+<th>Pass/Fail Criteria</th>
+</tr></thead><tbody>
+<tr>
+<td>`sv.socket0.cbbs.computes.module0.ml2_cr_mc3_status.uc`</td>
+<td>bit 0 Uncorrectable Error</td>
+<td>Must remain 0 throughout</td>
+</tr>
+<tr>
+<td>`sv.socket0.cbbs.computes.pmas.pmsb.io_spare0`</td>
+<td>full register</td>
+<td>Must be 0 after `stop_harasser()`</td>
+</tr>
+<tr>
+<td>`sv.socket0.cbbs.base.punit.pc6_entry_count`</td>
+<td>full register</td>
+<td>Must remain 0 (PkgC6 ZBB on NWP)</td>
+</tr>
+<tr>
+<td>NLOG CBB</td>
+<td>`PMSB_TIMEOUT`, `SB_TIMEOUT`, error-level events</td>
+<td>Zero occurrences</td>
+</tr>
+<tr>
+<td>`cbb_sb_portID.xlsx`</td>
+<td>`local PorIDs` column</td>
+<td>All entries iterated; `covered_endpoints &gt; 0`</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-e" class="panel"><table class="md-table"><thead><tr>
+<th>Risk / Open Item</th>
+<th>Likelihood</th>
+<th>Severity</th>
+<th>Mitigation</th>
+</tr></thead><tbody>
+<tr>
+<td>`cbb_sb_portID.xlsx` may contain DMR-only port IDs not valid on NWP</td>
+<td>Medium</td>
+<td>High</td>
+<td>Cross-check port IDs against NWP CBB PMSB HAS; add NWP-specific entries if missing</td>
+</tr>
+<tr>
+<td>NWP `die_id=[2]` or `[3]` will KeyError or access wrong CBB</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Hardcode `die_id=[0,1]` for NWP; add guard assertion</td>
+</tr>
+<tr>
+<td>Posted write may trigger unexpected PMSB response on some NWP endpoints</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Start with read-only (`acode_operation=0`) first; add write only after read sweep passes</td>
+</tr>
+<tr>
+<td>`check_mca_errors()` polls `compute0.module0` only -- may miss CBB1 errors</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Explicitly call for both CBBs; extend to `sv.sockets.cbbs`</td>
+</tr>
+<tr>
+<td>SAI policy check may block harasser traffic if not disabled</td>
+<td>Low</td>
+<td>High</td>
+<td>Set `io_msg_sai_policy_check_disable.cmp_cmpd_sai_check_disable = 1` as precondition</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-f" class="panel"><p>1. **NWP port:** Change `die_id=[0,1,2,3]` to `die_id=[0,1]` -- NWP has exactly 2 CBBs.</p>
+<p>2. **Validate xlsx:** Print all port IDs and cross-check against NWP CBB PMSB HAS before silicon run.</p>
+<p>3. **Read-before-write:** Always run read sweep (`acode_operation=0`) first, then proceed to RMW (`acode_operation=2`).</p>
+<p>4. **Extend MCA scope:** Call `check_mca_errors()` explicitly for both `cbb0` and `cbb1`.</p>
+<p>5. **PkgC6 guard:** Add `assert int(sv.socket0.cbbs.base.punit.pc6_entry_count) == 0` before and after sweep.</p>
+<p>6. **NWP invocation:**</p>
+<pre><code>
+   import diamondrapids.pm.SB_Harasser.sb_harasser_DMR as hr
+   # CBB PMSB sweep -- NWP 2-CBB
+   result = hr.run_harasser(socket=0, die_id=[0,1], pmsb=1, gpsb=0,
+                             pcode=0, ocode=0, acode=1,
+                             acode_operation=0, acode_operation_type=0)
+   print(f&quot;ACODE endpoints covered: {result[&#x27;acode&#x27;]}&quot;)
+   ok, detail = hr.check_mca_errors(socket=0)
+   assert not ok, f&quot;MCA detected: {detail}&quot;
+</code></pre></div>
+</div>
+
+<script>
+const btns  = Array.from(document.querySelectorAll('.tab-bar button'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+btns.forEach(btn => btn.addEventListener('click', () => {
+  btns.forEach(b => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const p = document.getElementById(btn.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

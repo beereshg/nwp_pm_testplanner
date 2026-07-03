@@ -99,7 +99,7 @@ Core output contract:
 - FV content: `nwp_pm_fv/data/nwp_pm_fv_content.json` (442 FV + PV TCs)
 - FV cache: `nwp_pm_fv_cache.json` (844 total TCs from full TP walk)
 - PSS master: `nwp_pm_pss/data/nwp_master_test_plan.csv`
-- Unified HTML out: `KB/pm_tc_deepanalysis/` (all generated files)
+- Unified HTML out: `tc_description_output/` (all generated files)
 - Hierarchy HTML: `nwp_pm_hierarchy.html` (full interactive view)
 
 ### Graded TPs (TC grading comments posted to HSD)
@@ -568,14 +568,14 @@ ok = set_planning_fields(tc_id, planning_status="Open", drive_to_date="2026-12-3
 | Master list | `nwp_pm_fv/data/nwp_pm_fv_content.json` | `nwp_pm_pss/data/nwp_master_test_plan.csv` |
 | Metadata JSON | `nwp_pm_fv/data/metadata/HSD_{id}_metadata.json` | `nwp_pm_pss/data/metadata/HSD_{id}_metadata.json` |
 | Cache file | `KB/pm_tc_kb/**/HSD_{id}_{slug}.inference.md` | `KB/pm_tc_kb/**/HSD_{id}_{slug}.inference.md` |
-| HTML output | `KB/pm_tc_deepanalysis/HSD_{id}_{slug}.html` | `KB/pm_tc_deepanalysis/HSD_{id}_{slug}.html` |
+| HTML output | `tc_description_output/HSD_{id}_{slug}.html` | `tc_description_output/HSD_{id}_{slug}.html` |
 | HTML generator | `tools/html/generate_unified_html.py --segment fv|pss|all` | `tools/html/generate_unified_html.py --segment fv|pss|all` |
-| Index pages | `KB/pm_tc_deepanalysis/nwp_pm_fv_test_cases.html` | `KB/pm_tc_deepanalysis/nwp_pss_test_cases.html` |
+| Index pages | `tc_description_output/nwp_pm_fv_test_cases.html` | `tc_description_output/nwp_pss_test_cases.html` |
 
 ### Practical Interpretation of These Paths
 
 - `KB/pm_tc_kb/`: primary editable deep-analysis/template corpus for both FV and PSS.
-- `KB/pm_tc_deepanalysis/`: rendered unified presentation output for FV and PSS.
+- `tc_description_output/`: rendered unified presentation output for FV and PSS.
 - `nwp_pm_pss/`: PSS-specific source inputs and reporting metadata (master CSV, metadata chain), not the final HTML destination.
 
 > Slug: title lowercased, spaces/special chars → `_`, ~50 chars max.

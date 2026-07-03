@@ -11,7 +11,7 @@ from generate_unified_html import html_template
 
 REPO_ROOT  = Path(__file__).resolve().parents[2]
 CACHE_ROOT = REPO_ROOT / "KB" / "pm_tc_kb"
-OUTPUT_DIR = REPO_ROOT / "KB" / "pm_tc_deepanalysis"
+OUTPUT_DIR = REPO_ROOT / "tc_description_output"
 
 TP_TITLES = {
     "16030762839": "[NWP PM] SST (Speed Select Technology)",

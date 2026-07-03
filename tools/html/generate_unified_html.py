@@ -1,12 +1,10 @@
 """Unified HTML generation for NWP PM FV and PSS cache content.
 
 This script reads consolidated cache files from:
-  - nwp_pm_cache/fv/*.inference.md
-  - nwp_pm_cache/pss/*.inference.md
+  - KB/pm_tc_kb/**/*.inference.md
 
 And writes rendered HTML to:
-  - nwp_pm_fv/html/*.html
-  - nwp_pm_pss/html/*.html
+  - tc_description_output/*.html
 """
 
 from __future__ import annotations
@@ -20,7 +18,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CACHE_ROOT = REPO_ROOT / "KB" / "pm_tc_kb"
-UNIFIED_OUTPUT_DIR = REPO_ROOT / "KB" / "pm_tc_deepanalysis"
+UNIFIED_OUTPUT_DIR = REPO_ROOT / "tc_description_output"
 OUTPUT_ROOTS = {
     "fv": UNIFIED_OUTPUT_DIR,
     "pss": UNIFIED_OUTPUT_DIR,

@@ -191,7 +191,7 @@ Read this before re-fetching — delta updates only.
 | Metadata JSON | `nwp_pm_fv/data/metadata/HSD_*_metadata.json` | `nwp_pm_pss/data/metadata/HSD_*_metadata.json` |
 | TC cache files | `KB/pm_tc_kb/**/*.inference.md` | `KB/pm_tc_kb/**/*.inference.md` |
 | TCD cache files | `KB/pm_tcd_kb/**/*.md` | `KB/pm_tcd_kb/**/*.md` |
-| HTML output | `KB/pm_tc_deepanalysis/*.html` | `KB/pm_tc_deepanalysis/*.html` |
+| HTML output | `tc_description_output/*.html` | `tc_description_output/*.html` |
 | TCD preview HTML | `tcd_description_output/TCD_*_preview.html` | — |
 | KB articles | `KB/pm_features/**/*.md` | `KB/pm_features/**/*.md` |
 
