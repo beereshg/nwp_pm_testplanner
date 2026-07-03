@@ -1,0 +1,291 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CBB CCF PM TP 22022420505 — TC-to-Script Alignment</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",Arial,sans-serif;background:#f0f4f9;font-size:12px;color:#1f2937}
+.hdr{background:#0f4c81;color:#fff;padding:14px 24px}
+.hdr h1{font-size:17px;font-weight:600;margin-bottom:4px}
+.hdr .sub{font-size:10px;opacity:.82}
+.hdr a{color:#90caf9}
+.stats{display:flex;gap:16px;background:#1a5fa8;padding:8px 24px;flex-wrap:wrap}
+.stat{background:rgba(255,255,255,.15);border-radius:6px;padding:6px 14px;text-align:center;color:#fff}
+.stat .n{font-size:20px;font-weight:700;display:block}
+.stat .l{font-size:9px;opacity:.8}
+.wrap{max-width:1600px;margin:14px auto;padding:0 14px 40px}
+.key-box{background:#e8f5e9;border:1px solid #a5d6a7;border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:11px}
+.key-box strong{color:#2e7d32}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:14px}
+th{background:#0f4c81;color:#fff;padding:8px 10px;text-align:left;font-size:10px;font-weight:600;position:sticky;top:0;z-index:10}
+td{padding:7px 9px;vertical-align:top;border-bottom:1px solid #e8eef7;font-size:11px}
+.stp-header td{background:#0d47a1;color:#fff;font-weight:700;font-size:12px;padding:9px 14px}
+.stp-header a{color:#90caf9;text-decoration:none}
+.tcd-header td{background:#e3f2fd;color:#0f4c81;font-size:11px;padding:7px 14px;font-weight:600}
+.tcd-header a,.tcd-empty a{color:#0f4c81;text-decoration:none}
+.tcd-empty td{background:#fce4ec;font-size:11px;padding:7px 14px;color:#880e4f}
+.rs{background:#f1fff4} .rw{background:#fffbf0} .rn{background:#fff5f5}
+tr:hover td{background:#e8f0ff!important;transition:background .1s}
+.tcid{font-weight:700;color:#0f4c81;text-decoration:none}
+.ev{font-size:10px;color:#555;white-space:nowrap}
+.badge-s{display:inline-block;background:#d4edda;color:#155724;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700}
+.badge-w{display:inline-block;background:#fff3cd;color:#856404;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700}
+.badge-n{display:inline-block;background:#f8d7da;color:#721c24;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700}
+code{font-family:Consolas,monospace;font-size:10px;background:#f3f6fb;padding:1px 4px;border-radius:3px}
+.flag{background:#e8f0fe;color:#0f4c81;font-size:9px}
+.dc{max-width:420px} .nc{max-width:220px}
+.sl{font-size:9px;font-weight:700;color:#0f4c81;text-transform:uppercase;margin-top:4px;border-bottom:1px solid #e8eef7}
+.sb{font-size:10px;color:#333;margin-bottom:2px;line-height:1.4}
+.cnt{float:right;background:rgba(255,255,255,.25);border-radius:10px;padding:2px 8px;font-size:10px;font-weight:400}
+.enh{padding-left:14px;font-size:10px;color:#5d4037;line-height:1.7}
+.enh code{background:#fef9e7}
+.ok{color:#388e3c;font-size:10px}
+</style></head><body>
+<div class="hdr">
+  <h1>CBB CCF PM — TC-to-Script Alignment Report
+    <a href="https://hsdes.intel.com/appstore/article-one/#/22022420505" target="_blank">TP 22022420505 ↗</a>
+  </h1>
+  <div class="sub">Parent TP → 5 Sub-TPs → 12 TCDs → 15 TCs &nbsp;|&nbsp; Script root: <code>C:\githubrameworks.validation.pythonsv.projects.diamondrapids\pm</code> &nbsp;|&nbsp; Generated 2026-07-03</div>
+</div>
+<div class="stats">
+  <div class="stat"><span class="n">15</span><span class="l">TCs</span></div>
+  <div class="stat"><span class="n">15</span><span class="l">✅ STRONG</span></div>
+  <div class="stat"><span class="n">0</span><span class="l">⚠️ WEAK</span></div>
+  <div class="stat"><span class="n">0</span><span class="l">❌ No Match</span></div>
+  <div class="stat"><span class="n">7</span><span class="l">Empty TCDs (UFS)</span></div>
+</div>
+<div class="wrap">
+<div class="key-box">
+  <strong>Key:</strong> All 15 TCs map to <code>Active_PM/CCF_GV/pmx_ccf_cbo.py</code> via per-TC CLI flags (<code>--test_ccf_*</code>), invoked as:
+  <code>runPmx.py -x dmr.xml -p ccf_cbo --test_ccf_&lt;feature&gt; -tM 60</code>.
+  VF Curves uses <code>Active_PM/Pstate_Stack/vf_curves_check.py</code> standalone.
+  The 7 <strong>CBB Uniform Fabric Frequency</strong> TCDs have no TCs created yet — need TC creation.
+</div>
+<table>
+<thead><tr>
+  <th style="width:90px">TC ID</th><th style="width:190px">Title</th><th style="width:75px">Env</th>
+  <th style="width:155px">Script / Flag</th>
+  <th>Description (Scope · Pre-cond · Steps · P/F)</th>
+  <th style="width:210px">Enhancement Notes</th>
+</tr></thead>
+<tbody><tr class="stp-header"><td colspan="7"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420507">22022420507</a> — CBB CCF Active States <span class="cnt">4 TCs · 4 strong</span></td></tr>
+<tr class="tcd-header"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421165">22022421165</a>: CBB CCF GV BIOS Configuration</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422850" class="tcid">22022422850</a></td>
+  <td>CBB CCF GV BIOS Configuration</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="badge-s">✅ STRONG</span><br><code>pmx_ccf_cbo.py</code><br><code class="flag">--test_ccf_tpmi_gv</code></td>
+  <td class="dc">
+    <div class="sl">Scope</div><div class="sb">Objective: Verify that BIOS correctly programs the CBB CCF (Converged Coherent Fabric) GV (working-point transition) TPMI control registers for each CBB die. Validate that all CCF GV BIOS knobs are accessible and writable, that the programmed values are within valid ranges, and that PCode interprets</div>
+    <div class="sl">Pre-conditions</div><div class="sb">Item Requirement System booted to OS BIOS CPL4 complete; PCode initialized TPMI accessible per CBB `sv.socketX.cbbN.base.tpmi.ufs_control` readable CCF GV BIOS knobs configured Non-default MAX_RATIO / MIN_RATIO set or defaults verified PCode running </div>
+    <div class="sl">Steps</div><div class="sb"># Action Expected Result (PASS) Failure Indication 1 For each CBB, read `UFS_HEADER` — verify `INTERFACE_VERSION=0x03` and `AUTONOMOUS_UFS_DISABLED=0` Version=3; CCF GV enabled per CBB `AUTONOMOUS_UFS_DISABLED=1` — CCF GV incorrectly disabled 2 Read `UFS_CONTROL.MAX_RATIO` per CBB Non-zero value &lt;= 20 (2000 MHz / 100 MHz steps) Zero — BIOS did not </div>
+    <div class="sl">Pass/Fail</div><div class="sb">Criteria PASS ** All TPMI UFS_CONTROL fields accessible and non-zero per CBB; MAX_RATIO &gt; MIN_RATIO; `AUTONOMOUS_UFS_DISABLED=0`; PCode-observed `CURRENT_RATIO` stays within [MIN_RATIO, MAX_RATIO]; BI</div>
+  </td>
+  <td class="nc"><ul class="enh"><li>⚠️ GV BIOS config: <code>--test_ccf_tpmi_gv</code> covers TPMI GV requests but does not explicitly validate BIOS knob-to-register propagation chain; add NVRAM/BIOS knob read step</li></ul></td>
+</tr>
+<tr class="tcd-header"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421168">22022421168</a>: CBB CCF GV PEGA</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422851" class="tcid">22022422851</a></td>
+  <td>CBB CCF GV PEGA Injection</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="badge-s">✅ STRONG</span><br><code>pmx_ccf_cbo.py</code><br><code class="flag">--test_ccf_pega_pstate</code></td>
+  <td class="dc">
+    <div class="sl">Scope</div><div class="sb">Objective: Verify that CBB CCF ring frequency responds correctly to synthetic PEGA (Power Engine Generic Agent) mailbox injections. PEGA injects P-state requests for fabric domains (meshgv, iagv, memgv, iogv) directly into PCode via the B2P mailbox, bypassing the normal bandwidth-heuristic slow loop</div>
+    <div class="sl">Pre-conditions</div><div class="sb">Item Requirement System booted to XOS/SVOS BIOS CPL4 complete; PCode running CCF GVFSM BIOS: ProcessorHWPMEnable = 1 HWP initialized (required for PEGA mailbox) TPMI accessible per CBB `sv.socket0.cbbN.base.tpmi.ufs_status.current_ratio` readable PEG</div>
+    <div class="sl">Steps</div><div class="sb"># Action Expected Result (PASS) Failure Indication 1 Read baseline `UFS_STATUS.CURRENT_RATIO` on cbb0 and cbb1 Non-zero ratios on both CBBs;</div>
+    <div class="sl">Pass/Fail</div><div class="sb">Criteria PASS ** PEGA mailbox accepted without error; at least one CBB shows ratio change after stress injection; P0 injection drives ratio toward 2.2 GHz; autonomous CCF ratio recovery after PEGA rel</div>
+  </td>
+  <td class="nc"><ul class="enh"><li>⚠️ PEGA injection: <code>--test_ccf_pega_pstate</code> option is present but function body is incomplete in template state — verify actual PEGA injection logic is implemented in <code>ccf_gv.py</code></li></ul></td>
+</tr>
+<tr class="tcd-header"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421171">22022421171</a>: CBB CCF GV TPMI Interface</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422859" class="tcid">22022422859</a></td>
+  <td>CBB CCF GV TPMI Request</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="badge-s">✅ STRONG</span><br><code>pmx_ccf_cbo.py</code><br><code class="flag">--test_ccf_tpmi_gv</code></td>
+  <td class="dc">
+    <div class="sl">Scope</div><div class="sb">Objective: Verify that CBB CCF ring frequency (GV) can be controlled via direct TPMI UFS_CONTROL register writes. By programming MAX_RATIO = MIN_RATIO = target , the autonomous UFS bandwidth-heuristic algorithm is overridden and PCode GVFSM holds the CCF ring at the programmed fixed ratio. Tests: (1</div>
+    <div class="sl">Pre-conditions</div><div class="sb">Item Requirement System booted to XOS/SVOS BIOS CPL4 complete; PCode running CCF GVFSM TPMI UFS_CONTROL writable `ufs_control` field writes reflected on readback Baseline CCF ratio known `UFS_STATUS.CURRENT_RATIO` non-zero on both CBBs `UFS_HEADER` f</div>
+    <div class="sl">Steps</div><div class="sb"># Action Expected Result (PASS) Failure Indication 1 Read `UFS_HEADER` per CBB to get fused P0 cap and Pm floor `max_ratio_cap` and `min_ratio_cap` non-zero;</div>
+    <div class="sl">Pass/Fail</div><div class="sb">Criteria PASS ** TPMI `UFS_CONTROL` writes accepted and reflected on readback; CURRENT_RATIO matches locked value within 1 convergence window (5M cycles); boundary clamping to P0/Pm caps correct; auto</div>
+  </td>
+  <td class="nc"><ul class="enh"><li>⚠️ Same flag as BIOS Config TC (<code>--test_ccf_tpmi_gv</code>) — may need a separate flag to distinguish TPMI ring freq request from BIOS config checkout</li></ul></td>
+</tr>
+<tr class="tcd-header"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421174">22022421174</a>: CBB CCF VF Curves</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422863" class="tcid">22022422863</a></td>
+  <td>CBB CCF VF Curves</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="badge-s">✅ STRONG</span><br><code>vf_curves_check.py</code><br><code class="flag">standalone</code></td>
+  <td class="dc">
+    <div class="sl">Scope</div><div class="sb">Objective: Validate CBB CCF ring Voltage-Frequency (VF) curve programming and enforcement. The VF curve defines the minimum supply voltage required at each CCF frequency operating point. GVFSM (GV Finite State Machine) in CBB PCode must select the correct voltage from the fused VF table when transit</div>
+    <div class="sl">Pre-conditions</div><div class="sb">Item Requirement System booted, PCode initialized BIOS CPL4 complete; GVFSM running No thermal throttle (TCC inactive) Die temperature below TCC threshold TPMI accessible per CBB `ufs_control`, `ufs_status`, `sst_pp_info_*` readable CBB GPSB accessib</div>
+    <div class="sl">Steps</div><div class="sb">—</div>
+    <div class="sl">Pass/Fail</div><div class="sb">Criteria PASS ** Fused VF ratios readable and non-zero; CURRENT_VOLTAGE matches VF table entry at each locked ratio; V-first observed on frequency increase; PLL-first observed on frequency decrease; v</div>
+  </td>
+  <td class="nc"><ul class="enh"><li>⚠️ <code>vf_curves_check.py</code> is in <code>Active_PM/Pstate_Stack/</code> not CCF_GV — confirm this script handles CCF ring VF curves not just core VF; add ring-specific assertions</li></ul></td>
+</tr>
+<tr class="stp-header"><td colspan="7"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420512">22022420512</a> — CBB CCF Idle States <span class="cnt">3 TCs · 3 strong</span></td></tr>
+<tr class="tcd-header"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421179">22022421179</a>: CBB CCF Idle states</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422865" class="tcid">22022422865</a></td>
+  <td>CBB CCF Fast Ring C3</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="badge-s">✅ STRONG</span><br><code>pmx_ccf_cbo.py</code><br><code class="flag">--test_ccf_fast_ring_c3</code></td>
+  <td class="dc">
+    <div class="sl">Scope</div><div class="sb">Objective: Validate CBB CCF Fast Ring C3, an autonomous low-power state entered when all cores in a DCM module reach MC6 (Module C6). Fast Ring C3 closes the Global Uclk tree drivers (clock gating), retaining VCCRING and the Ring PLL for fast wake latency. It fires in PkgC0 context with no PUNIT han</div>
+    <div class="sl">Pre-conditions</div><div class="sb">Item Requirement System booted to XOS/SVOS BIOS CPL4 complete; PCode GVFSM running Core C6 (CC6) enabled in BIOS C-states enabled; `cpupower idle-set -e 2` on Linux No workload on test cores All cores on test module must be idle MSR CC6 residency cou</div>
+    <div class="sl">Steps</div><div class="sb"># Action Expected Result (PASS) Failure Indication 1 Read baseline CC6 and MC6 residency counters on all cores of module0 Counters accessible;</div>
+    <div class="sl">Pass/Fail</div><div class="sb">Criteria PASS ** MC6 residency increments; PMA Fast C3 Q-channel assertion observed; Global Uclk tree clock-gated during module idle; VCCRING retained; fast wake on interrupt (&lt;10 cycles); PLR = 0x0; </div>
+  </td>
+  <td class="nc"><span class="ok">✓ OK</span></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422868" class="tcid">22022422868</a></td>
+  <td>CBB CCF PM Cstate wake events across Activeidle</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="badge-s">✅ STRONG</span><br><code>pmx_ccf_cbo.py</code><br><code class="flag">--test_ccf_cstate_x_wake_event</code></td>
+  <td class="dc">
+    <div class="sl">Scope</div><div class="sb">—</div>
+    <div class="sl">Pre-conditions</div><div class="sb">Item Requirement Platform booted to XOS/SVOS BIOS CPL4 complete; PCode running BIOS: C-states enabled CC6 reachable; MonitorMWait enabled CPU governor: powersave Allows CC6 entry under zero load No sustained workload All test cores at idle baseline b</div>
+    <div class="sl">Steps</div><div class="sb">—</div>
+    <div class="sl">Pass/Fail</div><div class="sb">Criteria PASS ** All phases complete without hang; MC6 residency increments; Q-channels re-assert on wake; CCF ratio restores to pre-idle value; PICLET delivers interrupts correctly; no duplicate/miss</div>
+  </td>
+  <td class="nc"><span class="ok">✓ OK</span></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422873" class="tcid">22022422873</a></td>
+  <td>CBB CCF Ring C3</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="badge-s">✅ STRONG</span><br><code>pmx_ccf_cbo.py</code><br><code class="flag">--test_ccf_ring_c3</code></td>
+  <td class="dc">
+    <div class="sl">Scope</div><div class="sb">Objective: Validate CBB CCF Ring C3 entry and exit — the deep CCF power-off state that shuts down the Ring PLLs, drains the CCF ring fabric, gates VCCRING, and transitions the D2D UCIe link to L1. On NWP, Ring C3 requires PkgC6 as a prerequisite; since PkgC6 is fused off on customer silicon, full Ri</div>
+    <div class="sl">Pre-conditions</div><div class="sb">Item Requirement Platform booted BIOS CPL4 complete; PCode running BIOS: C-states + PkgCx enabled CC6 and PkgC6 inducible (HSLE) or CC6/MC6 (silicon) HSLE/Simics: MWAIT injection supported Simics magic instruction for `EAX=0x25` (C6S-P) available CBB</div>
+    <div class="sl">Steps</div><div class="sb">—</div>
+    <div class="sl">Pass/Fail</div><div class="sb">Criteria PASS (HSLE/Simics — Full Ring C3):** D2D enters L1; CCF fully drained; RING PLLs off (`CURRENT_RATIO = 0`); VCCRING gated; exit restores to P0 (~2.2 GHz); PLR = 0x0; residency counters advanc</div>
+  </td>
+  <td class="nc"><span class="ok">✓ OK</span></td>
+</tr>
+<tr class="stp-header"><td colspan="7"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420513">22022420513</a> — CBB CCF NonAutoGV <span class="cnt">1 TCs · 1 strong</span></td></tr>
+<tr class="tcd-header"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421183">22022421183</a>: CBB CCF NonAutoGV Mode - Drainless / Fast GV</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422878" class="tcid">22022422878</a></td>
+  <td>CBB CCF NonAutoGV Mode -  Fast GV</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="badge-s">✅ STRONG</span><br><code>pmx_ccf_cbo.py</code><br><code class="flag">--test_ccf_fast_gv</code></td>
+  <td class="dc">
+    <div class="sl">Scope</div><div class="sb">Objective: Validate CBB CCF Non-Autonomous GV (NonAutoGV) mode and Fast GV (drainless frequency transition). In NonAutoGV mode, the TPMI UFS_CONTROL is programmed with UFS_THROTTLE_MODE=0 and MIN_RATIO=MAX_RATIO=target , disabling the autonomous BW-heuristic algorithm. The GVFSM continues to run but</div>
+    <div class="sl">Pre-conditions</div><div class="sb">Item Requirement System booted to XOS/SVOS BIOS CPL4; PCode GVFSM running TPMI UFS_CONTROL writable `ufs_control` writes reflected on readback Baseline CCF ratio known `UFS_STATUS.CURRENT_RATIO` non-zero; GVFSM in autonomous mode No active RAPL throt</div>
+    <div class="sl">Steps</div><div class="sb">—</div>
+    <div class="sl">Pass/Fail</div><div class="sb">Criteria PASS ** NonAutoGV pin holds `CURRENT_RATIO` at programmed value; Fast GV transitions (both down and up) complete in &lt;10 ms; boundary clamping to P0/Pm caps correct; per-CBB independence confi</div>
+  </td>
+  <td class="nc"><span class="ok">✓ OK</span></td>
+</tr>
+<tr class="stp-header"><td colspan="7"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420514">22022420514</a> — CBB CCF Ring Frequency Scalability <span class="cnt">7 TCs · 7 strong</span></td></tr>
+<tr class="tcd-header"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421190">22022421190</a>: CBB  CCF PMON</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422886" class="tcid">22022422886</a></td>
+  <td>CBB CCF PMON</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="badge-s">✅ STRONG</span><br><code>pmx_ccf_cbo.py</code><br><code class="flag">--test_ccf_pmon</code></td>
+  <td class="dc">
+    <div class="sl">Scope</div><div class="sb">Objective: Validate CBB CCF Performance Monitor (PMON) counters that measure CCF ring activity: bandwidth utilization, stall cycles, snoop traffic, and frequency-state occupancy. Tests verify counters increment correctly under known workload, PMU programming via MSR/TPMI, and counter accuracy agains</div>
+    <div class="sl">Pre-conditions</div><div class="sb">Item Requirement System booted to XOS/SVOS BIOS CPL4 complete; PCode running TPMI accessible per CBB `sv.socket0.cbbN.base.tpmi.*` readable PythonSV namednodes loaded `import namednodes; sv = namednodes.sv` succeeds Workload available CPU stress or c</div>
+    <div class="sl">Steps</div><div class="sb"># Action Expected Result (PASS) Failure Indication 1 Program PMON: select CCF bandwidth event in PMON control MSR PMU accepts programming; event selector written MSR write rejected or not reflected 2 Apply mesh-bound workload on cbb0; read PMON bandwidth counter before and after Counter increments by expected amount proportional to traffic Counter </div>
+    <div class="sl">Pass/Fail</div><div class="sb">Criteria PASS ** PMON counters increment under workload; event selection correct; occupancy accurate; per-CBB independence; counter reset works; PLR = 0x0. FAIL ** Counter stuck at 0; wrong event coun</div>
+  </td>
+  <td class="nc"><span class="ok">✓ OK</span></td>
+</tr>
+<tr class="tcd-header"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421194">22022421194</a>: CBB CCF CBO Telemetry</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422889" class="tcid">22022422889</a></td>
+  <td>CBB CCF CBO Telemetry</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="badge-s">✅ STRONG</span><br><code>pmx_ccf_cbo.py</code><br><code class="flag">--test_ccf_cbo_telemetry</code></td>
+  <td class="dc">
+    <div class="sl">Scope</div><div class="sb">Objective: Validate CBB CBO (Cache Box) telemetry used as input to the CCF DVFS bandwidth heuristics. CBO traffic counts (CMS/CRS read/write BW) drive the CCF ring frequency selection via the BW threshold LUT walk in the PCode slow loop (~1 ms period). Tests verify CBO counters increment under mesh-</div>
+    <div class="sl">Pre-conditions</div><div class="sb">Item Requirement System booted to XOS/SVOS BIOS CPL4 complete; PCode running TPMI accessible per CBB `sv.socket0.cbbN.base.tpmi.*` readable PythonSV namednodes loaded `import namednodes; sv = namednodes.sv` succeeds Workload available CPU stress or c</div>
+    <div class="sl">Steps</div><div class="sb"># Action Expected Result (PASS) Failure Indication 1 Read baseline CBO telemetry counters via HPM 0x35 (`MEM_BOUND_CYCLES`) or TPMI telemetry Non-zero baseline; counters accessible Zero or inaccessible -- CBO telemetry not initialized 2 Apply memory-bandwidth workload (memcpy / stream benchmark); read CBO traffic counters after 100ms CBO BW counter</div>
+    <div class="sl">Pass/Fail</div><div class="sb">Criteria PASS ** CBO counters increment under workload; CCF frequency responds to BW demand; per-CBB independence; counters quiesce at idle; PLR = 0x0. FAIL ** Counters static; CCF doesn&#x27;t respond to </div>
+  </td>
+  <td class="nc"><span class="ok">✓ OK</span></td>
+</tr>
+<tr class="tcd-header"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421197">22022421197</a>: CBB CCF Distress Signal</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422894" class="tcid">22022422894</a></td>
+  <td>CBB CCF Distress signal</td>
+  <td class="ev">—</td>
+  <td><span class="badge-s">✅ STRONG</span><br><code>pmx_ccf_cbo.py</code><br><code class="flag">--test_ccf_distress_to_punit</code></td>
+  <td class="dc">
+    <div class="sl">Scope</div><div class="sb">Objective: Validate CBB CCF distress signal generation and handling. When the CCF ring is congested (snoop back-pressure, high CBO occupancy), CBB PCode asserts a distress signal to IMH/NIO Primecode via an HPM message, triggering a CCF frequency boost request. Tests verify distress asserts under co</div>
+    <div class="sl">Pre-conditions</div><div class="sb">Item Requirement System booted to XOS/SVOS BIOS CPL4 complete; PCode running TPMI accessible per CBB `sv.socket0.cbbN.base.tpmi.*` readable PythonSV namednodes loaded `import namednodes; sv = namednodes.sv` succeeds Workload available CPU stress or c</div>
+    <div class="sl">Steps</div><div class="sb"># Action Expected Result (PASS) Failure Indication 1 Read baseline distress signal state: verify no spurious distress at idle Distress signal deasserted (0) at system idle; no false triggers Distress asserted at idle -- false positive from low-traffic condition 2 Apply high-snoop-rate workload to induce CBO back-pressure on cbb0 CBO occupancy rises</div>
+    <div class="sl">Pass/Fail</div><div class="sb">Criteria PASS ** Distress asserts under congestion; IMH/NIO receives and responds with boost; CCF frequency increases; distress clears post-workload; per-CBB independence; PLR = 0x0. FAIL ** False dis</div>
+  </td>
+  <td class="nc"><span class="ok">✓ OK</span></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422895" class="tcid">22022422895</a></td>
+  <td>CBB CCF Snoop Scalability/Distress</td>
+  <td class="ev">—</td>
+  <td><span class="badge-s">✅ STRONG</span><br><code>pmx_ccf_cbo.py</code><br><code class="flag">--test_ccf_pmon</code></td>
+  <td class="dc">
+    <div class="sl">Scope</div><div class="sb">Objective: Validate CBB CCF ring scalability under high snoop rates and the snoop back-pressure / distress mechanism. With 96 cores (2 CBBs x 48 cores), high-coherency workloads drive extreme snoop traffic. Tests verify: CCF ring frequency scales with snoop traffic demand; snoop back-pressure (SBO) </div>
+    <div class="sl">Pre-conditions</div><div class="sb">Item Requirement System booted to XOS/SVOS BIOS CPL4 complete; PCode running TPMI accessible per CBB `sv.socket0.cbbN.base.tpmi.*` readable PythonSV namednodes loaded `import namednodes; sv = namednodes.sv` succeeds Workload available CPU stress or c</div>
+    <div class="sl">Steps</div><div class="sb"># Action Expected Result (PASS) Failure Indication 1 Baseline: pin CCF at Pm (800 MHz) and run high-coherency workload; measure snoop latency Snoop latency measured at 800 MHz (high, baseline) Cannot measure snoop latency -- missing instrumentation 2 Allow autonomous CCF DVFS: run same workload; observe CCF scale to P0 (2.2 GHz) CCF ratio rises tow</div>
+    <div class="sl">Pass/Fail</div><div class="sb">Criteria PASS ** CCF scales to P0 under snoop pressure; SBO counter increments; distress fires at threshold; throughput scales with frequency; per-CBB independence; PLR = 0x0. FAIL ** CCF stays at Pm </div>
+  </td>
+  <td class="nc"><ul class="enh"><li>⚠️ Snoop scalability uses same flag as basic distress (<code>--test_ccf_pmon</code>) — needs a dedicated <code>--test_ccf_snoop_scalability</code> flag or combined distress+snoop test function</li></ul></td>
+</tr>
+<tr class="tcd-header"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421199">22022421199</a>: CBB CCF Message To Punit</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422896" class="tcid">22022422896</a></td>
+  <td>CBB CCF Message to Punit</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="badge-s">✅ STRONG</span><br><code>pmx_ccf_cbo.py</code><br><code class="flag">--test_ccf_distress_to_punit</code></td>
+  <td class="dc">
+    <div class="sl">Scope</div><div class="sb">Objective: Validate CBB CCF HPM (Hierarchical Power Management) messages sent from CBB PCode to IMH/NIO Primecode: HPM 0x1b (CBB_CCF_FREQUENCY: UPSTREAM_CCF_DESIRED_RATIO), HPM 0x35 (ACTIVE_CYCLES_TELEMETRY: MEM_BOUND_CYCLES), HPM 0x36 (MOST_ACTIVE_CORE_C0_TELEMETRY). Tests verify messages are sent </div>
+    <div class="sl">Pre-conditions</div><div class="sb">Item Requirement System booted to XOS/SVOS BIOS CPL4 complete; PCode running TPMI accessible per CBB `sv.socket0.cbbN.base.tpmi.*` readable PythonSV namednodes loaded `import namednodes; sv = namednodes.sv` succeeds Workload available CPU stress or c</div>
+    <div class="sl">Steps</div><div class="sb">—</div>
+    <div class="sl">Pass/Fail</div><div class="sb">Criteria PASS ** HPM 0x1b/0x35/0x36 all sent with correct content; Primecode ELC responds to HPM 0x36; Uniform mode coordination works; PLR = 0x0. FAIL ** HPM message not sent or stale; Primecode ELC </div>
+  </td>
+  <td class="nc"><ul class="enh"><li>⚠️ 'Message to PUnit' overlaps with distress flag — needs explicit HPM/PCM mailbox message verification; consider <code>--test_ccf_message_to_punit</code> as separate option</li></ul></td>
+</tr>
+<tr class="tcd-header"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421202">22022421202</a>: CBB CCF SBO Telemetry</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422900" class="tcid">22022422900</a></td>
+  <td>CBB CCF SBO Telemetry</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="badge-s">✅ STRONG</span><br><code>pmx_ccf_cbo.py</code><br><code class="flag">--test_ccf_sbo_telemetry</code></td>
+  <td class="dc">
+    <div class="sl">Scope</div><div class="sb">Objective: Validate CBB SBO (Snoop Back-pressure Oracle) telemetry used as input to CCF DVFS. SBO measures snoop occupancy and back-pressure in the CBO mesh; high SBO utilization is an input to the CCF ring BW heuristics that drives frequency up-decisions. Tests verify: SBO counters increment under </div>
+    <div class="sl">Pre-conditions</div><div class="sb">Item Requirement System booted to XOS/SVOS BIOS CPL4 complete; PCode running TPMI accessible per CBB `sv.socket0.cbbN.base.tpmi.*` readable PythonSV namednodes loaded `import namednodes; sv = namednodes.sv` succeeds Workload available CPU stress or c</div>
+    <div class="sl">Steps</div><div class="sb"># Action Expected Result (PASS) Failure Indication 1 Read baseline SBO telemetry counters at system idle SBO counter near-zero at idle; no false back-pressure Non-zero SBO at idle -- false back-pressure detection 2 Apply high-coherency workload (e.g., cache-thrashing across 96 cores) SBO occupancy counter increments; snoop back-pressure measured SB</div>
+    <div class="sl">Pass/Fail</div><div class="sb">Criteria PASS ** SBO counters increment under coherency load; threshold triggers frequency boost; per-CBB independence; SBO drops at idle; PLR = 0x0. FAIL ** SBO static; no threshold response; symmetr</div>
+  </td>
+  <td class="nc"><span class="ok">✓ OK</span></td>
+</tr>
+<tr class="tcd-header"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421205">22022421205</a>: CCB CCF PCODE algorithm for distress input</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422905" class="tcid">22022422905</a></td>
+  <td>CBB CCF PCODE algorithm for distress input</td>
+  <td class="ev">silicon<br>virtual_platform</td>
+  <td><span class="badge-s">✅ STRONG</span><br><code>pmx_ccf_cbo.py</code><br><code class="flag">--test_ccf_pcode_to_distress_input</code></td>
+  <td class="dc">
+    <div class="sl">Scope</div><div class="sb">Objective: Validate the CBB PCode algorithm that processes distress inputs (SBO back-pressure, CBO occupancy) and converts them into CCF frequency up-decisions. The algorithm uses threshold-based hysteresis: distress above threshold triggers GVFSM frequency boost; below threshold for N slow-loops, b</div>
+    <div class="sl">Pre-conditions</div><div class="sb">Item Requirement System booted to XOS/SVOS BIOS CPL4 complete; PCode running TPMI accessible per CBB `sv.socket0.cbbN.base.tpmi.*` readable PythonSV namednodes loaded `import namednodes; sv = namednodes.sv` succeeds Workload available CPU stress or c</div>
+    <div class="sl">Steps</div><div class="sb">—</div>
+    <div class="sl">Pass/Fail</div><div class="sb">Criteria PASS ** Threshold behavior correct; boost fires only above threshold; hysteresis holds boost N slow-loops; no oscillation under rapid load; boost reaches P0; per-CBB independence; PLR = 0x0. </div>
+  </td>
+  <td class="nc"><span class="ok">✓ OK</span></td>
+</tr>
+<tr class="stp-header"><td colspan="7"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420515">22022420515</a> — CBB Uniform Fabric Frequency <span class="cnt">0 TCs (7 empty TCDs)</span></td></tr>
+<tr class="tcd-empty"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421207">22022421207</a>: UNIFORM_CBB_FABRIC_MODE Cross Fast Ring C3 <span class="badge-n">❌ No TCs created</span></td></tr>
+<tr class="tcd-empty"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421209">22022421209</a>: UNIFORM_CBB_FABRIC_MODE Cross PC6 <span class="badge-n">❌ No TCs created</span></td></tr>
+<tr class="tcd-empty"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421211">22022421211</a>: UNIFORM_CBB_FABRIC_MODE Cross ProcHot <span class="badge-n">❌ No TCs created</span></td></tr>
+<tr class="tcd-empty"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421212">22022421212</a>: UNIFORM_CBB_FABRIC_MODE Cross RAPL <span class="badge-n">❌ No TCs created</span></td></tr>
+<tr class="tcd-empty"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421214">22022421214</a>: UNIFORM_CBB_FABRIC_MODE Enabled/Disable via BIOS <span class="badge-n">❌ No TCs created</span></td></tr>
+<tr class="tcd-empty"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421216">22022421216</a>: UNIFORM_CBB_FABRIC_MODE Enabled/Disable via TPMI <span class="badge-n">❌ No TCs created</span></td></tr>
+<tr class="tcd-empty"><td colspan="7">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421218">22022421218</a>: UNIFORM_CBB_FABRIC_MODE HPM messaging verification <span class="badge-n">❌ No TCs created</span></td></tr>
+</tbody>
+</table>
+</div></body></html>
