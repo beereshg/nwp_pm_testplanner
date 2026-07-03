@@ -1,137 +1,120 @@
-# Deep Analysis: [TPMI/PMT] Verify Aggregate Margin to Tcontrol PMT Register
+# TC 22022421558: [TPMI/PMT] Verify Aggregate Margin to Tcontrol PMT Register
 
-| Field | Value |
-|-------|-------|
-| **HSD ID** | 22022421558 |
-| **Title** | [TPMI/PMT] Verify Aggregate Margin to Tcontrol PMT Register |
-| **Date** | 2025-07-24 |
-| **Target Program** | NWP (Newport) |
-| **Source Program** | DMR (Diamond Rapids) |
-| **Segment** | FV |
-| **Feature** | SoC Thermal Management > TPMI/PMT |
-| **Sub-Feature** | PMT PCS Index 10 — Aggregate Margin to Tcontrol |
-| **NWP Disposition** | **Runnable_On_N-1** |
+**TCD:** 22022420612 -- [SoC Thermal Management] TPMI/PMT
+**TPF:** 16030767555 -- [NWP PM] PMT (Platform Monitoring Technology)
+**Val Environment:** silicon, virtual_platform
+**Primary Script:** `pm/Active_PM/Thermal_Management/CPU_Thermal_Management/PMT_Thermals.py` -- `PMT.t_control(s, self.log)`
+**Library:** `pm/Active_PM/Thermal_Management/CPU_Thermal_Management/pmt_dataintegrity.py` -- `t_control(socket)`
+**Run via PMX:** `runPmx.py -x dmr.xml -p PMT_Thermals -tM 60 -M 5`
 
 ---
 
-## Section A: NWP Disposition & Justification
+## Section A: NWP Delta
 
-**Disposition: Runnable_On_N-1**
+**NWP Adaptation Notes:**
+- DMR has 4 CBBs; **NWP has 2 CBBs** -- `cbb0`, `cbb1` only. Script accesses `cbb0`-`cbb3` for throttled_time; adapt to `cbb0`, `cbb1`.
+- DMR has 2 IMH dies; **NWP has 1 IMH** -- `imh0` only.
+- Simics path for fuse: `socket.imh0.fuses.punit.virtual.pcode_t_control_offset_df` (same as DMR).
+- Formula: `T_Control = (eff_TjMax - fused_T_control_offset + dts_config3 * Tcontrol_OFFSET) - Max_temperature` -- unchanged.
+- `dmr.xml` PMX tag -- update to NWP equivalent XML or invoke standalone.
 
-This test verifies the **Aggregate Margin to Tcontrol PMT register** (PCS index 10). The formula is:
+### Test Case Intent
+Verify that the **Aggregate Margin to Tcontrol** PMT register correctly reports the thermal margin between the maximum die temperature and the TControl threshold. The margin is computed from:
+- `EFFECTIVE_TJ_MAX` (from `temperature_target` register, bits 16:24)
+- `FUSED_T_CONTROL_OFFSET` (from `imh0.fuses.punit.pcode_t_control_offset`)
+- `DTS_CONFIG3.Tcontrol_OFFSET` (from `imh0.punit.ptpcioregs.ptpcioregs.dts_config3_cfg`)
+- `MAX_TEMPERATURE` (from `imh0.punit.ptpcioregs.ptpcioregs.package_temperature` minus 64)
 
-```
-MARGIN_TO_TCONTROL = (EFFECTIVE_TJ_MAX - FUSED_T_CONTROL_OFFSET + DTS_CONFIG3.TCONTROL_OFFSET) - MAX_TEMPERATURE
-```
-
-where `MAX_TEMPERATURE` is the hottest temperature across all package dies, collected via HPM `SOCKET_THERMAL`. On NWP, the same PMT register and calculation exist. The register paths use the root iMH as the aggregator (same single-IMH path on NWP). Key NWP adaptation: `dmr.xml` → `nwp.xml`, and the CBB register path is `cbb{0,1}` (not `cbbs` with 4 instances).
-
-**Key Justification:**
-- PMT Aggregate Margin to Tcontrol is present on NWP
-- `NGA_MAIN` tag: high priority for NGA silicon automation
-- Same HPM SOCKET_THERMAL aggregation mechanism (2 CBBs → 1 iMH on NWP)
-- `PMSS_NWP_READINESS_CHECK` tag: evaluated for NWP
-
----
-
-## Section B: NWP-Specific Test Procedure
+The register value is compared with the DFX mailbox readout of the same field to confirm PMT data integrity.
 
 ### Pre-Conditions
-- NWP silicon with all CBBs active and thermal reporting initialized
-- PMT enabled and readable
-- `EFFECTIVE_TJ_MAX` known (from fuses + BIOS TCC offset)
 
-### Adapted Test Steps
+| # | Item | Requirement |
+|---|------|-------------|
+| 1 | Platform | NWP silicon/emulation booted; PythonSV initialized |
+| 2 | CBBs | CBB0, CBB1 active (`sv.socket0.cbbs` accessible) |
+| 3 | IMH | `sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature` readable |
+| 4 | Fuse access | `sv.socket0.imh0.fuses.punit.pcode_t_control_offset` readable (silicon) or `.virtual.pcode_t_control_offset_df` (simics) |
+| 5 | DTS injection | `Thermal_DTS.Clear_Core()` functional -- ability to inject random temperature |
 
-| Step | Action | NWP Adaptation |
-|------|--------|----------------|
-| 1 | Run PMT thermal test | `python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2` |
-| 2 | Read `EFFECTIVE_TJ_MAX` (per TC 14019959390) | Same calculation; NWP fused TJ_MAX value |
-| 3 | Read `PKG_MAX_TEMPERATURE` — hottest temp across dies | NWP: 2 CBBs (`cbb0`, `cbb1`) + `imh0`; read from iMH aggregator |
-| 4 | Read `T_CONTROL_OFFSET` fuse and `DTS_CONFIG3.TCONTROL_OFFSET` | Same register names on NWP |
-| 5 | Calculate expected `MARGIN_TO_TCONTROL` | `(EFFECTIVE_TJ_MAX - FUSED_T_CONTROL_OFFSET + TCONTROL_OFFSET) - MAX_TEMPERATURE` |
-| 6 | Read PMT register and compare | `sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.margin_to_tcontrol` |
+### Test Steps
 
-### NWP Register Paths
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|------------------------|-------------------|
+| 1 | Inject random temperature: `injection.Clear_Core(random.randint(40, 105), external=True)` | DTS temperature set on all cores; package_temperature register updates | DTS override not accepted -- check Simics model or silicon override enable |
+| 2 | Read `temperature_target`: `socket.cbb0.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.temperature_target` | Register readable; `effective_tj_max = bits[16:24]` extracted correctly | Zero or invalid value -- check CBB0 register path on NWP |
+| 3 | Read T_Control fuse: `socket.imh0.fuses.punit.pcode_t_control_offset` (silicon) | Non-zero value from fuse; matches expected NWP SKU TControl offset | Zero fuse -- may indicate fuse read path error |
+| 4 | Compute T_Control formula from register/fuse values | `T_Control = (eff_tj_max - fused_t_ctrl_offset - fused_t_ctrl_offset + dts_config3 * Tcontrol_OFFSET) - Max_temp` matches expected range | Negative or out-of-range T_Control -- verify formula operands |
+| 5 | Read T_Control via DFX mailbox: `dfx_mailbox[0] = 0x000a020010810908; dfx_mailbox[1] = 0x10; dfx_mailbox_ctl[31] = 1` | Mailbox completes; `DFX_Mailbox_TControl_decimal` computed via `s10_6_to_decimal(bits[8:23])` | Mailbox timeout or zero response -- IMH DFX mailbox not functional |
+| 6 | Compare: `T_Control == DFX_Mailbox_TControl_decimal` | Values match within floating-point precision; tabulate() shows "Pass" for both rows | Mismatch -- PMT T_Control register not reflecting register/fuse computation; check formula operand source |
+| 7 | Clear DTS injection: `injection.Clear_Core(40, external=True)` | Package temperature returns to ~40°C baseline; no thermal events remain | Temperature not clearing -- injection override stuck |
 
-| Register | DMR Path | NWP Path |
-|----------|---------|---------|
-| Package temperature (CBB) | `sv.sockets.cbbs.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature` | `sv.socket0.cbb{0,1}.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature` |
-| Package temperature (iMH) | `sv.sockets.imhs.uncore.pm_gen4_punit0.ptpcioregs.ptpcioregs.package_temperature` | `sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature` |
+### Pass / Fail Criteria
 
-### NWP Pass Criteria
-- PMT `MARGIN_TO_TCONTROL` matches formula calculation within ±1°C tolerance
-- Value updates on slow loop interval (~1 sec typical)
-- Value becomes negative when temperature exceeds Tcontrol → thermal throttle expected
-
----
-
-## Section C: NWP Delta Impact Analysis
-
-| Aspect | DMR | NWP | Impact |
-|--------|-----|-----|--------|
-| Max temp aggregation | 4 CBBs → iMH | 2 CBBs → iMH | Fewer sources; same aggregation logic |
-| PMT register | `ptpcioregs.margin_to_tcontrol` | Same register name on NWP | Direct reuse |
-| `EFFECTIVE_TJ_MAX` calculation | Per TC 14019959390 | Same formula on NWP | Verify NWP-specific TJ_MAX fuse value |
-| `sv.sockets` pattern | Multi-socket/CBB iteration | NWP: `sv.socket0.cbb{0,1}` | Update iteration loop |
+- **PASS:** `T_Control` computed from register/fuse equals `DFX_Mailbox_TControl_decimal`; tabulate shows all rows "Pass"; `t_control()` returns `True`.
+- **FAIL:** Mismatch between register-computed T_Control and DFX mailbox PMT value; `t_control()` returns `False`; `self.print_and_exit` called with "Aggregate Margin to Tcontrol PMT Register Fail".
 
 ---
 
-## Section D: Key Registers & Validation Points
+## Section B: Interactions
 
-```python
-# NWP: Aggregate Margin to Tcontrol PMT
-import max as max_func
+### Swimlane Data
+| Step | Actor | Action | Interface |
+|------|-------|--------|-----------|
+| 1 | Test script | Inject random temperature via `Clear_Core()` | DTS override (Thermal_DTS) |
+| 2 | PCode | Update `package_temperature` and T_Control computation | Internal |
+| 3 | Test script | Read `temperature_target` and fuse registers | namednodes MMIO |
+| 4 | Test script | Compute T_Control formula | Python math |
+| 5 | Test script | Read T_Control via DFX mailbox | DFX mailbox (PMSB) |
+| 6 | Test script | Compare register-computed vs mailbox PMT value | Python tabulate |
 
-# Read package temperature from each source (NWP: 2 CBBs + 1 iMH)
-temps = []
-for cbb_idx in range(2):
-    cbb = getattr(sv.socket0, f'cbb{cbb_idx}')
-    try:
-        temp = cbb.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature.read()
-        temps.append(temp)
-        print(f"CBB{cbb_idx} Package Temp: {temp}")
-    except Exception as e:
-        print(f"CBB{cbb_idx}: {e}")
-
-try:
-    imh_temp = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature.read()
-    temps.append(imh_temp)
-    print(f"iMH0 Package Temp: {imh_temp}")
-except Exception as e:
-    print(f"iMH0 temp: {e}")
-
-pkg_max_temp = max(temps) if temps else None
-print(f"PKG_MAX_TEMPERATURE: {pkg_max_temp}")
-
-# Read PMT margin_to_tcontrol
-try:
-    margin = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.margin_to_tcontrol.read()
-    print(f"PMT MARGIN_TO_TCONTROL: {margin}")
-except Exception as e:
-    print(f"PMT MARGIN: {e}")
-```
+### Sequence Data
+| # | From | To | Message | Interface |
+|---|------|----|---------|-----------|
+| 1 | Thermal_DTS | Core DTS | inject temperature | DTS override |
+| 2 | PCode | package_temperature register | update | IO register |
+| 3 | Script | cbb0.temperature_target | read | namednodes |
+| 4 | Script | imh0.fuses.punit | read T_Control offset | namednodes |
+| 5 | Script | dfx_mailbox[0,1] + dfx_mailbox_ctl[31] | write opcode; set run bit; read result | DFX mailbox |
+| 6 | Script | tabulate | compare & report | Python |
 
 ---
 
-## Section E: Risk Assessment & Open Items
+## Section C: Coverage
 
-| # | Risk/Open Item | Severity | Notes |
-|---|----------------|----------|-------|
-| 1 | **NWP `EFFECTIVE_TJ_MAX`** — depends on NWP-specific TJ_MAX fuse and BIOS TCC offset; verify from NWP thermal HAS | Low | Same formula; just different fuse values |
-| 2 | **`sv.sockets` iteration** — DMR test may use `sv.sockets.cbbs` iterator; NWP: use `cbb0`, `cbb1` | Low | Update test script CBB iteration |
+| Dimension | Coverage |
+|-----------|---------|
+| **Formula operands** | effective_tj_max, fused_t_control_offset, dts_config3, max_temperature |
+| **Verification paths** | Register/fuse computation vs DFX mailbox PMT |
+| **CBBs** | CBB0 (NWP); DMR uses CBB0-3 |
+| **IMH** | imh0 only (NWP) |
 
 ---
 
-## Section F: Recommendation
+## Section D: Spec Refs
 
-**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; update CBB iteration to 2**
+| Register / Log | Field / Offset | Pass/Fail Criteria |
+|----------------|---------------|-------------------|
+| `cbb0.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.temperature_target` | bits[16:24] = effective_tj_max | Non-zero; matches expected TjMax |
+| `imh0.fuses.punit.pcode_t_control_offset` | full register | Non-zero fuse value for NWP SKU |
+| `imh0.punit.ptpcioregs.ptpcioregs.dts_config3_cfg` | Tcontrol_OFFSET | Used in formula |
+| `imh0.punit.ptpcioregs.ptpcioregs.package_temperature` | full register | Max_temperature = value - 64 |
+| `imh0.oobmsm.oobmsm0.oobmsm_reg.dfx_mailbox[0]` | bits[8:23] after opcode 0x10 | T_Control in s10.6 format |
 
-PMT Aggregate Margin to Tcontrol calculation is identical. NWP adaptation is minimal.
+---
 
-Required adaptations:
-1. `python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2`
-2. Update CBB iteration: `range(2)` for NWP (not 4)
-3. Verify NWP TJ_MAX fuse value for expected calculation
+## Section E: Risk Assessment
 
-**Priority**: High — NGA_MAIN; thermal margin reporting is a key validation metric
+| Risk / Open Item | Likelihood | Severity | Mitigation |
+|-----------------|-----------|---------|-----------|
+| NWP CBB path differs for `temperature_target` (cbb0 vs cbb1 CBB-specific register) | Low | Medium | Verify `cbb0.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.temperature_target` exists on NWP; use namednodes.search() |
+| DFX mailbox opcode 0x10 may differ on NWP | Medium | High | Check NWP mailbox command table in HAS; confirm 0x000a020010810908 is valid |
+| Formula discrepancy in double-subtraction of `fused_t_control_offset` | Low | Medium | Script has `- fused_t_control_offset - fused_t_control_offset` (appears twice); verify against HAS formula |
+
+---
+
+## Section F: Recommendations
+
+1. Verify NWP mailbox opcode `0x000a020010810908` (CBB0 PCS index 0x10) is correct in NWP HAS.
+2. Check the formula: the script subtracts `fused_t_control_offset` twice -- this may be intentional (offset applied twice) or a bug vs HAS spec.
+3. **NWP invocation:** `python runPmx.py -x nwp.xml -p PMT_Thermals -tM 60 -M 5`

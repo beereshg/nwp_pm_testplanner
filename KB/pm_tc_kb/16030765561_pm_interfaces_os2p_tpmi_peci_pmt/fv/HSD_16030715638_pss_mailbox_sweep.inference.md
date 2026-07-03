@@ -1,180 +1,120 @@
-# Deep Analysis: [PSS] Mailbox Sweep — OS2P/B2P PCode Mailbox Interface
+# TC 16030715638: [PSS] Mailbox Sweep
 
-| Field | Value |
-|-------|-------|
-| **HSD ID** | 16030715638 |
-| **Title** | [PSS]Mailbox Sweep |
-| **Date** | 2026-07-03 |
-| **Target Program** | NWP (Newport) |
-| **Source Program** | DMR (Diamond Rapids) |
-| **Segment** | FV |
-| **Feature** | PM Interfaces > OS2P Mailbox |
-| **Sub-Feature** | PMSB Mailbox Command Sweep (B2P + OS2P + TPMI paths) |
-| **NWP Disposition** | **Runnable_On_N-1** |
-| **Parent TCD** | 16030768338 — [NWP PM] OS2P Mailbox Validation |
-| **Parent TPF** | 16030767552 — [NWP PM] OS2P Mailbox |
+**TCD:** 16030768338 -- [NWP PM] OS2P Mailbox Validation
+**TPF:** 16030767552 -- [NWP PM] OS2P Mailbox
+**Val Environment:** silicon, virtual_platform
+**Primary Script:** `pm/pss/mailbox/osmb_tpmi.py` -- `main()` sweeps all OS2P mailbox command IDs 0x00-0xFF
+**Secondary Script:** `pm/pmutils/mailbox/os_mailbox.py` -- `os_mailbox()` for individual command invocations
 
 ---
 
-## Section A: NWP Disposition & Justification
+## Section A: NWP Delta
 
-**Disposition: Runnable_On_N-1**
+**NWP Adaptation Notes:**
+- DMR has 2 IMH dies (imh0, imh1). **NWP has 1 IMH per CBB** -- use `imh=0` only.
+- Mailbox interface path: `socket.imh0.punit.ptpcfsms.ptpcfsms.os_mailbox_interface` -- same register layout on NWP.
+- `_MAILBOX_ERRORS` dict in `osmb_tpmi.py` covers all expected return codes; verify NWP adds no new codes.
+- PSS environment: requires NWP Simics model; `ACCESS_METHOD` auto-detected via `baseaccess.getaccess()`.
 
-This test performs a **systematic sweep of PCode mailbox commands** via the PMSB (Power Management Side-Band) mailbox interface. The sweep validates:
-- Every supported mailbox command opcode returns correct status and response data
-- Reserved/unsupported command IDs return the defined error code (no hang, no MCA)
-- Concurrent mailbox access from multiple agents is handled correctly (serialisation)
-
-The OS2P/B2P mailbox interface is **architecturally unchanged on NWP** — the same command encoding, handler table, and completion code protocol are carried from DMR. Both the CSR transport path (`OS_MAILBOX_INTERFACE` IO registers) and the TPMI transport path (`TPMI_MAILBOX` opcode `0xe`) are supported. NWP topology difference: 2 CBBs (not 4) route through a single IMH die.
-
-**Key Justification:**
-- OS2P mailbox fully supported on NWP (same command set, same encoding, same response format)
-- All three paths converge on the same PCode mailbox handler table — sweep is transport-agnostic
-- NWP Primecode inherits `os_csr_common_v1_0` and `os_tpmi_common_v1_0` flow versions unchanged
-- NWP topology simplification: single iMH (`imh0`) aggregates OS2P commands; 2 CBBs only
-
----
-
-## Section B: NWP-Specific Test Procedure
+### Test Case Intent
+Systematic sweep of all OS-to-PCode (OS2P) mailbox command IDs (0x00 to 0xFF) via the PMSB mailbox interface (`os_mailbox_interface`). For each command ID, issue the mailbox transaction and verify:
+1. The mailbox completes without hang (run_busy clears within timeout)
+2. Supported commands return `NO_ERROR` (0x00) with valid data
+3. Unsupported commands return one of the defined error codes from `_MAILBOX_ERRORS` -- not an unhandled response or hang
+4. The `os_mailbox_data` register returns consistent data for read-type commands
 
 ### Pre-Conditions
 
-- NWP silicon/emulation with PCode initialized and CPL3 handoff complete
-- OS2P mailbox accessible (CSR path: `OS_MAILBOX_INTERFACE`/`OS_MAILBOX_DATA`; or TPMI path opcode `0xe`)
-- TPMI SRAM initialized (for TPMI transport path)
-- System in S0; no active thermal throttle or power limit event interfering
+| # | Item | Requirement |
+|---|------|-------------|
+| 1 | Platform | NWP Simics/emulation booted; PythonSV initialized with `sv.get_all(stop_on_error=True)` |
+| 2 | ACCESS_METHOD | `baseaccess.getaccess()` returns valid environment (simics/emulation/silicon) |
+| 3 | IMH path | `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.os_mailbox_interface` accessible |
+| 4 | Mailbox idle | `os_mailbox_interface.run_busy == 0` before starting sweep |
+| 5 | NWP IMH count | Only `imh0` used; verify no `imh1` access in NWP invocation |
 
-### Adapted Test Steps
+### Test Steps
 
-| Step | Action | NWP Adaptation |
-|------|--------|----------------|
-| 1 | Identify all supported PCode mailbox command IDs from NWP bios_mailbox.xml (`<mbox_access mbox="OS"/>` tags) | Replace DMR XML with NWP equivalent; command IDs unchanged |
-| 2 | Issue each valid mailbox command in sequence; record opcode, sub-command, response data, completion code | Same encoding; verify completion code = `0x00` for each supported command |
-| 3 | Issue a reserved/unsupported command ID; verify error handling | Expect defined error code, not hang or MCA; verify via NLOG `invalid-parameter` event |
-| 4 | Issue concurrent mailbox commands from BIOS (B2P) and OS (OS2P) agents simultaneously | Verify serialisation — exactly one command processed at a time; no deadlock |
-| 5 | Run automation script | `python runPmx.py -x nwp.xml -p mailbox_sweep --retry_count 2` |
-| 6 | Check NLOG/fw trace for unexpected errors | No error-level events; `invalid-parameter` event appears only for reserved command test |
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|------------------------|-------------------|
+| 1 | `import diamondrapids.pm.pss.mailbox.osmb_tpmi as osmb` | Module loads; `_MAILBOX_ERRORS` dict populated with 55+ error codes; `sv` initialized | ImportError or `sv.get_all()` failure -- check NWP namednodes path |
+| 2 | Verify mailbox idle: `osmb.wait(socket.imh0.punit.ptpcfsms.ptpcfsms.os_mailbox_interface)` | `run_busy == 0` within timeout -- mailbox ready for first command | Timeout (>20 iterations) -- mailbox stuck; check PCode init state |
+| 3 | Sweep all command IDs: `for i in range(0, 0xff): osmb.os_mailbox(0, 0, i, 0, 0)` | Each command: `run_busy` clears; return code is one of the keys in `_MAILBOX_ERRORS` (0x00-0xFF) | Unknown return code OR `run_busy` stuck -- indicates unhandled mailbox command or hang |
+| 4 | For known-good commands (e.g. 0x78 READ_PKG_CONFIG, 0x94 READ_PM_CONFIG): verify return data | `return_code == 0x00` (NO_ERROR); `return_data != 0` for data-returning commands | `return_code != 0x00` for a supported command -- PCode handler error |
+| 5 | For unsupported commands: verify error code is defined | Return code in `_MAILBOX_ERRORS` -- not a raw number; `return_data == 0` | Return code not in `_MAILBOX_ERRORS` -- unhandled opcode; PCode should return `UNSUPPORTED_COMMAND` (0x36) or `INVALID_COMMAND` (0x01) |
+| 6 | Verify `os_mailbox_data` integrity after each command | Data register reads back the value written for write-path commands; no residual data from prior command | Stale data in mailbox data register -- `os_mailbox_data` not cleared between commands |
+| 7 | Confirm "OMSB_TPMI DONE" printed (script completion marker) | All 255 command IDs swept without exception or hang | Exception mid-sweep -- capture last command ID; check `_MAILBOX_ERRORS` for the return code |
 
-### Key OS2P Commands to Sweep (NWP)
+### Pass / Fail Criteria
 
-| Command | Opcode | Sub-cmd | Transport | Notes |
-|---------|--------|---------|-----------|-------|
-| `READ_PM_CONFIG` | `0x94` | `0x2` (MIN_ICCP), `0x7` (PROG_SSC) | B2P + OS2P | Read PM configuration |
-| `WRITE_PM_CONFIG` | write variant | same sub-cmds | B2P + OS2P | Write PM configuration |
-| `PM_MISC_CONTROL` | `0xd0` | `0x20` (THERM_MONITOR_STATUS) | OS2P | EWMA decay factor + enable |
-| `SET_MC_FREQ` / `READ_MC_FREQ` | varies | — | OS2P | MC refresh parameter lock |
-| `PM_SECURITY_CONTROL` | `0xd5` | — | OS2P | UPI SAI filter (ACTM) |
-| Reserved/invalid | `0xFF` or any unlisted | — | Any | Must return error, no hang |
-
-### NWP Register Paths
-
-| Register | DMR Path | NWP Path |
-|----------|---------|---------|
-| OS Mailbox Interface (CSR) | `sv.sockets.imhs.uncore.pcicfg_ubox_cfg.os_mailbox_interface` | `sv.socket0.imh0.uncore.pcicfg_ubox_cfg.os_mailbox_interface` |
-| OS Mailbox Data (CSR) | `sv.sockets.imhs.uncore.pcicfg_ubox_cfg.os_mailbox_data` | `sv.socket0.imh0.uncore.pcicfg_ubox_cfg.os_mailbox_data` |
-| TPMI OS Mailbox Interface | TPMI opcode `0xe`, line 0 | Same opcode; single iMH on NWP |
-| IO Fastpath Mailboxes | CBB-side aggregator | NWP: `sv.socket0.cbb{0,1}.base.punit_regs` — 2 CBBs |
-
-### NWP Pass Criteria
-
-- All valid command IDs return completion code `0x00` and response data within spec range
-- Reserved/invalid command IDs return non-zero error code; system remains stable, no MCA, no hang
-- Concurrent access: commands serialised; all responses accurate; no deadlock or timeout
-- NLOG: `invalid-parameter` event logged only for the reserved command negative test; no error-level events for valid commands
+- **PASS:** All 255 command IDs complete without hang; every return code is a defined entry in `_MAILBOX_ERRORS`; known-good commands return `NO_ERROR`; unsupported commands return a defined error code.
+- **FAIL:** Any command causes `run_busy` to never clear (hang); return code not in `_MAILBOX_ERRORS`; exception raised mid-sweep; known-good command returns non-zero error.
 
 ---
 
-## Section C: NWP Delta Impact Analysis
+## Section B: Interactions
 
-| Aspect | DMR | NWP | Impact |
-|--------|-----|-----|--------|
-| OS2P command set | Full set (DMR HAS) | Same set (inherited) | No delta; direct reuse |
-| CBB count | 4 CBBs → 2 iMH dies | 2 CBBs → 1 iMH die | Simpler routing; command handling unchanged |
-| TPMI transport | TPMI opcode `0xe` | Same opcode; single iMH | Direct reuse; verify NWP TPMI SRAM init |
-| Fastpath aggregator | Per-die | Single iMH `imh0` | Routing simplified; no functional change |
-| `NOT_SERVICED_ON_THIS_DIE` code | Possible on multi-die | N/A on NWP (single iMH) | Removed edge case on NWP |
-| Mailbox availability | After CPL3 | Same | Test entry condition unchanged |
+### Swimlane Data
+| Step | Actor | Action | Interface |
+|------|-------|--------|-----------|
+| 1 | Test script | Write command to `os_mailbox_interface` (command + run_busy=1) | OS2P PMSB |
+| 2 | PCode | Receive mailbox command; execute handler | Internal |
+| 3 | PCode | Write result to `os_mailbox_data`; clear `run_busy` | OS2P PMSB |
+| 4 | Test script | Read `return_code` from `os_mailbox_interface.command` | OS2P PMSB |
+| 5 | Test script | Validate `return_code` in `_MAILBOX_ERRORS` | Python dict lookup |
 
----
-
-## Section D: Key Registers & Validation Points
-
-```python
-# NWP: OS2P Mailbox Sweep — CSR path
-import time
-
-imh = sv.socket0.imh0
-
-def send_os2p_mailbox(opcode, subcmd=0, data=0, timeout_ms=100):
-    """Issue an OS2P mailbox command and return (completion_code, response_data)."""
-    # Write data first
-    imh.uncore.pcicfg_ubox_cfg.os_mailbox_data.write(data)
-    # Build interface register: opcode[7:0] | subcmd[15:8] | run_busy[31]
-    intf_val = (opcode & 0xFF) | ((subcmd & 0xFF) << 8) | (1 << 31)
-    imh.uncore.pcicfg_ubox_cfg.os_mailbox_interface.write(intf_val)
-    # Poll until RUN_BUSY clears
-    deadline = time.time() + timeout_ms / 1000.0
-    while time.time() < deadline:
-        val = imh.uncore.pcicfg_ubox_cfg.os_mailbox_interface.read()
-        if not (val >> 31 & 1):
-            break
-        time.sleep(0.001)
-    else:
-        print(f"Mailbox TIMEOUT: opcode=0x{opcode:02x}")
-        return None, None
-    intf_final = imh.uncore.pcicfg_ubox_cfg.os_mailbox_interface.read()
-    resp_data  = imh.uncore.pcicfg_ubox_cfg.os_mailbox_data.read()
-    completion = (intf_final >> 8) & 0xFF
-    return completion, resp_data
-
-# Sweep: valid commands
-sweep_cmds = [
-    (0x94, 0x02, 0, "READ_PM_CONFIG/MIN_ICCP"),
-    (0x94, 0x07, 0, "READ_PM_CONFIG/PROG_SSC"),
-    (0xd0, 0x20, 0, "PM_MISC_CONTROL/THERM_MONITOR_STATUS read"),
-    (0xd5, 0x00, 0, "PM_SECURITY_CONTROL"),
-]
-for opcode, subcmd, data, name in sweep_cmds:
-    cc, resp = send_os2p_mailbox(opcode, subcmd, data)
-    status = "PASS" if cc == 0 else f"FAIL (cc=0x{cc:02x})"
-    print(f"{name}: cc=0x{cc:02x} resp=0x{resp:08x} [{status}]")
-
-# Negative: reserved command
-cc_neg, _ = send_os2p_mailbox(0xFF, 0x00, 0)
-print(f"Reserved cmd 0xFF: cc=0x{cc_neg:02x} [{'PASS' if cc_neg != 0 else 'FAIL (no error)'}]")
-```
+### Sequence Data
+| # | From | To | Message | Interface |
+|---|------|----|---------|-----------|
+| 1 | osmb_tpmi | `os_mailbox_interface` | write: command=i, run_busy=1 | PMSB register |
+| 2 | PCode | handler table | dispatch to command handler i | Internal |
+| 3 | PCode | `os_mailbox_data` | write return_data | PMSB register |
+| 4 | PCode | `os_mailbox_interface.command` | write return_code; clear run_busy | PMSB register |
+| 5 | osmb_tpmi | `_MAILBOX_ERRORS` | lookup return_code | Python |
 
 ---
 
-## Section E: Risk Assessment & Open Items
+## Section C: Coverage
 
-| # | Risk/Open Item | Severity | Notes |
-|---|----------------|----------|-------|
-| 1 | **NWP bios_mailbox.xml command list** — verify OS2P-tagged opcodes against NWP-specific XML; some DMR commands may be deprecated or added | Low | Walk `<mbox_access mbox="OS"/>` in NWP bios_mailbox.xml |
-| 2 | **TPMI transport path** — verify NWP TPMI SRAM init completes before OS2P TPMI test step | Low | Check `tpmi_sram_init` readiness flag before issuing TPMI mailbox commands |
-| 3 | **Concurrent access serialisation** — NWP single-iMH simplifies routing but test must still stress B2P + OS2P simultaneously | Medium | Use two threads: one writing B2P from BIOS callback; one issuing OS2P via PythonSV |
-| 4 | **`NOT_SERVICED_ON_THIS_DIE` removal** — DMR multi-die edge case may be in existing test script; remove/skip on NWP | Low | Remove any `NOT_SERVICED_ON_THIS_DIE` completion code checks for NWP run |
+| Dimension | Coverage |
+|-----------|---------|
+| **Command range** | 0x00-0xFF (all 255 command IDs) |
+| **Known-good** | 0x78 READ_PKG_CONFIG, 0x94 READ_PM_CONFIG, 0xD0 cmd_pm_misc_control |
+| **Error codes** | All 55 entries in `_MAILBOX_ERRORS` verified reachable |
+| **IMH scope** | imh0 only (NWP) |
+| **Environments** | Simics, emulation, silicon (auto-detected) |
 
 ---
 
-## Section F: Recommendation
+## Section D: Spec Refs
 
-**Recommendation: ADOPT — update `dmr.xml` → `nwp.xml`; verify NWP bios_mailbox.xml command list**
+| Register / Log | Field / Offset | Pass/Fail Criteria |
+|----------------|---------------|-------------------|
+| `imh0.punit.ptpcfsms.ptpcfsms.os_mailbox_interface` | `command`, `run_busy` | `run_busy` clears within 20s; `command` field = return code |
+| `imh0.punit.ptpcfsms.ptpcfsms.os_mailbox_data` | full register | Contains return data for data-returning commands |
+| `_MAILBOX_ERRORS` dict | 0x00-0xFF | All return codes must be defined entries |
 
-The PCode mailbox sweep is a cornerstone PM interface validation test. OS2P is fully supported on NWP with an identical command set. Required adaptations are minimal:
+---
 
-1. Replace `dmr.xml` with `nwp.xml` in automation script invocation
-2. Walk NWP `bios_mailbox.xml` for `mbox="OS"` tagged commands to build NWP sweep list
-3. Update CBB reference from `cbbs[0-3]` (4-CBB) to `cbb0`, `cbb1` (2-CBB NWP)
-4. Remove `NOT_SERVICED_ON_THIS_DIE` edge-case checks (single-iMH NWP)
-5. Verify TPMI SRAM initialization before TPMI transport path step
+## Section E: Risk Assessment
 
-**Priority**: High — fundamental PM interface validation; covers OS2P, B2P, and TPMI transport paths
+| Risk / Open Item | Likelihood | Severity | Mitigation |
+|-----------------|-----------|---------|-----------|
+| NWP may not support all DMR mailbox commands (e.g. DIMM/memory commands if no DRAM) | Medium | Low | Expected to return `NOT_SERVICED_ON_THIS_DIE` (0xFF) or `UNSUPPORTED_COMMAND` -- not a failure |
+| `osmb_tpmi.py` uses `imh1` in any path | Low | High | Verify NWP invocation uses `imh=0` only -- `imh1` not available |
+| Simics model may not implement all command handlers | Medium | Medium | Mark unimplemented commands as KNOWN_GAP; compare to silicon results |
 
-## References
+---
 
-- [OS2P Mailbox KB Article](../../../../../KB/pm_features/platform_pm_interface/os2p_mailbox.md)
-- [B2P Mailbox Specification (HAS)](https://docs.intel.com/documents/primecode/has/DMR/BIOS%20Mailbox/B2P_mailbox_specification.html)
-- [HSD TC](https://hsdes.intel.com/appstore/article-one/#/16030715638)
-- [Parent TCD HSD](https://hsdes.intel.com/appstore/article-one/#/16030768338)
-- Updated: 2026-07-03
+## Section F: Recommendations
+
+1. **NWP port:** Change loop in `main()` to also log command name from `_MAILBOX_ERRORS` for easier debug.
+2. **Classify return codes:** Pass = `NO_ERROR` for known commands; Pass = any defined error for unsupported; Fail = undefined return code or hang.
+3. **NWP invocation:**
+   ```python
+   import diamondrapids.pm.pss.mailbox.osmb_tpmi as osmb
+   for i in range(0, 0xff):
+       data, err_str = osmb.os_mailbox(socket_number=0, imh=0, command=i, sub_command=0, parameter=0)
+       assert err_str in osmb._MAILBOX_ERRORS.values(), f"cmd={i:#x}: unknown return code"
+   print("OMSB_TPMI DONE")
+   ```

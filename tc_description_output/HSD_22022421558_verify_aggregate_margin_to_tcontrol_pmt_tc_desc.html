@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
-  <title>TC: [TPMI/PMT] Verify Aggregate Margin to Tcontrol PMT Register</title>
+  <title>TC: HSD_22022421558_verify_aggregate_margin_to_tcontrol_pmt</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
@@ -41,12 +41,12 @@
 </head>
 <body>
 <div class="header">
-  <h1>[TPMI/PMT] Verify Aggregate Margin to Tcontrol PMT Register
+  <h1>HSD_22022421558_verify_aggregate_margin_to_tcontrol_pmt
     <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022421558" target="_blank" rel="noopener">HSD 22022421558 ↗</a>
   </h1>
   <div class="chips">
-    <span class="chip">SoC Thermal Management &gt; TPMI/PMT › PMT PCS Index 10 — Aggregate Margin to Tcontrol</span>
-    <span class="chip disp">Runnable_On_N-1</span>
+    <span class="chip"> › </span>
+    <span class="chip disp"></span>
     <span class="chip">Env: </span>
   </div>
 </div>
@@ -71,7 +71,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
-<br/><p style="margin:10px 0 16px 0;">---</p>
+<br/><p style="margin:10px 0 16px 0;">Verify that the <strong>Aggregate Margin to Tcontrol</strong> PMT register correctly reports the thermal margin between the maximum die temperature and the TControl threshold. The margin is computed from:</p>
 
 <br/>
 
@@ -81,11 +81,15 @@
 <br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
 <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;padding:8px;">NWP silicon with all CBBs active and thermal reporting initialized</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;padding:8px;">NWP silicon/emulation booted; PythonSV initialized</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;padding:8px;">PMT enabled and readable</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">CBBs</td><td style="text-align:left;padding:8px;">CBB0, CBB1 active (`sv.socket0.cbbs` accessible)</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;padding:8px;">EFFECTIVE_TJ_MAX known (from fuses + BIOS TCC offset)</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">IMH</td><td style="text-align:left;padding:8px;">`sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature` readable</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Fuse access</td><td style="text-align:left;padding:8px;">`sv.socket0.imh0.fuses.punit.pcode_t_control_offset` readable (silicon) or `.virtual.pcode_t_control_offset_df` (simics)</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">DTS injection</td><td style="text-align:left;padding:8px;">`Thermal_DTS.Clear_Core()` functional -- ability to inject random temperature</td></tr>
 
 </table>
 
@@ -105,44 +109,51 @@
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Run PMT thermal test</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">`python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2`</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Inject random temperature: `injection.Clear_Core(random.randint(40, 105), external=True)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">DTS temperature set on all cores; package_temperature register updates</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">DTS override not accepted -- check Simics model or silicon override enable</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read `EFFECTIVE_TJ_MAX` (per TC 14019959390)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Same calculation; NWP fused TJ_MAX value</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read `temperature_target`: `socket.cbb0.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.temperature_target`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Register readable; `effective_tj_max = bits[16:24]` extracted correctly</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Zero or invalid value -- check CBB0 register path on NWP</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read `PKG_MAX_TEMPERATURE` — hottest temp across dies</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">NWP: 2 CBBs (`cbb0`, `cbb1`) + `imh0`; read from iMH aggregator</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read T_Control fuse: `socket.imh0.fuses.punit.pcode_t_control_offset` (silicon)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero value from fuse; matches expected NWP SKU TControl offset</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Zero fuse -- may indicate fuse read path error</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read `T_CONTROL_OFFSET` fuse and `DTS_CONFIG3.TCONTROL_OFFSET`</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Same register names on NWP</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Compute T_Control formula from register/fuse values</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`T_Control = (eff_tj_max - fused_t_ctrl_offset - fused_t_ctrl_offset + dts_config3 * Tcontrol_OFFSET) - Max_temp` matches expected range</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Negative or out-of-range T_Control -- verify formula operands</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Calculate expected `MARGIN_TO_TCONTROL`</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">`(EFFECTIVE_TJ_MAX - FUSED_T_CONTROL_OFFSET + TCONTROL_OFFSET) - MAX_TEMPERATURE`</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read T_Control via DFX mailbox: `dfx_mailbox[0] = 0x000a020010810908; dfx_mailbox[1] = 0x10; dfx_mailbox_ctl[31] = 1`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Mailbox completes; `DFX_Mailbox_TControl_decimal` computed via `s10_6_to_decimal(bits[8:23])`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Mailbox timeout or zero response -- IMH DFX mailbox not functional</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read PMT register and compare</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">`sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.margin_to_tcontrol`</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Compare: `T_Control == DFX_Mailbox_TControl_decimal`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Values match within floating-point precision; tabulate() shows "Pass" for both rows</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Mismatch -- PMT T_Control register not reflecting register/fuse computation; check formula operand source</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Clear DTS injection: `injection.Clear_Core(40, external=True)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Package temperature returns to ~40°C baseline; no thermal events remain</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Temperature not clearing -- injection override stuck</td>
 </tr>
 
 </table>
@@ -152,25 +163,101 @@
 
 
 
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Pass / Fail Criteria</div>
+<br/>
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
+  <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
+  <p style="margin:0;font-size:0.9em;">** `T_Control` computed from register/fuse equals `DFX_Mailbox_TControl_decimal`; tabulate shows all rows "Pass"; `t_control()` returns `True`.</p>
+</div>
 
 
-
-<h3>NOTEs</h3>
-<div style="font-size:0.85em;color:#555;margin-left:12px;padding:10px;background:#f8f9fa;border-left:3px solid #999;border-radius:3px;">
-
-<p style="margin:6px 0;">NWP `EFFECTIVE_TJ_MAX` — depends on NWP-specific TJ_MAX fuse and BIOS TCC offset; verify from NWP thermal HAS — Same formula; just different fuse values</p>
-
-<p style="margin:6px 0;">`sv.sockets` iteration — DMR test may use `sv.sockets.cbbs` iterator; NWP: use `cbb0`, `cbb1` — Update test script CBB iteration</p>
-
+<div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
+  <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
+  <p style="margin:0;font-size:0.9em;">** Mismatch between register-computed T_Control and DFX mailbox PMT value; `t_control()` returns `False`; `self.print_and_exit` called with "Aggregate Margin to Tcontrol PMT Register Fail".</p>
 </div>
 
 
 
 
 
+<h3>NOTEs</h3>
+<div style="font-size:0.85em;color:#555;margin-left:12px;padding:10px;background:#f8f9fa;border-left:3px solid #999;border-radius:3px;">
+
+<p style="margin:6px 0;">NWP CBB path differs for `temperature_target` (cbb0 vs cbb1 CBB-specific register) — Verify `cbb0.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.temperature_target` exists on NWP; use namednodes.search()</p>
+
+<p style="margin:6px 0;">DFX mailbox opcode 0x10 may differ on NWP — Check NWP mailbox command table in HAS; confirm 0x000a020010810908 is valid</p>
+
+<p style="margin:6px 0;">Formula discrepancy in double-subtraction of `fused_t_control_offset` — Script has `- fused_t_control_offset - fused_t_control_offset` (appears twice); verify against HAS formula</p>
+
+</div>
+
+
+
+
+<h3>OPENs</h3>
+<div style="font-size:0.85em;color:#c62828;margin-left:12px;padding:10px;background:#fff3f3;border-left:3px solid #c62828;border-radius:3px;">
+<ul style="margin:4px 0;padding-left:20px;">
+
+<li style="margin:4px 0;">DFX mailbox opcode 0x10 may differ on NWP → Check NWP mailbox command table in HAS; confirm 0x000a020010810908 is valid</li>
+
+</ul>
+</div>
+
+
 <br/>
 
 
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Health Check — Registers &amp; Logs to Collect</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">Register / Log</th>
+  <th style="text-align:left;padding:8px;">Access</th>
+  <th style="text-align:left;padding:8px;">Pass/Fail Criteria</th>
+</tr>
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">`cbb0.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.temperature_target`</td>
+  <td style="text-align:left;padding:8px;">bits[16:24] = effective_tj_max</td>
+  <td style="text-align:left;padding:8px;">Non-zero; matches expected TjMax</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">`imh0.fuses.punit.pcode_t_control_offset`</td>
+  <td style="text-align:left;padding:8px;">full register</td>
+  <td style="text-align:left;padding:8px;">Non-zero fuse value for NWP SKU</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">`imh0.punit.ptpcioregs.ptpcioregs.dts_config3_cfg`</td>
+  <td style="text-align:left;padding:8px;">Tcontrol_OFFSET</td>
+  <td style="text-align:left;padding:8px;">Used in formula</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">`imh0.punit.ptpcioregs.ptpcioregs.package_temperature`</td>
+  <td style="text-align:left;padding:8px;">full register</td>
+  <td style="text-align:left;padding:8px;">Max_temperature = value - 64</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">`imh0.oobmsm.oobmsm0.oobmsm_reg.dfx_mailbox[0]`</td>
+  <td style="text-align:left;padding:8px;">bits[8:23] after opcode 0x10</td>
+  <td style="text-align:left;padding:8px;">T_Control in s10.6 format</td>
+</tr>
+
+
+</table>
 
 
 <br/>
@@ -190,31 +277,284 @@
 
 </div>
   </div>
-  <div id="sec-a" class="panel"><p><em>Not available.</em></p></div>
-  <div id="sec-b" class="panel"><p><em>Not available.</em></p></div>
-  <div id="sec-c" class="panel"><p><em>Not available.</em></p></div>
-  <div id="sec-d" class="panel"><p><em>Not available.</em></p></div>
-  <div id="sec-e" class="panel"><table class="md-table"><thead><tr>
+  <div id="sec-a" class="panel"><p>**NWP Adaptation Notes:**</p>
+<ul>
+<li>DMR has 4 CBBs; **NWP has 2 CBBs** -- `cbb0`, `cbb1` only. Script accesses `cbb0`-`cbb3` for throttled_time; adapt to `cbb0`, `cbb1`.</li>
+<li>DMR has 2 IMH dies; **NWP has 1 IMH** -- `imh0` only.</li>
+<li>Simics path for fuse: `socket.imh0.fuses.punit.virtual.pcode_t_control_offset_df` (same as DMR).</li>
+<li>Formula: `T_Control = (eff_TjMax - fused_T_control_offset + dts_config3 * Tcontrol_OFFSET) - Max_temperature` -- unchanged.</li>
+<li>`dmr.xml` PMX tag -- update to NWP equivalent XML or invoke standalone.</li>
+</ul>
+<p>Verify that the **Aggregate Margin to Tcontrol** PMT register correctly reports the thermal margin between the maximum die temperature and the TControl threshold. The margin is computed from:</p>
+<ul>
+<li>`EFFECTIVE_TJ_MAX` (from `temperature_target` register, bits 16:24)</li>
+<li>`FUSED_T_CONTROL_OFFSET` (from `imh0.fuses.punit.pcode_t_control_offset`)</li>
+<li>`DTS_CONFIG3.Tcontrol_OFFSET` (from `imh0.punit.ptpcioregs.ptpcioregs.dts_config3_cfg`)</li>
+<li>`MAX_TEMPERATURE` (from `imh0.punit.ptpcioregs.ptpcioregs.package_temperature` minus 64)</li>
+</ul>
+<p>The register value is compared with the DFX mailbox readout of the same field to confirm PMT data integrity.</p>
+<table class="md-table"><thead><tr>
 <th>#</th>
-<th>Risk/Open Item</th>
-<th>Severity</th>
-<th>Notes</th>
+<th>Item</th>
+<th>Requirement</th>
 </tr></thead><tbody>
 <tr>
 <td>1</td>
-<td>**NWP `EFFECTIVE_TJ_MAX`** — depends on NWP-specific TJ_MAX fuse and BIOS TCC offset; verify from NWP thermal HAS</td>
-<td>Low</td>
-<td>Same formula; just different fuse values</td>
+<td>Platform</td>
+<td>NWP silicon/emulation booted; PythonSV initialized</td>
 </tr>
 <tr>
 <td>2</td>
-<td>**`sv.sockets` iteration** — DMR test may use `sv.sockets.cbbs` iterator; NWP: use `cbb0`, `cbb1`</td>
-<td>Low</td>
-<td>Update test script CBB iteration</td>
+<td>CBBs</td>
+<td>CBB0, CBB1 active (`sv.socket0.cbbs` accessible)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>IMH</td>
+<td>`sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature` readable</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Fuse access</td>
+<td>`sv.socket0.imh0.fuses.punit.pcode_t_control_offset` readable (silicon) or `.virtual.pcode_t_control_offset_df` (simics)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>DTS injection</td>
+<td>`Thermal_DTS.Clear_Core()` functional -- ability to inject random temperature</td>
+</tr>
+</tbody></table>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Inject random temperature: `injection.Clear_Core(random.randint(40, 105), external=True)`</td>
+<td>DTS temperature set on all cores; package_temperature register updates</td>
+<td>DTS override not accepted -- check Simics model or silicon override enable</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read `temperature_target`: `socket.cbb0.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.temperature_target`</td>
+<td>Register readable; `effective_tj_max = bits[16:24]` extracted correctly</td>
+<td>Zero or invalid value -- check CBB0 register path on NWP</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read T_Control fuse: `socket.imh0.fuses.punit.pcode_t_control_offset` (silicon)</td>
+<td>Non-zero value from fuse; matches expected NWP SKU TControl offset</td>
+<td>Zero fuse -- may indicate fuse read path error</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Compute T_Control formula from register/fuse values</td>
+<td>`T_Control = (eff_tj_max - fused_t_ctrl_offset - fused_t_ctrl_offset + dts_config3 * Tcontrol_OFFSET) - Max_temp` matches expected range</td>
+<td>Negative or out-of-range T_Control -- verify formula operands</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Read T_Control via DFX mailbox: `dfx_mailbox[0] = 0x000a020010810908; dfx_mailbox[1] = 0x10; dfx_mailbox_ctl[31] = 1`</td>
+<td>Mailbox completes; `DFX_Mailbox_TControl_decimal` computed via `s10_6_to_decimal(bits[8:23])`</td>
+<td>Mailbox timeout or zero response -- IMH DFX mailbox not functional</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Compare: `T_Control == DFX_Mailbox_TControl_decimal`</td>
+<td>Values match within floating-point precision; tabulate() shows &quot;Pass&quot; for both rows</td>
+<td>Mismatch -- PMT T_Control register not reflecting register/fuse computation; check formula operand source</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Clear DTS injection: `injection.Clear_Core(40, external=True)`</td>
+<td>Package temperature returns to ~40°C baseline; no thermal events remain</td>
+<td>Temperature not clearing -- injection override stuck</td>
+</tr>
+</tbody></table>
+<ul>
+<li>**PASS:** `T_Control` computed from register/fuse equals `DFX_Mailbox_TControl_decimal`; tabulate shows all rows &quot;Pass&quot;; `t_control()` returns `True`.</li>
+<li>**FAIL:** Mismatch between register-computed T_Control and DFX mailbox PMT value; `t_control()` returns `False`; `self.print_and_exit` called with &quot;Aggregate Margin to Tcontrol PMT Register Fail&quot;.</li>
+</ul>
+<p>---</p></div>
+  <div id="sec-b" class="panel"><table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Actor</th>
+<th>Action</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Test script</td>
+<td>Inject random temperature via `Clear_Core()`</td>
+<td>DTS override (Thermal_DTS)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>PCode</td>
+<td>Update `package_temperature` and T_Control computation</td>
+<td>Internal</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Test script</td>
+<td>Read `temperature_target` and fuse registers</td>
+<td>namednodes MMIO</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Test script</td>
+<td>Compute T_Control formula</td>
+<td>Python math</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Test script</td>
+<td>Read T_Control via DFX mailbox</td>
+<td>DFX mailbox (PMSB)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Test script</td>
+<td>Compare register-computed vs mailbox PMT value</td>
+<td>Python tabulate</td>
+</tr>
+</tbody></table>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>From</th>
+<th>To</th>
+<th>Message</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Thermal_DTS</td>
+<td>Core DTS</td>
+<td>inject temperature</td>
+<td>DTS override</td>
+</tr>
+<tr>
+<td>2</td>
+<td>PCode</td>
+<td>package_temperature register</td>
+<td>update</td>
+<td>IO register</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Script</td>
+<td>cbb0.temperature_target</td>
+<td>read</td>
+<td>namednodes</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Script</td>
+<td>imh0.fuses.punit</td>
+<td>read T_Control offset</td>
+<td>namednodes</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Script</td>
+<td>dfx_mailbox[0,1] + dfx_mailbox_ctl[31]</td>
+<td>write opcode; set run bit; read result</td>
+<td>DFX mailbox</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Script</td>
+<td>tabulate</td>
+<td>compare &amp; report</td>
+<td>Python</td>
 </tr>
 </tbody></table>
 <p>---</p></div>
-  <div id="sec-f" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-c" class="panel"><table class="md-table"><thead><tr>
+<th>Dimension</th>
+<th>Coverage</th>
+</tr></thead><tbody>
+<tr>
+<td>**Formula operands**</td>
+<td>effective_tj_max, fused_t_control_offset, dts_config3, max_temperature</td>
+</tr>
+<tr>
+<td>**Verification paths**</td>
+<td>Register/fuse computation vs DFX mailbox PMT</td>
+</tr>
+<tr>
+<td>**CBBs**</td>
+<td>CBB0 (NWP); DMR uses CBB0-3</td>
+</tr>
+<tr>
+<td>**IMH**</td>
+<td>imh0 only (NWP)</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-d" class="panel"><table class="md-table"><thead><tr>
+<th>Register / Log</th>
+<th>Field / Offset</th>
+<th>Pass/Fail Criteria</th>
+</tr></thead><tbody>
+<tr>
+<td>`cbb0.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.temperature_target`</td>
+<td>bits[16:24] = effective_tj_max</td>
+<td>Non-zero; matches expected TjMax</td>
+</tr>
+<tr>
+<td>`imh0.fuses.punit.pcode_t_control_offset`</td>
+<td>full register</td>
+<td>Non-zero fuse value for NWP SKU</td>
+</tr>
+<tr>
+<td>`imh0.punit.ptpcioregs.ptpcioregs.dts_config3_cfg`</td>
+<td>Tcontrol_OFFSET</td>
+<td>Used in formula</td>
+</tr>
+<tr>
+<td>`imh0.punit.ptpcioregs.ptpcioregs.package_temperature`</td>
+<td>full register</td>
+<td>Max_temperature = value - 64</td>
+</tr>
+<tr>
+<td>`imh0.oobmsm.oobmsm0.oobmsm_reg.dfx_mailbox[0]`</td>
+<td>bits[8:23] after opcode 0x10</td>
+<td>T_Control in s10.6 format</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-e" class="panel"><table class="md-table"><thead><tr>
+<th>Risk / Open Item</th>
+<th>Likelihood</th>
+<th>Severity</th>
+<th>Mitigation</th>
+</tr></thead><tbody>
+<tr>
+<td>NWP CBB path differs for `temperature_target` (cbb0 vs cbb1 CBB-specific register)</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Verify `cbb0.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.temperature_target` exists on NWP; use namednodes.search()</td>
+</tr>
+<tr>
+<td>DFX mailbox opcode 0x10 may differ on NWP</td>
+<td>Medium</td>
+<td>High</td>
+<td>Check NWP mailbox command table in HAS; confirm 0x000a020010810908 is valid</td>
+</tr>
+<tr>
+<td>Formula discrepancy in double-subtraction of `fused_t_control_offset`</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Script has `- fused_t_control_offset - fused_t_control_offset` (appears twice); verify against HAS formula</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-f" class="panel"><p>1. Verify NWP mailbox opcode `0x000a020010810908` (CBB0 PCS index 0x10) is correct in NWP HAS.</p>
+<p>2. Check the formula: the script subtracts `fused_t_control_offset` twice -- this may be intentional (offset applied twice) or a bug vs HAS spec.</p>
+<p>3. **NWP invocation:** `python runPmx.py -x nwp.xml -p PMT_Thermals -tM 60 -M 5`</p></div>
 </div>
 
 <script>

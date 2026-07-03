@@ -1,131 +1,109 @@
-# Deep Analysis: [TPMI/PMT] Verify Thermal Monitor Filtering TPMI Register
+# TC 22022421585: [TPMI/PMT] Verify Thermal Monitor Filtering TPMI Register
 
-| Field | Value |
-|-------|-------|
-| **HSD ID** | 22022421585 |
-| **Title** | [TPMI/PMT] Verify Thermal Monitor Filtering TPMI Register |
-| **Date** | 2025-07-24 |
-| **Target Program** | NWP (Newport) |
-| **Source Program** | DMR (Diamond Rapids) |
-| **Segment** | FV |
-| **Feature** | SoC Thermal Management > TPMI/PMT |
-| **Sub-Feature** | PMT PCS Index 20 (extension) — Thermal Monitor Filtering |
-| **NWP Disposition** | **Runnable_On_N-1** |
+**TCD:** 22022420612 -- [SoC Thermal Management] TPMI/PMT
+**TPF:** 16030767555 -- [NWP PM] PMT
+**Val Environment:** silicon, virtual_platform
+**Primary Script:** `pm/Active_PM/Thermal_Management/CPU_Thermal_Management/PMT_Thermals.py` -- `PMT.thermal_status(s, self.log)` (Monitor_Filtering() is a stub)
+**TPMI read path:** `pm/OOBMSM/tpmi/tpmi_register.py` -- `tpmi_get_set_state_mmio('THERMAL_MGMT', get_set=0)`
+**Register:** `imh0.punit.ptpcfsms.ptpcfsms.opc_thermal_monitor` (partial -- stub in script; see recommendation)
 
 ---
 
-## Section A: NWP Disposition & Justification
+## Section A: NWP Delta
 
-**Disposition: Runnable_On_N-1**
+**NWP Adaptation Notes:**
+- `Monitor_Filtering()` in `pmt_dataintegrity.py` is a **stub** -- the body only has a single line accessing `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.opc_thermal_monitor` with no logic. **Script not fully implemented for this TC.**
+- Main verification path: `tpmi_get_set_state_mmio(tpmi_name='THERMAL_MGMT', get_set=0)` from `tpmi_register.py`.
+- The TC extends TC 22022421578 (Package Thermal Status) by verifying the **Tau-derived time delay** for thermal monitor filtering.
+- NWP: `imh0.punit.ptpcfsms.ptpcfsms.opc_thermal_monitor` -- same register path as DMR imh0.
+- Gap: `Monitor_Filtering()` function needs to be implemented before this TC can run fully.
 
-This test is an extension of TC 22022421578 (Package Thermal Status TPMI) — it verifies the **Thermal Monitor Filtering TPMI register** that controls a time delay (Tau value) for the Thermal Monitor Status assertion. The filtering algorithm is:
-
-```
-if (PKG_MAX_TEMPERATURE >= EFFECTIVE_TJ_MAX):
-    RAW_THERMAL_MONITOR_STATUS = 1
-else:
-    RAW_THERMAL_MONITOR_STATUS = 0
-
-CURRENT_THERMAL_MONITOR_STATUS = EWMA_FILTER(RAW_THERMAL_MONITOR_STATUS, TAU)
-```
-
-The Tau value (filter time constant) is set in the Thermal Monitor Filtering TPMI register and controls how quickly the status bit responds to temperature crossing. The command uses a custom script `thermalManagement.py` / `Demo_DMR_TMF.py`. On NWP, same filtering mechanism exists. Primary adaptation: update script for NWP (XML reference), validate register path.
-
-**Key Justification:**
-- Thermal Monitor Filtering via Tau value is present on NWP
-- Same EWMA (Exponentially Weighted Moving Average) filtering algorithm
-- `PMSS_NWP_READINESS_CHECK` tag: evaluated for NWP
-- Custom script needs NWP adaptation (`Demo_DMR_TMF.py` → NWP equivalent)
-
----
-
-## Section B: NWP-Specific Test Procedure
+### Test Case Intent
+Verify that the **Thermal Monitor Filtering TPMI register** correctly controls the time delay (derived from the Tau value) before the Thermal Monitor Filter (TM2) de-asserts after a thermal event clears. The test:
+1. Reads the current Tau value from the TPMI `THERMAL_MONITOR_FILTERING` register
+2. Triggers a thermal event (prochot or temperature above TjMax)
+3. After thermal event clears, measures the de-assertion delay
+4. Confirms de-assertion delay matches the Tau-derived value: `Delay = 2^Tau * 0.977ms`
 
 ### Pre-Conditions
-- NWP silicon with thermal reporting active
-- Tau value programmable via TPMI write
-- `thermalManagement.py` module available (or `pm.Active_pm.Thermal_Management.CPU_Thermal_Management.Demo_DMR_TMF.py` adapted for NWP)
 
-### Adapted Test Steps
+| # | Item | Requirement |
+|---|------|-------------|
+| 1 | Platform | NWP silicon/emulation; PythonSV initialized |
+| 2 | TPMI access | `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.opc_thermal_monitor` readable |
+| 3 | Script | `Monitor_Filtering()` in `pmt_dataintegrity.py` must be implemented (currently stub) |
+| 4 | TPMI register tool | `tpmi_get_set_state_mmio('THERMAL_MGMT', socket_id=0, imh_num=0, get_set=0)` functional |
+| 5 | Package Thermal Status | TC 22022421578 must pass first (shared infrastructure) |
 
-| Step | Action | NWP Adaptation |
-|------|--------|----------------|
-| 1 | Read current Tau value from Thermal Monitor Filtering TPMI register | `sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.thermal_monitor_filter.read()` |
-| 2 | Program a known Tau value | TPMI write; same register on NWP |
-| 3 | Trigger temperature crossing (inject temp above EFFECTIVE_TJ_MAX) | NWP DTS override mechanism |
-| 4 | Verify thermal monitor status asserts with expected delay derived from Tau | Poll `PACKAGE_THERM_STATUS.THERMAL_MONITOR_STATUS`; measure time to assert |
-| 5 | Compare measured delay to expected delay from Tau formula | `Tau_seconds = (Tau_value * slow_loop_period)` or per TPMI HAS formula |
-| 6 | Restore temperature and verify status de-asserts with same Tau delay | Same filter applies on de-assertion |
+### Test Steps
 
-### Filtering Formula
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|------------------------|-------------------|
+| 1 | Read TPMI Thermal Monitor Filtering register: `tpmi_get_set_state_mmio('THERMAL_MGMT', socket_id=0, imh_num=0, get_set=0)` | Register readable; Tau field extracted (bits for filter time constant) | Read failure -- TPMI path not accessible; check `tpmi_structure_dmr0_file` mapping for NWP |
+| 2 | Read raw register: `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.opc_thermal_monitor.read()` | Returns current filter setting; Tau value in bits [N:M] per HAS | Zero or invalid -- register not initialized; check BIOS init |
+| 3 | Trigger thermal event: `socket.imh0.pcodeio_map.io_throttle_signals_override.global_prochot_hw_inject = 0x1` | Thermal monitor asserts (`thermal_monitor_status == 1`); TPMI status register updated | Status not setting -- PROCHOT injection not working |
+| 4 | Clear thermal event: disable prochot inject | Thermal event clears; start timer to measure de-assertion delay | Event not clearing -- check override register |
+| 5 | Poll `opc_thermal_monitor` de-assertion (or `thermal_monitor_status` bit) with 1ms resolution | De-assertion occurs after delay matching `2^Tau * 0.977ms` | De-assertion too fast (no filter) or too slow (wrong Tau) -- Tau value mismatch |
+| 6 | Write new Tau value: `tpmi_get_set_state_mmio('THERMAL_MGMT', get_set=1, state=new_tau)` | TPMI register updated to new Tau | Write rejected -- check lock bit in TPMI register |
+| 7 | Repeat steps 3-5 with new Tau | De-assertion delay changes proportionally to new Tau: `delay = 2^new_tau * 0.977ms` | Delay unchanged -- TPMI write not taking effect |
+| 8 | Restore original Tau value | TPMI register restored to initial value | Write failure |
 
-```
-# Per DMR TPMI HAS (same on NWP):
-if CURRENT_THERMAL_MONITOR_STATUS == 1:
-    # Once asserted, stay asserted for Tau slow loops before de-asserting
-    FILTER_COUNTDOWN = TAU
-elif RAW_THERMAL_MONITOR_STATUS == 0 and FILTER_COUNTDOWN > 0:
-    FILTER_COUNTDOWN -= 1
-    if FILTER_COUNTDOWN == 0:
-        CURRENT_THERMAL_MONITOR_STATUS = 0
-```
+### Pass / Fail Criteria
 
-### NWP Pass Criteria
-- Thermal Monitor Status assertion delayed by Tau × slow_loop_period after temp crossing
-- Different Tau values produce proportionally different delays
-- Filter behavior consistent with TPMI HAS specification
+- **PASS:** Thermal monitor de-assertion delay matches Tau-derived formula (`2^Tau * 0.977ms`); TPMI write modifies the delay proportionally; `Monitor_Filtering()` (once implemented) returns `True`.
+- **FAIL:** De-assertion delay does not match Tau value; TPMI write has no effect; `Monitor_Filtering()` stub -- test cannot be executed until implemented.
 
 ---
 
-## Section C: NWP Delta Impact Analysis
+## Section B: Interactions
 
-| Aspect | DMR | NWP | Impact |
-|--------|-----|-----|--------|
-| Thermal Monitor Filtering TPMI | `ptpcioregs.thermal_monitor_filter` | Same on NWP | Direct reuse |
-| Tau formula | Per DMR TPMI HAS | Same algorithm on NWP | No change |
-| Custom script | `Demo_DMR_TMF.py` | NWP equivalent needed | Script uses `dmr` in filename; adapt for NWP |
-| Slow loop period | ~1 second (approx) | Same on NWP | Same timing |
+### Swimlane Data
+| Step | Actor | Action | Interface |
+|------|-------|--------|-----------|
+| 1 | Test script | Read TPMI Thermal Monitor Filtering register | TPMI MMIO |
+| 2 | Test script | Trigger thermal event (prochot inject) | MMIO override |
+| 3 | PCode | Assert thermal monitor; start filter timer | Internal |
+| 4 | Test script | Clear thermal event; start measurement timer | MMIO |
+| 5 | PCode | Count down Tau-derived filter time | Internal |
+| 6 | Test script | Poll de-assertion; measure delay | namednodes polling |
+| 7 | Test script | Compare measured delay to `2^Tau * 0.977ms` | Python math |
 
----
-
-## Section D: Key Registers & Validation Points
-
-```python
-import time
-
-# NWP Thermal Monitor Filtering Validation
-
-# Read Tau value from TPMI
-try:
-    tmf = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.thermal_monitor_filter.read()
-    print(f"THERMAL_MONITOR_FILTER (Tau): 0x{tmf:08X}")
-    tau_value = tmf & 0xFF  # Tau typically in bits [7:0]
-    print(f"Tau value: {tau_value}")
-except Exception as e:
-    print(f"THERMAL_MONITOR_FILTER: {e}")
-
-# Poll thermal monitor status over time
-try:
-    for i in range(20):
-        status = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_therm_status.thermal_monitor_status.read()
-        temp = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature.read()
-        print(f"t={i}: TM_STATUS={status}, TEMP={temp}")
-        time.sleep(1)
-except Exception as e:
-    print(f"Poll: {e}")
-```
+### Sequence Data
+| # | From | To | Message | Interface |
+|---|------|----|---------|-----------|
+| 1 | Script | tpmi_get_set_state_mmio | read THERMAL_MGMT TPMI | TPMI MMIO |
+| 2 | Script | opc_thermal_monitor | read Tau field | namednodes |
+| 3 | Script | global_prochot_hw_inject | set=1 | MMIO |
+| 4 | PCode | thermal monitor filter | start Tau countdown | Internal |
+| 5 | Script | global_prochot_hw_inject | set=0 | MMIO |
+| 6 | Script | thermal_monitor_status polling | measure de-assertion | namednodes |
+| 7 | Script | math | compare to 2^Tau * 0.977ms | Python |
 
 ---
 
-## Section F: Recommendation
+## Section D: Spec Refs
 
-**Recommendation: ADAPT — port `Demo_DMR_TMF.py` script to NWP; register path same**
+| Register / Log | Field / Offset | Pass/Fail Criteria |
+|----------------|---------------|-------------------|
+| `imh0.punit.ptpcfsms.ptpcfsms.opc_thermal_monitor` | Tau field (bits per HAS) | Must control filter time constant |
+| TPMI `THERMAL_MGMT` feature | ThermalMonitorFiltering | Read matches opc_thermal_monitor; write accepted |
+| De-assertion delay | measured via polling | Must match `2^Tau * 0.977ms` within tolerance |
 
-Thermal Monitor Filtering is architecturally identical on NWP. The custom script name references DMR and needs NWP adaptation.
+---
 
-Required adaptations:
-1. Port `pm.Active_pm.Thermal_Management.CPU_Thermal_Management.Demo_DMR_TMF.py` to NWP variant
-2. `sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.thermal_monitor_filter` — same path on NWP
-3. Verify NWP slow loop period for Tau delay calculation
+## Section E: Risk Assessment
 
-**Priority**: Low-Medium — PMT filtering verification; extends TC 22022421578
+| Risk / Open Item | Likelihood | Severity | Mitigation |
+|-----------------|-----------|---------|-----------|
+| `Monitor_Filtering()` is a stub -- TC cannot be fully executed | High | Critical | **File gap with script owner**: implement `Monitor_Filtering()` in `pmt_dataintegrity.py` before silicon test |
+| TPMI `THERMAL_MGMT` feature name may differ in NWP TPMI structure files | Medium | High | Check `tpmi_structure_dmr0_file` for NWP thermal feature name |
+| Sub-ms timing measurement via Python polling may not be accurate enough | Medium | Medium | Use SVOS timestamping or hardware timer for precise delay measurement |
+
+---
+
+## Section F: Recommendations
+
+1. **Critical:** `Monitor_Filtering()` function body is a stub -- must be implemented before TC can run. Implement: read Tau, trigger event, measure de-assertion delay, compare to formula.
+2. Contact script owner (Thermal team, `PMT_Thermals.py`) to complete `Monitor_Filtering()` implementation.
+3. Verify TPMI feature name `THERMAL_MGMT` in NWP TPMI structure CSV files.
+4. **Current partial invocation:** `runPmx.py -x nwp.xml -p PMT_Thermals -tM 60 -M 5` (runs thermal_status path; Monitor_Filtering stub will not execute meaningful validation)

@@ -1,127 +1,104 @@
-# Deep Analysis: [TPMI/PMT] Verify Package Temperature PMT Register
+# TC 22022421576: [TPMI/PMT] Verify Package Temperature PMT Register
 
-| Field | Value |
-|-------|-------|
-| **HSD ID** | 22022421576 |
-| **Title** | [TPMI/PMT] Verify Package Temperature PMT Register |
-| **Date** | 2025-07-24 |
-| **Target Program** | NWP (Newport) |
-| **Source Program** | DMR (Diamond Rapids) |
-| **Segment** | FV |
-| **Feature** | SoC Thermal Management > TPMI/PMT |
-| **Sub-Feature** | PMT PCS Index 2 — Package Temperature |
-| **NWP Disposition** | **Runnable_On_N-1** |
+**TCD:** 22022420612 -- [SoC Thermal Management] TPMI/PMT
+**TPF:** 16030767555 -- [NWP PM] PMT
+**Val Environment:** silicon, virtual_platform
+**Primary Script:** `pm/Active_PM/Thermal_Management/CPU_Thermal_Management/PMT_Thermals.py` -- `PMT.package_temp(s, self.log)`
+**Library:** `pmt_dataintegrity.package_temp(socket)` -- `get_package_temp_values()` for CBB/Uncore/IMH checks
+**Run via PMX:** `runPmx.py -x dmr.xml -p PMT_Thermals -tM 60 -M 5`
 
 ---
 
-## Section A: NWP Disposition & Justification
+## Section A: NWP Delta
 
-**Disposition: Runnable_On_N-1**
+**NWP Adaptation Notes:**
+- DMR: 4 CBBs, 2 IMH dies. **NWP: 2 CBBs (cbb0, cbb1), 1 IMH (imh0)**.
+- `package_temp()` runs 3 injection scenarios: Core, Uncore (SOC), IMH -- all valid on NWP.
+- `Clear_Core()`, `Clear_SOC()`, `Clear_IMH()` injection paths should work on NWP with 2-CBB topology.
+- `get_package_temp_values()` reads register, MSR, mailbox -- verify all 3 paths accessible on NWP.
 
-This test verifies the **Package Temperature PMT register** (PCS index 2). This register reports temperature margin to throttle — the delta between maximum temperature and TJ_max. Individual dies calculate their own margins and send them to the root iMH via HPM `SOCKET_THERMAL`. Root PrimeCode takes the maximum across all dies and populates this register. On NWP: same architecture, single iMH receives from 2 CBBs. Primary adaptation: `dmr.xml` → `nwp.xml`, CBB count 2.
-
-**Key Justification:**
-- PMT Package Temperature register present on NWP
-- Same HPM `SOCKET_THERMAL` aggregation: 2 CBBs → iMH on NWP
-- `DMR_PO` tag: silicon validation bring-up priority
-- `PMSS_NWP_READINESS_CHECK` tag: evaluated for NWP
-
----
-
-## Section B: NWP-Specific Test Procedure
+### Test Case Intent
+Verify that the **Package Temperature PMT register** correctly reflects the maximum die temperature across all thermal domains. The test:
+1. Clears DTS to 40°C baseline
+2. Injects elevated temperature separately into Core, Uncore (SoC), and IMH domains
+3. After each injection reads `package_temperature` via: (a) MMIO register, (b) MSR, (c) DFX mailbox
+4. Confirms all three readout paths return the same temperature value
 
 ### Pre-Conditions
-- NWP silicon with thermal reporting active
-- All CBBs sending temperature via `SOCKET_THERMAL` HPM
 
-### Adapted Test Steps
+| # | Item | Requirement |
+|---|------|-------------|
+| 1 | Platform | NWP silicon/emulation; PythonSV initialized |
+| 2 | DTS injection | `injection.Clear_Core()`, `Clear_SOC()`, `Clear_IMH()` functional |
+| 3 | Package temp register | `sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature` readable |
+| 4 | DFX mailbox | `imh0.oobmsm.oobmsm0.oobmsm_reg.dfx_mailbox` accessible |
+| 5 | MSR access | MSR 0x1A1 (or equivalent) readable via `pstatesDebug.debug.access_to_msr()` |
 
-| Step | Action | NWP Adaptation |
-|------|--------|----------------|
-| 1 | Run PMT thermal test | `python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2` |
-| 2 | Read package temperature from each die | NWP: `sv.socket0.cbb{0,1}.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature` |
-| 3 | Read iMH aggregated package temperature | `sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature` |
-| 4 | Verify iMH value = max across all sources | `max(cbb0_temp, cbb1_temp, imh0_internal_temp)` |
-| 5 | Apply temperature stimulus and verify register updates | Stress workload; verify PMT temperature tracks |
+### Test Steps
 
-### Formula
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|------------------------|-------------------|
+| 1 | Clear all DTS to baseline: `injection.Clear_All_DTS(40)` | All thermal sensors at ~40°C; no throttling active | DTS not clearing -- injection override stuck; check simics/silicon path |
+| 2 | **Core injection:** `injection.Clear_Core(random.randint(40, 105))` then `cbb_values = get_package_temp_values(socket)` | Register, MSR, and mailbox all reflect elevated Core temperature; `cbb_values[-1] == "Pass"` | "Fail" in cbb_values -- Core temperature not propagating to PMT package_temp |
+| 3 | Reset Core injection: `injection.Clear_Core(40, external=True)` | Package temperature returns to baseline | Temperature not clearing -- stuck injection |
+| 4 | **Uncore injection:** `injection.Clear_SOC(random.randint(40, 105))` then `get_package_temp_values(socket)` | Uncore elevated temperature reflected in register, MSR, mailbox; `uncore_values[-1] == "Pass"` | Mismatch -- Uncore temperature not propagating to PMT |
+| 5 | Reset Uncore injection: `injection.Clear_SOC(40, external=True)` | Package temperature returns to baseline | Temperature not clearing |
+| 6 | **IMH injection:** `injection.Clear_IMH(random.randint(40, 105))` then `get_package_temp_values(socket)` | IMH elevated temperature reflected in all 3 readout paths; `imh_values[-1] == "Pass"` | Mismatch -- IMH temperature not propagating to PMT |
+| 7 | Reset IMH injection: `injection.Clear_IMH(40, external=True)` | All temperatures return to baseline | Stuck injection |
+| 8 | Log 3 tables: CBB table, Uncore table, IMH table; verify all rows show "Pass" | tabulate output shows: Register Value == MSR Value == Mailbox Value for each check | Any "Fail" row -- data consistency issue between PMT readout paths |
 
-```
-PACKAGE_TEMPERATURE_PMT = MAX(
-    sv.socket0.cbb0.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature,
-    sv.socket0.cbb1.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature,
-    sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature
-)
-```
+### Pass / Fail Criteria
 
-### NWP Pass Criteria
-- PMT `package_temperature` = max of all die temperatures
-- Value updates with thermal changes within slow-loop interval
-- HPM `SOCKET_THERMAL` correctly delivers CBB temperatures to iMH
-
----
-
-## Section C: NWP Delta Impact Analysis
-
-| Aspect | DMR | NWP | Impact |
-|--------|-----|-----|--------|
-| Die count | 4 CBBs + iMH(s) | 2 CBBs + 1 iMH | Fewer sources in max calculation |
-| HPM `SOCKET_THERMAL` | 4 CBB sources | 2 CBB sources | Same mechanism; fewer HPM senders |
-| PMT register path | `ptpcioregs.package_temperature` | Same on NWP iMH | Direct reuse |
-| `sv.sockets.cbbs` DMR pattern | Iterates all CBBs | NWP: `cbb0`, `cbb1` | Update iteration |
+- **PASS:** All 3 injection scenarios (Core, Uncore, IMH) produce consistent Package Temperature across register, MSR, and DFX mailbox readouts; `package_temp()` returns `True`.
+- **FAIL:** Any mismatch in the 3 readout paths; `package_temp()` returns `False`; `self.print_and_exit` called with "Package Temperature PMT Register Fail".
 
 ---
 
-## Section D: Key Registers & Validation Points
+## Section B: Interactions
 
-```python
-# NWP Package Temperature PMT Validation
-temps = {}
+### Swimlane Data
+| Step | Actor | Action | Interface |
+|------|-------|--------|-----------|
+| 1 | Test script | Inject temperature via Clear_Core/SOC/IMH | DTS override |
+| 2 | PCode | Update package_temperature register | Internal |
+| 3 | Test script | Read via MMIO register | namednodes |
+| 4 | Test script | Read via MSR | pstatesDebug |
+| 5 | Test script | Read via DFX mailbox | DFX mailbox (PMSB) |
+| 6 | Test script | Compare all 3 values via tabulate | Python |
 
-# CBB package temperatures
-for cbb_idx in range(2):
-    cbb = getattr(sv.socket0, f'cbb{cbb_idx}')
-    try:
-        temp = cbb.base.punit_regs.punit_gpsb.gpsb_infvnn_crs.package_temperature.read()
-        temps[f'cbb{cbb_idx}'] = temp
-        print(f"CBB{cbb_idx} temperature: {temp}")
-    except Exception as e:
-        print(f"CBB{cbb_idx}: {e}")
-
-# iMH aggregated package temperature
-try:
-    imh_temp = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_temperature.read()
-    temps['imh0'] = imh_temp
-    print(f"iMH0 package_temperature PMT: {imh_temp}")
-except Exception as e:
-    print(f"iMH0 PMT: {e}")
-
-if temps:
-    expected_max = max(temps.values())
-    actual_pmt = temps.get('imh0', None)
-    status = "PASS" if actual_pmt == expected_max else f"FAIL (expected {expected_max}, got {actual_pmt})"
-    print(f"\nExpected PMT max: {expected_max} | Actual PMT: {actual_pmt} [{status}]")
-```
+### Sequence Data
+| # | From | To | Message | Interface |
+|---|------|----|---------|-----------|
+| 1 | Thermal_DTS | DTS sensors | inject temperature | DTS override |
+| 2 | PCode | package_temperature MMIO | update | IO register |
+| 3 | Script | imh0.punit.ptpcioregs.package_temperature | read | namednodes |
+| 4 | Script | MSR via pstatesDebug | read | MSR |
+| 5 | Script | dfx_mailbox | read via opcode | DFX mailbox |
+| 6 | Script | tabulate | compare & classify | Python |
 
 ---
 
-## Section E: Risk Assessment & Open Items
+## Section D: Spec Refs
 
-| # | Risk/Open Item | Severity | Notes |
-|---|----------------|----------|-------|
-| 1 | **HPM `SOCKET_THERMAL` timing** — HPM delivery latency from CBB to iMH may cause transient mismatches; expect ±1 slow-loop tolerance | Low | Use average/stable workload for comparison |
+| Register / Log | Field / Offset | Pass/Fail Criteria |
+|----------------|---------------|-------------------|
+| `imh0.punit.ptpcioregs.ptpcioregs.package_temperature` | full | Must equal MSR and mailbox readings |
+| MSR 0x1A1 (via pstatesDebug) | thermal status | Must reflect injected temperature |
+| DFX mailbox (package temp opcode) | bits for package temp | Must equal register reading |
 
 ---
 
-## Section F: Recommendation
+## Section E: Risk Assessment
 
-**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; update CBB loop to 2**
+| Risk / Open Item | Likelihood | Severity | Mitigation |
+|-----------------|-----------|---------|-----------|
+| `get_package_temp_values()` has DMR-specific mailbox opcodes for CBB1/CBB2/CBB3 | Medium | Medium | Verify opcode `0x000b020010810908` (CBB1 PCS) is valid on NWP; remove CBB2/CBB3 mailbox reads |
+| IMH injection `Clear_IMH()` path differs on NWP (1 IMH vs 2) | Low | Low | NWP has imh0 only; `Clear_IMH()` should use imh0 path |
 
-Package Temperature PMT aggregation is architecturally identical on NWP. Straightforward port.
+---
 
-Required adaptations:
-1. `python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2`
-2. Loop `range(2)` for CBBs (not 4)
-3. `sv.socket0.cbb{0,1}` paths (not `sv.sockets.cbbs` iterator)
+## Section F: Recommendations
 
-**Priority**: Medium — DMR_PO; fundamental thermal reporting bring-up verification
+1. Verify 3 temperature readout paths (MMIO, MSR, mailbox) on NWP before full run.
+2. Adapt `get_package_temp_values()` to use only CBB0, CBB1 mailbox opcodes (remove CBB2, CBB3).
+3. **NWP invocation:** `python runPmx.py -x nwp.xml -p PMT_Thermals -tM 60 -M 5`

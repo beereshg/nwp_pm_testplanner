@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
-  <title>TC: [TPMI/PMT] Verify Package Thermal Status TPMI Register</title>
+  <title>TC: HSD_22022421578_verify_package_thermal_status_tpmi_register</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
@@ -41,12 +41,12 @@
 </head>
 <body>
 <div class="header">
-  <h1>[TPMI/PMT] Verify Package Thermal Status TPMI Register
+  <h1>HSD_22022421578_verify_package_thermal_status_tpmi_register
     <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022421578" target="_blank" rel="noopener">HSD 22022421578 ↗</a>
   </h1>
   <div class="chips">
-    <span class="chip">SoC Thermal Management &gt; TPMI/PMT › PMT PCS Index 20 — Package Thermal Status TPMI</span>
-    <span class="chip disp">Runnable_On_N-1</span>
+    <span class="chip"> › </span>
+    <span class="chip disp"></span>
     <span class="chip">Env: </span>
   </div>
 </div>
@@ -71,11 +71,27 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
-<br/><p style="margin:10px 0 16px 0;">---</p>
+<br/><p style="margin:10px 0 16px 0;">Verify that the <strong>Package Thermal Status TPMI register</strong> (MSR 0x1B1) correctly reflects thermal events. The test: 1. Reads baseline status from mailbox, MMIO register, and MSR 0x1B1 2. Triggers a thermal event: core temperature injection above TjMax + global PROCHOT assertion 3. Reads status again and verifies the expected bit fields changed:</p>
 
 <br/>
 
 
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Preconditions</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;padding:8px;">NWP silicon/emulation booted; PythonSV initialized</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Baseline</td><td style="text-align:left;padding:8px;">No active thermal events; MSR 0x1B1 status bits clear</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">PROCHOT inject</td><td style="text-align:left;padding:8px;">`io_throttle_signals_override.global_prochot_hw_inject` writable (silicon) OR Simics NWP model supports prochot trigger</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Temperature ref</td><td style="text-align:left;padding:8px;">`cbb0.compute0.module0.core0.pcu_cr_temperature_target` bits[16:24] = TjMax readable</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Status registers</td><td style="text-align:left;padding:8px;">Mailbox, MMIO register, MSR 0x1B1 all accessible</td></tr>
+
+</table>
 
 
 <br/>
@@ -93,44 +109,65 @@
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Run PMT thermal test</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">`python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2`</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Clear idle values: `clear_idle_values(socket)` + wait 1s</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">No active thermal events; all status bits clear; `run_busy == 0`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Pre-existing status bits set -- clear via MSR write before proceeding</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read `PACKAGE_THERM_STATUS` TPMI register</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">`sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_therm_status.read()`</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read baseline mailbox status: `Mailbox_Package_thermal_status = read_mailbox_status(socket)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`thermal_monitor_status == 0`, `prochot_status == 0`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero status at baseline -- check for previous thermal events</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read MSR 0x1B1 and compare to TPMI value</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">MSR and TPMI should be in sync; verify via MSR read tool</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read baseline MSR 0x1B1: `pd.debug.access_to_msr(0x1b1, core=0)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">MSR thermal status bits = 0 at baseline</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Pre-existing MSR status -- BIOS may need to clear</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Trigger thermal throttle (stress workload or temp injection); verify `THERMAL_MONITOR_STATUS` = 1</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Same trigger mechanism on NWP</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Trigger thermal event: `injection.Clear_Core(Temperature_limit + 10, external=True)` + `socket.imh0.pcodeio_map.io_throttle_signals_override.global_prochot_hw_inject = 0x1`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Core temperature exceeds TjMax; PROCHOT asserted; PCode updates TPMI Package Thermal Status</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">No change in status after injection -- check injection path on NWP</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify `THERMAL_MONITOR_LOG` sticky bit set (stays set after throttle clears)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Same sticky behavior; clear with SW write</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read status after event: `Mailbox_Package_thermal_status_after = read_mailbox_status(socket)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`thermal_monitor_status == 1`, `thermal_monitor_log == 1`, `prochot_status == 1`, `prochot_log == 1`, `out_of_spec_status == 1`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Missing status bits -- TPMI Package Thermal Status not updating from thermal event</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Trigger PROCHOT; verify `PROCHOT_EVENT` bit (requires board header)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Same as TC 22022421484</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;"></td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read MSR 0x1B1 after event</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">MSR bits 0 (thermal_monitor_status), 1 (log), 10 (prochot_status), 11 (prochot_log) = 1</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">MSR not updated -- PCode not writing MSR 0x1B1 on thermal event</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read MMIO register status after event</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Consistent with mailbox and MSR</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Register inconsistent with mailbox -- data path bug</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">8</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Compare mailbox_status_after, register_status_after, msr_status_after via tabulate</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">All "Pass" rows -- 3-way consistency confirmed</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Any "Fail" row -- specific path not updating</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">9</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Clear thermal event: disable PROCHOT inject; `injection.Clear_Core(40, external=True)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Thermal event cleared; status bits de-assert (log bits remain set until cleared by software)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Status bits not de-asserting -- check override register</td>
 </tr>
 
 </table>
@@ -140,16 +177,85 @@
 
 
 
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Pass / Fail Criteria</div>
+<br/>
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
+  <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
+  <p style="margin:0;font-size:0.9em;">** After thermal event: `thermal_monitor_status`, `prochot_status`, `out_of_spec_status` all = 1 in mailbox, MMIO register, and MSR 0x1B1; 3-way consistency confirmed; `thermal_status()` returns `True`.</p>
+</div>
+
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
+  <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
+  <p style="margin:0;font-size:0.9em;">** Status bits do not set after thermal event in any of the 3 readout paths; `thermal_status()` returns `False`.</p>
+</div>
 
 
 
 
 
+<h3>NOTEs</h3>
+<div style="font-size:0.85em;color:#555;margin-left:12px;padding:10px;background:#f8f9fa;border-left:3px solid #999;border-radius:3px;">
+
+<p style="margin:6px 0;">NWP Simics prochot trigger path differs from DMR (`oakstream.mb.mcp0...`) — Identify NWP Simics model prochot trigger command before silicon test</p>
+
+<p style="margin:6px 0;">`read_mailbox_status()` uses DMR-specific DFX mailbox opcodes — Verify opcodes against NWP HAS mailbox command table</p>
+
+</div>
+
+
+
+
+<h3>OPENs</h3>
+<div style="font-size:0.85em;color:#c62828;margin-left:12px;padding:10px;background:#fff3f3;border-left:3px solid #c62828;border-radius:3px;">
+<ul style="margin:4px 0;padding-left:20px;">
+
+<li style="margin:4px 0;">NWP Simics prochot trigger path differs from DMR (`oakstream.mb.mcp0...`) → Identify NWP Simics model prochot trigger command before silicon test</li>
+
+<li style="margin:4px 0;">`read_mailbox_status()` uses DMR-specific DFX mailbox opcodes → Verify opcodes against NWP HAS mailbox command table</li>
+
+</ul>
+</div>
 
 
 <br/>
 
 
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Health Check — Registers &amp; Logs to Collect</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">Register / Log</th>
+  <th style="text-align:left;padding:8px;">Access</th>
+  <th style="text-align:left;padding:8px;">Pass/Fail Criteria</th>
+</tr>
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">`imh0.pcodeio_map.io_throttle_signals_override.global_prochot_hw_inject`</td>
+  <td style="text-align:left;padding:8px;">bit 0</td>
+  <td style="text-align:left;padding:8px;">Set to 1 to trigger PROCHOT</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">MSR 0x1B1 `IA32_PACKAGE_THERM_STATUS`</td>
+  <td style="text-align:left;padding:8px;">bits 0,1,10,11</td>
+  <td style="text-align:left;padding:8px;">Must set after thermal event</td>
+</tr>
+
+
+
+<tr>
+  <td style="text-align:left;padding:8px;">TPMI PackageThermalStatus (via DFX mailbox)</td>
+  <td style="text-align:left;padding:8px;">thermal_monitor_status, prochot_status</td>
+  <td style="text-align:left;padding:8px;">Must match MSR bits</td>
+</tr>
+
+
+</table>
 
 
 <br/>
@@ -169,12 +275,268 @@
 
 </div>
   </div>
-  <div id="sec-a" class="panel"><p><em>Not available.</em></p></div>
-  <div id="sec-b" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-a" class="panel"><p>**NWP Adaptation Notes:**</p>
+<ul>
+<li>DMR Simics path for prochot inject: `run_command(&quot;oakstream.mb.mcp0.imh_die0.punit.punit[0]-&gt;prochot_trigger=TRUE&quot;)` -- **NWP Simics path will differ** (check NWP Simics model target name).</li>
+<li>Silicon path: `socket.imh0.pcodeio_map.io_throttle_signals_override.global_prochot_hw_inject = 0x1` -- same register on NWP.</li>
+<li>NWP has 2 CBBs; `ref_temp` reads from `cbb0.compute0.module0.core0.pcu_cr_temperature_target` -- valid for NWP CBB0.</li>
+<li>MSR 0x1B1 (`IA32_PACKAGE_THERM_STATUS`) is architecturally unchanged.</li>
+</ul>
+<p>Verify that the **Package Thermal Status TPMI register** (MSR 0x1B1) correctly reflects thermal events. The test:</p>
+<p>1. Reads baseline status from mailbox, MMIO register, and MSR 0x1B1</p>
+<p>2. Triggers a thermal event: core temperature injection above TjMax + global PROCHOT assertion</p>
+<p>3. Reads status again and verifies the expected bit fields changed:</p>
+<ul>
+<li>`thermal_monitor_status` = 1</li>
+<li>`thermal_monitor_log` = 1</li>
+<li>`prochot_status` = 1</li>
+<li>`prochot_log` = 1</li>
+<li>`out_of_spec_status` = 1</li>
+</ul>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Item</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Platform</td>
+<td>NWP silicon/emulation booted; PythonSV initialized</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Baseline</td>
+<td>No active thermal events; MSR 0x1B1 status bits clear</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PROCHOT inject</td>
+<td>`io_throttle_signals_override.global_prochot_hw_inject` writable (silicon) OR Simics NWP model supports prochot trigger</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Temperature ref</td>
+<td>`cbb0.compute0.module0.core0.pcu_cr_temperature_target` bits[16:24] = TjMax readable</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Status registers</td>
+<td>Mailbox, MMIO register, MSR 0x1B1 all accessible</td>
+</tr>
+</tbody></table>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Clear idle values: `clear_idle_values(socket)` + wait 1s</td>
+<td>No active thermal events; all status bits clear; `run_busy == 0`</td>
+<td>Pre-existing status bits set -- clear via MSR write before proceeding</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read baseline mailbox status: `Mailbox_Package_thermal_status = read_mailbox_status(socket)`</td>
+<td>`thermal_monitor_status == 0`, `prochot_status == 0`</td>
+<td>Non-zero status at baseline -- check for previous thermal events</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read baseline MSR 0x1B1: `pd.debug.access_to_msr(0x1b1, core=0)`</td>
+<td>MSR thermal status bits = 0 at baseline</td>
+<td>Pre-existing MSR status -- BIOS may need to clear</td>
+</tr>
+<tr>
+<td>4</td>
+<td>**Trigger thermal event:** `injection.Clear_Core(Temperature_limit + 10, external=True)` + `socket.imh0.pcodeio_map.io_throttle_signals_override.global_prochot_hw_inject = 0x1`</td>
+<td>Core temperature exceeds TjMax; PROCHOT asserted; PCode updates TPMI Package Thermal Status</td>
+<td>No change in status after injection -- check injection path on NWP</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Read status after event: `Mailbox_Package_thermal_status_after = read_mailbox_status(socket)`</td>
+<td>`thermal_monitor_status == 1`, `thermal_monitor_log == 1`, `prochot_status == 1`, `prochot_log == 1`, `out_of_spec_status == 1`</td>
+<td>Missing status bits -- TPMI Package Thermal Status not updating from thermal event</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Read MSR 0x1B1 after event</td>
+<td>MSR bits 0 (thermal_monitor_status), 1 (log), 10 (prochot_status), 11 (prochot_log) = 1</td>
+<td>MSR not updated -- PCode not writing MSR 0x1B1 on thermal event</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Read MMIO register status after event</td>
+<td>Consistent with mailbox and MSR</td>
+<td>Register inconsistent with mailbox -- data path bug</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Compare mailbox_status_after, register_status_after, msr_status_after via tabulate</td>
+<td>All &quot;Pass&quot; rows -- 3-way consistency confirmed</td>
+<td>Any &quot;Fail&quot; row -- specific path not updating</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Clear thermal event: disable PROCHOT inject; `injection.Clear_Core(40, external=True)`</td>
+<td>Thermal event cleared; status bits de-assert (log bits remain set until cleared by software)</td>
+<td>Status bits not de-asserting -- check override register</td>
+</tr>
+</tbody></table>
+<ul>
+<li>**PASS:** After thermal event: `thermal_monitor_status`, `prochot_status`, `out_of_spec_status` all = 1 in mailbox, MMIO register, and MSR 0x1B1; 3-way consistency confirmed; `thermal_status()` returns `True`.</li>
+<li>**FAIL:** Status bits do not set after thermal event in any of the 3 readout paths; `thermal_status()` returns `False`.</li>
+</ul>
+<p>---</p></div>
+  <div id="sec-b" class="panel"><table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Actor</th>
+<th>Action</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Test script</td>
+<td>Read baseline mailbox/register/MSR status</td>
+<td>PMSB / MMIO / MSR</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Test script</td>
+<td>Inject temperature + assert PROCHOT</td>
+<td>DTS override + MMIO</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PCode</td>
+<td>Detect thermal event; update Package Thermal Status</td>
+<td>Internal</td>
+</tr>
+<tr>
+<td>4</td>
+<td>PCode</td>
+<td>Write TPMI register + MSR 0x1B1</td>
+<td>TPMI / MSR</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Test script</td>
+<td>Read post-event mailbox/register/MSR</td>
+<td>PMSB / MMIO / MSR</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Test script</td>
+<td>Compare all 3 paths via tabulate</td>
+<td>Python</td>
+</tr>
+</tbody></table>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>From</th>
+<th>To</th>
+<th>Message</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Script</td>
+<td>clear_idle_values</td>
+<td>clear status</td>
+<td>namednodes</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Script</td>
+<td>imh0.pcodeio_map</td>
+<td>global_prochot_hw_inject = 1</td>
+<td>MMIO</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PCode</td>
+<td>TPMI Package Thermal Status</td>
+<td>set status bits</td>
+<td>TPMI</td>
+</tr>
+<tr>
+<td>4</td>
+<td>PCode</td>
+<td>MSR 0x1B1</td>
+<td>set IA32_PACKAGE_THERM_STATUS</td>
+<td>MSR</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Script</td>
+<td>read_mailbox_status()</td>
+<td>read via DFX mailbox</td>
+<td>DFX mailbox</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Script</td>
+<td>read_register_status()</td>
+<td>read MMIO</td>
+<td>namednodes</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Script</td>
+<td>read_msr_status()</td>
+<td>read MSR 0x1B1</td>
+<td>pstatesDebug</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
   <div id="sec-c" class="panel"><p><em>Not available.</em></p></div>
-  <div id="sec-d" class="panel"><p><em>Not available.</em></p></div>
-  <div id="sec-e" class="panel"><p><em>Not available.</em></p></div>
-  <div id="sec-f" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-d" class="panel"><table class="md-table"><thead><tr>
+<th>Register / Log</th>
+<th>Field / Offset</th>
+<th>Pass/Fail Criteria</th>
+</tr></thead><tbody>
+<tr>
+<td>`imh0.pcodeio_map.io_throttle_signals_override.global_prochot_hw_inject`</td>
+<td>bit 0</td>
+<td>Set to 1 to trigger PROCHOT</td>
+</tr>
+<tr>
+<td>MSR 0x1B1 `IA32_PACKAGE_THERM_STATUS`</td>
+<td>bits 0,1,10,11</td>
+<td>Must set after thermal event</td>
+</tr>
+<tr>
+<td>TPMI PackageThermalStatus (via DFX mailbox)</td>
+<td>thermal_monitor_status, prochot_status</td>
+<td>Must match MSR bits</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-e" class="panel"><table class="md-table"><thead><tr>
+<th>Risk / Open Item</th>
+<th>Likelihood</th>
+<th>Severity</th>
+<th>Mitigation</th>
+</tr></thead><tbody>
+<tr>
+<td>NWP Simics prochot trigger path differs from DMR (`oakstream.mb.mcp0...`)</td>
+<td>High</td>
+<td>High</td>
+<td>Identify NWP Simics model prochot trigger command before silicon test</td>
+</tr>
+<tr>
+<td>`read_mailbox_status()` uses DMR-specific DFX mailbox opcodes</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Verify opcodes against NWP HAS mailbox command table</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-f" class="panel"><p>1. Identify NWP Simics prochot trigger command (check NWP Simics model docs).</p>
+<p>2. Verify `read_mailbox_status()` DFX mailbox opcodes are valid for NWP.</p>
+<p>3. **NWP invocation:** `python runPmx.py -x nwp.xml -p PMT_Thermals -tM 60 -M 5`</p></div>
 </div>
 
 <script>

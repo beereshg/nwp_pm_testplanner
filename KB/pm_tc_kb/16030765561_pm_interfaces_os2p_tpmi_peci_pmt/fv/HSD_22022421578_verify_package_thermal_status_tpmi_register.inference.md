@@ -1,118 +1,109 @@
-# Deep Analysis: [TPMI/PMT] Verify Package Thermal Status TPMI Register
+# TC 22022421578: [TPMI/PMT] Verify Package Thermal Status TPMI Register
 
-| Field | Value |
-|-------|-------|
-| **HSD ID** | 22022421578 |
-| **Title** | [TPMI/PMT] Verify Package Thermal Status TPMI Register |
-| **Date** | 2025-07-24 |
-| **Target Program** | NWP (Newport) |
-| **Source Program** | DMR (Diamond Rapids) |
-| **Segment** | FV |
-| **Feature** | SoC Thermal Management > TPMI/PMT |
-| **Sub-Feature** | PMT PCS Index 20 — Package Thermal Status TPMI |
-| **NWP Disposition** | **Runnable_On_N-1** |
+**TCD:** 22022420612 -- [SoC Thermal Management] TPMI/PMT
+**TPF:** 16030767555 -- [NWP PM] PMT
+**Val Environment:** silicon, virtual_platform
+**Primary Script:** `pm/Active_PM/Thermal_Management/CPU_Thermal_Management/PMT_Thermals.py` -- `PMT.thermal_status(s, self.log)`
+**Library:** `pmt_dataintegrity.thermal_status(socket)` -- reads mailbox, register, MSR 0x1B1 before and after thermal event
 
 ---
 
-## Section A: NWP Disposition & Justification
+## Section A: NWP Delta
 
-**Disposition: Runnable_On_N-1**
+**NWP Adaptation Notes:**
+- DMR Simics path for prochot inject: `run_command("oakstream.mb.mcp0.imh_die0.punit.punit[0]->prochot_trigger=TRUE")` -- **NWP Simics path will differ** (check NWP Simics model target name).
+- Silicon path: `socket.imh0.pcodeio_map.io_throttle_signals_override.global_prochot_hw_inject = 0x1` -- same register on NWP.
+- NWP has 2 CBBs; `ref_temp` reads from `cbb0.compute0.module0.core0.pcu_cr_temperature_target` -- valid for NWP CBB0.
+- MSR 0x1B1 (`IA32_PACKAGE_THERM_STATUS`) is architecturally unchanged.
 
-This test verifies the **Package Thermal Status TPMI register** (PCS index 20), which is accessible via MSR 0x1B1, PCU CR 0xfb984, and as an IO register. The register reports: Thermal Monitor Status (TM1/TM2 throttling active), Thermal Monitor Log (sticky), PROCHOT event, and related thermal status bits. On NWP, the same register and MSR exist. The TPMI interface is common to all Intel server platforms. Primary adaptation: `dmr.xml` → `nwp.xml`.
+### Test Case Intent
+Verify that the **Package Thermal Status TPMI register** (MSR 0x1B1) correctly reflects thermal events. The test:
+1. Reads baseline status from mailbox, MMIO register, and MSR 0x1B1
+2. Triggers a thermal event: core temperature injection above TjMax + global PROCHOT assertion
+3. Reads status again and verifies the expected bit fields changed:
+   - `thermal_monitor_status` = 1
+   - `thermal_monitor_log` = 1
+   - `prochot_status` = 1
+   - `prochot_log` = 1
+   - `out_of_spec_status` = 1
 
-**Key Justification:**
-- `IA32_PACKAGE_THERM_STATUS` (MSR 0x1B1) is present on NWP
-- TPMI `PACKAGE_THERM_STATUS` register mirrors MSR — same on NWP
-- `DMR_PO` tag: silicon validation bring-up priority
-- `PMSS_NWP_READINESS_CHECK` tag: evaluated for NWP
+### Pre-Conditions
 
----
+| # | Item | Requirement |
+|---|------|-------------|
+| 1 | Platform | NWP silicon/emulation booted; PythonSV initialized |
+| 2 | Baseline | No active thermal events; MSR 0x1B1 status bits clear |
+| 3 | PROCHOT inject | `io_throttle_signals_override.global_prochot_hw_inject` writable (silicon) OR Simics NWP model supports prochot trigger |
+| 4 | Temperature ref | `cbb0.compute0.module0.core0.pcu_cr_temperature_target` bits[16:24] = TjMax readable |
+| 5 | Status registers | Mailbox, MMIO register, MSR 0x1B1 all accessible |
 
-## Section B: NWP-Specific Test Procedure
+### Test Steps
 
-### Adapted Test Steps
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|------------------------|-------------------|
+| 1 | Clear idle values: `clear_idle_values(socket)` + wait 1s | No active thermal events; all status bits clear; `run_busy == 0` | Pre-existing status bits set -- clear via MSR write before proceeding |
+| 2 | Read baseline mailbox status: `Mailbox_Package_thermal_status = read_mailbox_status(socket)` | `thermal_monitor_status == 0`, `prochot_status == 0` | Non-zero status at baseline -- check for previous thermal events |
+| 3 | Read baseline MSR 0x1B1: `pd.debug.access_to_msr(0x1b1, core=0)` | MSR thermal status bits = 0 at baseline | Pre-existing MSR status -- BIOS may need to clear |
+| 4 | **Trigger thermal event:** `injection.Clear_Core(Temperature_limit + 10, external=True)` + `socket.imh0.pcodeio_map.io_throttle_signals_override.global_prochot_hw_inject = 0x1` | Core temperature exceeds TjMax; PROCHOT asserted; PCode updates TPMI Package Thermal Status | No change in status after injection -- check injection path on NWP |
+| 5 | Read status after event: `Mailbox_Package_thermal_status_after = read_mailbox_status(socket)` | `thermal_monitor_status == 1`, `thermal_monitor_log == 1`, `prochot_status == 1`, `prochot_log == 1`, `out_of_spec_status == 1` | Missing status bits -- TPMI Package Thermal Status not updating from thermal event |
+| 6 | Read MSR 0x1B1 after event | MSR bits 0 (thermal_monitor_status), 1 (log), 10 (prochot_status), 11 (prochot_log) = 1 | MSR not updated -- PCode not writing MSR 0x1B1 on thermal event |
+| 7 | Read MMIO register status after event | Consistent with mailbox and MSR | Register inconsistent with mailbox -- data path bug |
+| 8 | Compare mailbox_status_after, register_status_after, msr_status_after via tabulate | All "Pass" rows -- 3-way consistency confirmed | Any "Fail" row -- specific path not updating |
+| 9 | Clear thermal event: disable PROCHOT inject; `injection.Clear_Core(40, external=True)` | Thermal event cleared; status bits de-assert (log bits remain set until cleared by software) | Status bits not de-asserting -- check override register |
 
-| Step | Action | NWP Adaptation |
-|------|--------|----------------|
-| 1 | Run PMT thermal test | `python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2` |
-| 2 | Read `PACKAGE_THERM_STATUS` TPMI register | `sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_therm_status.read()` |
-| 3 | Read MSR 0x1B1 and compare to TPMI value | MSR and TPMI should be in sync; verify via MSR read tool |
-| 4 | Trigger thermal throttle (stress workload or temp injection); verify `THERMAL_MONITOR_STATUS` = 1 | Same trigger mechanism on NWP |
-| 5 | Verify `THERMAL_MONITOR_LOG` sticky bit set (stays set after throttle clears) | Same sticky behavior; clear with SW write |
-| 6 | Trigger PROCHOT; verify `PROCHOT_EVENT` bit (requires board header) | Same as TC 22022421484 |
+### Pass / Fail Criteria
 
-### PACKAGE_THERM_STATUS Key Bits
-
-| Bits | Field | Description | NWP |
-|------|-------|-------------|-----|
-| 0 | `THERMAL_MONITOR_STATUS` | Core currently throttling | Same |
-| 1 | `THERMAL_MONITOR_LOG` | Sticky throttle log | Same |
-| 4 | `PROCHOT_EVENT` | Platform PROCHOT asserted | Same |
-| 5 | `PROCHOT_LOG` | Sticky PROCHOT log | Same |
-| 16:8 | `DIGITAL_READOUT` | Thermal margin to TJ_MAX | Same |
-| 20 | `POWER_NOTIFICATION` | Package power limit exceeded | Same |
-
-### MSR Cross-Reference
-
-| Interface | Address/Path | NWP |
-|-----------|-------------|-----|
-| MSR | 0x1B1 | Same — x86 architectural MSR |
-| PCU CR | 0xfb984 | Same PCU CR offset |
-| TPMI IO | `ptpcioregs.ptpcioregs.package_therm_status` | Same path on NWP iMH |
-
-### NWP Pass Criteria
-- MSR 0x1B1 value matches TPMI `PACKAGE_THERM_STATUS`
-- `THERMAL_MONITOR_STATUS` sets during throttle events
-- `THERMAL_MONITOR_LOG` is sticky; clears only on explicit SW write
-- `DIGITAL_READOUT` reflects current thermal margin
+- **PASS:** After thermal event: `thermal_monitor_status`, `prochot_status`, `out_of_spec_status` all = 1 in mailbox, MMIO register, and MSR 0x1B1; 3-way consistency confirmed; `thermal_status()` returns `True`.
+- **FAIL:** Status bits do not set after thermal event in any of the 3 readout paths; `thermal_status()` returns `False`.
 
 ---
 
-## Section C: NWP Delta Impact Analysis
+## Section B: Interactions
 
-| Aspect | DMR | NWP | Impact |
-|--------|-----|-----|--------|
-| MSR 0x1B1 | Architectural | Same on NWP | No change |
-| TPMI path | `ptpcioregs.ptpcioregs.package_therm_status` | Same on NWP | Direct reuse |
-| Thermal throttle trigger | DMR workloads | NWP workloads | Same stress mechanism |
+### Swimlane Data
+| Step | Actor | Action | Interface |
+|------|-------|--------|-----------|
+| 1 | Test script | Read baseline mailbox/register/MSR status | PMSB / MMIO / MSR |
+| 2 | Test script | Inject temperature + assert PROCHOT | DTS override + MMIO |
+| 3 | PCode | Detect thermal event; update Package Thermal Status | Internal |
+| 4 | PCode | Write TPMI register + MSR 0x1B1 | TPMI / MSR |
+| 5 | Test script | Read post-event mailbox/register/MSR | PMSB / MMIO / MSR |
+| 6 | Test script | Compare all 3 paths via tabulate | Python |
 
----
-
-## Section D: Key Registers & Validation Points
-
-```python
-# NWP Package Thermal Status TPMI Validation
-
-# TPMI register
-try:
-    pkg_therm_status = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_therm_status.read()
-    print(f"PACKAGE_THERM_STATUS: 0x{pkg_therm_status:08X}")
-
-    # Field breakdown
-    tm_status = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_therm_status.thermal_monitor_status.read()
-    tm_log = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_therm_status.thermal_monitor_log.read()
-    digital_ro = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_therm_status.digital_readout.read()
-
-    print(f"  THERMAL_MONITOR_STATUS: {tm_status}")
-    print(f"  THERMAL_MONITOR_LOG: {tm_log}")
-    print(f"  DIGITAL_READOUT (margin): {digital_ro} °C")
-except Exception as e:
-    print(f"PACKAGE_THERM_STATUS: {e}")
-
-# Compare with MSR (if MSR read tool available)
-# rdmsr -p 0 0x1B1  (Linux: sudo rdmsr 0x1B1)
-```
+### Sequence Data
+| # | From | To | Message | Interface |
+|---|------|----|---------|-----------|
+| 1 | Script | clear_idle_values | clear status | namednodes |
+| 2 | Script | imh0.pcodeio_map | global_prochot_hw_inject = 1 | MMIO |
+| 3 | PCode | TPMI Package Thermal Status | set status bits | TPMI |
+| 4 | PCode | MSR 0x1B1 | set IA32_PACKAGE_THERM_STATUS | MSR |
+| 5 | Script | read_mailbox_status() | read via DFX mailbox | DFX mailbox |
+| 6 | Script | read_register_status() | read MMIO | namednodes |
+| 7 | Script | read_msr_status() | read MSR 0x1B1 | pstatesDebug |
 
 ---
 
-## Section F: Recommendation
+## Section D: Spec Refs
 
-**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; no structural changes needed**
+| Register / Log | Field / Offset | Pass/Fail Criteria |
+|----------------|---------------|-------------------|
+| `imh0.pcodeio_map.io_throttle_signals_override.global_prochot_hw_inject` | bit 0 | Set to 1 to trigger PROCHOT |
+| MSR 0x1B1 `IA32_PACKAGE_THERM_STATUS` | bits 0,1,10,11 | Must set after thermal event |
+| TPMI PackageThermalStatus (via DFX mailbox) | thermal_monitor_status, prochot_status | Must match MSR bits |
 
-Package Thermal Status TPMI is an architectural register identical on NWP. Direct port.
+---
 
-Required adaptations:
-1. `python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2`
-2. No register path changes — `ptpcioregs.package_therm_status` same on NWP
+## Section E: Risk Assessment
 
-**Priority**: Medium — DMR_PO; thermal throttle status is a fundamental thermal reporting verification
+| Risk / Open Item | Likelihood | Severity | Mitigation |
+|-----------------|-----------|---------|-----------|
+| NWP Simics prochot trigger path differs from DMR (`oakstream.mb.mcp0...`) | High | High | Identify NWP Simics model prochot trigger command before silicon test |
+| `read_mailbox_status()` uses DMR-specific DFX mailbox opcodes | Medium | Medium | Verify opcodes against NWP HAS mailbox command table |
+
+---
+
+## Section F: Recommendations
+
+1. Identify NWP Simics prochot trigger command (check NWP Simics model docs).
+2. Verify `read_mailbox_status()` DFX mailbox opcodes are valid for NWP.
+3. **NWP invocation:** `python runPmx.py -x nwp.xml -p PMT_Thermals -tM 60 -M 5`

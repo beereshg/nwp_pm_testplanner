@@ -1,117 +1,108 @@
-# Deep Analysis: [TPMI/PMT] Verify Thermal Constrained Time PMT Register
+# TC 22022421583: [TPMI/PMT] Verify Thermal Constrained Time PMT Register
 
-| Field | Value |
-|-------|-------|
-| **HSD ID** | 22022421583 |
-| **Title** | [TPMI/PMT] Verify Thermal Constrained Time PMT Register |
-| **Date** | 2025-07-24 |
-| **Target Program** | NWP (Newport) |
-| **Source Program** | DMR (Diamond Rapids) |
-| **Segment** | FV |
-| **Feature** | SoC Thermal Management > TPMI/PMT |
-| **Sub-Feature** | PMT PCS Index 32 — Thermal Constrained Time |
-| **NWP Disposition** | **Runnable_On_N-1** |
+**TCD:** 22022420612 -- [SoC Thermal Management] TPMI/PMT
+**TPF:** 16030767555 -- [NWP PM] PMT
+**Val Environment:** silicon, virtual_platform
+**Primary Script:** `pm/Active_PM/Thermal_Management/CPU_Thermal_Management/PMT_Thermals.py` -- `PMT.throttled_time(s, self.log)`
+**Library:** `pmt_dataintegrity.throttled_time(socket)` -- reads `total_cbb_throttled_time` and DFX mailbox for each CBB, injects temperature above TjMax
 
 ---
 
-## Section A: NWP Disposition & Justification
+## Section A: NWP Delta
 
-**Disposition: Runnable_On_N-1**
+**NWP Adaptation Notes:**
+- DMR script reads `value0`-`value3` (CBB0-CBB3) via `cbb0`-`cbb3.pcode.vars.telemetry_handler.total_cbb_throttled_time.data`.
+- **NWP: only CBB0 and CBB1 exist** -- remove CBB2 (`imh1.oobmsm` mailbox, `0x000a020012810908`) and CBB3 (`0x000b020012810908`).
+- DMR uses `imh0` for CBB0/CBB1 and `imh1` for CBB2/CBB3. **NWP uses `imh0` only for both CBB0 and CBB1**.
+- NWP DFX mailbox opcodes for CBB0: `0x000a020010810908`; CBB1: `0x000b020010810908` -- both via `imh0`.
+- Temperature injection: `injection.Clear_SOC(107)` -- 107°C above TjMax to trigger throttling; valid on NWP.
 
-This test verifies the **Thermal Constrained Time PMT register** (PCS index 32) — a counter that accumulates time spent in thermally-constrained state (temperature exceeds Junction Temperature target). The test procedure is:
-1. Note baseline counter value
-2. Override temperature past Junction Temp (via DTS or DFX injection) to trigger thermal monitor
-3. Verify counter increments while constrained
-4. Remove override and verify counter stops incrementing
+### Test Case Intent
+Verify that the **Thermal Constrained Time PMT register** (`total_cbb_throttled_time`) correctly tracks and increments when thermal throttling occurs. The test:
+1. Reads initial throttled time from pcode vars and DFX mailbox for each CBB
+2. Injects temperature above TjMax (107°C) to trigger SoC thermal throttling
+3. Reads throttled time again and verifies the counter has increased (throttling was counted)
 
-On NWP, the same Thermal Constrained Time counter exists in the PMT interface. Primary adaptation: `dmr.xml` → `nwp.xml`.
+### Pre-Conditions
 
-**Key Justification:**
-- Thermal Constrained Time PMT counter present on NWP
-- Same trigger mechanism (DTS temperature override or DFX injection)
-- `DMR_PO` tag: silicon validation bring-up priority
-- `PMSS_NWP_READINESS_CHECK` tag: evaluated for NWP
+| # | Item | Requirement |
+|---|------|-------------|
+| 1 | Platform | NWP silicon/emulation; PythonSV initialized |
+| 2 | CBB pcode vars | `sv.socket0.cbb0.pcode.vars.telemetry_handler.total_cbb_throttled_time.data` readable |
+| 3 | DFX mailbox | `imh0.oobmsm.oobmsm0.oobmsm_reg.dfx_mailbox` accessible |
+| 4 | Temperature injection | `injection.Clear_SOC(107)` functional -- can inject temperature above TjMax |
+| 5 | No pre-throttling | `total_cbb_throttled_time.data == 0` or known baseline before test |
 
----
+### Test Steps
 
-## Section B: NWP-Specific Test Procedure
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|------------------------|-------------------|
+| 1 | Read initial CBB0 throttled time: `value0 = hex(socket.cbb0.pcode.vars.telemetry_handler.total_cbb_throttled_time.data)` | Value readable; note initial count (may be 0 or non-zero if previous throttling) | Access error -- check pcode vars path on NWP |
+| 2 | Read initial CBB1 throttled time: `value1 = hex(socket.cbb1.pcode.vars.telemetry_handler.total_cbb_throttled_time.data)` | Value readable; note initial count | Access error -- check CBB1 path |
+| 3 | Read initial CBB0 via DFX mailbox: opcode `0x000a020010810908`, dfx_mailbox[1]=0x12, dfx_mailbox_ctl[31]=1 | `dfx_throttle_initial_cbb0 = hex((dfx_mailbox[0] & 0xFFFFFFFF00000000) >> 40)` | Mailbox timeout -- check NWP opcode validity |
+| 4 | Read initial CBB1 via DFX mailbox: opcode `0x000b020010810908` (NWP: via `imh0`, not `imh1`) | `dfx_throttle_initial_cbb1` extracted | Mailbox failure -- verify NWP CBB1 opcode and IMH path |
+| 5 | Inject temperature: `injection.Clear_SOC(107, external=True)` + wait (simics: `run-cycles 1B`; silicon: `time.sleep(1)`) | Temperature injection accepted; SoC thermal throttling triggered | Injection not accepted -- check DTS override enable |
+| 6 | Read final CBB0 pcode vars throttled time | `final_value0 > initial_value0` (counter incremented during throttling) | Counter not incremented -- throttling may not have been triggered or counter not updating |
+| 7 | Read final CBB1 pcode vars throttled time | `final_value1 > initial_value1` | Counter not incremented for CBB1 |
+| 8 | Read final via DFX mailbox for CBB0 and CBB1 | DFX mailbox values also incremented; match pcode vars final values | Mismatch between pcode vars and DFX mailbox -- PMT data integrity issue |
+| 9 | Clear injection: `injection.Clear_SOC(40, external=True)` | Throttling stops; temperature returns to baseline | Throttling stuck -- override register not clearing |
+| 10 | `throttled_time()` returns `True` | All counters incremented; pcode vars match DFX mailbox | Returns `False` -- "Thermal Constrained Time PMT Register Fail" |
 
-### Adapted Test Steps
+### Pass / Fail Criteria
 
-| Step | Action | NWP Adaptation |
-|------|--------|----------------|
-| 1 | Run PMT thermal test | `python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2` |
-| 2 | Read baseline `THERMAL_CONSTRAINED_TIME` counter value | `sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.thermal_constrained_time.read()` |
-| 3 | Override temperature above Junction Temp via DTS or DFX injection | NWP DTS override mechanism (same as DMR; verify NWP DFX path) |
-| 4 | Wait for counter to increment (thermal monitor active) | Poll counter; verify increment within slow-loop interval |
-| 5 | Remove temperature override | Same |
-| 6 | Verify counter stops incrementing when temperature returns below threshold | Same pass criterion |
-
-### PMT Reference
-
-- **PMT URL**: `https://docs.intel.com/documents/primecode/has/PMT_Definitions/dmr_imh/pmt_telemetry.html#package_temperature` (DMR reference; NWP equivalent URL TBD)
-- **Counter resolution**: Typically accumulates in ms or 100ms increments per slow loop
-
-### NWP Pass Criteria
-- Baseline counter is stable (not incrementing in normal operation)
-- Counter increments while temperature ≥ Junction Temp target
-- Counter stops when temperature drops below threshold
-- Counter value is monotonically non-decreasing (never decreases)
-
----
-
-## Section C: NWP Delta Impact Analysis
-
-| Aspect | DMR | NWP | Impact |
-|--------|-----|-----|--------|
-| Counter register | `ptpcioregs.thermal_constrained_time` | Same on NWP | Direct reuse |
-| DTS temperature override | DMR DFX mechanism | NWP DFX/DTS override | Verify NWP DTS override method |
-| Junction Temp threshold | DMR TJ_MAX | NWP TJ_MAX | Same detection logic; NWP-specific value |
-| PMT documentation | DMR PMT HAS | NWP PMT HAS (TBD URL) | Get NWP PMT URL from NWP PM team |
+- **PASS:** `total_cbb_throttled_time` increments for both CBB0 and CBB1 after thermal injection; DFX mailbox readout matches pcode vars; `throttled_time()` returns `True`.
+- **FAIL:** Counter does not increment (throttling not triggered); or counter increments but DFX mailbox does not match (PMT data integrity failure).
 
 ---
 
-## Section D: Key Registers & Validation Points
+## Section B: Interactions
 
-```python
-import time
+### Swimlane Data
+| Step | Actor | Action | Interface |
+|------|-------|--------|-----------|
+| 1 | Test script | Read initial throttled time (pcode vars) | namednodes |
+| 2 | Test script | Read initial throttled time (DFX mailbox) | DFX mailbox |
+| 3 | Test script | Inject 107°C via Clear_SOC | DTS override |
+| 4 | PCode | Detect throttle condition; increment counter | Internal |
+| 5 | Test script | Read final throttled time (pcode vars) | namednodes |
+| 6 | Test script | Read final throttled time (DFX mailbox) | DFX mailbox |
+| 7 | Test script | Compare initial vs final; pcode vars vs mailbox | Python |
 
-# NWP Thermal Constrained Time PMT Validation
-
-# Step 2: Read baseline
-try:
-    t0 = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.thermal_constrained_time.read()
-    print(f"Baseline THERMAL_CONSTRAINED_TIME: {t0}")
-except Exception as e:
-    print(f"Counter read: {e}")
-    t0 = None
-
-# (Step 3: Apply DTS override to trigger thermal monitor — platform-specific)
-# sv.socket0.imh0.punit.dts_override.write(HIGH_TEMP_VALUE)
-
-# Step 4: Poll counter increment
-if t0 is not None:
-    time.sleep(2)  # Wait for slow loop
-    try:
-        t1 = sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.thermal_constrained_time.read()
-        delta = t1 - t0
-        print(f"After 2s: THERMAL_CONSTRAINED_TIME = {t1} (delta = {delta})")
-        print("PASS" if delta > 0 else "FAIL (counter did not increment)")
-    except Exception as e:
-        print(f"Counter poll: {e}")
-```
+### Sequence Data
+| # | From | To | Message | Interface |
+|---|------|----|---------|-----------|
+| 1 | Script | cbb0/cbb1.pcode.vars.telemetry_handler | read total_cbb_throttled_time | namednodes |
+| 2 | Script | dfx_mailbox opcode 0x000a020010810908 | read CBB0 throttled time | DFX mailbox |
+| 3 | Script | dfx_mailbox opcode 0x000b020010810908 | read CBB1 throttled time (NWP: imh0) | DFX mailbox |
+| 4 | Thermal_DTS | SOC DTS | inject 107C | DTS override |
+| 5 | PCode | total_cbb_throttled_time | increment counter | pcode vars |
+| 6 | Script | re-read via pcode vars + mailbox | compare | Python |
 
 ---
 
-## Section F: Recommendation
+## Section D: Spec Refs
 
-**Recommendation: ADOPT — `dmr.xml` → `nwp.xml`; verify DTS override mechanism**
+| Register / Log | Field / Offset | Pass/Fail Criteria |
+|----------------|---------------|-------------------|
+| `cbb0.pcode.vars.telemetry_handler.total_cbb_throttled_time.data` | full register | Must increment after throttle |
+| DFX mailbox CBB0 opcode `0x000a020010810908` + sub 0x12 | bits[39:8] | Must match pcode vars |
+| DFX mailbox CBB1 opcode `0x000b020010810908` + sub 0x12 | bits[39:8] | Must match pcode vars |
 
-Thermal Constrained Time counter is architecturally identical. Primary risk is NWP DTS temperature override methodology.
+---
 
-Required adaptations:
-1. `python runPmx.py -x nwp.xml -p pmt_thermal -tM 60 --retry_count 2`
-2. Verify NWP DTS override mechanism (same as DMR or NWP-specific DFX path)
-3. Get NWP PMT documentation URL
+## Section E: Risk Assessment
 
-**Priority**: Medium — DMR_PO; thermal constraint time tracking for compliance validation
+| Risk / Open Item | Likelihood | Severity | Mitigation |
+|-----------------|-----------|---------|-----------|
+| Script uses `imh1` for CBB2/CBB3 DFX mailbox -- must be removed for NWP | High | High | Remove CBB2/CBB3 mailbox reads; remap CBB1 mailbox to `imh0` |
+| DFX mailbox opcode for CBB1 on NWP may differ (was `imh1.oobmsm` on DMR) | Medium | High | Verify CBB1 opcode via NWP HAS; use `imh0` for both CBBs |
+| 107°C injection may not trigger throttling if TjMax > 107°C | Low | Medium | Use `socket.imh0.punit.ptpcioregs.package_temperature` to confirm throttle triggered |
+
+---
+
+## Section F: Recommendations
+
+1. **Remove CBB2/CBB3** reads from NWP invocation of `throttled_time()`.
+2. **Remap CBB1 DFX mailbox** from `imh1.oobmsm` (DMR) to `imh0.oobmsm` (NWP).
+3. Verify DFX mailbox opcode `0x000b020010810908` (CBB1 via IMH0) in NWP mailbox HAS.
+4. **NWP invocation:** `python runPmx.py -x nwp.xml -p PMT_Thermals -tM 60 -M 5`
