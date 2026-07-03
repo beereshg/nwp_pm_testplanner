@@ -168,7 +168,7 @@ Power/RAPL is the umbrella for all **power limiting, current limiting, and proac
 - **Agents**: BIOS (CSR one-time config), PCode (CBB: freq enforcement, PEM, DFC, PLR, PMax fast_throttle), Primecode (iMH: RAPL/RACL PIDs, SIMPL, PL4, SVID master)
 - **Interfaces**: TPMI (primary in-band + OOB), CSR (BIOS), HPM (inter-die), SVID (VR telemetry + voltage), b2p_mailbox (SST-PP)
 - **HW Blocks**: PMax comparator (analog FIVR voltage sense), SVID bus + VRCI registers, TPMI BAR, FIVR/VR PVSA, Core PLL + GVFSM, MBE (memory bandwidth enforcement)
-- **Sub-features**: Socket RAPL, Fast RAPL (ZBB), PMAX/PL4, RACL, SIMPL/DFC (ZBB), PEM, SVID, MemCLOS/DRC + CLTT
+- **Sub-features**: Socket RAPL, Fast RAPL (Supported), PMAX/PL4, RACL, SIMPL/DFC (ZBB), PEM, SVID, MemCLOS/DRC + CLTT
 
 ### Collateral Links
 | Type | Link | Notes |
@@ -216,6 +216,7 @@ Power/RAPL is the umbrella for all **power limiting, current limiting, and proac
 | SVID | **Supported** | NIO is sole SVID bus master. LPDDR6 may change MBVR VR count/addressing |
 | MemCLOS/DRC + CLTT | **Supported** | LPDDR6 MR4 thermal throttling. Verify MBE HW (LRM vs leaky bucket) on NWP Punit |
 | Sideband | **Supported** | Minimal — 1 PSS test case |
+| Fast RAPL | **Supported** | Sub-ms PEM/SVID IMON power excursion response; 500 µs PID loop; CBB TPMI `pem_status.fast_rapl` bit; NWP has 2 CBBs. Disposition: Runnable_On_N-1 |
 
 #### ZBB Features (Not Validated on NWP)
 | Feature | Reason |
@@ -223,8 +224,9 @@ Power/RAPL is the umbrella for all **power limiting, current limiting, and proac
 | DRAM RAPL | ZBB — no DRAM RAPL domain |
 | Platform RAPL / Psys | ZBB — no platform-level power domain |
 | SIMPL / DFC | ZBB — proactive IccMax tradeoff not scoped |
-| Fast RAPL | ZBB — fast-loop IO power limiting not scoped |
 | Fine-Grained Energy Reporting | ZBB — per-FIVR domain energy (disabled at PRQ) |
+
+> **Note:** Fast RAPL is **Supported** on NWP (not ZBB). It was incorrectly listed here in earlier KB drafts. FV team confirmed via child TCs 22022421939 and 22022421944 (disposition: Runnable_On_N-1).
 
 #### NWP-Specific Risks
 - **NIO as sole controller**: All RAPL PIDs, SVID, PL4, and SIMPL policy on a single new die — no IMH0↔IMH1 redundancy or split

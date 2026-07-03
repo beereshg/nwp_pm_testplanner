@@ -143,7 +143,7 @@ Classic PID has two limitations on DMR: (1) 15-20 PID controllers require 2-3 qu
 | **RAPL PKG (Socket)** | **2** | **1ms (slow loop)** | **PL1 + PL2 — this feature** |
 | RAPL PSYS (Platform) | 2 | 1ms | PL1 + PL2 |
 | RAPL DRAM | 1 | 1ms | ZBB on NWP |
-| Fast RAPL IO | 1 | 500µs (fast loop) | ZBB on NWP |
+| Fast RAPL IO | 1 | 500µs (fast loop) | **Supported on NWP** — PEM/UFS, CBB TPMI pem_status |
 | RACL | 1 | 1ms | Per-IMH VR TDC |
 | Uncore Thermal (EMTTM) | 1 | 1ms | — |
 | Memclos DRC | N (per compute die) | 1ms | — |
@@ -575,7 +575,7 @@ All agents and interfaces that read/write/consume Socket RAPL data, organized by
 | CP12.2 | NWP: DRAM RAPL ZBB'd → negative check (no effect) | TC: [PSS] DRAM RAPL ZBB Negative |
 | CP12.3 | NWP: Platform RAPL/Psys ZBB'd → negative check | NWP PM MAS |
 | CP12.4 | NWP: SIMPL ZBB'd → negative check | NWP PM MAS |
-| CP12.5 | NWP: Fast RAPL ZBB'd → negative check | NWP PM MAS |
+| CP12.5 | NWP: Fast RAPL Supported → positive verification | NWP PM MAS / FV inference 22022421939 |
 | CP12.6 | NWP: Fine Grained Energy ZBB'd → negative check | NWP PM MAS |
 | CP12.7 | NWP: Dual DDR SVID rails (VCCDDR_HV + VCCDDR_HV1) both contribute to socket_power_vrs_imon — verify 6-VR energy sum | svid.xml: socket_power_vrs_imon |
 | CP12.8 | NWP: VCCDDR_HV1 elective discovery — verify graceful fallback to VCCD1_HV_CPU0_POWER fuse when rail absent | svid.xml: elective_discretionary_vr_array |
@@ -927,7 +927,7 @@ NWP defaults `UFS_DISABLE=1` (fuse-controlled). The `ufs_perf_p_limit` module is
 | `ufs_perf_p_limit` (v1_0) | **Commented out** | No UFS-based performance P-state limiting |
 | DRAM RAPL | **ZBB** | `dram_power_vrs_imon = INVALID` — no live DRAM current monitoring. DRAM power in socket total is via DDR SVID rails only |
 | Platform RAPL / Psys | **ZBB** | `platform_power_vrs_imon = INVALID` — no platform-level power coordination |
-| Fast RAPL | **Compiled but ZBB** | `fast_rapl_common` + `fast_rapl_io` modules present in DUT config but feature scope says ZBB — negative check only |
+| Fast RAPL | **Supported** | `fast_rapl_common` + `fast_rapl_io` modules present; 500 µs PID loop; CBB TPMI `pem_status.fast_rapl` bit; NWP has 2 CBBs |
 | SIMPL | **Compiled** | All 4 state machines present (`simpl_algo`, `simpl_hpm`, `simpl_leaf_state`, `simpl_root_state`, `simpl_tpmi`) — may be active for IccMax proactive control even though ZBB'd at feature level |
 | Fine-Grained Energy | **ZBB** | Two separate FIVR energy systems: (1) **PCode CBB** — `FivrEnergyTelemetry` reads CBB FIVRs (CCP/Ring/UCIe/MLC), gated by `DOMAIN_ENERGY_REPORTING_ENABLE` fuse. When ZBB/disabled, PCode stops all CBB per-domain FIVR energy reads. (2) **Primecode IMH** — `energy_report` flow reads IMH FIVRs (MC/VCCI2CA/FIXDIG/CFC) via telemetry push buffer, feeds Socket RAPL energy sum. This path is **independent** of PCode's fuse gate. Net effect: Socket RAPL still gets IMH FIVR power via Primecode, but CBB FIVR per-domain energy is truly lost (not just hidden) |
 
