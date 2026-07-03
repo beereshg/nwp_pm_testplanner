@@ -1,0 +1,1046 @@
+[
+  {
+    "tc_id": "22022422100",
+    "tc_title": "PCT - BIOS Menu",
+    "tcd_title": "PCT - Enabling & Discovery",
+    "match_quality": "STRONG",
+    "matched_script": "Active_PM/SST/pct/pct_focus.py",
+    "top_scores": [
+      [
+        3,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "bios",
+          "capid4"
+        ]
+      ],
+      [
+        2,
+        "Active_PM/SST/sst_tf/sst_tf_validate.py",
+        [
+          "sst-tf",
+          "tf fuse"
+        ]
+      ],
+      [
+        2,
+        "Active_PM/SST/pct/pct_pmx.py",
+        [
+          "pct",
+          "ratio"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "Verify that the BIOS Setup menu exposes correct PCT configuration knobs with proper defaults and value ranges, as specified in PCT HAS Table 4. Specif",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "22022422103",
+    "tc_title": "PCT - TPMI register check",
+    "tcd_title": "PCT - Enabling & Discovery",
+    "match_quality": "STRONG",
+    "matched_script": "Active_PM/SST/pct/pct_focus.py",
+    "top_scores": [
+      [
+        4,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "bios",
+          "capid4",
+          "PctCapableSystem"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/tc_16030715690_tpmi_register_check.py",
+        [
+          "tpmi",
+          "register check"
+        ]
+      ],
+      [
+        1,
+        "pss/pct/tc_16030715678_bios_menu.py",
+        [
+          "bios knob"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "22022422104",
+    "tc_title": "PCT - All HP cores in C6",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "STRONG",
+    "matched_script": "pss/pct/tc_16030715676_all_hp_in_c6.py",
+    "top_scores": [
+      [
+        4,
+        "pss/pct/tc_16030715676_all_hp_in_c6.py",
+        [
+          "all hp",
+          "c6",
+          "hp cores in c6",
+          "c-state"
+        ]
+      ],
+      [
+        4,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "bios",
+          "clos",
+          "hp core"
+        ]
+      ],
+      [
+        2,
+        "Active_PM/SST/pct/pct_pmx.py",
+        [
+          "pct",
+          "hp core"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "22022422105",
+    "tc_title": "PCT - Default HP core selection",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "STRONG",
+    "matched_script": "Active_PM/SST/pct/pct_focus.py",
+    "top_scores": [
+      [
+        3,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "bios",
+          "hp core"
+        ]
+      ],
+      [
+        2,
+        "Active_PM/SST/sst_tf/sst_tf_validate.py",
+        [
+          "sst-tf",
+          "tpmi"
+        ]
+      ],
+      [
+        2,
+        "Active_PM/SST/pct/pct_pmx.py",
+        [
+          "pct",
+          "hp core"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "22022422110",
+    "tc_title": "PCT - SST-PP x PCT Basic Checks",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "WEAK",
+    "matched_script": "pss/pct/run_pct_pss_suite.py",
+    "top_scores": [
+      [
+        1,
+        "pss/pct/run_pct_pss_suite.py",
+        [
+          "pct"
+        ]
+      ],
+      [
+        1,
+        "Active_PM/SST/sst_pp/sst_pp_validate.py",
+        [
+          "sst-pp"
+        ]
+      ],
+      [
+        1,
+        "Active_PM/SST/pct/pct_pmx.py",
+        [
+          "pct"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "",
+    "steps_preview": ""
+  },
+  {
+    "tc_id": "22022422116",
+    "tc_title": "PCT - Turbo frequency check",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "STRONG",
+    "matched_script": "Active_PM/SST/pct/pct_pmx.py",
+    "top_scores": [
+      [
+        5,
+        "Active_PM/SST/pct/pct_pmx.py",
+        [
+          "pct",
+          "turbo",
+          "hp core",
+          "lp core",
+          "frequency"
+        ]
+      ],
+      [
+        5,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "bios",
+          "clos",
+          "hp core",
+          "lp core"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/tc_16030715692_turbo_freq_check.py",
+        [
+          "turbo freq",
+          "msr"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "22022422117",
+    "tc_title": "PCT - Verify TDP convergence",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "STRONG",
+    "matched_script": "Active_PM/SST/pct/pct_pmx.py",
+    "top_scores": [
+      [
+        5,
+        "Active_PM/SST/pct/pct_pmx.py",
+        [
+          "pct",
+          "hp core",
+          "lp core",
+          "convergence",
+          "tdp"
+        ]
+      ],
+      [
+        4,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "clos",
+          "hp core",
+          "lp core"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/tc_16030715690_tpmi_register_check.py",
+        [
+          "clos",
+          "sst_cp_control"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "Verify the Socket RAPL x PCT cross-product behavior under PL1/TDP enforcement on NWP. When the socket is power-constrained by RAPL PL1, PCT Ordered Th",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030715676",
+    "tc_title": "[PSS]PCT - All HP cores in C6",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "STRONG",
+    "matched_script": "pss/pct/tc_16030715676_all_hp_in_c6.py",
+    "top_scores": [
+      [
+        3,
+        "pss/pct/tc_16030715676_all_hp_in_c6.py",
+        [
+          "all hp",
+          "c6",
+          "hp cores in c6"
+        ]
+      ],
+      [
+        3,
+        "Active_PM/SST/pct/pct_pmx.py",
+        [
+          "pct",
+          "hp core",
+          "lp core"
+        ]
+      ],
+      [
+        3,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "hp core",
+          "lp core"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "Objective: Verify PCT behavior when all HP cores are in C6 on HSLE XOS. Validates that cross-die HPM protocol correctly handles the HP-idle state; MC6",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030715678",
+    "tc_title": "[PSS]PCT - BIOS Menu",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "STRONG",
+    "matched_script": "Active_PM/SST/pct/pct_focus.py",
+    "top_scores": [
+      [
+        5,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "bios",
+          "nvram",
+          "capid4",
+          "PctCapableSystem"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/tc_16030715678_bios_menu.py",
+        [
+          "bios menu",
+          "nvram"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/run_pct_pss_suite.py",
+        [
+          "pss",
+          "pct"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "Objective: Verify BIOS correctly enables/disables PCT via BIOS setup knobs and that NVRAM values are pushed and reflected in TPMI after boot. PSS Envi",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030715680",
+    "tc_title": "[PSS]PCT - BIOS Negative Validation",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "STRONG",
+    "matched_script": "pss/pct/tc_16030715680_bios_negative.py",
+    "top_scores": [
+      [
+        4,
+        "pss/pct/tc_16030715680_bios_negative.py",
+        [
+          "negative",
+          "invalid",
+          "bios negative",
+          "nvram"
+        ]
+      ],
+      [
+        3,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "bios",
+          "nvram"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/tc_16030715678_bios_menu.py",
+        [
+          "bios knob",
+          "nvram"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "Objective: Verify that BIOS correctly rejects invalid PCT BIOS knob values (non-multiple of 4, out-of-range) and that invalid values are not pushed to",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030715682",
+    "tc_title": "[PSS]PCT - DQ Rules (FlexconPM)",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "WEAK",
+    "matched_script": "pss/pct/tc_16030715690_tpmi_register_check.py",
+    "top_scores": [
+      [
+        2,
+        "pss/pct/tc_16030715690_tpmi_register_check.py",
+        [
+          "tpmi",
+          "flexcon"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/tc_16030715682_dq_rules.py",
+        [
+          "dq rule",
+          "flexcon"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/run_pct_pss_suite.py",
+        [
+          "pss",
+          "pct"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "Objective: Verify PCT fuse-to-TPMI propagation and DQ rule execution on PSS (VP/HSLE) via FlexconPM. FlexconPM runs DQ (Decision Queue) rule checks po",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030715684",
+    "tc_title": "[PSS]PCT - Default Disabled",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "STRONG",
+    "matched_script": "Active_PM/SST/pct/pct_focus.py",
+    "top_scores": [
+      [
+        4,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "bios",
+          "nvram",
+          "capid4"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/tc_16030715684_default_disabled.py",
+        [
+          "default disabled",
+          "sst_cp_enable"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/tc_16030715678_bios_menu.py",
+        [
+          "bios knob",
+          "nvram"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "Objective: Verify that PCT is disabled by default when PctHpModuleCount=0 or BIOS PCT knob=Disabled. When PCT is disabled: SST_CP_ENABLE=0; all cores ",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030715686",
+    "tc_title": "[PSS]PCT - Default HP core selection",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "STRONG",
+    "matched_script": "Active_PM/SST/pct/pct_focus.py",
+    "top_scores": [
+      [
+        4,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "bios",
+          "nvram",
+          "hp core"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/tc_16030715686_default_hp_selection.py",
+        [
+          "default hp",
+          "first core"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/tc_16030715682_dq_rules.py",
+        [
+          "hp core",
+          "nvram"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "Objective: Verify on PSS that the default HP core selection (first N modules per CBB, ordered, first core always HP) is correctly implemented by PCode",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030715690",
+    "tc_title": "[PSS]PCT - TPMI register check (FlexconPM)",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "STRONG",
+    "matched_script": "pss/pct/tc_16030715690_tpmi_register_check.py",
+    "top_scores": [
+      [
+        4,
+        "pss/pct/tc_16030715690_tpmi_register_check.py",
+        [
+          "tpmi",
+          "register check",
+          "clos",
+          "flexcon"
+        ]
+      ],
+      [
+        3,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "nvram",
+          "clos"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/tc_16030715682_dq_rules.py",
+        [
+          "flexcon",
+          "nvram"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "Objective: Verify TPMI SST_CLOS registers reflect correct HP/LP assignment on PSS via FlexconPM. Uses FlexconPM automated register check on VP/HSLE. P",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030715692",
+    "tc_title": "[PSS]PCT - Turbo frequency check",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "STRONG",
+    "matched_script": "Active_PM/SST/pct/pct_pmx.py",
+    "top_scores": [
+      [
+        6,
+        "Active_PM/SST/pct/pct_pmx.py",
+        [
+          "pct",
+          "turbo",
+          "hp core",
+          "lp core",
+          "ratio",
+          "frequency"
+        ]
+      ],
+      [
+        3,
+        "pss/pct/tc_16030715692_turbo_freq_check.py",
+        [
+          "turbo freq",
+          "trl",
+          "ratio"
+        ]
+      ],
+      [
+        3,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "hp core",
+          "lp core"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "Objective: Verify on PSS (HSLE XOS or VP) that HP cores are assigned to a higher SST-TF bucket than LP cores. On VP, actual frequency values are model",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030715694",
+    "tc_title": "[PSS]PCT - enable/disable",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "STRONG",
+    "matched_script": "pss/pct/tc_16030715694_enable_disable.py",
+    "top_scores": [
+      [
+        3,
+        "pss/pct/tc_16030715694_enable_disable.py",
+        [
+          "sst_cp_enable",
+          "runtime",
+          "toggle"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/tc_16030715690_tpmi_register_check.py",
+        [
+          "tpmi",
+          "sst_cp_control"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/run_pct_pss_suite.py",
+        [
+          "pss",
+          "pct"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "Objective: Verify PCT can be enabled and disabled at runtime on PSS via TPMI SST_CP_CONTROL. Validates PCode response to runtime PCT toggle on the PSS",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030717717",
+    "tc_title": "[PV]PMSS - SST PCT Partition Custom Config",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "WEAK",
+    "matched_script": "Active_PM/SST/pct/pct_pmx.py",
+    "top_scores": [
+      [
+        2,
+        "Active_PM/SST/pct/pct_pmx.py",
+        [
+          "pct",
+          "ratio"
+        ]
+      ],
+      [
+        2,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "bios"
+        ]
+      ],
+      [
+        1,
+        "pss/pct/tc_16030715692_turbo_freq_check.py",
+        [
+          "ratio"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030717718",
+    "tc_title": "[PV]PMSS - SST PCT Partition Sweep",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "STRONG",
+    "matched_script": "Active_PM/SST/pct/pct_focus.py",
+    "top_scores": [
+      [
+        4,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "bios",
+          "clos",
+          "hp core"
+        ]
+      ],
+      [
+        3,
+        "Active_PM/SST/pct/pct_pmx.py",
+        [
+          "pct",
+          "turbo",
+          "hp core"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/tc_16030715682_dq_rules.py",
+        [
+          "sst_tf_info",
+          "hp core"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "Verify SST-TF Priority Core Turbo (PCT) with partition sweep: systematically sweep through all valid PCT partition counts (0 through max supported) an",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030717719",
+    "tc_title": "[PV]PMSS - SST PCT Disable",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "WEAK",
+    "matched_script": "Active_PM/SST/pct/pct_focus.py",
+    "top_scores": [
+      [
+        2,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "bios"
+        ]
+      ],
+      [
+        1,
+        "pss/pct/tc_16030715680_bios_negative.py",
+        [
+          "negative"
+        ]
+      ],
+      [
+        1,
+        "pss/pct/tc_16030715678_bios_menu.py",
+        [
+          "bios knob"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030717720",
+    "tc_title": "[PV]PMSS - SST PCT Discovery",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "WEAK",
+    "matched_script": "Active_PM/SST/pct/pct_focus.py",
+    "top_scores": [
+      [
+        2,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "bios"
+        ]
+      ],
+      [
+        1,
+        "pss/pct/tc_16030715690_tpmi_register_check.py",
+        [
+          "tpmi"
+        ]
+      ],
+      [
+        1,
+        "pss/pct/tc_16030715682_dq_rules.py",
+        [
+          "sst_tf_info"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030768619",
+    "tc_title": "PCT - Default Enabled",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "STRONG",
+    "matched_script": "Active_PM/SST/pct/pct_focus.py",
+    "top_scores": [
+      [
+        3,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "bios",
+          "capid4"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/tc_16030715692_turbo_freq_check.py",
+        [
+          "trl",
+          "ratio"
+        ]
+      ],
+      [
+        2,
+        "Active_PM/SST/sst_tf/sst_tf_validate.py",
+        [
+          "sst-tf",
+          "tf fuse"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030768620",
+    "tc_title": "PCT - TPMI runtime enable/disable",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "WEAK",
+    "matched_script": "pss/pct/tc_16030715690_tpmi_register_check.py",
+    "top_scores": [
+      [
+        2,
+        "pss/pct/tc_16030715690_tpmi_register_check.py",
+        [
+          "tpmi",
+          "register check"
+        ]
+      ],
+      [
+        2,
+        "Active_PM/SST/sst_tf/sst_tf_validate.py",
+        [
+          "sst-tf",
+          "tpmi"
+        ]
+      ],
+      [
+        1,
+        "pss/pct/tc_16030715694_enable_disable.py",
+        [
+          "runtime"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "Verify that PCT can be dynamically enabled and disabled at runtime via TPMI write to SST_PP_CONTROL.feature_state[bit 1] , and that the system correct",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030768621",
+    "tc_title": "PCT - TPMI runtime negative validation",
+    "tcd_title": "PCT - Functionality",
+    "match_quality": "WEAK",
+    "matched_script": "pss/pct/tc_16030715680_bios_negative.py",
+    "top_scores": [
+      [
+        2,
+        "pss/pct/tc_16030715680_bios_negative.py",
+        [
+          "negative",
+          "invalid"
+        ]
+      ],
+      [
+        2,
+        "Active_PM/SST/pct/pct_pmx.py",
+        [
+          "pct",
+          "ratio"
+        ]
+      ],
+      [
+        1,
+        "pss/pct/tc_16030715694_enable_disable.py",
+        [
+          "runtime"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "Objective: Verify that PCode correctly rejects or handles invalid PCT partition count configurations via TPMI. Invalid conditions tested: (1) HP count",
+    "steps_preview": ""
+  },
+  {
+    "tc_id": "22022422118",
+    "tc_title": "PCT - DQ Rules (FlexconPM)",
+    "tcd_title": "PCT - Fuse",
+    "match_quality": "STRONG",
+    "matched_script": "Active_PM/SST/pct/pct_focus.py",
+    "top_scores": [
+      [
+        6,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "capability",
+          "bios",
+          "nvram",
+          "capid4",
+          "PctCapableSystem"
+        ]
+      ],
+      [
+        3,
+        "pss/pct/tc_16030715682_dq_rules.py",
+        [
+          "dq rule",
+          "flexcon",
+          "nvram"
+        ]
+      ],
+      [
+        2,
+        "pss/pct/tc_16030715678_bios_menu.py",
+        [
+          "bios knob",
+          "nvram"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "",
+    "steps_preview": "(Detailed) Step 1: Fuse Capability Check # NWP: PCT capability via IMH CAPID4 from diamondrapids.pm.Active_PM.SST.pct import pct_focus as pctd socket = sv.socket.getBySocket(0) for imh in socket.imhs:"
+  },
+  {
+    "tc_id": "16030982833",
+    "tc_title": "PCT - DLCP SST_TF_INFO_10 Fuse-to-Register Verification",
+    "tcd_title": "PCT - DLCP (Die Level Cherry Picking)",
+    "match_quality": "WEAK",
+    "matched_script": "pss/pct/tc_16030715690_tpmi_register_check.py",
+    "top_scores": [
+      [
+        1,
+        "pss/pct/tc_16030715690_tpmi_register_check.py",
+        [
+          "tpmi"
+        ]
+      ],
+      [
+        1,
+        "pss/pct/tc_16030715682_dq_rules.py",
+        [
+          "sst_tf_info"
+        ]
+      ],
+      [
+        1,
+        "pss/pct/run_pct_pss_suite.py",
+        [
+          "pct"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030982837",
+    "tc_title": "PCT - DLCP HP Core Position and HWP Capabilities Verification",
+    "tcd_title": "PCT - DLCP (Die Level Cherry Picking)",
+    "match_quality": "WEAK",
+    "matched_script": "pss/pct/tc_16030715682_dq_rules.py",
+    "top_scores": [
+      [
+        2,
+        "pss/pct/tc_16030715682_dq_rules.py",
+        [
+          "sst_tf_info",
+          "hp core"
+        ]
+      ],
+      [
+        2,
+        "Active_PM/SST/pct/pct_pmx.py",
+        [
+          "pct",
+          "hp core"
+        ]
+      ],
+      [
+        2,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "hp core"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030982844",
+    "tc_title": "PCT - Per-SST-Instance Programming Completeness (NWP 2-CBB)",
+    "tcd_title": "PCT - DLCP (Die Level Cherry Picking)",
+    "match_quality": "WEAK",
+    "matched_script": "Active_PM/SST/pct/pct_focus.py",
+    "top_scores": [
+      [
+        2,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "bios"
+        ]
+      ],
+      [
+        1,
+        "pss/pct/tc_16030715690_tpmi_register_check.py",
+        [
+          "tpmi"
+        ]
+      ],
+      [
+        1,
+        "pss/pct/run_pct_pss_suite.py",
+        [
+          "pct"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "",
+    "steps_preview": "# Action Expected Result ("
+  },
+  {
+    "tc_id": "16030982850",
+    "tc_title": "PCT - NWP MADT Partition Algorithm Validation",
+    "tcd_title": "PCT - DLCP (Die Level Cherry Picking)",
+    "match_quality": "STRONG",
+    "matched_script": "Active_PM/SST/pct/pct_pmx.py",
+    "top_scores": [
+      [
+        3,
+        "Active_PM/SST/pct/pct_pmx.py",
+        [
+          "pct",
+          "hp core",
+          "ratio"
+        ]
+      ],
+      [
+        3,
+        "Active_PM/SST/pct/pct_focus.py",
+        [
+          "pct",
+          "bios",
+          "hp core"
+        ]
+      ],
+      [
+        1,
+        "pss/pct/tc_16030715692_turbo_freq_check.py",
+        [
+          "ratio"
+        ]
+      ]
+    ],
+    "cmd": "",
+    "scope_preview": "Verify BIOS correctly maps NWP 96 cores (2 CBBs x 48, no SMT) into N equal partitions using MADT/APIC ID order, and that HP cores are the first 2 per ",
+    "steps_preview": "# Action Expected Result ("
+  }
+]
