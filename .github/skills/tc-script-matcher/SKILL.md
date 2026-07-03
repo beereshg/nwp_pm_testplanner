@@ -45,6 +45,23 @@ Step 5: Gap analysis         Identify STRONG / WEAK / NO_MATCH + enhancements
 **CRITICAL:** The children API uses `child_subject` (not `subject`) as the query parameter.
 The `hsd_utils.queries.get_children()` function uses this correctly.
 
+### TC filtering rules
+
+Before analysis, exclude TCs that belong to a different repository or test framework:
+
+| Title prefix | Reason | Action |
+|---|---|---|
+| `[PV]` | PV (Product Validation) content lives in a separate repo | **Exclude** |
+| `[PSS]` | Pre-Si Simulation TCs — include, but map to `pss/` scripts | Include |
+| `[BEAT]` | Legacy GNR TCs not yet ported | Exclude unless explicitly in scope |
+
+```python
+# Filter before analysis
+tcs = [t for t in all_tcs if not t["tc_title"].startswith(("[PV]", "[BEAT]"))]
+excluded = [t for t in all_tcs if t["tc_title"].startswith(("[PV]", "[BEAT]"))]
+print(f"Excluded {len(excluded)} out-of-scope TCs: {[t['tc_title'] for t in excluded]}")
+```
+
 ```python
 import sys, json, time
 sys.path.insert(0, ".")
@@ -332,12 +349,15 @@ When a script is identified as a DMR copy, check:
 
 ## PCT TP Example (16030762939) — Verified Results
 
-TP: `[NWP PM] PCT (Priority Core Turbo)` → 5 TCDs (direct, no TPF) → 28 TCs
+TP: `[NWP PM] PCT (Priority Core Turbo)` → 5 TCDs (direct, no TPF) → 28 TCs total
+
+**[PV] TCs excluded** (content in separate repo): 4 TCs (16030717717–720)
+**In-scope: 24 TCs**
 
 | Match | Count |
 |-------|-------|
-| STRONG | 18 |
-| WEAK | 10 |
+| STRONG | 17 |
+| WEAK | 7 |
 | NO_MATCH | 0 |
 
 Key findings:
