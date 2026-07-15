@@ -135,6 +135,8 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
     if what_block and len(what_block) > 10:
         arch_extra = ""
         in_pre = False
+        in_raw_arch = False
+        raw_arch_buf = []
         pre_buf = []
         current_tbl = []
         bullet_lines_all = []
@@ -147,6 +149,17 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
 
         for l in what_block:
             s = l.strip()
+            # Raw HTML passthrough in Architecture block
+            if s == "<!-- raw-html -->":
+                in_raw_arch = True
+                continue
+            if s == "<!-- /raw-html -->":
+                arch_extra += "\n".join(raw_arch_buf)
+                raw_arch_buf, in_raw_arch = [], False
+                continue
+            if in_raw_arch:
+                raw_arch_buf.append(l)
+                continue
             if s.startswith("```"):
                 if in_pre:
                     arch_extra += f'<pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">{_h.escape(chr(10).join(pre_buf))}</pre>'
@@ -230,6 +243,7 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
 
         out = ""
         in_pre, pre_buf = False, []
+        in_raw, raw_buf = False, []
         cur_tbl, cur_bul = [], []
 
         def flush_tbl():
@@ -250,6 +264,18 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
 
         for l in block:
             s = l.strip()
+            # Raw HTML passthrough: <!-- raw-html --> ... <!-- /raw-html -->
+            if s == "<!-- raw-html -->":
+                out += flush_tbl() + flush_bul()
+                in_raw = True
+                continue
+            if s == "<!-- /raw-html -->":
+                out += "\n".join(raw_buf)
+                raw_buf, in_raw = [], False
+                continue
+            if in_raw:
+                raw_buf.append(l)
+                continue
             if s.startswith("```"):
                 out += flush_tbl() + flush_bul()
                 if in_pre:

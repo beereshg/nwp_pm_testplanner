@@ -16,36 +16,82 @@
 
 **CBB CCF NonAutoGV Mode** is the **only POR frequency management mode** for the CBB ring (CCF). Unlike AutoGV (not supported in CBB), NonAutoGV does not autonomously select voltage/frequency — it executes GV transitions exclusively in response to explicit workpoint commands written to the `CCF_WP` register by PCode/PUNIT.
 
-```
-┌──────────────────────────────────────────────────────────────────────────┐
-│                        CBB CCF GV Architecture                           │
-├──────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  ┌──────────┐    CCF_WP     ┌──────────┐   VF Curve   ┌─────────────┐  │
-│  │  PCode   │──────────────▶│  GVFSM   │─────────────▶│ Ring PLL/FLL│  │
-│  │  (PUNIT) │               │          │              │  Frequency   │  │
-│  └──────────┘               │ IDLE     │              └─────────────┘  │
-│       ▲                     │ BLOCK    │                     │          │
-│       │ PEGA/TPMI           │ INC_GB   │                     ▼          │
-│       │ injection           │ DEC_DB   │              ┌─────────────┐  │
-│  ┌──────────┐               │ RESUME   │              │ ufs_status  │  │
-│  │Validation│               │ BLK_INTF │              │ current_ratio│  │
-│  │(OS/SW)   │               └──────────┘              └─────────────┘  │
-│  └──────────┘                                                           │
-│                                                                          │
-│  ═══════════════════════════════════════════════════════════════════════  │
-│  Clocking Modes (determined by ringepll_top.fusecr_ovrd_0.pll_mode):    │
-│                                                                          │
-│  ┌─────────────────────────────┐    ┌─────────────────────────────────┐ │
-│  │ pll_mode=0 (PLL) [DEFAULT]  │    │ pll_mode=1 (FLL) [SURVIVABILITY]│ │
-│  │ • Fast GV (POR)             │    │ • PLL Crawling mode             │ │
-│  │ • No UCLK stop              │    │ • Freq steps ≤ freq_crawl_delta_f│ │
-│  │ • Rapid V/F transition      │    │ • pll_mode_ovrden=1 required    │ │
-│  │ • Used by: cbb_ccf_fast_gv_ │    │ • Used by: cbb_ccf_fast_gv_    │ │
-│  │   default_test()            │    │   pll_crawling_test()           │ │
-│  └─────────────────────────────┘    └─────────────────────────────────┘ │
-└──────────────────────────────────────────────────────────────────────────┘
-```
+<!-- raw-html -->
+<div style="margin:16px 0;border:1px solid #bfcfe8;border-radius:8px;overflow:hidden;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;">
+  <div style="background:#0f4c81;color:#fff;padding:8px 16px;font-weight:700;font-size:12px;letter-spacing:.3px;">CBB CCF GV Architecture — NonAutoGV (POR Mode)</div>
+  <div style="padding:16px 20px;background:#f8fafc;">
+
+    <!-- Pipeline row -->
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:16px;flex-wrap:wrap;">
+      <div style="background:#1a5fa8;color:#fff;border-radius:6px;padding:8px 14px;text-align:center;min-width:90px;">
+        <div style="font-weight:700;font-size:11px;">PCode</div>
+        <div style="font-size:10px;opacity:.85;">(PUNIT)</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;min-width:80px;">
+        <div style="font-size:10px;color:#555;margin-bottom:2px;">CCF_WP write</div>
+        <div style="border-top:2px solid #1a5fa8;width:60px;position:relative;">
+          <span style="position:absolute;right:-6px;top:-7px;color:#1a5fa8;font-size:14px;">&#9658;</span>
+        </div>
+      </div>
+      <div style="background:#fff;border:2px solid #1a5fa8;border-radius:6px;padding:8px 14px;text-align:center;min-width:100px;">
+        <div style="font-weight:700;font-size:11px;color:#1a5fa8;">GVFSM</div>
+        <div style="font-size:9px;color:#555;line-height:1.6;">IDLE &#8594; BLOCK<br>INC_GB &#8594; DEC_DB<br>RESUME &#8594; BLK_INTF</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;min-width:80px;">
+        <div style="font-size:10px;color:#555;margin-bottom:2px;">VF Curve</div>
+        <div style="border-top:2px solid #1a5fa8;width:60px;position:relative;">
+          <span style="position:absolute;right:-6px;top:-7px;color:#1a5fa8;font-size:14px;">&#9658;</span>
+        </div>
+      </div>
+      <div style="background:#fff;border:2px solid #1a5fa8;border-radius:6px;padding:8px 14px;text-align:center;min-width:110px;">
+        <div style="font-weight:700;font-size:11px;color:#1a5fa8;">Ring PLL/FLL</div>
+        <div style="font-size:10px;color:#555;">Frequency</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;min-width:60px;">
+        <div style="border-top:2px solid #555;width:40px;position:relative;">
+          <span style="position:absolute;right:-6px;top:-7px;color:#555;font-size:14px;">&#9658;</span>
+        </div>
+      </div>
+      <div style="background:#e8f5e9;border:2px solid #2e7d32;border-radius:6px;padding:8px 14px;text-align:center;min-width:110px;">
+        <div style="font-weight:700;font-size:11px;color:#2e7d32;">ufs_status</div>
+        <div style="font-size:10px;color:#555;">current_ratio</div>
+      </div>
+    </div>
+
+    <!-- Injection row -->
+    <div style="background:#fff8e1;border:1px solid #f9a825;border-radius:6px;padding:8px 14px;margin-bottom:14px;font-size:11px;">
+      <strong>Injection path (validation):</strong> PEGA / TPMI &#8594; injects synthetic GV workpoints, bypassing OS
+      &nbsp;&#8212;&nbsp; <code style="font-family:Consolas,monospace;font-size:10px;">pega.pegaPstate(skt, cbb, clrgv=ratio)</code>
+    </div>
+
+    <!-- Clocking modes -->
+    <div style="font-weight:700;font-size:11px;color:#1a5fa8;margin-bottom:8px;border-bottom:1px solid #bfcfe8;padding-bottom:4px;">
+      Clocking Modes &mdash; <code style="font-family:Consolas,monospace;font-size:10px;">ringepll_top.fusecr_ovrd_0.pll_mode</code>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:220px;background:#e8f5e9;border:2px solid #2e7d32;border-radius:6px;padding:12px 14px;">
+        <div style="font-weight:700;color:#2e7d32;font-size:11px;margin-bottom:6px;">pll_mode = 0 &nbsp;&#x2713;&nbsp; POR DEFAULT</div>
+        <div style="font-size:10px;color:#333;line-height:1.8;">
+          &#8226; Fast GV &mdash; no clock stop during transition<br>
+          &#8226; PLL re-locks while frequency changes<br>
+          &#8226; Rapid V/F transition<br>
+          &#8226; Script: <code style="font-family:Consolas,monospace;">cbb_ccf_fast_gv_default_test()</code>
+        </div>
+      </div>
+      <div style="flex:1;min-width:220px;background:#fff3e0;border:2px solid #e65100;border-radius:6px;padding:12px 14px;">
+        <div style="font-weight:700;color:#e65100;font-size:11px;margin-bottom:6px;">pll_mode = 1 &nbsp;&#9888;&nbsp; SURVIVABILITY</div>
+        <div style="font-size:10px;color:#333;line-height:1.8;">
+          &#8226; PLL Crawling mode (FLL)<br>
+          &#8226; Freq steps &le; <code style="font-family:Consolas,monospace;">freq_crawl_delta_f</code> fuse<br>
+          &#8226; Requires <code style="font-family:Consolas,monospace;">pll_mode_ovrden = 1</code><br>
+          &#8226; Script: <code style="font-family:Consolas,monospace;">cbb_ccf_fast_gv_pll_crawling_test()</code>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- /raw-html -->
 
 ### Key Concepts
 
