@@ -15,21 +15,11 @@
 
 ## Test Case Intent
 
-Verify that CBB CCF operates in NonAutoGV mode (AutoGV is NOT POR) and correctly executes GV transitions via the CCF_WP register using Fast GV (PLL mode). Confirm that AutoGV mode is not enabled, that CCF responds to target workpoints written to CCF_WP, and that NonAutoGV mode persists after reset or C-state exit.
+Verify that CBB CCF operates in NonAutoGV mode (AutoGV is NOT POR) and correctly executes GV transitions via the CCF_WP register using Fast GV with PLLs in default PLL mode (`pll_mode=0`). Confirm that AutoGV mode is not enabled, that CCF responds to target workpoints written to CCF_WP across the full Pm→P0 range, that UFS_STATUS tracks each injected ratio, and that NonAutoGV mode persists after C-state exit. This is the **POR validation test** for the NonAutoGV Fast GV path.
 
-**Open resolved — Drainless GV or Fast GV?** **Fast GV (PLL mode)** is the NonAutoGV transition method. Confirmed by `cbb_ccf_fast_gv_default_test()` in `ccf_utils.py` which verifies both Ring East and Ring West PLLs are in PLL mode (`ringepll_top.fusecr_ovrd_0.pll_mode == 0`). The `cbb_ccf_fast_gv_pll_crawling_test()` additionally exercises FLL mode (Drainless GV path) as a contrast/comparison test and restores PLL mode afterward.
+> **Note:** PLL crawling (survivability mode with `pll_mode_ovrden=1 + pll_mode=1`) is validated by sibling TC [16031123820](https://hsdes.intel.com/appstore/article-one/#/16031123820) under the same TCD. This TC covers the default/POR path only.
 
-**Flow (NonAutoGV mode):**
-
-- CBB CCF AutoGV Mode does NOT enable — verify default state is NonAutoGV (PLL mode on Ring East + West PLLs)
-- CBB CCF responds to target workpoint in CCF_WP register (`cbb.base.ccf_pma.ccf_pmc_regs.ccf_wp[0].target_max_ratio`) and executes Fast GV transition
-- Match PCode interpretation — `ccf_wp_status.ratio` tracks the injected CCF_WP target after PEGA injection
-- NonAutoGV mode remains OFF after reset or C-state exit — verify `pll_mode` is still 0 (PLL mode) after core C-state cycle
-- CCF_WP can only be updated when CCF is in NonAuto Mode — verify write succeeds only in PLL mode, not FLL mode
-
-**Test scripts:** `pmx_ccf_cbo.py --test_ccf_fast_gv` runs two tests:
-1. `cbb_ccf_fast_gv_default_test()` — verifies PLL mode (Fast GV default) on all CBBs
-2. `cbb_ccf_fast_gv_pll_crawling_test()` — exercises FLL/PLL mode switch (Drainless GV path)
+**Test script:** `pmx_ccf_cbo.py --test_ccf_fast_gv` → calls `cbb_ccf_fast_gv_default_test()`
 
 ---
 
@@ -49,18 +39,19 @@ Verify that CBB CCF operates in NonAutoGV mode (AutoGV is NOT POR) and correctly
 | # | Action | Expected Result (PASS) | Failure Indication |
 |---|--------|------------------------|--------------------|
 | 1 | Read Ring East and Ring West PLL mode per CBB: `cbb.base.ringepll_top.fusecr_ovrd_0.pll_mode` and `ringwpll_top.fusecr_ovrd_0.pll_mode` | Both = 0 (PLL mode = Fast GV) on all CBBs — AutoGV not active | Any CBB shows `pll_mode != 0` — wrong mode |
-| 2 | Inject CCF_WP target via PEGA: `ccf_pegaPstate(sktNum, cbbN, clrgv=target_ratio, chkstr='ccf_wp')`. Read `ccf_wp[0].target_max_ratio` | `target_max_ratio` matches injected ratio; CCF executes Fast GV transition | Ratio not reflected — CCF_WP write rejected or CCF not responding |
-| 3 | Verify `ccf_wp_status.ratio` matches `ccf_wp[0].target_max_ratio` | Status tracks working point — PCode interpretation matches | Mismatch — PCode not honoring CCF_WP |
-| 4 | Cycle core C-state: inject c1e via PEGA, then release to C0. Re-read `pll_mode` | `pll_mode` remains 0 (PLL mode) after C-state exit — NonAutoGV persists | `pll_mode` changed — mode not preserved across C-state |
-| 5 | Write `pll_mode=1` (FLL mode = Drainless GV) on both ring PLLs; verify write accepted; restore to PLL mode | FLL mode accepted and verified; PLL mode restored cleanly | Write rejected or PLL restore fails — mode switch broken |
+| 2 | Verify `pll_mode_ovrden == 0` on all CBBs — no override active at boot | Override not asserted = hardware default confirmed | `pll_mode_ovrden != 0` — override unexpectedly active |
+| 3 | PEGA GV sweep Pm→P0: `ccf_pegaPstate(sktNum, cbbN, clrgv=r, chkstr='ccf_wp,ufs_status')` for each ratio in fused range | `ccf_wp[0].target_max_ratio` and `ufs_status.current_ratio` match each injected ratio | Any ratio not reflected — CCF_WP or UFS_STATUS mismatch |
+| 4 | Read `ccf_wp_status.ratio` after each injection | Matches injected `clrgv` — PCode interpretation correct | Mismatch — PCode not honoring CCF_WP |
+| 5 | Cycle core C-state: inject c1e via PEGA, release to C0. Re-read `pll_mode` | `pll_mode` remains 0 (PLL mode) after C-state exit — NonAutoGV persists | `pll_mode` changed — mode not preserved across C-state |
+| 6 | Release PEGA; verify `ufs_status.current_ratio` returns to fused P0 | Ratio returns to fused maximum — no stuck workpoint | Ratio stuck at last injected value |
 
 ---
 
 ## Pass / Fail Criteria
 
-**PASS:** `ringepll_top/ringwpll_top.fusecr_ovrd_0.pll_mode == 0` (PLL mode) on all CBBs at boot; CCF_WP `target_max_ratio` reflects PEGA-injected workpoint; `ccf_wp_status.ratio` matches; `pll_mode` unchanged after C-state cycle; FLL/PLL mode toggle succeeds.
+**PASS:** All CBBs show `pll_mode==0` and `pll_mode_ovrden==0` at boot; `ccf_wp[0].target_max_ratio` and `ufs_status.current_ratio` track each PEGA-injected ratio across full Pm→P0 sweep; `ccf_wp_status.ratio` matches; `pll_mode` unchanged after C-state cycle; ratio returns to fused P0 after PEGA release.
 
-**FAIL:** Any CBB shows `pll_mode != 0` at boot (AutoGV wrongly enabled); CCF_WP not updated; `ccf_wp_status.ratio` diverges from target; `pll_mode` changed after C-state.
+**FAIL:** Any CBB shows `pll_mode != 0` at boot; `pll_mode_ovrden` unexpectedly set; CCF_WP or UFS_STATUS not reflecting PEGA injection; ratio stuck after PEGA release; `pll_mode` changed after C-state.
 
 ---
 

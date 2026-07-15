@@ -71,7 +71,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
-<br/><p style="margin:10px 0 16px 0;">Verify that CBB CCF operates in NonAutoGV mode (AutoGV is NOT POR) and correctly executes GV transitions via the CCF_WP register using Fast GV (PLL mode). Confirm that AutoGV mode is not enabled, that CCF responds to target workpoints written to CCF_WP, and that NonAutoGV mode persists after reset or C-state exit. <strong>Open resolved — Drainless GV or Fast GV?</strong> <strong>Fast GV (PLL mode)</strong> is the NonAutoGV transition method. Confirmed by <code>cbb_ccf_fast_gv_default_test()</code> in <code>ccf_utils.py</code> which verifies both Ring East and Ring West PLLs are in PLL mode (<code>ringepll_top.fusecr_ovrd_0.pll_mode == 0</code>). The <code>cbb_ccf_fast_gv_pll_crawling_test()</code> additionally exercises FLL mode (Drainless GV path) as a contrast/comparison test and restores PLL mode afterward. <strong>Flow (NonAutoGV mode):</strong></p>
+<br/><p style="margin:10px 0 16px 0;">Verify that CBB CCF operates in NonAutoGV mode (AutoGV is NOT POR) and correctly executes GV transitions via the CCF_WP register using Fast GV with PLLs in default PLL mode (<code>pll_mode=0</code>). Confirm that AutoGV mode is not enabled, that CCF responds to target workpoints written to CCF_WP across the full Pm→P0 range, that UFS_STATUS tracks each injected ratio, and that NonAutoGV mode persists after C-state exit. This is the <strong>POR validation test</strong> for the NonAutoGV Fast GV path. <span style="display:block;background:#f0f4f9;border-left:3px solid #1a5fa8;padding:4px 10px;margin:4px 0;font-size:0.92em;color:#1e3a5f;"><strong>Note:</strong> PLL crawling (survivability mode with <code>pll_mode_ovrden=1 + pll_mode=1</code>) is validated by sibling TC [16031123820](https://hsdes.intel.com/appstore/article-one/#/16031123820) under the same TCD. This TC covers the default/POR path only.</span> <strong>Test script:</strong> <code>pmx_ccf_cbo.py --test_ccf_fast_gv</code> → calls <code>cbb_ccf_fast_gv_default_test()</code></p>
 
 <br/>
 
@@ -114,30 +114,37 @@
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Inject CCF_WP target via PEGA: `ccf_pegaPstate(sktNum, cbbN, clrgv=target_ratio, chkstr='ccf_wp')`. Read `ccf_wp[0].target_max_ratio`</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">`target_max_ratio` matches injected ratio; CCF executes Fast GV transition</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Ratio not reflected — CCF_WP write rejected or CCF not responding</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify `pll_mode_ovrden == 0` on all CBBs — no override active at boot</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Override not asserted = hardware default confirmed</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`pll_mode_ovrden != 0` — override unexpectedly active</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify `ccf_wp_status.ratio` matches `ccf_wp[0].target_max_ratio`</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Status tracks working point — PCode interpretation matches</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Mismatch — PCode not honoring CCF_WP</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PEGA GV sweep Pm→P0: `ccf_pegaPstate(sktNum, cbbN, clrgv=r, chkstr='ccf_wp,ufs_status')` for each ratio in fused range</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`ccf_wp[0].target_max_ratio` and `ufs_status.current_ratio` match each injected ratio</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Any ratio not reflected — CCF_WP or UFS_STATUS mismatch</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Cycle core C-state: inject c1e via PEGA, then release to C0. Re-read `pll_mode`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read `ccf_wp_status.ratio` after each injection</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Matches injected `clrgv` — PCode interpretation correct</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Mismatch — PCode not honoring CCF_WP</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Cycle core C-state: inject c1e via PEGA, release to C0. Re-read `pll_mode`</td>
   <td style="text-align:left;vertical-align:top;padding:8px;">`pll_mode` remains 0 (PLL mode) after C-state exit — NonAutoGV persists</td>
   <td style="text-align:left;vertical-align:top;padding:8px;">`pll_mode` changed — mode not preserved across C-state</td>
 </tr>
 
 <tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Write `pll_mode=1` (FLL mode = Drainless GV) on both ring PLLs; verify write accepted; restore to PLL mode</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">FLL mode accepted and verified; PLL mode restored cleanly</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Write rejected or PLL restore fails — mode switch broken</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Release PEGA; verify `ufs_status.current_ratio` returns to fused P0</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Ratio returns to fused maximum — no stuck workpoint</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Ratio stuck at last injected value</td>
 </tr>
 
 </table>
@@ -152,13 +159,13 @@
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
   <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
-  <p style="margin:0;font-size:0.9em;">** `ringepll_top/ringwpll_top.fusecr_ovrd_0.pll_mode == 0` (PLL mode) on all CBBs at boot; CCF_WP `target_max_ratio` reflects PEGA-injected workpoint; `ccf_wp_status.ratio` matches; `pll_mode` unchanged after C-state cycle; FLL/PLL mode toggle succeeds.</p>
+  <p style="margin:0;font-size:0.9em;">** All CBBs show `pll_mode==0` and `pll_mode_ovrden==0` at boot; `ccf_wp[0].target_max_ratio` and `ufs_status.current_ratio` track each PEGA-injected ratio across full Pm→P0 sweep; `ccf_wp_status.ratio` matches; `pll_mode` unchanged after C-state cycle; ratio returns to fused P0 after PEGA release.</p>
 </div>
 
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
   <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
-  <p style="margin:0;font-size:0.9em;">** Any CBB shows `pll_mode != 0` at boot (AutoGV wrongly enabled); CCF_WP not updated; `ccf_wp_status.ratio` diverges from target; `pll_mode` changed after C-state.</p>
+  <p style="margin:0;font-size:0.9em;">** Any CBB shows `pll_mode != 0` at boot; `pll_mode_ovrden` unexpectedly set; CCF_WP or UFS_STATUS not reflecting PEGA injection; ratio stuck after PEGA release; `pll_mode` changed after C-state.</p>
 </div>
 
 

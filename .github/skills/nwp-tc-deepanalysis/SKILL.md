@@ -797,6 +797,35 @@ Verify that [main description here]...          ← FIRST: becomes tc.scope
 > a full tabbed HTML page (with NWP grading tabs). Only `push_tc_description.py` produces
 > the correct HSDES-compatible fragment.
 
+### Pushing TCD Descriptions to HSD — use `push_tcd_description.py`
+
+**TCDs use a separate script** — `push_tcd_description.py`. It reads
+`KB/pm_tcd_kb/**/{TCD_ID}*.md`, calls `build_desc_from_kb()` to render the 8
+structured sections with inline styles, and PUTs to `test_case_definition.description`.
+
+```bash
+# Dry-run preview (no writes):
+python tools/html/push_tcd_description.py --tcd 22022421183
+
+# Push one TCD after confirmation:
+python tools/html/push_tcd_description.py --tcd 22022421183 --push
+
+# Push without prompt:
+python tools/html/push_tcd_description.py --tcd 22022421183 --push --yes
+```
+
+> **Do NOT push the full `tcd_description_output/TCD_*_preview.html` to HSD** — that file
+> contains page chrome (`<div class="hdr">`, `.wrap`, `.notice`, TC table) with CSS classes
+> that HSD strips, producing broken layout. `push_tcd_description.py` extracts only the
+> 8 inline-styled content sections via `build_desc_from_kb()`.
+
+**TCD vs TC subject values:**
+
+| Artifact | Script | HSD subject |
+|----------|--------|-------------|
+| TC (test_case) | `push_tc_description.py --hsd ID` | `test_case` |
+| TCD (test_case_definition) | `push_tcd_description.py --tcd ID` | `test_case_definition` |
+
 Required data completeness checks for KB markdown:
 
 - Metadata present: HSD ID, title, feature, sub-feature, date/version
