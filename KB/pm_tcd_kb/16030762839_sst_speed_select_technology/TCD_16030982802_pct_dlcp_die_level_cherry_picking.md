@@ -5,11 +5,12 @@
 | **TCD ID** | [16030982802](https://hsdes.intel.com/appstore/article-one/#/16030982802) |
 | **Title** | PCT - DLCP (Die Level Cherry Picking) |
 | **Status** | open |
-| **Owner** | mps |
+| **Owner** | bg3 |
 | **Parent TPF** | [16030762939](https://hsdes.intel.com/appstore/article-one/#/16030762939) |
 | **Parent TP** | [16030762839 — NWP PM SST](https://hsdes.intel.com/appstore/article-one/#/16030762839) |
-| **NWP Status** | TBD — pending `PCT_Module_Mask` fuse confirmation on NWP SKU |
-| **KB last updated** | 2026-07-03 |
+| **Child TCs** | [16030982833](https://hsdes.intel.com/appstore/article-one/#/16030982833) -- DLCP SST_TF_INFO_10 Fuse-to-Register Verification<br>[16030982837](https://hsdes.intel.com/appstore/article-one/#/16030982837) -- DLCP HP Core Position and HWP Capabilities Verification<br>[16030982844](https://hsdes.intel.com/appstore/article-one/#/16030982844) -- Per-SST-Instance Programming Completeness (NWP 2-CBB)<br>[16030982850](https://hsdes.intel.com/appstore/article-one/#/16030982850) -- NWP MADT Partition Algorithm Validation |
+| **NWP Status** | Runnable_On_NWP — 4 TCs covering Scenario A (DLCP active) and Scenario B (DLCP absent) |
+| **KB last updated** | 2026-07-15 |
 
 ---
 
@@ -39,28 +40,73 @@ DLCP is a super-set of standard PCT. The two operational scenarios are:
 
 ### DLCP Boot Flow
 
-```
-Reset Phase 5 (PrimeCode)
-  |
-  +---> Read PCT_Module_Mask OTP fuse per CBB dielet
-  |       cbb0: PCT_Module_Mask[7:0] -> SST_TF_INFO_10[7:0] (RO)
-  |       cbb1: PCT_Module_Mask[7:0] -> SST_TF_INFO_10[7:0] (RO)
-  |
-BIOS CPL3
-  |
-  +---> Read SST_TF_INFO_10 per CBB dielet
-  |       If non-zero -> DLCP mode: use mask for SST_CLOS_ASSOC programming
-  |       If zero     -> standard PCT: BIOS derives HP cores from MADT order
-  |
-  +---> Program SST_CLOS_ASSOC per core to match DLCP mask
-  |       Modules in mask -> CLOS[0] (HP, gets HP TRL ~4.4 GHz)
-  |       Modules not in mask -> CLOS[3] (LP, clipped to LP_CLIP ~P1)
-  |
-  +---> SST_TF_INFO_10 populates IA32_HWP_CAPABILITIES:
-          HP modules -> highest_perf = P0max
-          LP modules -> highest_perf = LP_CLIP
-          OS discovers HP/LP without TPMI query
-```
+<!-- raw-html -->
+<div style="margin:14px 0;border:1px solid #bfcfe8;border-radius:8px;overflow:hidden;font-family:'Segoe UI',Arial,sans-serif;font-size:11.5px;max-width:860px;">
+  <div style="background:#1e3a5f;color:#fff;padding:8px 16px;font-weight:700;font-size:12px;letter-spacing:.5px;text-align:center;">DLCP Boot Flow: OTP Fuse &rarr; TPMI &rarr; BIOS &rarr; OS Discovery</div>
+  <div style="padding:14px 18px;background:#f8fafc;">
+    <!-- Row 1: Manufacturing -->
+    <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:4px;">
+      <div style="flex:1;background:#fff3e0;border:2px solid #e65100;border-radius:6px;padding:8px 12px;">
+        <div style="font-weight:700;color:#c2410c;font-size:10.5px;margin-bottom:4px;">&#128295; Manufacturing (OTP Fuse)</div>
+        <div style="font-size:10px;color:#333;line-height:1.8;">
+          <strong>PCT_Module_Mask</strong> fuse per CBB dielet<br>
+          Encodes which modules are HP (bit=1)<br>
+          One fuse per CBB (cbb0, cbb1 on NWP)<br>
+          <span style="color:#92400e;">Set once at sort — hardware-immutable</span>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:10px;color:#64748b;padding:2px 0;">&#11015; Reset Phase 5</div>
+    <!-- Row 2: PrimeCode PH5 -->
+    <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:4px;">
+      <div style="flex:1;background:#ede9fe;border:2px solid #6d28d9;border-radius:6px;padding:8px 12px;">
+        <div style="font-weight:700;color:#5b21b6;font-size:10.5px;margin-bottom:4px;">PrimeCode Phase 5 (per CBB)</div>
+        <div style="font-size:10px;color:#333;line-height:1.8;">
+          Reads PCT_Module_Mask fuse<br>
+          Writes <strong>SST_TF_INFO_10</strong> TPMI register (RO)<br>
+          cbb0: INFO_10 &larr; cbb0 PCT_Module_Mask<br>
+          cbb1: INFO_10 &larr; cbb1 PCT_Module_Mask<br>
+          <span style="color:#5b21b6;">Happens before BIOS CPL3 handoff</span>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:10px;color:#64748b;padding:2px 0;">&#11015; CPL3 (BIOS reads SST_TF_INFO_10)</div>
+    <!-- Row 3: BIOS CPL3 (two paths) -->
+    <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:4px;">
+      <div style="flex:1;background:#dcfce7;border:2px solid #16a34a;border-radius:6px;padding:8px 12px;">
+        <div style="font-weight:700;color:#15803d;font-size:10.5px;margin-bottom:4px;">&#10003; Scenario A: DLCP Active (INFO_10 &ne; 0)</div>
+        <div style="font-size:10px;color:#333;line-height:1.8;">
+          SST_CLOS_ASSOC[core] &larr; DLCP mask<br>
+          Modules in mask &rarr; CLOS[0] (HP, ~4.4 GHz)<br>
+          Modules not in mask &rarr; CLOS[3] (LP, ~P1)<br>
+          <strong>MADT APIC-ID order ignored</strong> for HP selection
+        </div>
+      </div>
+      <div style="flex:1;background:#f1f5f9;border:2px solid #94a3b8;border-radius:6px;padding:8px 12px;">
+        <div style="font-weight:700;color:#475569;font-size:10.5px;margin-bottom:4px;">&#9711; Scenario B: DLCP Absent (INFO_10 = 0)</div>
+        <div style="font-size:10px;color:#333;line-height:1.8;">
+          SST_CLOS_ASSOC[core] &larr; MADT/APIC-ID order<br>
+          First N modules per partition &rarr; HP<br>
+          TC 16030982833 runs as <em>negative check</em><br>
+          TC 16030982837 skipped (no DLCP mask to validate)
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:10px;color:#64748b;padding:2px 0;">&#11015; OS / PythonSV observability</div>
+    <!-- Row 4: OS discovery -->
+    <div style="display:flex;gap:8px;align-items:stretch;">
+      <div style="flex:1;background:#e0f2fe;border:1px solid #7dd3fc;border-radius:6px;padding:8px 12px;font-size:10.5px;">
+        <div style="font-weight:700;color:#0369a1;margin-bottom:4px;">IA32_HWP_CAPABILITIES (MSR 0x771) per-core</div>
+        <div style="display:flex;gap:8px;">
+          <div style="flex:1;background:#dcfce7;border:1px solid #16a34a;border-radius:4px;padding:5px 8px;font-size:10px;"><strong>HP cores:</strong><br>highest_perf = P0max<br>OS sees elevated ceiling</div>
+          <div style="flex:1;background:#fff7ed;border:1px solid #ea580c;border-radius:4px;padding:5px 8px;font-size:10px;"><strong>LP cores:</strong><br>highest_perf = LP_CLIP<br>OS sees clipped ceiling</div>
+        </div>
+        <div style="margin-top:6px;font-size:9.5px;color:#0369a1;">OS/scheduler can discover HP/LP without TPMI query in DLCP mode</div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /raw-html -->
 
 ### NWP-Specific Deltas
 
@@ -137,12 +183,12 @@ for core in pctd.LP_CORES:
 
 ### TC Coverage Map
 
-| TC | Title | NWP Disposition | Scenario |
-|----|-------|-----------------|---------|
-| TBD | PCT - DLCP SST_TF_INFO_10 Fuse-to-Register Verification | Runnable_On_N-1 | A + B |
-| TBD | PCT - DLCP HP Core Position and HWP Capabilities Verification | Runnable_On_N-1 | A only |
-| TBD | PCT - Per-SST-Instance Programming Completeness (NWP 2-CBB) | Runnable_On_N-1 | A + B |
-| TBD | PCT - NWP MADT Partition Algorithm Validation | Runnable_On_N-1 | A + B |
+| TC ID | Title | NWP Disposition | Scenario |
+|-------|-------|-----------------|----------|
+| [16030982833](https://hsdes.intel.com/appstore/article-one/#/16030982833) | PCT - DLCP SST_TF_INFO_10 Fuse-to-Register Verification | Runnable_On_NWP | A + B |
+| [16030982837](https://hsdes.intel.com/appstore/article-one/#/16030982837) | PCT - DLCP HP Core Position and HWP Capabilities Verification | Runnable_On_NWP | A only |
+| [16030982844](https://hsdes.intel.com/appstore/article-one/#/16030982844) | PCT - Per-SST-Instance Programming Completeness (NWP 2-CBB) | Runnable_On_NWP | A + B |
+| [16030982850](https://hsdes.intel.com/appstore/article-one/#/16030982850) | PCT - NWP MADT Partition Algorithm Validation | Runnable_On_NWP | A + B |
 
 ---
 
