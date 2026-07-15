@@ -1,4 +1,4 @@
-# Deep Analysis: CBB CCF NonAutoGV Mode - Fast GV
+# CBB CCF NonAutoGV Mode - Fast GV
 
 | Field | Value |
 |-------|-------|
@@ -7,108 +7,75 @@
 | **Status** | open |
 | **Owner** | bg3 |
 | **Val Environment** | silicon, virtual_platform |
-| **Feature** | CBB CCF -- Non-Autonomous GV mode with drainless Fast GV transitions |
+| **Feature** | CCF GV / NonAutoGV / Fast GV mode |
 | **Parent TCD** | [22022421183](https://hsdes.intel.com/appstore/article-one/#/22022421183) |
-| **KB last updated** | 2026-06-25 |
+| **KB last updated** | 2026-07-08 |
 
 ---
 
 ## Test Case Intent
 
-**Objective:** Validate CBB CCF Non-Autonomous GV (NonAutoGV) mode and **Fast GV** (drainless frequency transition). In NonAutoGV mode, the TPMI `UFS_CONTROL` is programmed with `UFS_THROTTLE_MODE=0` and `MIN_RATIO=MAX_RATIO=target`, disabling the autonomous BW-heuristic algorithm. The GVFSM continues to run but uses only the RAPL proportional throttle line — no bandwidth-driven adjustments. **Fast GV** is a drainless frequency transition: the CCF ring ratio changes without waiting for outstanding transactions to drain, achieving <1 ms latency versus the normal drain-GV sequence.
+Verify that CBB CCF operates in NonAutoGV mode (AutoGV is NOT POR) and correctly executes GV transitions via the CCF_WP register using Fast GV (PLL mode). Confirm that AutoGV mode is not enabled, that CCF responds to target workpoints written to CCF_WP, and that NonAutoGV mode persists after reset or C-state exit.
 
-**Mode comparison:**
+**Open resolved — Drainless GV or Fast GV?** **Fast GV (PLL mode)** is the NonAutoGV transition method. Confirmed by `cbb_ccf_fast_gv_default_test()` in `ccf_utils.py` which verifies both Ring East and Ring West PLLs are in PLL mode (`ringepll_top.fusecr_ovrd_0.pll_mode == 0`). The `cbb_ccf_fast_gv_pll_crawling_test()` additionally exercises FLL mode (Drainless GV path) as a contrast/comparison test and restores PLL mode afterward.
 
-| Mode | UFS_THROTTLE_MODE | MIN/MAX | BW Heuristics | RAPL Line | GV Type | Latency |
-|------|------------------|---------|---------------|-----------|---------|---------|
-| Autonomous | Any | MIN < MAX | Active | Active | Drain-GV | ~5-10 ms |
-| NonAutoGV (pin) | 0 | MIN = MAX | Disabled | Active | Fast GV | <1 ms |
-| Clamp | 1 | MIN < MAX | Active | Active | Drain-GV | ~5-10 ms |
+**Flow (NonAutoGV mode):**
 
-### Pre-Conditions
+- CBB CCF AutoGV Mode does NOT enable — verify default state is NonAutoGV (PLL mode on Ring East + West PLLs)
+- CBB CCF responds to target workpoint in CCF_WP register (`cbb.base.ccf_pma.ccf_pmc_regs.ccf_wp[0].target_max_ratio`) and executes Fast GV transition
+- Match PCode interpretation — `ccf_wp_status.ratio` tracks the injected CCF_WP target after PEGA injection
+- NonAutoGV mode remains OFF after reset or C-state exit — verify `pll_mode` is still 0 (PLL mode) after core C-state cycle
+- CCF_WP can only be updated when CCF is in NonAuto Mode — verify write succeeds only in PLL mode, not FLL mode
 
-| Pre-Condition | Expected State | Failure Indication |
-|---------------|---------------|-------------------|
-| System booted to XOS/SVOS | BIOS CPL4; PCode GVFSM running | System not booted |
-| TPMI UFS_CONTROL writable | `ufs_control` writes reflected on readback | TPMI write-protected |
-| Baseline CCF ratio known | `UFS_STATUS.CURRENT_RATIO` non-zero; GVFSM in autonomous mode | GVFSM not running |
-| No active RAPL throttle | RAPL PL1 not constraining CCF below test ratios | RAPL overrides NonAutoGV pin |
-| Timing measurement available | `time.time()` or emulation cycle counter for latency check | Cannot measure transition latency |
+**Test scripts:** `pmx_ccf_cbo.py --test_ccf_fast_gv` runs two tests:
+1. `cbb_ccf_fast_gv_default_test()` — verifies PLL mode (Fast GV default) on all CBBs
+2. `cbb_ccf_fast_gv_pll_crawling_test()` — exercises FLL/PLL mode switch (Drainless GV path)
 
-### Test Steps
+---
+
+## Pre-Conditions
+
+| Pre-Condition | Requirement |
+|---|---|
+| System booted to OS | BIOS CPL4 complete; PCode and CCF PMA initialized |
+| CCF in NonAutoGV mode | `ringepll_top.fusecr_ovrd_0.pll_mode == 0` (PLL mode = Fast GV) on all CBBs |
+| PEGA available | `import diamondrapids.pm.pmutils.pega as pega` succeeds |
+| CCF_WP readable | `cbb.base.ccf_pma.ccf_pmc_regs.ccf_wp[0].target_max_ratio` accessible |
+
+---
+
+## Test Steps
 
 | # | Action | Expected Result (PASS) | Failure Indication |
 |---|--------|------------------------|--------------------|
-| 1 | Read and save baseline `UFS_CONTROL` and `UFS_STATUS.CURRENT_RATIO` on both CBBs | Baseline recorded; autonomous mode (MIN < MAX) confirmed | MIN >= MAX -- already non-autonomous |
-| 2 | Enable NonAutoGV on cbb0: write `UFS_THROTTLE_MODE=0`, `MIN_RATIO=MAX_RATIO=0x16` (2.2 GHz pin) | Write accepted; readback matches; `UFS_CONTROL.MIN==MAX=0x16` | Write rejected or mismatch |
-| 3 | Wait 50ms and verify `UFS_STATUS.CURRENT_RATIO = 0x16` | GVFSM pins CCF at 2.2 GHz; no BW-heuristic changes | Ratio drifts from 0x16 -- NonAutoGV pin not holding |
-| 4 | **Fast GV test:** write new pin `MIN_RATIO=MAX_RATIO=0x10` (1.6 GHz); start timer | Ratio changes from 0x16 to 0x10 in <10 ms (drainless = no transaction drain wait) | Latency >10 ms -- Fast GV not engaged; normal drain-GV used instead |
-| 5 | Poll `UFS_STATUS.CURRENT_RATIO` until settled; record transition latency | `CURRENT_RATIO = 0x10` within <10 ms; no intermediate values stuck | Ratio stuck at 0x16 -- GVFSM did not honor new pin |
-| 6 | Repeat Fast GV upward: write `MIN_RATIO=MAX_RATIO=0x16` (2.2 GHz); measure latency | Ratio transitions back to 0x16 in <10 ms (V-first still applies on up-transition) | Ratio does not recover -- up-transition Fast GV broken |
-| 7 | Repeat steps 2-6 on cbb1 independently | cbb1 pins and transitions independently of cbb0 | cbb1 affected by cbb0 -- inter-CBB coupling in NonAutoGV |
-| 8 | **Boundary test:** pin below Pm (write 0x01) | GVFSM clamps to `min_ratio_cap` from UFS_HEADER fuse | No clamping -- below-Pm operation |
-| 9 | **Boundary test:** pin above P0 (write 0xFF) | GVFSM clamps to `max_ratio_cap` from UFS_HEADER | No clamping -- above-P0 operation |
-| 10 | Restore autonomous mode: write original `UFS_CONTROL` (MIN < MAX); wait 100ms | `CURRENT_RATIO` returns to BW-heuristic-driven value; autonomous DVFS resumes | Ratio stuck at last NonAutoGV pin -- GVFSM stuck in NonAutoGV |
-| 11 | Verify `PLR_DIE_LEVEL = 0x0` after all mode transitions | No spurious Performance Limit Reason from NonAutoGV/Fast GV transitions | PLR non-zero -- unexpected throttle during mode switch |
-
-### Pass / Fail Criteria
-
-**PASS:** NonAutoGV pin holds `CURRENT_RATIO` at programmed value; Fast GV transitions (both down and up) complete in <10 ms; boundary clamping to P0/Pm caps correct; per-CBB independence confirmed; autonomous mode restores cleanly; PLR = 0x0 throughout.
-
-**FAIL:** Pin does not hold (ratio drifts); Fast GV latency >10 ms; boundary not clamped; cbb1 affected by cbb0; autonomous mode does not restore; PLR non-zero.
-
-### Post-Process
-
-Save: UFS_CONTROL baseline and each programmed value, UFS_STATUS.CURRENT_RATIO at each step, Fast GV transition latencies (ms), PLR_DIE_LEVEL for both CBBs, UFS_HEADER cap values.
-
-### Reference Documents
-
-- [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#switching-between-fast-gv-drainless-gv) -- NonAutoGV mode, Fast GV (drainless) vs drain-GV, UFS_THROTTLE_MODE encoding
-- [DMR CBB TPMI Support](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_TPMI/cbb_tpmi.html) -- UFS_CONTROL.UFS_THROTTLE_MODE [1:0], MIN_RATIO, MAX_RATIO fields
-- [Architectural TPMI Interface](https://docs.intel.com/documents/pm_doc/src/server/arch_common/TPMI/TPMI.html#dmr-family) -- TPMI cluster register layout
-- [CBB Power Management HAS Index](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html) -- CBB PM feature index
-- [Fabric DVFS KB](../../../pm_features/fabric_dvfs/fabric_dvfs_main.md) -- CCF ring DVFS context, GVFSM description
+| 1 | Read Ring East and Ring West PLL mode per CBB: `cbb.base.ringepll_top.fusecr_ovrd_0.pll_mode` and `ringwpll_top.fusecr_ovrd_0.pll_mode` | Both = 0 (PLL mode = Fast GV) on all CBBs — AutoGV not active | Any CBB shows `pll_mode != 0` — wrong mode |
+| 2 | Inject CCF_WP target via PEGA: `ccf_pegaPstate(sktNum, cbbN, clrgv=target_ratio, chkstr='ccf_wp')`. Read `ccf_wp[0].target_max_ratio` | `target_max_ratio` matches injected ratio; CCF executes Fast GV transition | Ratio not reflected — CCF_WP write rejected or CCF not responding |
+| 3 | Verify `ccf_wp_status.ratio` matches `ccf_wp[0].target_max_ratio` | Status tracks working point — PCode interpretation matches | Mismatch — PCode not honoring CCF_WP |
+| 4 | Cycle core C-state: inject c1e via PEGA, then release to C0. Re-read `pll_mode` | `pll_mode` remains 0 (PLL mode) after C-state exit — NonAutoGV persists | `pll_mode` changed — mode not preserved across C-state |
+| 5 | Write `pll_mode=1` (FLL mode = Drainless GV) on both ring PLLs; verify write accepted; restore to PLL mode | FLL mode accepted and verified; PLL mode restored cleanly | Write rejected or PLL restore fails — mode switch broken |
 
 ---
 
-## Section A: NWP Disposition & Justification
+## Pass / Fail Criteria
 
-**Disposition: Runnable -- NonAutoGV and Fast GV present on NWP**
+**PASS:** `ringepll_top/ringwpll_top.fusecr_ovrd_0.pll_mode == 0` (PLL mode) on all CBBs at boot; CCF_WP `target_max_ratio` reflects PEGA-injected workpoint; `ccf_wp_status.ratio` matches; `pll_mode` unchanged after C-state cycle; FLL/PLL mode toggle succeeds.
 
-CBB PCode GVFSM supports NonAutoGV mode on NWP via the same TPMI UFS_CONTROL mechanism. NWP: 2 CBBs; each independent. CCF P0 = 0x16 (2.2 GHz). Test ratios: 0x16 (P0), 0x10 (P1-ish), 0x08 (Pm).
-
-Tags: `CBB CCF`, `plc.feature.p1`.
+**FAIL:** Any CBB shows `pll_mode != 0` at boot (AutoGV wrongly enabled); CCF_WP not updated; `ccf_wp_status.ratio` diverges from target; `pll_mode` changed after C-state.
 
 ---
 
-## Section B: NWP-Specific Test Procedure
+## Post-Process
 
-### UFS_CONTROL NonAutoGV Encoding (NWP)
+Save: `ringepll_top/ringwpll_top.fusecr_ovrd_0.pll_mode` per CBB (before/after C-state), `ccf_wp[0].target_max_ratio`, `ccf_wp_status.ratio`, PEGA injection log.
 
-| Field | Bits | NonAutoGV Value | Purpose |
-|-------|------|----------------|---------|
-| UFS_THROTTLE_MODE | [1:0] | 0 | Disable autonomous BW heuristics |
-| MAX_RATIO | [14:8] | target | Pin upper bound |
-| MIN_RATIO | [21:15] | = MAX_RATIO | Pin lower bound (MIN=MAX disables DVFS range) |
+---
 
-### Namednodes Paths (NWP)
+## References
 
-| Register | NWP Path | Purpose |
-|----------|----------|---------|
-| UFS_CONTROL | `sv.socket0.cbbN.base.tpmi.ufs_control` | NonAutoGV mode + ratio pin |
-| UFS_STATUS | `sv.socket0.cbbN.base.tpmi.ufs_status` | CURRENT_RATIO readback |
-| PLR_DIE_LEVEL | `sv.socket0.cbbN.base.tpmi.plr_die_level` | Perf Limit Reason |
-
-### Adapted Steps
-
-| Step | Action | NWP Details |
-|------|--------|-------------|
-| 1 | Enable NonAutoGV pin | `ufs_control.ufs_throttle_mode.write(0); ufs_control.max_ratio.write(0x16); ufs_control.min_ratio.write(0x16)` |
-| 2 | Fast GV down | Write new pin `0x10`; poll `ufs_status.current_ratio` until = 0x10 |
-| 3 | Measure latency | `time.time()` delta; expect <10 ms |
-| 4 | Iterate both CBBs | `for cbb in sv.sockets.cbbs:` |
-| 5 | Restore | Write original UFS_CONTROL value |
-
-### Pass Criteria
-
-NonAutoGV pin holds; Fast GV <10 ms both directions; clamping to P0/Pm; autonomous restores; PLR = 0x0.
+- [CBB CCF Power Management HAS (Fast GV / Drainless GV)](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#switching-between-fast-gv-drainless-gv)
+- [CBB CCF Power Management HAS (CCF GV)](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv)
+- [CBB Power Event Generation Architecture (PEGA)](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/Features/PEGA/PEGA.html)
+- [DMR CBB TPMI Support](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_TPMI/cbb_tpmi.html)
+- [CBB CCF Power Management HAS index](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html)
+- [CBB CCP PM Integration HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCP%20HAS/cbb_cpp_has.html#vf-curves-grouping)
+- [pCode Home](https://wiki.ith.intel.com/display/ServerPcode/Server+Pcode+Home)

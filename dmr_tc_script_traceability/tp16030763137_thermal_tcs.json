@@ -1,0 +1,1232 @@
+[
+  {
+    "tc_id": "22022421444",
+    "tc_title": "[ACP] Verify Configuration of Core's Temperature Target",
+    "tcd_id": "22022420579",
+    "tcd_title": "[SoC Thermal Management] ACP (Autonomous Core Perimeter)",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421445",
+    "tc_title": "[ACP] Verify Core Cross Throttle",
+    "tcd_id": "22022420579",
+    "tcd_title": "[SoC Thermal Management] ACP (Autonomous Core Perimeter)",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421449",
+    "tc_title": "[ACP] Verify Core Cross Throttle_emulation",
+    "tcd_id": "22022420579",
+    "tcd_title": "[SoC Thermal Management] ACP (Autonomous Core Perimeter)",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421452",
+    "tc_title": "[ACP] Verify Core EMTTM Disable",
+    "tcd_id": "22022420579",
+    "tcd_title": "[SoC Thermal Management] ACP (Autonomous Core Perimeter)",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421453",
+    "tc_title": "[ACP] Verify Core Thermal Information",
+    "tcd_id": "22022420579",
+    "tcd_title": "[SoC Thermal Management] ACP (Autonomous Core Perimeter)",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421454",
+    "tc_title": "[ACP] Verify Report out of Frequency Reduction Reason",
+    "tcd_id": "22022420579",
+    "tcd_title": "[SoC Thermal Management] ACP (Autonomous Core Perimeter)",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "16030715595",
+    "tc_title": "[PSS]IMH Thermal Throttling",
+    "tcd_id": "22022420585",
+    "tcd_title": "[SoC Thermal Management] CBB Thermal Management",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "",
+    "cmd": ""
+  },
+  {
+    "tc_id": "16030715597",
+    "tc_title": "[PSS]PLR Status registers Check for Thermal Events",
+    "tcd_id": "22022420585",
+    "tcd_title": "[SoC Thermal Management] CBB Thermal Management",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421475",
+    "tc_title": "[CBB Thermal Management] Verify CBB EMTTM Disable",
+    "tcd_id": "22022420585",
+    "tcd_title": "[SoC Thermal Management] CBB Thermal Management",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421476",
+    "tc_title": "[CBB Thermal Management] Verify CBB EMTTM Soft Throttle due to Cross Throttle",
+    "tcd_id": "22022420585",
+    "tcd_title": "[SoC Thermal Management] CBB Thermal Management",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421477",
+    "tc_title": "[CBB Thermal Management] Verify CBB EMTTM Soft Throttle due to Self Throttle",
+    "tcd_id": "22022420585",
+    "tcd_title": "[SoC Thermal Management] CBB Thermal Management",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421478",
+    "tc_title": "[CBB Thermal Management] Verify CBB Temperature Target Handling",
+    "tcd_id": "22022420585",
+    "tcd_title": "[SoC Thermal Management] CBB Thermal Management",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421479",
+    "tc_title": "[CBB Thermal Management] Verify Core Cross Throttle Due to Ring",
+    "tcd_id": "22022420585",
+    "tcd_title": "[SoC Thermal Management] CBB Thermal Management",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421480",
+    "tc_title": "[GPIO Interface] Verify GPIO_BUMP Thermals fuses",
+    "tcd_id": "22022420589",
+    "tcd_title": "[SoC Thermal Management] GPIO Interface",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421481",
+    "tc_title": "[GPIO Interface] Verify XX_MEMHOT_IN_N input pin assertion",
+    "tcd_id": "22022420589",
+    "tcd_title": "[SoC Thermal Management] GPIO Interface",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421482",
+    "tc_title": "[GPIO Interface] Verify XX_MEMHOT_OUT_N output pin assertion",
+    "tcd_id": "22022420589",
+    "tcd_title": "[SoC Thermal Management] GPIO Interface",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421483",
+    "tc_title": "[GPIO Interface] Verify XX_MEMTRIP_N output pin assertion",
+    "tcd_id": "22022420589",
+    "tcd_title": "[SoC Thermal Management] GPIO Interface",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421484",
+    "tc_title": "[GPIO Interface] Verify XX_PROCHOT_N input pin assertion",
+    "tcd_id": "22022420589",
+    "tcd_title": "[SoC Thermal Management] GPIO Interface",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421485",
+    "tc_title": "[GPIO Interface] Verify XX_THERMTRIP_N input/output pin assertion",
+    "tcd_id": "22022420589",
+    "tcd_title": "[SoC Thermal Management] GPIO Interface",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421518",
+    "tc_title": "[IMH Thermal Management] Verify Cold Action",
+    "tcd_id": "22022420596",
+    "tcd_title": "[SoC Thermal Management] IMH Thermal Management",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421519",
+    "tc_title": "[IMH Thermal Management] Verify Disabling Uncore Thermal Throttling",
+    "tcd_id": "22022420596",
+    "tcd_title": "[SoC Thermal Management] IMH Thermal Management",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421520",
+    "tc_title": "[IMH Thermal Management] Verify Uncore Throttling (PID)",
+    "tcd_id": "22022420596",
+    "tcd_title": "[SoC Thermal Management] IMH Thermal Management",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "16030715632",
+    "tc_title": "[PSS]VCCFCFCAB",
+    "tcd_id": "22022420603",
+    "tcd_title": "[SoC Thermal Management] ITD",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421521",
+    "tc_title": "[ITD] Fuse checkout",
+    "tcd_id": "22022420603",
+    "tcd_title": "[SoC Thermal Management] ITD",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421522",
+    "tc_title": "[ITD] Verify ACP (VccCore) ITD",
+    "tcd_id": "22022420603",
+    "tcd_title": "[SoC Thermal Management] ITD",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421524",
+    "tc_title": "[ITD] Verify CCF (VccRing) ITD",
+    "tcd_id": "22022420603",
+    "tcd_title": "[SoC Thermal Management] ITD",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421525",
+    "tc_title": "[ITD] Verify Core MLC SSA (VCC MLC SSA) ITD",
+    "tcd_id": "22022420603",
+    "tcd_title": "[SoC Thermal Management] ITD",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421526",
+    "tc_title": "[ITD] Verify ITD and PkgC6 Interaction",
+    "tcd_id": "22022420603",
+    "tcd_title": "[SoC Thermal Management] ITD",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "rejected",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421527",
+    "tc_title": "[ITD] Verify ITD and PkgC6 Interaction_emulation",
+    "tcd_id": "22022420603",
+    "tcd_title": "[SoC Thermal Management] ITD",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421528",
+    "tc_title": "[ITD] Verify ITD disable",
+    "tcd_id": "22022420603",
+    "tcd_title": "[SoC Thermal Management] ITD",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421534",
+    "tc_title": "[ITD] Verify ITD during reset",
+    "tcd_id": "22022420603",
+    "tcd_title": "[SoC Thermal Management] ITD",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421535",
+    "tc_title": "[ITD] Verify Inf (VccInf) ITD",
+    "tcd_id": "22022420603",
+    "tcd_title": "[SoC Thermal Management] ITD",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421536",
+    "tc_title": "[ITD] Verify UCIe (VCCC2IA) ITD",
+    "tcd_id": "22022420603",
+    "tcd_title": "[SoC Thermal Management] ITD",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421538",
+    "tc_title": "[ITD] Verify VCCCFCIO ITD",
+    "tcd_id": "22022420603",
+    "tcd_title": "[SoC Thermal Management] ITD",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421540",
+    "tc_title": "[ITD] Verify VCCCFCMEM ITD",
+    "tcd_id": "22022420603",
+    "tcd_title": "[SoC Thermal Management] ITD",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421542",
+    "tc_title": "[ITD] Verify VCCFIXDIG ITD",
+    "tcd_id": "22022420603",
+    "tcd_title": "[SoC Thermal Management] ITD",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421546",
+    "tc_title": "[ITD] Verify VCCUCIEA ITD",
+    "tcd_id": "22022420603",
+    "tcd_title": "[SoC Thermal Management] ITD",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022458470",
+    "tc_title": "[ITD] Verify VCCFCFCAB ITD",
+    "tcd_id": "22022420603",
+    "tcd_title": "[SoC Thermal Management] ITD",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421547",
+    "tc_title": "[MCAs] Verify Pcode generates firmware MCA \"DIE TOO HOT\" on invalid temperature",
+    "tcd_id": "22022420606",
+    "tcd_title": "[SoC Thermal Management] MCAs",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "16030715696",
+    "tc_title": "[PSS]Injected Prochot Entry",
+    "tcd_id": "22022420609",
+    "tcd_title": "[SoC Thermal Management] Prochot Flow",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "",
+    "cmd": ""
+  },
+  {
+    "tc_id": "16030715698",
+    "tc_title": "[PSS]PLR Status registers Check for Prochot Events",
+    "tcd_id": "22022420609",
+    "tcd_title": "[SoC Thermal Management] Prochot Flow",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421548",
+    "tc_title": "[Prochot Flow] Verify Prochot CBB Entry and Exit Flow",
+    "tcd_id": "22022420609",
+    "tcd_title": "[SoC Thermal Management] Prochot Flow",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421553",
+    "tc_title": "[Prochot Flow] Verify Prochot IMH Entry and Exit Flow",
+    "tcd_id": "22022420609",
+    "tcd_title": "[SoC Thermal Management] Prochot Flow",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421557",
+    "tc_title": "[Prochot Flow] Verify operation of Prochot Response Power",
+    "tcd_id": "22022420609",
+    "tcd_title": "[SoC Thermal Management] Prochot Flow",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421588",
+    "tc_title": "[Thermal Interrupts] HW_FEEDBACK_NOTIFICATION interrupt",
+    "tcd_id": "22022420616",
+    "tcd_title": "[SoC Thermal Management] Thermal Interrupts",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421595",
+    "tc_title": "[Thermal Interrupts] Verify HIGH_TEMP Interrupt",
+    "tcd_id": "22022420616",
+    "tcd_title": "[SoC Thermal Management] Thermal Interrupts",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421610",
+    "tc_title": "[Thermal Interrupts] Verify IA32_PACKAGE_THERM_INTERRUPT (Pkg MSR 0x1b2)",
+    "tcd_id": "22022420616",
+    "tcd_title": "[SoC Thermal Management] Thermal Interrupts",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421614",
+    "tc_title": "[Thermal Interrupts] Verify IA32_THERM_INTERRUPT (Core MSR 0x19b)",
+    "tcd_id": "22022420616",
+    "tcd_title": "[SoC Thermal Management] Thermal Interrupts",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421618",
+    "tc_title": "[Thermal Interrupts] Verify LOW_TEMP Interrupt",
+    "tcd_id": "22022420616",
+    "tcd_title": "[SoC Thermal Management] Thermal Interrupts",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421620",
+    "tc_title": "[Thermal Interrupts] Verify OUT_OF_SPEC Interrupt",
+    "tcd_id": "22022420616",
+    "tcd_title": "[SoC Thermal Management] Thermal Interrupts",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421627",
+    "tc_title": "[Thermal Interrupts] Verify PROCHOT Interrupt",
+    "tcd_id": "22022420616",
+    "tcd_title": "[SoC Thermal Management] Thermal Interrupts",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421629",
+    "tc_title": "[Thermal Interrupts] Verify THRESHOLD_1 Interrupt",
+    "tcd_id": "22022420616",
+    "tcd_title": "[SoC Thermal Management] Thermal Interrupts",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421633",
+    "tc_title": "[Thermal Interrupts] Verify THRESHOLD_2 Interrupt",
+    "tcd_id": "22022420616",
+    "tcd_title": "[SoC Thermal Management] Thermal Interrupts",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421666",
+    "tc_title": "[Thermtrip] Verify Thermtrip Disable",
+    "tcd_id": "22022420625",
+    "tcd_title": "[SoC Thermal Management] Thermtrip",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421671",
+    "tc_title": "[Thermtrip] Verify Thermtrip shuts down all FIVRs and MBVRs",
+    "tcd_id": "22022420625",
+    "tcd_title": "[SoC Thermal Management] Thermtrip",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421672",
+    "tc_title": "[Thermtrip] Verify functionality of thermtrip pin from various sources",
+    "tcd_id": "22022420625",
+    "tcd_title": "[SoC Thermal Management] Thermtrip",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "16030715740",
+    "tc_title": "[PSS]iMH North VR Hot Detection",
+    "tcd_id": "22022420628",
+    "tcd_title": "[SoC Thermal Management] VR Hot",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421673",
+    "tc_title": "[VR Hot] Verify CBB VR Hot Actions",
+    "tcd_id": "22022420628",
+    "tcd_title": "[SoC Thermal Management] VR Hot",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421674",
+    "tc_title": "[VR Hot] Verify IMH VR Hot Actions",
+    "tcd_id": "22022420628",
+    "tcd_title": "[SoC Thermal Management] VR Hot",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421676",
+    "tc_title": "[VR Hot] Verify VR_THERM_ALERT_DISABLE",
+    "tcd_id": "22022420628",
+    "tcd_title": "[SoC Thermal Management] VR Hot",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421679",
+    "tc_title": "[VR Hot] Verify VR_THERM_ALERT_DISABLE_emulation",
+    "tcd_id": "22022420628",
+    "tcd_title": "[SoC Thermal Management] VR Hot",
+    "tpf_path": "[NWP PM] Socket Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "16030715640",
+    "tc_title": "[PSS]Mclos0 Throttling Status",
+    "tcd_id": "22022420548",
+    "tcd_title": "[Memory Thermal Management] CLTT MR4 based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "",
+    "cmd": ""
+  },
+  {
+    "tc_id": "16030715643",
+    "tc_title": "[PSS]MemClos Feature Discovery",
+    "tcd_id": "22022420548",
+    "tcd_title": "[Memory Thermal Management] CLTT MR4 based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "",
+    "cmd": ""
+  },
+  {
+    "tc_id": "16030715742",
+    "tc_title": "[PSS]MR4-based CLTT",
+    "tcd_id": "22022420548",
+    "tcd_title": "[Memory Thermal Management] CLTT MR4 based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421317",
+    "tc_title": "[MR4] Verify DIMM Thresholds match with default values programed by BIOS",
+    "tcd_id": "22022420548",
+    "tcd_title": "[Memory Thermal Management] CLTT MR4 based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421328",
+    "tc_title": "[MR4] Verify DIMM temp is updated by the MC",
+    "tcd_id": "22022420548",
+    "tcd_title": "[Memory Thermal Management] CLTT MR4 based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421331",
+    "tc_title": "[MR4] Verify DIMM temp is updated by the MC_emulation",
+    "tcd_id": "22022420548",
+    "tcd_title": "[Memory Thermal Management] CLTT MR4 based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421334",
+    "tc_title": "[MR4] Verify DIMM throttle levels values match with default values",
+    "tcd_id": "22022420548",
+    "tcd_title": "[Memory Thermal Management] CLTT MR4 based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421341",
+    "tc_title": "[MR4] Verify end to end Functionality",
+    "tcd_id": "22022420548",
+    "tcd_title": "[Memory Thermal Management] CLTT MR4 based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421347",
+    "tc_title": "[PECI] Verify DIMM temp in MC is being updated by TPMI",
+    "tcd_id": "22022420554",
+    "tcd_title": "[Memory Thermal Management] CLTT PECI based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421352",
+    "tc_title": "[PECI] Verify DIMM thresholds match with default values programed by BIOS",
+    "tcd_id": "22022420554",
+    "tcd_title": "[Memory Thermal Management] CLTT PECI based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421361",
+    "tc_title": "[PECI] Verify end to end functionality",
+    "tcd_id": "22022420554",
+    "tcd_title": "[Memory Thermal Management] CLTT PECI based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421372",
+    "tc_title": "[PECI]Verify DIMM throttle levels values match with default values",
+    "tcd_id": "22022420554",
+    "tcd_title": "[Memory Thermal Management] CLTT PECI based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421376",
+    "tc_title": "[TSOD] Verify CLTT TSOD end to end functionality",
+    "tcd_id": "22022420563",
+    "tcd_title": "[Memory Thermal Management] CLTT TSOD based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "rejected",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421387",
+    "tc_title": "[TSOD] Verify DIMM Thresholds match with default values programed by BIOS",
+    "tcd_id": "22022420563",
+    "tcd_title": "[Memory Thermal Management] CLTT TSOD based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "rejected",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421391",
+    "tc_title": "[TSOD] Verify DIMM Thresholds match with default values programed by BIOS_emulation",
+    "tcd_id": "22022420563",
+    "tcd_title": "[Memory Thermal Management] CLTT TSOD based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421394",
+    "tc_title": "[TSOD] Verify DIMM temp in MC is being updated by SPD controller",
+    "tcd_id": "22022420563",
+    "tcd_title": "[Memory Thermal Management] CLTT TSOD based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "rejected",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421400",
+    "tc_title": "[TSOD] Verify DIMM temp in MC is being updated by SPD controller via BMC/PECI/TPMI OOB",
+    "tcd_id": "22022420563",
+    "tcd_title": "[Memory Thermal Management] CLTT TSOD based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "rejected",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421405",
+    "tc_title": "[TSOD] Verify DIMM temp in MC is being updated by SPD controller_emulation",
+    "tcd_id": "22022420563",
+    "tcd_title": "[Memory Thermal Management] CLTT TSOD based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421407",
+    "tc_title": "[TSOD] Verify DIMM throttle levels values match with default values",
+    "tcd_id": "22022420563",
+    "tcd_title": "[Memory Thermal Management] CLTT TSOD based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "rejected",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421408",
+    "tc_title": "[TSOD] Verify DIMM throttle levels values match with default values_emulation",
+    "tcd_id": "22022420563",
+    "tcd_title": "[Memory Thermal Management] CLTT TSOD based",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421409",
+    "tc_title": "[DDRIO Temperature Compensation] Temperature compensation",
+    "tcd_id": "22022420567",
+    "tcd_title": "[Memory Thermal Management] DDRIO Temperature Compensation",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421411",
+    "tc_title": "[Memhot] MR4 Verify Memhot_In mode functionality",
+    "tcd_id": "22022420570",
+    "tcd_title": "[Memory Thermal Management] Memhot",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421412",
+    "tc_title": "[Memhot] MR4 Verify Memhot_Out mode functionality (copy)",
+    "tcd_id": "22022420570",
+    "tcd_title": "[Memory Thermal Management] Memhot",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421415",
+    "tc_title": "[Memhot] Memhot Disables MR4-based",
+    "tcd_id": "22022420570",
+    "tcd_title": "[Memory Thermal Management] Memhot",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421419",
+    "tc_title": "[Memhot] Memhot Disables MR4-based_emulation",
+    "tcd_id": "22022420570",
+    "tcd_title": "[Memory Thermal Management] Memhot",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421420",
+    "tc_title": "[Memhot] Memhot Disables TSOD-based",
+    "tcd_id": "22022420570",
+    "tcd_title": "[Memory Thermal Management] Memhot",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "rejected",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421422",
+    "tc_title": "[Memhot] Verify Memhot_In mode functionality",
+    "tcd_id": "22022420570",
+    "tcd_title": "[Memory Thermal Management] Memhot",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421423",
+    "tc_title": "[Memhot] Verify Memhot_Out mode functionality",
+    "tcd_id": "22022420570",
+    "tcd_title": "[Memory Thermal Management] Memhot",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421425",
+    "tc_title": "[Memtrip] Disables Memtrip MR4-based",
+    "tcd_id": "22022420575",
+    "tcd_title": "[Memory Thermal Management] Memtrip",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421427",
+    "tc_title": "[Memtrip] Disables Memtrip MR4-based_emulation",
+    "tcd_id": "22022420575",
+    "tcd_title": "[Memory Thermal Management] Memtrip",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421428",
+    "tc_title": "[Memtrip] Disables Memtrip TSOD-based",
+    "tcd_id": "22022420575",
+    "tcd_title": "[Memory Thermal Management] Memtrip",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "rejected",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421434",
+    "tc_title": "[Memtrip] MR4 based",
+    "tcd_id": "22022420575",
+    "tcd_title": "[Memory Thermal Management] Memtrip",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421437",
+    "tc_title": "[Memtrip] Memtrip to Thermtrip",
+    "tcd_id": "22022420575",
+    "tcd_title": "[Memory Thermal Management] Memtrip",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421439",
+    "tc_title": "[Memtrip] PECI based",
+    "tcd_id": "22022420575",
+    "tcd_title": "[Memory Thermal Management] Memtrip",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421441",
+    "tc_title": "[Memtrip] PECI based_emulation",
+    "tcd_id": "22022420575",
+    "tcd_title": "[Memory Thermal Management] Memtrip",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421443",
+    "tc_title": "[Memtrip] TSOD based",
+    "tcd_id": "22022420575",
+    "tcd_title": "[Memory Thermal Management] Memtrip",
+    "tpf_path": "[NWP PM] Memory Thermal Management",
+    "status": "rejected",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "16030715736",
+    "tc_title": "[PSS]CBB DTS Thermal Telemetry",
+    "tcd_id": "22022420582",
+    "tcd_title": "[SoC Thermal Management] CBB DTS & Telemetry",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421456",
+    "tc_title": "[CBB DTS & Telemetry] Verify AON DTS Functionality",
+    "tcd_id": "22022420582",
+    "tcd_title": "[SoC Thermal Management] CBB DTS & Telemetry",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421458",
+    "tc_title": "[CBB DTS & Telemetry] Verify CBO Cluster DTS Functionality",
+    "tcd_id": "22022420582",
+    "tcd_title": "[SoC Thermal Management] CBB DTS & Telemetry",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421461",
+    "tc_title": "[CBB DTS & Telemetry] Verify CCP Thermal Telemetry",
+    "tcd_id": "22022420582",
+    "tcd_title": "[SoC Thermal Management] CBB DTS & Telemetry",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421465",
+    "tc_title": "[CBB DTS & Telemetry] Verify Core DTS Functionality",
+    "tcd_id": "22022420582",
+    "tcd_title": "[SoC Thermal Management] CBB DTS & Telemetry",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421468",
+    "tc_title": "[CBB DTS & Telemetry] Verify Core Disabled DTS operation",
+    "tcd_id": "22022420582",
+    "tcd_title": "[SoC Thermal Management] CBB DTS & Telemetry",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421469",
+    "tc_title": "[CBB DTS & Telemetry] Verify SOC DTS Functionality",
+    "tcd_id": "22022420582",
+    "tcd_title": "[SoC Thermal Management] CBB DTS & Telemetry",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "16030715738",
+    "tc_title": "[PSS]IMH DTS Thermal Telemetry",
+    "tcd_id": "22022420593",
+    "tcd_title": "[SoC Thermal Management] IMH DTS & Telemetry",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421487",
+    "tc_title": "[IMH DTS & Telemetry] Verify Accelerator DTS Functionality",
+    "tcd_id": "22022420593",
+    "tcd_title": "[SoC Thermal Management] IMH DTS & Telemetry",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421498",
+    "tc_title": "[IMH DTS & Telemetry] Verify CGU DTS Functionality",
+    "tcd_id": "22022420593",
+    "tcd_title": "[SoC Thermal Management] IMH DTS & Telemetry",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421501",
+    "tc_title": "[IMH DTS & Telemetry] Verify D2D DTS Functionality",
+    "tcd_id": "22022420593",
+    "tcd_title": "[SoC Thermal Management] IMH DTS & Telemetry",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421504",
+    "tc_title": "[IMH DTS & Telemetry] Verify IO Fabric DTS Functionality",
+    "tcd_id": "22022420593",
+    "tcd_title": "[SoC Thermal Management] IMH DTS & Telemetry",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421506",
+    "tc_title": "[IMH DTS & Telemetry] Verify MIO DTS Functionality",
+    "tcd_id": "22022420593",
+    "tcd_title": "[SoC Thermal Management] IMH DTS & Telemetry",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421508",
+    "tc_title": "[IMH DTS & Telemetry] Verify Memory DTS Functionality",
+    "tcd_id": "22022420593",
+    "tcd_title": "[SoC Thermal Management] IMH DTS & Telemetry",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421515",
+    "tc_title": "[IMH DTS & Telemetry] Verify Memory Fabric DTS Functionality",
+    "tcd_id": "22022420593",
+    "tcd_title": "[SoC Thermal Management] IMH DTS & Telemetry",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421640",
+    "tc_title": "[Thermal Reporting] Verify CORE_PERF_LIMIT_REASONS",
+    "tcd_id": "22022420619",
+    "tcd_title": "[SoC Thermal Management] Thermal Reporting",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421641",
+    "tc_title": "[Thermal Reporting] Verify DTS temperature reporting during reset",
+    "tcd_id": "22022420619",
+    "tcd_title": "[SoC Thermal Management] Thermal Reporting",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421642",
+    "tc_title": "[Thermal Reporting] Verify IA32_MISC_ENABLES (Thread vMSR 0x1a0)",
+    "tcd_id": "22022420619",
+    "tcd_title": "[SoC Thermal Management] Thermal Reporting",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421643",
+    "tc_title": "[Thermal Reporting] Verify IA32_PACKAGE_THERM_MARGIN",
+    "tcd_id": "22022420619",
+    "tcd_title": "[SoC Thermal Management] Thermal Reporting",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421644",
+    "tc_title": "[Thermal Reporting] Verify IA32_PACKAGE_THERM_STATUS",
+    "tcd_id": "22022420619",
+    "tcd_title": "[SoC Thermal Management] Thermal Reporting",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421646",
+    "tc_title": "[Thermal Reporting] Verify IA32_TEMPERATURE_TARGET",
+    "tcd_id": "22022420619",
+    "tcd_title": "[SoC Thermal Management] Thermal Reporting",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421647",
+    "tc_title": "[Thermal Reporting] Verify IA32_THERM_STATUS (Core MSR 0x19c)",
+    "tcd_id": "22022420619",
+    "tcd_title": "[SoC Thermal Management] Thermal Reporting",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421649",
+    "tc_title": "[Thermal Reporting] Verify MSR 0x1A3 MCP_THERMAL_REPORT_1",
+    "tcd_id": "22022420619",
+    "tcd_title": "[SoC Thermal Management] Thermal Reporting",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421650",
+    "tc_title": "[Thermal Reporting] Verify MSR 0x1A4 MCP_THERMAL_REPORT_2",
+    "tcd_id": "22022420619",
+    "tcd_title": "[SoC Thermal Management] Thermal Reporting",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421660",
+    "tc_title": "[Thermal Reporting] Verify POWER_CTL",
+    "tcd_id": "22022420619",
+    "tcd_title": "[SoC Thermal Management] Thermal Reporting",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  },
+  {
+    "tc_id": "22022421665",
+    "tc_title": "[Thermal Reporting][BEAT] Extended C6 validation for Thermal Die Level PLR",
+    "tcd_id": "22022420619",
+    "tcd_title": "[SoC Thermal Management] Thermal Reporting",
+    "tpf_path": "[NWP PM] Thermal Reporting/Telemetry",
+    "status": "open",
+    "val_framework": "os-svos,python-sv",
+    "cmd": ""
+  }
+]

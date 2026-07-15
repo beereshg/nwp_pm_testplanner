@@ -71,7 +71,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
-<br/><p style="margin:10px 0 16px 0;"><strong>Objective:</strong> Verify that BIOS correctly programs the CBB CCF (Converged Coherent Fabric) GV (working-point transition) TPMI control registers for each CBB die. Validate that all CCF GV BIOS knobs are accessible and writable, that the programmed values are within valid ranges, and that PCode interprets and enforces the BIOS-configured limits correctly at runtime. <strong>CBB CCF GV Context:</strong> The CCF ring is the high-speed coherency fabric within each CBB die, operating at 800-2000 MHz. CBB PCode manages CCF frequency and voltage independently per CBB via the GVFSM (GV Finite State Machine). BIOS programs the CCF GV operating constraints (max/min ratios, ELC thresholds) into the TPMI UFS_CONTROL register before OS handoff. On NWP, CBB CCF Ring DVFS is <strong>present and functional</strong> (unlike IMH UFS which is ZBB&#x27;d for customer SKUs). <strong>PASS:</strong> All TPMI UFS_CONTROL fields accessible and non-zero per CBB; MAX_RATIO &gt; MIN_RATIO; <code>AUTONOMOUS_UFS_DISABLED=0</code>; PCode-observed <code>CURRENT_RATIO</code> stays within [MIN_RATIO, MAX_RATIO]; BIOS knob override reflected after reboot. <strong>FAIL:</strong> Any TPMI UFS_CONTROL field is zero or invalid; <code>AUTONOMOUS_UFS_DISABLED=1</code>; <code>CURRENT_RATIO</code> violates BIOS-configured range; BIOS override not reflected in TPMI. Save: UFS_CONTROL and UFS_STATUS register dumps for all CBBs (before/after BIOS override), PCode log showing GVFSM transitions, UFS_STATUS.CURRENT_RATIO samples under load.</p>
+<br/><p style="margin:10px 0 16px 0;">Verify that BIOS correctly configures CBB CCF GV via the two knobs <code>UncoreFreqCtrlCbb</code> (maps to <code>UFS_THROTTLE_MODE</code>: 0=auto, 1=clamp) and <code>UncoreFreqRatioCbb</code> (maps to <code>MAX_RATIO = MIN_RATIO</code> when &gt; 0, dynamic when 0). Confirm PCode enforces the programmed values per CBB. Validated using Python-SV register reads and FlexCon (<code>flexconPM.py</code>). <strong>Flow:</strong></p>
 
 <br/>
 
@@ -83,13 +83,11 @@
 
 <tr><td style="text-align:left;vertical-align:top;padding:8px;">System booted to OS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; PCode initialized</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">TPMI accessible per CBB</td><td style="text-align:left;padding:8px;">`sv.socketX.cbbN.base.tpmi.ufs_control` readable</td></tr>
-
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">CCF GV BIOS knobs configured</td><td style="text-align:left;padding:8px;">Non-default MAX_RATIO / MIN_RATIO set or defaults verified</td></tr>
-
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">PCode running CCF GVFSM</td><td style="text-align:left;padding:8px;">`ufs_status.current_ratio` non-zero on each CBB</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">TPMI accessible per CBB</td><td style="text-align:left;padding:8px;">`sv.sockets.cbbs.base.tpmi.ufs_control` readable</td></tr>
 
 <tr><td style="text-align:left;vertical-align:top;padding:8px;">Python-SV available</td><td style="text-align:left;padding:8px;">`import namednodes; sv = namednodes.sv` succeeds</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">BIOS knobs override tool available</td><td style="text-align:left;padding:8px;">BIOS Setup menu or xmlcli accessible</td></tr>
 
 </table>
 
@@ -109,65 +107,30 @@
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">For each CBB, read `UFS_HEADER` — verify `INTERFACE_VERSION=0x03` and `AUTONOMOUS_UFS_DISABLED=0`</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Version=3; CCF GV enabled per CBB</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">`AUTONOMOUS_UFS_DISABLED=1` — CCF GV incorrectly disabled</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Boot with default BIOS knobs. Read `UFS_CONTROL` per CBB and run `flexconPM.py`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`UFS_THROTTLE_MODE=1` (Clamp default); dynamic ratio range; FlexCon confirms</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">FlexCon/register mismatch</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read `UFS_CONTROL.MAX_RATIO` per CBB</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero value <= 20 (2000 MHz / 100 MHz steps)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Zero — BIOS did not program max ratio</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Set `UncoreFreqCtrlCbb=1, UncoreFreqRatioCbb=N` (e.g. 15, 28, 3). Reboot. Read `UFS_CONTROL` per CBB and run `flexconPM.py`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`UFS_THROTTLE_MODE=1`; `MAX_RATIO=MIN_RATIO=N` (clipped to fused P0/Pm if out of range)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Ratio not reflected; no clipping at fused boundary</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read `UFS_CONTROL.MIN_RATIO` per CBB</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero value >= 8 (800 MHz floor); MIN < MAX</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">MIN=0 or MIN >= MAX — invalid range</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Set `UncoreFreqCtrlCbb=0, UncoreFreqRatioCbb=0`. Reboot. Read and run `flexconPM.py`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`UFS_THROTTLE_MODE=0` (autonomous); dynamic ratio range</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Mode not 0</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read `UFS_CONTROL.ELC_LOW_RATIO` per CBB</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero; typically 8 (800 MHz) in low-power mode</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Zero — ELC Low floor not configured</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read `UFS_CONTROL.UFS_THROTTLE_MODE` per CBB</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">0=OFF (normal) or 1=Clamp; consistent with BIOS knob</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Unexpected value — BIOS knob mismatch</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read `UFS_ADV_CONTROL_1.CCF_RAPL_LINE_SLOPE` per CBB</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero slope programmed</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Zero — RAPL line for CCF not configured</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Write new MAX_RATIO via BIOS knob override tool and reboot; verify TPMI updated</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">New MAX_RATIO reflects BIOS knob value</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">TPMI not updated — BIOS override not working</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">8</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify PCode enforces MAX_RATIO: apply CCF workload; check `UFS_STATUS.CURRENT_RATIO` <= MAX_RATIO</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Current ratio stays at or below BIOS-configured max</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">CCF exceeds MAX_RATIO — PCode not enforcing</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">9</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify PCode enforces MIN_RATIO: enter low-utilization state; check `UFS_STATUS.CURRENT_RATIO` >= MIN_RATIO</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Current ratio stays at or above BIOS-configured min</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">CCF drops below MIN_RATIO — PCode not enforcing</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Set `UncoreFreqCtrlCbb=0, UncoreFreqRatioCbb=N` (e.g. 16, 27). Reboot. Verify</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`UFS_THROTTLE_MODE=0`; `MAX_RATIO=MIN_RATIO=N`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Mode/ratio not applied</td>
 </tr>
 
 </table>
@@ -182,13 +145,13 @@
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
   <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
-  <p style="margin:0;font-size:0.9em;">** All TPMI UFS_CONTROL fields accessible and non-zero per CBB; MAX_RATIO > MIN_RATIO; `AUTONOMOUS_UFS_DISABLED=0`; PCode-observed `CURRENT_RATIO` stays within [MIN_RATIO, MAX_RATIO]; BIOS knob override reflected after reboot.</p>
+  <p style="margin:0;font-size:0.9em;">** All BIOS knobs for CCF GV in each CBB available and writable. PCode interpretation matches: `UncoreFreqCtrlCbb` → `UFS_THROTTLE_MODE`; `UncoreFreqRatioCbb` → `MAX_RATIO=MIN_RATIO`. FlexCon (`flexconPM.py`) confirms register values.</p>
 </div>
 
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
   <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
-  <p style="margin:0;font-size:0.9em;">** Any TPMI UFS_CONTROL field is zero or invalid; `AUTONOMOUS_UFS_DISABLED=1`; `CURRENT_RATIO` violates BIOS-configured range; BIOS override not reflected in TPMI.</p>
+  <p style="margin:0;font-size:0.9em;">** Any knob not reflected in `UFS_CONTROL`; FlexCon disagrees with direct register read; ratio not clipped to fused P0/Pm range.</p>
 </div>
 
 
@@ -208,7 +171,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
-<br/><p style="margin:10px 0;">Save: UFS_CONTROL and UFS_STATUS register dumps for all CBBs (before/after BIOS override), PCode log showing GVFSM transitions, UFS_STATUS.CURRENT_RATIO samples under load. - [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv) -- CCF GV execution flow, GVFSM, V-first/F-first transitions</p>
+<br/><p style="margin:10px 0;">Save <code>UFS_CONTROL</code> dump per CBB for each scenario, FlexCon output log, fused P0/Pm ratios from <code>sst_pp_info_11</code>.</p>
 
 <br/>
 
@@ -219,18 +182,24 @@
 <ul>
 
 
+<li><a href="https://hsdes.intel.com/appstore/article-one/#/22611874742">HSD 22611874742</a> — Execution Evidence HSD 22611874742</li>
+
+
+
+
+<li><a href="https://docs.intel.com/documents/System-firmware-bios/Domain/ServerCpuPm/Index/CPU%20&%20PM%20BIOS%20Knobs/BiosKnobs.html#figure-cpu-p-state-control">BIOS CPU P-State Knobs (UncoreFreqCtrlCbb, UncoreFreqRatioCbb)</a></li>
 
 <li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv">CBB CCF Power Management HAS</a></li>
 
 <li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_TPMI/cbb_tpmi.html">DMR CBB TPMI Support</a></li>
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/server/arch_common/TPMI/TPMI.html#dmr-family">Architectural TPMI Interface</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/server/arch_common/TPMI/TPMI.html#dmr-family">Architectural UFS TPMI Interface</a></li>
 
-<li><a href="https://docs.intel.com/documents/System-firmware-bios/Domain/ServerCpuPm/Index/CPU%20&%20PM%20BIOS%20Knobs/BiosKnobs.html#figure-cpu-p-state-control">BIOS CPU P-State Knobs</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/server/GNR/Features/Hierarchical%20UFS/HPM_UFS.html#bios-control">Uncore Frequency Scaling in a Hierarchical SoC</a></li>
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html">CBB Power Management HAS Index</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html">CBB CCF Power Management HAS index</a></li>
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/server/GNR/Features/Hierarchical%20UFS/HPM_UFS.html#bios-control">Uncore Frequency Scaling HAS</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html">CBB Telemetry Aggregator</a></li>
 
 
 </ul>

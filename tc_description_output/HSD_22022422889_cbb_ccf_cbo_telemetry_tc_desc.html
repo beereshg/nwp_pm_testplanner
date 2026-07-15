@@ -45,7 +45,7 @@
     <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022422889" target="_blank" rel="noopener">HSD 22022422889 ↗</a>
   </h1>
   <div class="chips">
-    <span class="chip">CBB CCF -- CBO traffic counters as CCF DVFS BW heuristics input › </span>
+    <span class="chip">Ring Scalability / CBO Telemetry / SBO Telemetry › </span>
     <span class="chip disp"></span>
     <span class="chip">Env: silicon, virtual_platform</span>
   </div>
@@ -71,7 +71,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
-<br/><p style="margin:10px 0 16px 0;"><strong>Objective:</strong> Validate CBB CBO (Cache Box) telemetry used as input to the CCF DVFS bandwidth heuristics. CBO traffic counts (CMS/CRS read/write BW) drive the CCF ring frequency selection via the BW threshold LUT walk in the PCode slow loop (~1 ms period). Tests verify CBO counters increment under mesh-bound workload, the slow-loop correctly reads CBO telemetry, and the CCF frequency responds to high CBO traffic. <strong>NWP topology:</strong> 2 CBBs (cbb0/cbb1) x 48 cores = 96 cores total. CCF ring managed autonomously by CBB PCode GVFSM. CCF target = 2.2 GHz (ratio 0x16) for full bandwidth (460 GB/s). MC6 is the deepest idle state (PkgC6 fused off). <strong>PASS:</strong> CBO counters increment under workload; CCF frequency responds to BW demand; per-CBB independence; counters quiesce at idle; PLR = 0x0. <strong>FAIL:</strong> Counters static; CCF doesn&#x27;t respond to CBO traffic; CBBs not independent; PLR non-zero. Save: counter snapshots (baseline and under load), UFS_STATUS.CURRENT_RATIO trace, PLR_DIE_LEVEL for both CBBs.</p>
+<br/><p style="margin:10px 0 16px 0;">Verify post-silicon extraction of CBB CCF ring scalability telemetry from CBO lookup counters and SBO snoop counters. Ring Scalability telemetry is the mechanism by which PCode measures IA traffic to decide CCF frequency (GV) changes per RSE (Ring Scalability Event, ~2k uclk cycles). Verify all CBO and SBO telemetry counters are accessible, can be enabled/disabled, and are non-zero during CCF activity. <strong>CBO telemetries (per cluster <code>i_ccf_env{N}</code>, per ingress <code>ingress_{NN}</code>):</strong></p>
 
 <br/>
 
@@ -81,13 +81,13 @@
 <br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
 <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">System booted to XOS/SVOS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; PCode running</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">System booted to OS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; PCode running Ring Scalability</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">TPMI accessible per CBB</td><td style="text-align:left;padding:8px;">`sv.socket0.cbbN.base.tpmi.*` readable</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">CBO counters accessible</td><td style="text-align:left;padding:8px;">`cbb.base.i_ccf_env0.ingress_00.cbo_lookup_counter` readable/writable</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">PythonSV namednodes loaded</td><td style="text-align:left;padding:8px;">`import namednodes; sv = namednodes.sv` succeeds</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">SBO counters accessible</td><td style="text-align:left;padding:8px;">`cbb.base.i_ccf_env0.sbo_misc_regs.sbo_snoop_counter` readable/writable</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">Workload available</td><td style="text-align:left;padding:8px;">CPU stress or coherency workload can be launched</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">IA activity available</td><td style="text-align:left;padding:8px;">System running workload (idle OS or Supercollider) to drive CBO lookups</td></tr>
 
 </table>
 
@@ -107,44 +107,37 @@
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read baseline CBO telemetry counters via HPM 0x35 (`MEM_BOUND_CYCLES`) or TPMI telemetry</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero baseline; counters accessible</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Zero or inaccessible -- CBO telemetry not initialized</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Enable all CBO lookup counters per CBB: set `lookup_counter_enable=1` for all `i_ccf_env{0-3}.ingress_{NN}`. Let run 15s. Read `lookup_counter`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">At least one `lookup_counter > 0` per CBB under idle OS activity</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">All counters zero — CBO lookup counting not functional</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Apply memory-bandwidth workload (memcpy / stream benchmark); read CBO traffic counters after 100ms</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">CBO BW counters increment significantly; MEM_BOUND_CYCLES increase</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Counters static -- workload not driving CBO traffic</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Test CBO counter disable: `ccf_cbo_telemetry_lookup_cntr_disable_test(skt, 'cbbs', 'i_ccf_envs', 'ingresss', rtime=100)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PASS (diff==0) — disabled counters stable; freeze mechanism works</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">FAIL — disabled counters changed; disable mechanism broken</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify CCF ring frequency increases in response to high CBO BW: read `UFS_STATUS.CURRENT_RATIO`</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">CCF ratio increases toward P0 (2.2 GHz) under high CBO traffic</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Ratio unchanged -- CBO telemetry not feeding BW heuristic</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Test CBO ingress-all enable/disable toggle: `ccf_cbo_telemetry_lookup_cntr_enable_disable_all_test(skt, 'cbbs', 'i_ccf_envs', iter_num=10)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">All toggles accepted; `lookup_counter_enable` reflects written value</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Any toggle fails — ingress-all register not controlling all ingresss</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Reduce load to idle; verify CBO counters stop incrementing and CCF frequency returns to low-power</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Counters plateau; CCF ratio drops toward ELC Low floor (~800 MHz)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Counters still incrementing at idle -- CBO not quiescing</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Enable all SBO snoop counters: set `snoop_counter_enable=1` for all `i_ccf_env{0-3}`. Let run 15s. Read `snoop_counter`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">At least one `snoop_counter > 0` per CBB (snoop traffic present)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">All zero — SBO snoop counting not functional</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify per-CBB independence: apply load to cbb0 only; verify cbb0 CBO counters > cbb1</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">cbb0 telemetry shows activity; cbb1 near-zero</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Identical values -- CBB not isolated in telemetry</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify PLR_DIE_LEVEL = 0x0 during all CBO telemetry read operations</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">PLR = 0x0; no spurious throttle from telemetry overhead</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">PLR non-zero -- CBO telemetry reads causing interference</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Test SBO counter disable: `ccf_sbo_telemetry_snoop_cntr_disable_test(skt, 'cbbs', 'i_ccf_envs', rtime=100)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PASS (diff==0) — disabled snoop counters stable</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">FAIL — disabled snoop counters changed</td>
 </tr>
 
 </table>
@@ -159,13 +152,13 @@
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
   <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
-  <p style="margin:0;font-size:0.9em;">** CBO counters increment under workload; CCF frequency responds to BW demand; per-CBB independence; counters quiesce at idle; PLR = 0x0.</p>
+  <p style="margin:0;font-size:0.9em;">** All CBO lookup and SBO snoop counters accessible per CBB; enable/disable toggle works for both; at least one counter > 0 per CBB when enabled under system activity; disabled counters remain stable.</p>
 </div>
 
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
   <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
-  <p style="margin:0;font-size:0.9em;">** Counters static; CCF doesn't respond to CBO traffic; CBBs not independent; PLR non-zero.</p>
+  <p style="margin:0;font-size:0.9em;">** Any counter inaccessible; enable/disable toggle fails; all counters remain zero when enabled; disabled counters change.</p>
 </div>
 
 
@@ -185,7 +178,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
-<br/><p style="margin:10px 0;">Save: counter snapshots (baseline and under load), UFS_STATUS.CURRENT_RATIO trace, PLR_DIE_LEVEL for both CBBs. - [CBB Telemetry Aggregator](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details) -- CBO BW counters, HPM 0x35</p>
+<br/><p style="margin:10px 0;">Save: CBO <code>lookup_counter</code> values for all <code>i_ccf_env{N}.ingress_{NN}</code> per CBB (enabled state); SBO <code>snoop_counter</code> values; enable/disable toggle pass/fail counts.</p>
 
 <br/>
 
@@ -197,11 +190,15 @@
 
 
 
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#cbb-ring-frequency-scalability">CBB Ring frequency scalability</a></li>
+
 <li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details">CBB Telemetry Aggregator</a></li>
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html">CBB Power Management HAS Index</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv">CBB CCF Power Management HAS</a></li>
 
-<li><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html">NWP PM MAS</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html">CBB CCF Power Management HAS index</a></li>
+
+<li><a href="https://wiki.ith.intel.com/display/ServerPcode/Server+Pcode+Home">pCode Home</a></li>
 
 
 </ul>

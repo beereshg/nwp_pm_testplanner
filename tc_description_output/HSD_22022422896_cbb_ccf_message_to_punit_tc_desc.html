@@ -45,7 +45,7 @@
     <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022422896" target="_blank" rel="noopener">HSD 22022422896 ↗</a>
   </h1>
   <div class="chips">
-    <span class="chip">CBB CCF -- HPM messages from CBB PCode to IMH/NIO Primecode › </span>
+    <span class="chip">Ring Scalability / Distress Message / PUnit Grade Indication › </span>
     <span class="chip disp"></span>
     <span class="chip">Env: silicon, virtual_platform</span>
   </div>
@@ -71,7 +71,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
-<br/><p style="margin:10px 0 16px 0;"><strong>Objective:</strong> Validate CBB CCF HPM (Hierarchical Power Management) messages sent from CBB PCode to IMH/NIO Primecode: HPM 0x1b (CBB_CCF_FREQUENCY: UPSTREAM_CCF_DESIRED_RATIO), HPM 0x35 (ACTIVE_CYCLES_TELEMETRY: MEM_BOUND_CYCLES), HPM 0x36 (MOST_ACTIVE_CORE_C0_TELEMETRY). Tests verify messages are sent with correct content, Primecode correctly decodes and acts on them, and the CBB-IMH HPM coordination works end-to-end. <strong>NWP topology:</strong> 2 CBBs (cbb0/cbb1) x 48 cores = 96 cores total. CCF ring managed autonomously by CBB PCode GVFSM. CCF target = 2.2 GHz (ratio 0x16) for full bandwidth (460 GB/s). MC6 is the deepest idle state (PkgC6 fused off). <strong>PASS:</strong> HPM 0x1b/0x35/0x36 all sent with correct content; Primecode ELC responds to HPM 0x36; Uniform mode coordination works; PLR = 0x0. <strong>FAIL:</strong> HPM message not sent or stale; Primecode ELC doesn&#x27;t respond; Uniform mode CBBs disagree; PLR non-zero. Save: counter snapshots (baseline and under load), UFS_STATUS.CURRENT_RATIO trace, PLR_DIE_LEVEL for both CBBs.</p>
+<br/><p style="margin:10px 0 16px 0;">Verify the CCF PMA distress message delivery mechanism to PUnit — specifically that the message carries a <strong>4-bit grade</strong> (0-15) via CR_WR opcode to PUNIT_CR_RING_DISTRESS_STATUS (address 0x1C8), rather than the legacy 3-state {No, Low, High} distress. The scaling block converts logistic regression output to a 4-bit grade using 7 configurable thresholds (th0..th6 → Grade0..7[3:0]). This TC verifies the full-resolution grade message is received and readable by PCode. <strong>⚠️ NOTE — Differentiation from related TCs:</strong></p>
 
 <br/>
 
@@ -81,13 +81,13 @@
 <br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
 <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">System booted to XOS/SVOS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; PCode running</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">System booted to OS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; ring scalability running</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">TPMI accessible per CBB</td><td style="text-align:left;padding:8px;">`sv.socket0.cbbN.base.tpmi.*` readable</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Ring scalability enabled</td><td style="text-align:left;padding:8px;">MSR 0x1FC bit[25] `disable_ring_ee=0`</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">PythonSV namednodes loaded</td><td style="text-align:left;padding:8px;">`import namednodes; sv = namednodes.sv` succeeds</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">`ring_distress_status` accessible</td><td style="text-align:left;padding:8px;">`cbb.base.punit_regs.punit_pmsb.pmsb_pcu.ring_distress_status` readable</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">Workload available</td><td style="text-align:left;padding:8px;">CPU stress or coherency workload can be launched</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">System under varying load</td><td style="text-align:left;padding:8px;">Idle + light workload to generate non-trivial grade values</td></tr>
 
 </table>
 
@@ -107,44 +107,37 @@
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify HPM 0x1b is sent after CCF GV decision: pin CCF at 0x12 (NonAutoGV) and check UPSTREAM_CCF_DESIRED_RATIO in HPM 0x1b</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">HPM 0x1b sent with UPSTREAM_CCF_DESIRED_RATIO = 0x12 within one slow-loop period (~1ms)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">HPM message not sent or wrong ratio -- CBB-to-IMH CCF freq coordination broken</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify ring scalability enabled: `cbb_ccf_distress_to_punit_test(skt, 'cbbs')` — checks MSR 0x1FC bit[25] per core</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`disable_ring_ee=0` on all cores — message pathway active</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Any core shows bit=1 — messages not being generated</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Apply memory-bound workload; verify HPM 0x35 MEM_BOUND_CYCLES increments and is delivered to Primecode</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">MEM_BOUND_CYCLES increases under workload; Primecode slow-loop receives updated value</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">HPM 0x35 not updating -- CBB not sending memory-bound telemetry</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read `ring_distress_status` repeatedly (10 samples, 1s apart): check `ia_distress_invalid=0` and `snoop_level_invalid=0`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Both validity flags = 0 consistently — message format correct</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Any invalid flag set — CCF PMA not initializing message correctly</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Apply high CPU utilization; verify HPM 0x36 CORE_C0_TIME increases in proportion to cores active</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">MOST_ACTIVE_CORE_C0_TELEMETRY reflects fraction of total_time; value correlates with load</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">HPM 0x36 stale or wrong -- ELC C0 utilization input broken</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Sample `ia_distress[3:0]` across idle and light workload. Verify at least 2 distinct values observed</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`ia_distress` takes multiple values across samples — full 4-bit grade functional (not stuck at one level)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Always same value — grade not updating or stuck at zero</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify Primecode ELC decision uses HPM 0x36: set CPU to 100% load; verify ELC High mode activated via UFS_CONTROL</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">ELC High threshold crossed; UFS_CONTROL.ELC_HIGH_RATIO applied to fabric freq</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">ELC does not activate -- HPM 0x36 not reaching Primecode ELC handler</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Sample `snoop_level[11:8]` across same window</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`snoop_level` accessible and non-constant</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Always 0 or invalid — snoop message not reaching PUnit</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify HPM 0x1b Uniform mode: enable UNIFORM_CBB_FABRIC_FREQ_MODE; check both CBBs send coordinated desired ratios</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Both CBBs send same desired ratio; Primecode resolves min and distributes</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">CBBs disagree in Uniform mode -- HPM aggregation not working</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify PLR_DIE_LEVEL = 0x0 during all HPM message tests</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">PLR = 0x0; no spurious throttle from HPM coordination</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">PLR non-zero -- HPM message caused unintended state</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read `ring_distress_status.group` field across multiple samples</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Group field toggles between 0 (Main) and 1 (Snoop) — both message types sent periodically</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Only one group value — one message type not being sent</td>
 </tr>
 
 </table>
@@ -159,13 +152,13 @@
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
   <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
-  <p style="margin:0;font-size:0.9em;">** HPM 0x1b/0x35/0x36 all sent with correct content; Primecode ELC responds to HPM 0x36; Uniform mode coordination works; PLR = 0x0.</p>
+  <p style="margin:0;font-size:0.9em;">** `ring_distress_status` receives valid 4-bit grade messages (0-15 range, not stuck); both `ia_distress_invalid=0` and `snoop_level_invalid=0`; grade value varies across samples under varying load; both Group=0 and Group=1 messages observed; MSR 0x1FC `disable_ring_ee=0`.</p>
 </div>
 
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
   <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
-  <p style="margin:0;font-size:0.9em;">** HPM message not sent or stale; Primecode ELC doesn't respond; Uniform mode CBBs disagree; PLR non-zero.</p>
+  <p style="margin:0;font-size:0.9em;">** `ring_distress_status` always reads 0 or shows invalid flags; `ia_distress` stuck at single value regardless of load; only one group type observed; ring scalability disabled.</p>
 </div>
 
 
@@ -185,7 +178,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
-<br/><p style="margin:10px 0;">Save: counter snapshots (baseline and under load), UFS_STATUS.CURRENT_RATIO trace, PLR_DIE_LEVEL for both CBBs. - [HPM Message Specification](https://docs.intel.com/documents/primecode/has/DMR/Hierarchical%20PM/HPM_Message_Specification.html) -- HPM 0x1b, 0x35, 0x36 message formats</p>
+<br/><p style="margin:10px 0;">Save: 10+ samples of <code>ring_distress_status</code> (ia_distress, snoop_level, both invalid flags, group) per CBB across idle and workload, MSR 0x1FC value per core.</p>
 
 <br/>
 
@@ -196,12 +189,22 @@
 <ul>
 
 
+<li><a href="https://hsdes.intel.com/appstore/article-one/#/22022422894">HSD 22022422894</a> — Related TC 22022422894 - IA Distress</li>
 
-<li><a href="https://docs.intel.com/documents/primecode/has/DMR/Hierarchical%20PM/HPM_Message_Specification.html">HPM Message Specification</a></li>
+<li><a href="https://hsdes.intel.com/appstore/article-one/#/22022422895">HSD 22022422895</a> — Related TC 22022422895 - Snoop Distress</li>
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html">CBB Power Management HAS Index</a></li>
 
-<li><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html">NWP PM MAS</a></li>
+
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#cbb-ring-frequency-scalability">CBB CCF Power Management HAS (Ring Scalability)</a></li>
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv">CBB CCF Power Management HAS</a></li>
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details">CBB Telemetry Aggregator</a></li>
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html">CBB CCF Power Management HAS index</a></li>
+
+<li><a href="https://wiki.ith.intel.com/display/ServerPcode/Server+Pcode+Home">pCode Home</a></li>
 
 
 </ul>

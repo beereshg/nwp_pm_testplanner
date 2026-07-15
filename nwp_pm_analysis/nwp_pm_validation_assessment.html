@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>NWP PM Validation Assessment Report — 2026-07-07</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px}
+.hdr{background:linear-gradient(135deg,#0f4c81 0%,#1e40af 60%,#4f46e5 100%);color:#fff;padding:20px 28px}
+.hdr h1{font-size:22px;font-weight:700;margin-bottom:6px}
+.hdr p{font-size:11px;opacity:.85;line-height:1.7}
+.hdr a{color:#bfdbfe}
+.stats{display:flex;gap:12px;background:#1a5fa8;padding:10px 24px;flex-wrap:wrap}
+.stat{background:rgba(255,255,255,.18);border-radius:8px;padding:8px 18px;text-align:center;color:#fff}
+.stat .n{font-size:24px;font-weight:700;display:block}
+.stat .l{font-size:9px;opacity:.8}
+.toc{background:#fff;border-radius:8px;margin:14px 18px 0;padding:12px 16px;border:1px solid #d1d5db}
+.toc h3{font-size:12px;font-weight:700;margin-bottom:8px;color:#374151}
+.toc a{font-size:11px;color:#1a56db;text-decoration:none;margin:0 8px 4px 0;display:inline-block}
+.wrap{max-width:1600px;margin:14px auto;padding:0 16px 50px}
+.tp-card{background:#fff;border:1px solid #d1d5db;border-radius:10px;margin-bottom:20px;overflow:hidden}
+.tp-hdr{background:linear-gradient(135deg,#f0f4f9,#e8eef7);padding:14px 18px;border-bottom:1px solid #d1d5db}
+.tp-body{padding:0 0 8px}
+.tp-section{padding:10px 18px;border-bottom:1px solid #f3f4f6}
+.tp-section:last-child{border-bottom:none}
+.sec-label{font-size:11px;font-weight:700;color:#374151;margin-bottom:4px}
+</style>
+</head><body>
+<div class="hdr">
+  <h1>NWP PM Validation Assessment Report</h1>
+  <p>
+    <strong>Scope:</strong> Newport Power Management — Full PM Test Plan Portfolio &nbsp;|&nbsp;
+    <strong>Folder:</strong> <a href="https://hsdes.intel.com/appstore/phoenix/my-items?wf=22011658183&wfs=22011658203&gn=1&gn=0&v=server.test_plan&family=Newport&family_group=NEWPORT&scope=product&folder=Base&projectId=22020919772&role=2&uFolder=22022534050" target="_blank">Phoenix NWP PM 22022534050 &#x2197;</a> &nbsp;|&nbsp;
+    <strong>Generated:</strong> 2026-07-07 &nbsp;|&nbsp;
+    <strong>Script reference:</strong> Active file: <code>socket_rapl_pmx.py</code> (NWP RAPL validation script)<br>
+    <strong>Source stack per TP:</strong> FR / HAS / MAS / CSR-register-spec / HSD-sightings / RTL-fw-collateral / prior-validation-methodology / BIOS-config
+  </p>
+</div>
+<div class="stats">
+  <div class="stat"><span class="n">14</span><span class="l">NWP PM TPs</span></div>
+  <div class="stat"><span class="n">466</span><span class="l">Active TCs</span></div>
+  <div class="stat"><span class="n">192</span><span class="l">Total TCDs</span></div>
+  <div class="stat" style="background:#dc2626"><span class="n">71</span><span class="l">Empty TCDs (0 TCs)</span></div>
+  <div class="stat" style="background:#166534"><span class="n">121</span><span class="l">TCDs with content</span></div>
+  <div class="stat" style="background:#5b21b6"><span class="n">496</span><span class="l">KB Inference Files</span></div>
+</div>
+<div class="toc"><h3>&#9654; Test Plan Index</h3><a href="#tp-15019477771">[NWP PM] RAPL (Running Average Power Limit</a><a href="#tp-15019477838">[NWP PM] PKGC (Package C-State)</a><a href="#tp-15019477845">[NWP PM] Power Control (SIMPL/PMAX/SVID)</a><a href="#tp-15019478558">[NWP PM] C-State (PantherCove PNC)</a><a href="#tp-16030686481">[NWP PM] P-State / HWP (PNC Core)</a><a href="#tp-16030762529">[NWP PM] Autonomous Idle PM (AIPM)</a><a href="#tp-16030762839">[NWP PM] SST (Speed Select Technology)</a><a href="#tp-16030763137">[NWP PM] Thermal Management</a><a href="#tp-16030763243">[NWP PM] Fabric DVFS (UFS)</a><a href="#tp-16030765561">[NWP PM] PM Interfaces (OS2P/TPMI/PECI/PMT)</a><a href="#tp-16030765631">[NWP PM] PM Cross Product</a><a href="#tp-16030767511">[NWP PM] Telemetry (PEM/PLR)</a><a href="#tp-16030785148">[NWP PM] Platform TCD tranformation</a><a href="#tp-22022420505">[NWP PM] CBB CCF PM</a></div>
+<div class="wrap">
+<div class="tp-card" id="tp-15019477771">
+  <div class="tp-hdr">
+    <div class="tp-title">
+      <a href="https://hsdes.intel.com/appstore/article-one/#/15019477771" target="_blank" style="color:#1a56db;font-family:Consolas,monospace;font-size:11px">15019477771</a>
+      <span style="font-weight:700;font-size:14px;margin-left:8px">[NWP PM] RAPL (Running Average Power Limit</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <span style="background:#dc2626;color:#fff;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700">36 TCs, 17/26 TCDs EMPTY</span>
+      <span style="background:#e5e7eb;color:#374151;padding:3px 8px;border-radius:4px;font-size:10px">TCDs: 26 | Empty: 17</span>
+      <span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:4px;font-size:10px">Active TCs: 36</span>
+    </div>
+  </div>
+  <div class="tp-body">
+    
+    <div class="tp-section">
+      <div class="sec-label">&#128206; Source Documents</div>
+      <div style="margin-top:4px"><span style="background:#eff6ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>HAS</strong>: NWP RAPL HAS</span> <span style="background:#f0fdf4;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>CSR</strong>: socket_rapl_pl1/pl2_control</span> <span style="background:#fffbeb;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>FR</strong>: NWP PM RAPL Feature</span> <span style="background:#f5f3ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>KB</strong>: KB/pm_tcd_kb/15019477653_*</span> </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128295; Feature Summary (from local KB)</div>
+      <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px;background:#f9fafb;padding:8px 10px;border-radius:4px;border-left:3px solid #3b82f6">
+        Power/RAPL &gt; Memory PM (MemCLOS / DRC + CLTT) &gt; Status: Restructured — NWP delta enriched from MCP HAS/MAS query &gt; Parent: Power / RAPL Baseline (DMR) Memory PM encompasses two distinct mechanisms: 1. MemCLOS / DRC (Dynamic Resource Controller) — firmware-based memory bandwidth QoS that throttles low-priority cores to protect high-priority workload memory access 2. CLTT (Closed Loop Thermal Thrott Power/RAPL &gt; PEM (PnP Excursion Monitor) &gt; Status: Restructured — NWP delta enriched from MCP HAS/MAS query &gt; Parent: Power / RAPL Baseline (DMR) PEM provides configurable power and performance excursion monitors for CSP at-scale manageability. It detects sustained core frequency drops below a user-defined threshold (FET) and reports which throttling reason caused the excursion (RAPL, thermal, PRO
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128196; TPF → TCD → TC Hierarchy</div>
+      <table style="width:100%;border-collapse:collapse;margin-top:4px"><thead><tr style="background:#f8faff"><th style="padding:4px 8px;text-align:left;font-size:10px;width:40px">Type</th><th style="padding:4px 8px;text-align:left;font-size:10px;width:100px">ID</th><th style="padding:4px 8px;text-align:left;font-size:10px">Title</th><th style="padding:4px 8px;font-size:10px;width:60px">TCs</th></tr></thead><tbody><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477653" target="_blank" style="color:#1a56db;text-decoration:none">15019477653</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] Socket RAPL</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">29</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420798" target="_blank" style="color:#1a56db;text-decoration:none">22022420798</a></td>
+  <td style="padding:4px 8px;font-size:11px">Socket RAPL Algorithm &amp; Functionality Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">12</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420806" target="_blank" style="color:#1a56db;text-decoration:none">22022420806</a></td>
+  <td style="padding:4px 8px;font-size:11px">Socket RAPL Cross-products</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">6</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420813" target="_blank" style="color:#1a56db;text-decoration:none">22022420813</a></td>
+  <td style="padding:4px 8px;font-size:11px">Socket RAPL Fuse and Bios knobs</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420817" target="_blank" style="color:#1a56db;text-decoration:none">22022420817</a></td>
+  <td style="padding:4px 8px;font-size:11px">Socket RAPL HPM Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420821" target="_blank" style="color:#1a56db;text-decoration:none">22022420821</a></td>
+  <td style="padding:4px 8px;font-size:11px">Socket RAPL Registers Verification - CSR and TPMI</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">7</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420826" target="_blank" style="color:#1a56db;text-decoration:none">22022420826</a></td>
+  <td style="padding:4px 8px;font-size:11px">Socket RAPL SVID Reporting Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477654" target="_blank" style="color:#1a56db;text-decoration:none">15019477654</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] DRAM RAPL</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420639" target="_blank" style="color:#1a56db;text-decoration:none">22022420639</a></td>
+  <td style="padding:4px 8px;font-size:11px">DRAM RAPL Algorithm Scenarios</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420649" target="_blank" style="color:#1a56db;text-decoration:none">22022420649</a></td>
+  <td style="padding:4px 8px;font-size:11px">DRAM RAPL Bios Knob Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420652" target="_blank" style="color:#1a56db;text-decoration:none">22022420652</a></td>
+  <td style="padding:4px 8px;font-size:11px">DRAM RAPL Cross Products</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420658" target="_blank" style="color:#1a56db;text-decoration:none">22022420658</a></td>
+  <td style="padding:4px 8px;font-size:11px">DRAM RAPL Fuse Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420668" target="_blank" style="color:#1a56db;text-decoration:none">22022420668</a></td>
+  <td style="padding:4px 8px;font-size:11px">DRAM RAPL HPM Message Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420673" target="_blank" style="color:#1a56db;text-decoration:none">22022420673</a></td>
+  <td style="padding:4px 8px;font-size:11px">DRAM RAPL Registers Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420680" target="_blank" style="color:#1a56db;text-decoration:none">22022420680</a></td>
+  <td style="padding:4px 8px;font-size:11px">DRAM RAPL SVID Reporting</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420684" target="_blank" style="color:#1a56db;text-decoration:none">22022420684</a></td>
+  <td style="padding:4px 8px;font-size:11px">DRAM RAPL Telemetry</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477655" target="_blank" style="color:#1a56db;text-decoration:none">15019477655</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] Platform / Psys RAPL</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420714" target="_blank" style="color:#1a56db;text-decoration:none">22022420714</a></td>
+  <td style="padding:4px 8px;font-size:11px">Psys RAPL Algorithm &amp; Functionality</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420718" target="_blank" style="color:#1a56db;text-decoration:none">22022420718</a></td>
+  <td style="padding:4px 8px;font-size:11px">Psys RAPL Cross-products</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420723" target="_blank" style="color:#1a56db;text-decoration:none">22022420723</a></td>
+  <td style="padding:4px 8px;font-size:11px">Psys RAPL Fuse and Bios knobs</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420727" target="_blank" style="color:#1a56db;text-decoration:none">22022420727</a></td>
+  <td style="padding:4px 8px;font-size:11px">Psys RAPL HPM</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420730" target="_blank" style="color:#1a56db;text-decoration:none">22022420730</a></td>
+  <td style="padding:4px 8px;font-size:11px">Psys SVID Reporting Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420734" target="_blank" style="color:#1a56db;text-decoration:none">22022420734</a></td>
+  <td style="padding:4px 8px;font-size:11px">Psys RAPL Registers &amp; Reporting: CSR &amp; TPMI</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477656" target="_blank" style="color:#1a56db;text-decoration:none">15019477656</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] Fast RAPL</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">5</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420794" target="_blank" style="color:#1a56db;text-decoration:none">22022420794</a></td>
+  <td style="padding:4px 8px;font-size:11px">Fast RAPL</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">5</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477657" target="_blank" style="color:#1a56db;text-decoration:none">15019477657</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] RACL</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420737" target="_blank" style="color:#1a56db;text-decoration:none">22022420737</a></td>
+  <td style="padding:4px 8px;font-size:11px">RACL Counters Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420741" target="_blank" style="color:#1a56db;text-decoration:none">22022420741</a></td>
+  <td style="padding:4px 8px;font-size:11px">RACL Cross Product</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420746" target="_blank" style="color:#1a56db;text-decoration:none">22022420746</a></td>
+  <td style="padding:4px 8px;font-size:11px">RACL Fuses Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420749" target="_blank" style="color:#1a56db;text-decoration:none">22022420749</a></td>
+  <td style="padding:4px 8px;font-size:11px">RACL HPM Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420753" target="_blank" style="color:#1a56db;text-decoration:none">22022420753</a></td>
+  <td style="padding:4px 8px;font-size:11px">RACL Security</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr></tbody></table>
+    </div>
+
+  </div>
+</div>
+<div class="tp-card" id="tp-15019477838">
+  <div class="tp-hdr">
+    <div class="tp-title">
+      <a href="https://hsdes.intel.com/appstore/article-one/#/15019477838" target="_blank" style="color:#1a56db;font-family:Consolas,monospace;font-size:11px">15019477838</a>
+      <span style="font-weight:700;font-size:14px;margin-left:8px">[NWP PM] PKGC (Package C-State)</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <span style="background:#dc2626;color:#fff;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700">1 TCs, 16/17 TCDs EMPTY</span>
+      <span style="background:#e5e7eb;color:#374151;padding:3px 8px;border-radius:4px;font-size:10px">TCDs: 17 | Empty: 16</span>
+      <span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:4px;font-size:10px">Active TCs: 1</span>
+    </div>
+  </div>
+  <div class="tp-body">
+    
+    <div class="tp-section">
+      <div class="sec-label">&#128206; Source Documents</div>
+      <div style="margin-top:4px"><span style="background:#eff6ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>HAS</strong>: NWP PkgC HAS</span> <span style="background:#f0fdf4;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>CSR</strong>: PKGC state machine registers</span> <span style="background:#f5f3ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>KB</strong>: KB/pm_tc_kb/fv</span> </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128295; Feature Summary (from local KB)</div>
+      <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px;background:#f9fafb;padding:8px 10px;border-radius:4px;border-left:3px solid #3b82f6">
+        Core C-States &gt; AshTree PRT &gt; Status: Enriched — HW/FW/OS touchpoints + KPI &amp; Timing added (2026-05-28) &gt; Parent: Core C-States Baseline (DMR) AshTree PRT (Performance, Reliability, Timing) tests validate TSC (Time Stamp Counter) monotonicity across C-state and P-state transitions. The TSC must remain monotonic (never go backward) even during: HW Touchpoints FW Touchpoints OS Interfaces KPI &amp; Timi Core C-States &gt; C1 &gt; Status: Enriched — HW/FW/OS touchpoints + KPI &amp; Timing added (2026-05-28) &gt; Parent: Core C-States Baseline (DMR) Core C1 is the first real idle state — the core clock is gated, shutting down the core&#x27;s operation while maintaining full voltage and PLL frequency. C1 is the fastest entry/exit C-state because no state save, cache flush, or power-gate occurs. HW Touchpoints FW Touc
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128196; TPF → TCD → TC Hierarchy</div>
+      <table style="width:100%;border-collapse:collapse;margin-top:4px"><thead><tr style="background:#f8faff"><th style="padding:4px 8px;text-align:left;font-size:10px;width:40px">Type</th><th style="padding:4px 8px;text-align:left;font-size:10px;width:100px">ID</th><th style="padding:4px 8px;text-align:left;font-size:10px">Title</th><th style="padding:4px 8px;font-size:10px;width:60px">TCs</th></tr></thead><tbody><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019478418" target="_blank" style="color:#1a56db;text-decoration:none">15019478418</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] PkgC Entry Flow</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421039" target="_blank" style="color:#1a56db;text-decoration:none">22022421039</a></td>
+  <td style="padding:4px 8px;font-size:11px">Clock Actions</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421044" target="_blank" style="color:#1a56db;text-decoration:none">22022421044</a></td>
+  <td style="padding:4px 8px;font-size:11px">Link/Fabric/Mem State</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421048" target="_blank" style="color:#1a56db;text-decoration:none">22022421048</a></td>
+  <td style="padding:4px 8px;font-size:11px">Voltage Actions</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421151" target="_blank" style="color:#1a56db;text-decoration:none">22022421151</a></td>
+  <td style="padding:4px 8px;font-size:11px">Clock Actions</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421154" target="_blank" style="color:#1a56db;text-decoration:none">22022421154</a></td>
+  <td style="padding:4px 8px;font-size:11px">Link/Fabric/Mem State</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421159" target="_blank" style="color:#1a56db;text-decoration:none">22022421159</a></td>
+  <td style="padding:4px 8px;font-size:11px">Voltage Actions</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019478419" target="_blank" style="color:#1a56db;text-decoration:none">15019478419</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] PkgC Firmware Initialization</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421145" target="_blank" style="color:#1a56db;text-decoration:none">22022421145</a></td>
+  <td style="padding:4px 8px;font-size:11px">Primecode Initialization</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421147" target="_blank" style="color:#1a56db;text-decoration:none">22022421147</a></td>
+  <td style="padding:4px 8px;font-size:11px">Primecode actions in idle entry flow</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421157" target="_blank" style="color:#1a56db;text-decoration:none">22022421157</a></td>
+  <td style="padding:4px 8px;font-size:11px">Other actions</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019478420" target="_blank" style="color:#1a56db;text-decoration:none">15019478420</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] PkgC BIOS &amp; Configuration</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421051" target="_blank" style="color:#1a56db;text-decoration:none">22022421051</a></td>
+  <td style="padding:4px 8px;font-size:11px">Bios Programming</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421058" target="_blank" style="color:#1a56db;text-decoration:none">22022421058</a></td>
+  <td style="padding:4px 8px;font-size:11px">HW/ SW configs</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019478421" target="_blank" style="color:#1a56db;text-decoration:none">15019478421</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] PkgC Fuse Checkout</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421054" target="_blank" style="color:#1a56db;text-decoration:none">22022421054</a></td>
+  <td style="padding:4px 8px;font-size:11px">Fuse Checkout</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019478422" target="_blank" style="color:#1a56db;text-decoration:none">15019478422</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] PkgC Wake Events</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421163" target="_blank" style="color:#1a56db;text-decoration:none">22022421163</a></td>
+  <td style="padding:4px 8px;font-size:11px">Wake Events</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019478423" target="_blank" style="color:#1a56db;text-decoration:none">15019478423</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] PkgC Debug &amp; Residency</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421143" target="_blank" style="color:#1a56db;text-decoration:none">22022421143</a></td>
+  <td style="padding:4px 8px;font-size:11px">PkgC debug requirements</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019478424" target="_blank" style="color:#1a56db;text-decoration:none">15019478424</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] PkgC Cross Products</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421066" target="_blank" style="color:#1a56db;text-decoration:none">22022421066</a></td>
+  <td style="padding:4px 8px;font-size:11px">PMX</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421137" target="_blank" style="color:#1a56db;text-decoration:none">22022421137</a></td>
+  <td style="padding:4px 8px;font-size:11px">Solar</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022561858" target="_blank" style="color:#1a56db;text-decoration:none">22022561858</a></td>
+  <td style="padding:4px 8px;font-size:11px">PKGC Cross Products</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr></tbody></table>
+    </div>
+
+  </div>
+</div>
+<div class="tp-card" id="tp-15019477845">
+  <div class="tp-hdr">
+    <div class="tp-title">
+      <a href="https://hsdes.intel.com/appstore/article-one/#/15019477845" target="_blank" style="color:#1a56db;font-family:Consolas,monospace;font-size:11px">15019477845</a>
+      <span style="font-weight:700;font-size:14px;margin-left:8px">[NWP PM] Power Control (SIMPL/PMAX/SVID)</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <span style="background:#d97706;color:#fff;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700">32 TCs, 1 empty TCDs</span>
+      <span style="background:#e5e7eb;color:#374151;padding:3px 8px;border-radius:4px;font-size:10px">TCDs: 13 | Empty: 1</span>
+      <span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:4px;font-size:10px">Active TCs: 32</span>
+    </div>
+  </div>
+  <div class="tp-body">
+    
+    <div class="tp-section">
+      <div class="sec-label">&#128206; Source Documents</div>
+      <div style="margin-top:4px"><span style="background:#eff6ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>HAS</strong>: SIMPL/PMAX/SVID HAS</span> <span style="background:#f0fdf4;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>CSR</strong>: socket_rapl_pl4, pkg_pwr_sku</span> <span style="background:#f5f3ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>KB</strong>: KB/pm_tcd_kb/15019477947/948/949</span> </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128295; Feature Summary (from local KB)</div>
+      <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px;background:#f9fafb;padding:8px 10px;border-radius:4px;border-left:3px solid #3b82f6">
+        Power/RAPL &gt; Memory PM (MemCLOS / DRC + CLTT) &gt; Status: Restructured — NWP delta enriched from MCP HAS/MAS query &gt; Parent: Power / RAPL Baseline (DMR) Memory PM encompasses two distinct mechanisms: 1. MemCLOS / DRC (Dynamic Resource Controller) — firmware-based memory bandwidth QoS that throttles low-priority cores to protect high-priority workload memory access 2. CLTT (Closed Loop Thermal Thrott Power/RAPL &gt; PEM (PnP Excursion Monitor) &gt; Status: Restructured — NWP delta enriched from MCP HAS/MAS query &gt; Parent: Power / RAPL Baseline (DMR) PEM provides configurable power and performance excursion monitors for CSP at-scale manageability. It detects sustained core frequency drops below a user-defined threshold (FET) and reports which throttling reason caused the excursion (RAPL, thermal, PRO
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128196; TPF → TCD → TC Hierarchy</div>
+      <table style="width:100%;border-collapse:collapse;margin-top:4px"><thead><tr style="background:#f8faff"><th style="padding:4px 8px;text-align:left;font-size:10px;width:40px">Type</th><th style="padding:4px 8px;text-align:left;font-size:10px;width:100px">ID</th><th style="padding:4px 8px;text-align:left;font-size:10px">Title</th><th style="padding:4px 8px;font-size:10px;width:60px">TCs</th></tr></thead><tbody><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477947" target="_blank" style="color:#1a56db;text-decoration:none">15019477947</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] PMAX (Maximum Power Protection)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">17</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420688" target="_blank" style="color:#1a56db;text-decoration:none">22022420688</a></td>
+  <td style="padding:4px 8px;font-size:11px">MT Pmax Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420691" target="_blank" style="color:#1a56db;text-decoration:none">22022420691</a></td>
+  <td style="padding:4px 8px;font-size:11px">PL4 Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420695" target="_blank" style="color:#1a56db;text-decoration:none">22022420695</a></td>
+  <td style="padding:4px 8px;font-size:11px">PMAX Bios Knobs Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420701" target="_blank" style="color:#1a56db;text-decoration:none">22022420701</a></td>
+  <td style="padding:4px 8px;font-size:11px">PMAX Cross Products</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420704" target="_blank" style="color:#1a56db;text-decoration:none">22022420704</a></td>
+  <td style="padding:4px 8px;font-size:11px">PMAX DFX Injection Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420708" target="_blank" style="color:#1a56db;text-decoration:none">22022420708</a></td>
+  <td style="padding:4px 8px;font-size:11px">PMAX fuses Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477948" target="_blank" style="color:#1a56db;text-decoration:none">15019477948</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] SIMPL / DFC (Dynamic Frequency Control)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">10</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420756" target="_blank" style="color:#1a56db;text-decoration:none">22022420756</a></td>
+  <td style="padding:4px 8px;font-size:11px">SIMPL Cross Products</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420759" target="_blank" style="color:#1a56db;text-decoration:none">22022420759</a></td>
+  <td style="padding:4px 8px;font-size:11px">SIMPL Fuse Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420763" target="_blank" style="color:#1a56db;text-decoration:none">22022420763</a></td>
+  <td style="padding:4px 8px;font-size:11px">SIMPL Policy Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">7</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420767" target="_blank" style="color:#1a56db;text-decoration:none">22022420767</a></td>
+  <td style="padding:4px 8px;font-size:11px">SIMPL Telemetry Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477949" target="_blank" style="color:#1a56db;text-decoration:none">15019477949</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] SVID (Serial Voltage ID)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">5</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420771" target="_blank" style="color:#1a56db;text-decoration:none">22022420771</a></td>
+  <td style="padding:4px 8px;font-size:11px">SVID Basic functionality Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420775" target="_blank" style="color:#1a56db;text-decoration:none">22022420775</a></td>
+  <td style="padding:4px 8px;font-size:11px">SVID Mapping/Priority Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420781" target="_blank" style="color:#1a56db;text-decoration:none">22022420781</a></td>
+  <td style="padding:4px 8px;font-size:11px">SVID Telemetry Verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr></tbody></table>
+    </div>
+
+  </div>
+</div>
+<div class="tp-card" id="tp-15019478558">
+  <div class="tp-hdr">
+    <div class="tp-title">
+      <a href="https://hsdes.intel.com/appstore/article-one/#/15019478558" target="_blank" style="color:#1a56db;font-family:Consolas,monospace;font-size:11px">15019478558</a>
+      <span style="font-weight:700;font-size:14px;margin-left:8px">[NWP PM] C-State (PantherCove PNC)</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <span style="background:#d97706;color:#fff;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700">52 TCs, 2 empty TCDs</span>
+      <span style="background:#e5e7eb;color:#374151;padding:3px 8px;border-radius:4px;font-size:10px">TCDs: 13 | Empty: 2</span>
+      <span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:4px;font-size:10px">Active TCs: 52</span>
+    </div>
+  </div>
+  <div class="tp-body">
+    
+    <div class="tp-section">
+      <div class="sec-label">&#128206; Source Documents</div>
+      <div style="margin-top:4px"><span style="background:#eff6ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>HAS</strong>: C-State NWP HAS</span> <span style="background:#f0fdf4;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>CSR</strong>: MSR 0xE2 CST_Config, C6 residency counters</span> <span style="background:#f5f3ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>KB</strong>: KB/pm_tcd_kb/15019478558*</span> </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128295; Feature Summary (from local KB)</div>
+      <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px;background:#f9fafb;padding:8px 10px;border-radius:4px;border-left:3px solid #3b82f6">
+        Core C-States &gt; AshTree PRT &gt; Status: Enriched — HW/FW/OS touchpoints + KPI &amp; Timing added (2026-05-28) &gt; Parent: Core C-States Baseline (DMR) AshTree PRT (Performance, Reliability, Timing) tests validate TSC (Time Stamp Counter) monotonicity across C-state and P-state transitions. The TSC must remain monotonic (never go backward) even during: HW Touchpoints FW Touchpoints OS Interfaces KPI &amp; Timi Core C-States &gt; C1 &gt; Status: Enriched — HW/FW/OS touchpoints + KPI &amp; Timing added (2026-05-28) &gt; Parent: Core C-States Baseline (DMR) Core C1 is the first real idle state — the core clock is gated, shutting down the core&#x27;s operation while maintaining full voltage and PLL frequency. C1 is the fastest entry/exit C-state because no state save, cache flush, or power-gate occurs. HW Touchpoints FW Touc
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128196; TPF → TCD → TC Hierarchy</div>
+      <table style="width:100%;border-collapse:collapse;margin-top:4px"><thead><tr style="background:#f8faff"><th style="padding:4px 8px;text-align:left;font-size:10px;width:40px">Type</th><th style="padding:4px 8px;text-align:left;font-size:10px;width:100px">ID</th><th style="padding:4px 8px;text-align:left;font-size:10px">Title</th><th style="padding:4px 8px;font-size:10px;width:60px">TCs</th></tr></thead><tbody><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019478559" target="_blank" style="color:#1a56db;text-decoration:none">15019478559</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] Core C1/C6 (Entry/Exit/Residency)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">27</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421247" target="_blank" style="color:#1a56db;text-decoration:none">22022421247</a></td>
+  <td style="padding:4px 8px;font-size:11px">CState C6 basic functionality</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">14</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421250" target="_blank" style="color:#1a56db;text-decoration:none">22022421250</a></td>
+  <td style="padding:4px 8px;font-size:11px">CState Entry Actions</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">7</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421253" target="_blank" style="color:#1a56db;text-decoration:none">22022421253</a></td>
+  <td style="padding:4px 8px;font-size:11px">CState Exit Actions</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421257" target="_blank" style="color:#1a56db;text-decoration:none">22022421257</a></td>
+  <td style="padding:4px 8px;font-size:11px">CStates C1 residency counter</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019478560" target="_blank" style="color:#1a56db;text-decoration:none">15019478560</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] Fast C1E</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">5</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421276" target="_blank" style="color:#1a56db;text-decoration:none">22022421276</a></td>
+  <td style="padding:4px 8px;font-size:11px">CState Fast C1E: C1E autopromotion</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421282" target="_blank" style="color:#1a56db;text-decoration:none">22022421282</a></td>
+  <td style="padding:4px 8px;font-size:11px">CState Fast C1E: C1E basic functionaity</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421287" target="_blank" style="color:#1a56db;text-decoration:none">22022421287</a></td>
+  <td style="padding:4px 8px;font-size:11px">CState Fast C1E: C1E start/end flow</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019478561" target="_blank" style="color:#1a56db;text-decoration:none">15019478561</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] C-State Demotion/Undemotion</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">6</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421266" target="_blank" style="color:#1a56db;text-decoration:none">22022421266</a></td>
+  <td style="padding:4px 8px;font-size:11px">CStates: C6/C1 Demotion/Undemotion Configuration</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">6</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019478562" target="_blank" style="color:#1a56db;text-decoration:none">15019478562</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] Module C-States (Core→Module)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421260" target="_blank" style="color:#1a56db;text-decoration:none">22022421260</a></td>
+  <td style="padding:4px 8px;font-size:11px">CStates MC6 residency counter</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019478563" target="_blank" style="color:#1a56db;text-decoration:none">15019478563</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] C-State Cross Products &amp; PMX</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">10</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421269" target="_blank" style="color:#1a56db;text-decoration:none">22022421269</a></td>
+  <td style="padding:4px 8px;font-size:11px">BEAT learnings</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421289" target="_blank" style="color:#1a56db;text-decoration:none">22022421289</a></td>
+  <td style="padding:4px 8px;font-size:11px">AshTree PRT</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421293" target="_blank" style="color:#1a56db;text-decoration:none">22022421293</a></td>
+  <td style="padding:4px 8px;font-size:11px">PMX</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421307" target="_blank" style="color:#1a56db;text-decoration:none">22022421307</a></td>
+  <td style="padding:4px 8px;font-size:11px">Solar</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr></tbody></table>
+    </div>
+
+  </div>
+</div>
+<div class="tp-card" id="tp-16030686481">
+  <div class="tp-hdr">
+    <div class="tp-title">
+      <a href="https://hsdes.intel.com/appstore/article-one/#/16030686481" target="_blank" style="color:#1a56db;font-family:Consolas,monospace;font-size:11px">16030686481</a>
+      <span style="font-weight:700;font-size:14px;margin-left:8px">[NWP PM] P-State / HWP (PNC Core)</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <span style="background:#d97706;color:#fff;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700">45 TCs, 1 empty TCDs</span>
+      <span style="background:#e5e7eb;color:#374151;padding:3px 8px;border-radius:4px;font-size:10px">TCDs: 18 | Empty: 1</span>
+      <span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:4px;font-size:10px">Active TCs: 45</span>
+    </div>
+  </div>
+  <div class="tp-body">
+    
+    <div class="tp-section">
+      <div class="sec-label">&#128206; Source Documents</div>
+      <div style="margin-top:4px"><span style="background:#eff6ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>HAS</strong>: P-State HWP HAS</span> <span style="background:#f0fdf4;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>CSR</strong>: MSR 0x198 PERF_STATUS, HWP_REQUEST</span> <span style="background:#f5f3ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>KB</strong>: KB/pm_features/pstate_stack</span> </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128295; Feature Summary (from local KB)</div>
+      <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px;background:#f9fafb;padding:8px 10px;border-radius:4px;border-left:3px solid #3b82f6">
+        PState Stack &gt; Core P-States &gt; Status: Enriched — HW/FW/OS touchpoints + KPI &amp; Timing (2026-05-28) &gt; Parent: P-State Stack Baseline (DMR) What it does: Core P-states define discrete V/F operating points anchored at Pn (LFM/max efficiency), P1 (guaranteed base), P0n (Turbo Ratio Limit), and (NWP-new) P04 (P0n÷4 minimum HWP guardrail). PCode arbitrates among HWP, legacy PERF_CTL, PEGA, and OOB reque PState Stack &gt; HGS &gt; Status: Enriched — HW/FW/OS touchpoints + KPI &amp; Timing (2026-05-28) &gt; Parent: P-State Stack Baseline (DMR) What it does: Hardware-Guided Scheduling (HGS) exposes per-core performance (bit 1) and energy-efficiency (bit 19) rankings via the HW Feedback Interface, enabling the OS scheduler to steer latency-sensitive threads to the best-performing cores. Rankings are dynamically u
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128196; TPF → TCD → TC Hierarchy</div>
+      <table style="width:100%;border-collapse:collapse;margin-top:4px"><thead><tr style="background:#f8faff"><th style="padding:4px 8px;text-align:left;font-size:10px;width:40px">Type</th><th style="padding:4px 8px;text-align:left;font-size:10px;width:100px">ID</th><th style="padding:4px 8px;text-align:left;font-size:10px">Title</th><th style="padding:4px 8px;font-size:10px;width:60px">TCs</th></tr></thead><tbody><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030732015" target="_blank" style="color:#1a56db;text-decoration:none">16030732015</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP] [PM] P-State Operating Range &amp; Frequency Configuration Vali</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">14</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420993" target="_blank" style="color:#1a56db;text-decoration:none">22022420993</a></td>
+  <td style="padding:4px 8px;font-size:11px">Flex ratio configuration and functionality</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421001" target="_blank" style="color:#1a56db;text-decoration:none">22022421001</a></td>
+  <td style="padding:4px 8px;font-size:11px">Guaranteed Ratio resolving</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421019" target="_blank" style="color:#1a56db;text-decoration:none">22022421019</a></td>
+  <td style="padding:4px 8px;font-size:11px">1CPM - Pstate Turbo Mode </td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421022" target="_blank" style="color:#1a56db;text-decoration:none">22022421022</a></td>
+  <td style="padding:4px 8px;font-size:11px">Turbo functionality - Pstate Turbo Mode</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">7</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421024" target="_blank" style="color:#1a56db;text-decoration:none">22022421024</a></td>
+  <td style="padding:4px 8px;font-size:11px">Near TDP</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421029" target="_blank" style="color:#1a56db;text-decoration:none">22022421029</a></td>
+  <td style="padding:4px 8px;font-size:11px">VF curve fuses</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420461" target="_blank" style="color:#1a56db;text-decoration:none">22022420461</a></td>
+  <td style="padding:4px 8px;font-size:11px">Pstate Legacy</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">9</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420938" target="_blank" style="color:#1a56db;text-decoration:none">22022420938</a></td>
+  <td style="padding:4px 8px;font-size:11px">Legacy Pstate Bios cofigurations</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420943" target="_blank" style="color:#1a56db;text-decoration:none">22022420943</a></td>
+  <td style="padding:4px 8px;font-size:11px">Legacy Pstate Fast GV configuration</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420947" target="_blank" style="color:#1a56db;text-decoration:none">22022420947</a></td>
+  <td style="padding:4px 8px;font-size:11px">Legacy Pstate Interfaces</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420959" target="_blank" style="color:#1a56db;text-decoration:none">22022420959</a></td>
+  <td style="padding:4px 8px;font-size:11px">Legacy Pstate Scenarios</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420961" target="_blank" style="color:#1a56db;text-decoration:none">22022420961</a></td>
+  <td style="padding:4px 8px;font-size:11px">Legacy Pstate Solar</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420968" target="_blank" style="color:#1a56db;text-decoration:none">22022420968</a></td>
+  <td style="padding:4px 8px;font-size:11px">Legacy Pstate TSC accuracy, PCNT, ACNT, MCNT</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420466" target="_blank" style="color:#1a56db;text-decoration:none">22022420466</a></td>
+  <td style="padding:4px 8px;font-size:11px">Pstate-Core ICCP</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">5</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420976" target="_blank" style="color:#1a56db;text-decoration:none">22022420976</a></td>
+  <td style="padding:4px 8px;font-size:11px">ICCP: License request and grant flow</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">5</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420473" target="_blank" style="color:#1a56db;text-decoration:none">22022420473</a></td>
+  <td style="padding:4px 8px;font-size:11px">Pstate-DCM FIT</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420979" target="_blank" style="color:#1a56db;text-decoration:none">22022420979</a></td>
+  <td style="padding:4px 8px;font-size:11px">DCM FIT</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420477" target="_blank" style="color:#1a56db;text-decoration:none">22022420477</a></td>
+  <td style="padding:4px 8px;font-size:11px">Pstate-EPB , SAPM - DLL and EET</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030733964" target="_blank" style="color:#1a56db;text-decoration:none">16030733964</a></td>
+  <td style="padding:4px 8px;font-size:11px">Pstate - EET</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420986" target="_blank" style="color:#1a56db;text-decoration:none">22022420986</a></td>
+  <td style="padding:4px 8px;font-size:11px">EPB and SAPM - DLL</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420483" target="_blank" style="color:#1a56db;text-decoration:none">22022420483</a></td>
+  <td style="padding:4px 8px;font-size:11px">Pstate-HWP</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">13</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421004" target="_blank" style="color:#1a56db;text-decoration:none">22022421004</a></td>
+  <td style="padding:4px 8px;font-size:11px">HWP Native mode</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">8</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421006" target="_blank" style="color:#1a56db;text-decoration:none">22022421006</a></td>
+  <td style="padding:4px 8px;font-size:11px">HWP OOB Mode</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">5</span></td>
+</tr></tbody></table>
+    </div>
+
+  </div>
+</div>
+<div class="tp-card" id="tp-16030762529">
+  <div class="tp-hdr">
+    <div class="tp-title">
+      <a href="https://hsdes.intel.com/appstore/article-one/#/16030762529" target="_blank" style="color:#1a56db;font-family:Consolas,monospace;font-size:11px">16030762529</a>
+      <span style="font-weight:700;font-size:14px;margin-left:8px">[NWP PM] Autonomous Idle PM (AIPM)</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <span style="background:#dc2626;color:#fff;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700">7 TCs, 7/9 TCDs EMPTY</span>
+      <span style="background:#e5e7eb;color:#374151;padding:3px 8px;border-radius:4px;font-size:10px">TCDs: 9 | Empty: 7</span>
+      <span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:4px;font-size:10px">Active TCs: 7</span>
+    </div>
+  </div>
+  <div class="tp-body">
+    
+    <div class="tp-section">
+      <div class="sec-label">&#128206; Source Documents</div>
+      <div style="margin-top:4px"><span style="background:#eff6ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>HAS</strong>: AIPM / Trunk Clock Gating HAS</span> <span style="background:#f0fdf4;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>CSR</strong>: IO_TRUNK_CLK_GATING registers</span> <span style="background:#f5f3ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>KB</strong>: KB/pm_tcd_kb/16030762530/531</span> </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128295; Feature Summary (from local KB)</div>
+      <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px;background:#f9fafb;padding:8px 10px;border-radius:4px;border-left:3px solid #3b82f6">
+        Platform PM Interface &gt; OS2P Mailbox &gt; Status: Enriched &gt; Parent: Platform PM Interface Architecture Summary The OS2P (OS-to-Punit) Mailbox is a software interface allowing the OS/kernel to send commands to PCode firmware at runtime. It is architecturally distinct from B2P (BIOS-to-Punit, used during boot/reset). OS2P reuses the same command encoding and handler infrastructure as the B2P mailbox,  Platform PM Interface &gt; PECI PM &gt; Status: Enriched &gt; Parent: Platform PM Interface Architecture Summary PECI (Platform Environment Control Interface) is the out-of-band (OOB) management interface between the BMC and the CPU package. For PM, the BMC uses PECI commands to read thermal data, power telemetry, and per-core MSRs without OS involvement. In DMR/NWP, PECI is delivered over MCTP/I3C (replac
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128196; TPF → TCD → TC Hierarchy</div>
+      <table style="width:100%;border-collapse:collapse;margin-top:4px"><thead><tr style="background:#f8faff"><th style="padding:4px 8px;text-align:left;font-size:10px;width:40px">Type</th><th style="padding:4px 8px;text-align:left;font-size:10px;width:100px">ID</th><th style="padding:4px 8px;text-align:left;font-size:10px">Title</th><th style="padding:4px 8px;font-size:10px;width:60px">TCs</th></tr></thead><tbody><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030762530" target="_blank" style="color:#1a56db;text-decoration:none">16030762530</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] AIPM - IO Trunk Clock Gating</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">7</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421236" target="_blank" style="color:#1a56db;text-decoration:none">22022421236</a></td>
+  <td style="padding:4px 8px;font-size:11px">MIO Trunk Clock gating Actions</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421240" target="_blank" style="color:#1a56db;text-decoration:none">22022421240</a></td>
+  <td style="padding:4px 8px;font-size:11px">MIO Trunk Clock gating Boot Time Setup</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421242" target="_blank" style="color:#1a56db;text-decoration:none">22022421242</a></td>
+  <td style="padding:4px 8px;font-size:11px">MIO Trunk Clock gating Cross products</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421244" target="_blank" style="color:#1a56db;text-decoration:none">22022421244</a></td>
+  <td style="padding:4px 8px;font-size:11px">MIO Trunk Clock gating Entry / Residency</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030762531" target="_blank" style="color:#1a56db;text-decoration:none">16030762531</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] AIPM - Memory Trunk Clock Gating &amp; SSR</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421220" target="_blank" style="color:#1a56db;text-decoration:none">22022421220</a></td>
+  <td style="padding:4px 8px;font-size:11px">MC Shallow Self Refresh Actions</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421222" target="_blank" style="color:#1a56db;text-decoration:none">22022421222</a></td>
+  <td style="padding:4px 8px;font-size:11px">MC Shallow Self Refresh BIOS knobs</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421228" target="_blank" style="color:#1a56db;text-decoration:none">22022421228</a></td>
+  <td style="padding:4px 8px;font-size:11px">MC Shallow Self Refresh Boot Time Setup</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421230" target="_blank" style="color:#1a56db;text-decoration:none">22022421230</a></td>
+  <td style="padding:4px 8px;font-size:11px">MC Shallow Self Refresh Cross Products</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421233" target="_blank" style="color:#1a56db;text-decoration:none">22022421233</a></td>
+  <td style="padding:4px 8px;font-size:11px">MC Shallow Self Refresh Entry / Residency</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030762533" target="_blank" style="color:#1a56db;text-decoration:none">16030762533</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] AIPM - Idle Stability</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030762535" target="_blank" style="color:#1a56db;text-decoration:none">16030762535</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] AIPM - Cross Products &amp; PMX</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr></tbody></table>
+    </div>
+
+  </div>
+</div>
+<div class="tp-card" id="tp-16030762839">
+  <div class="tp-hdr">
+    <div class="tp-title">
+      <a href="https://hsdes.intel.com/appstore/article-one/#/16030762839" target="_blank" style="color:#1a56db;font-family:Consolas,monospace;font-size:11px">16030762839</a>
+      <span style="font-weight:700;font-size:14px;margin-left:8px">[NWP PM] SST (Speed Select Technology)</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <span style="background:#dc2626;color:#fff;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700">33 TCs, 11/19 TCDs EMPTY</span>
+      <span style="background:#e5e7eb;color:#374151;padding:3px 8px;border-radius:4px;font-size:10px">TCDs: 19 | Empty: 11</span>
+      <span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:4px;font-size:10px">Active TCs: 33</span>
+    </div>
+  </div>
+  <div class="tp-body">
+    
+    <div class="tp-section">
+      <div class="sec-label">&#128206; Source Documents</div>
+      <div style="margin-top:4px"><span style="background:#eff6ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>HAS</strong>: SST-BF/CP/PP/TF/PCT HAS</span> <span style="background:#f0fdf4;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>CSR</strong>: TPMI SST registers, CAPID4</span> <span style="background:#f5f3ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>KB</strong>: KB/pm_tcd_kb/16030762839*</span> </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128295; Feature Summary (from local KB)</div>
+      <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px;background:#f9fafb;padding:8px 10px;border-radius:4px;border-left:3px solid #3b82f6">
+        SST &gt; Cross-Product &gt; Status: Enriched — HW/FW/OS touchpoints + KPI &amp; Timing (2026-05-28) &gt; Parent: SST &gt; Source Confidence: Mixed — SST cross-product framework and FlexRatio interaction matrix directly confirmed from SST HAS. C6 power redistribution and PkgC state persistence behaviors are architecturally inferred. See Source Notes. Baseline (DMR) SST Cross-Product covers interactions between SST SST &gt; Flex Ratio &gt; Status: Enriched — HW/FW/OS touchpoints + KPI &amp; Timing (2026-05-28) &gt; Parent: SST &gt; Source Confidence: High for mutex rules and reset-time P1 resolution (confirmed from SST HAS, DMR P-state/Reset HAS). Partial for PCT-specific propagation (CLOS config, LP clip, TDP/RAPL impact). See Source Notes. Baseline (DMR) SST × Flex Ratio defines compatibility rules between FlexRatio and S
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128196; TPF → TCD → TC Hierarchy</div>
+      <table style="width:100%;border-collapse:collapse;margin-top:4px"><thead><tr style="background:#f8faff"><th style="padding:4px 8px;text-align:left;font-size:10px;width:40px">Type</th><th style="padding:4px 8px;text-align:left;font-size:10px;width:100px">ID</th><th style="padding:4px 8px;text-align:left;font-size:10px">Title</th><th style="padding:4px 8px;font-size:10px;width:60px">TCs</th></tr></thead><tbody><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030762933" target="_blank" style="color:#1a56db;text-decoration:none">16030762933</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] SST-BF (Base Frequency)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420868" target="_blank" style="color:#1a56db;text-decoration:none">22022420868</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-BF - Enabling &amp; Discovery</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420876" target="_blank" style="color:#1a56db;text-decoration:none">22022420876</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-BF - Functionality</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420880" target="_blank" style="color:#1a56db;text-decoration:none">22022420880</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-BF - Fusing</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030762935" target="_blank" style="color:#1a56db;text-decoration:none">16030762935</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] SST-CP (Core Power)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420886" target="_blank" style="color:#1a56db;text-decoration:none">22022420886</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-CP Enabling &amp; Discovery</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420891" target="_blank" style="color:#1a56db;text-decoration:none">22022420891</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-CP Functionality</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420894" target="_blank" style="color:#1a56db;text-decoration:none">22022420894</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-CP Fusing</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030762936" target="_blank" style="color:#1a56db;text-decoration:none">16030762936</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] SST-PP (Perf Profile) Dynamic</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420897" target="_blank" style="color:#1a56db;text-decoration:none">22022420897</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-PP Dynamic - Functionality without HGS</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420903" target="_blank" style="color:#1a56db;text-decoration:none">22022420903</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-PP Dynamic Boot flow</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420905" target="_blank" style="color:#1a56db;text-decoration:none">22022420905</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-PP Dynamic Fusing</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420908" target="_blank" style="color:#1a56db;text-decoration:none">22022420908</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-PP Dynamic control and discovery interface</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420917" target="_blank" style="color:#1a56db;text-decoration:none">22022420917</a></td>
+  <td style="padding:4px 8px;font-size:11px">HGS Enabling and Discovery</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420920" target="_blank" style="color:#1a56db;text-decoration:none">22022420920</a></td>
+  <td style="padding:4px 8px;font-size:11px">HGS Functionality</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030762937" target="_blank" style="color:#1a56db;text-decoration:none">16030762937</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] SST-TF (Turbo Frequency)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">11</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420925" target="_blank" style="color:#1a56db;text-decoration:none">22022420925</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-TF Enabling &amp; discovery</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">5</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420928" target="_blank" style="color:#1a56db;text-decoration:none">22022420928</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-TF Functionality</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">5</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420932" target="_blank" style="color:#1a56db;text-decoration:none">22022420932</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-TF Fusing</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030762938" target="_blank" style="color:#1a56db;text-decoration:none">16030762938</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] CPAT (Core Power Allocation Technology)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030762939" target="_blank" style="color:#1a56db;text-decoration:none">16030762939</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] PCT (Priority Core Turbo)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">18</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420855" target="_blank" style="color:#1a56db;text-decoration:none">22022420855</a></td>
+  <td style="padding:4px 8px;font-size:11px">PCT - Enabling &amp; Discovery</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420858" target="_blank" style="color:#1a56db;text-decoration:none">22022420858</a></td>
+  <td style="padding:4px 8px;font-size:11px">PCT - Functionality</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">16</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420862" target="_blank" style="color:#1a56db;text-decoration:none">22022420862</a></td>
+  <td style="padding:4px 8px;font-size:11px">PCT - Fuse</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030762940" target="_blank" style="color:#1a56db;text-decoration:none">16030762940</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] SST-PP (Perf Profile) Static</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420914" target="_blank" style="color:#1a56db;text-decoration:none">22022420914</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-PP Static Boot flow</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr></tbody></table>
+    </div>
+
+  </div>
+</div>
+<div class="tp-card" id="tp-16030763137">
+  <div class="tp-hdr">
+    <div class="tp-title">
+      <a href="https://hsdes.intel.com/appstore/article-one/#/16030763137" target="_blank" style="color:#1a56db;font-family:Consolas,monospace;font-size:11px">16030763137</a>
+      <span style="font-weight:700;font-size:14px;margin-left:8px">[NWP PM] Thermal Management</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <span style="background:#166534;color:#fff;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700">114 TCs, all TCDs covered</span>
+      <span style="background:#e5e7eb;color:#374151;padding:3px 8px;border-radius:4px;font-size:10px">TCDs: 19 | Empty: 0</span>
+      <span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:4px;font-size:10px">Active TCs: 114</span>
+    </div>
+  </div>
+  <div class="tp-body">
+    
+    <div class="tp-section">
+      <div class="sec-label">&#128206; Source Documents</div>
+      <div style="margin-top:4px"><span style="background:#eff6ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>HAS</strong>: Thermal Management HAS</span> <span style="background:#f0fdf4;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>CSR</strong>: DTS, PROCHOT, ITD, CLTT registers</span> <span style="background:#f5f3ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>KB</strong>: KB/pm_tcd_kb/16030763137*</span> </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128295; Feature Summary (from local KB)</div>
+      <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px;background:#f9fafb;padding:8px 10px;border-radius:4px;border-left:3px solid #3b82f6">
+        SoC Thermal &gt; ACP (Autonomous Core Perimeter Thermal Management) &gt; Status: Enriched — HW/FW/OS touchpoint tables + KPI &amp; Timing section populated (2026-05-28) &gt; Parent: SoC Thermal Baseline (DMR) What it does: ACP (Autonomous Core Perimeter) is the core-level thermal management subsystem in DMR&#x27;s three-tier hierarchical thermal control. It provides per-core autonomous temperature regulation via Ac SoC Thermal &gt; CBB DTS &amp; Telemetry &gt; Status: Enriched — HW/FW/OS touchpoint tables populated from MCP HAS query (2026-05-28) &gt; Parent: SoC Thermal Baseline (DMR) DMR CBB uses two classes of Digital Temperature Sensors: Core DTS Gen2.6 (top die, 2 per DCM, up to 15 diodes each across Core and MLCSSA domains) and SOC/CCF DTS Gen1 (base die — 1 always-on AON sensor, 2 six-diode SOC sensors covering VC
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128196; TPF → TCD → TC Hierarchy</div>
+      <table style="width:100%;border-collapse:collapse;margin-top:4px"><thead><tr style="background:#f8faff"><th style="padding:4px 8px;text-align:left;font-size:10px;width:40px">Type</th><th style="padding:4px 8px;text-align:left;font-size:10px;width:100px">ID</th><th style="padding:4px 8px;text-align:left;font-size:10px">Title</th><th style="padding:4px 8px;font-size:10px;width:60px">TCs</th></tr></thead><tbody><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030763139" target="_blank" style="color:#1a56db;text-decoration:none">16030763139</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] Socket Thermal Management</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">60</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420579" target="_blank" style="color:#1a56db;text-decoration:none">22022420579</a></td>
+  <td style="padding:4px 8px;font-size:11px">[SoC Thermal Management] ACP (Autonomous Core Perimeter)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">6</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420585" target="_blank" style="color:#1a56db;text-decoration:none">22022420585</a></td>
+  <td style="padding:4px 8px;font-size:11px">[SoC Thermal Management] CBB Thermal Management</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">7</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420589" target="_blank" style="color:#1a56db;text-decoration:none">22022420589</a></td>
+  <td style="padding:4px 8px;font-size:11px">[SoC Thermal Management] GPIO Interface</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">6</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420596" target="_blank" style="color:#1a56db;text-decoration:none">22022420596</a></td>
+  <td style="padding:4px 8px;font-size:11px">[SoC Thermal Management] IMH Thermal Management</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420603" target="_blank" style="color:#1a56db;text-decoration:none">22022420603</a></td>
+  <td style="padding:4px 8px;font-size:11px">[SoC Thermal Management] ITD</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">15</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420606" target="_blank" style="color:#1a56db;text-decoration:none">22022420606</a></td>
+  <td style="padding:4px 8px;font-size:11px">[SoC Thermal Management] MCAs</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420609" target="_blank" style="color:#1a56db;text-decoration:none">22022420609</a></td>
+  <td style="padding:4px 8px;font-size:11px">[SoC Thermal Management] Prochot Flow</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">5</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420616" target="_blank" style="color:#1a56db;text-decoration:none">22022420616</a></td>
+  <td style="padding:4px 8px;font-size:11px">[SoC Thermal Management] Thermal Interrupts</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">9</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420625" target="_blank" style="color:#1a56db;text-decoration:none">22022420625</a></td>
+  <td style="padding:4px 8px;font-size:11px">[SoC Thermal Management] Thermtrip</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420628" target="_blank" style="color:#1a56db;text-decoration:none">22022420628</a></td>
+  <td style="padding:4px 8px;font-size:11px">[SoC Thermal Management] VR Hot</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">5</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030763140" target="_blank" style="color:#1a56db;text-decoration:none">16030763140</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] Memory Thermal Management</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">28</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420548" target="_blank" style="color:#1a56db;text-decoration:none">22022420548</a></td>
+  <td style="padding:4px 8px;font-size:11px">[Memory Thermal Management] CLTT MR4 based</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">8</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420554" target="_blank" style="color:#1a56db;text-decoration:none">22022420554</a></td>
+  <td style="padding:4px 8px;font-size:11px">[Memory Thermal Management] CLTT PECI based</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420563" target="_blank" style="color:#1a56db;text-decoration:none">22022420563</a></td>
+  <td style="padding:4px 8px;font-size:11px">[Memory Thermal Management] CLTT TSOD based</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420567" target="_blank" style="color:#1a56db;text-decoration:none">22022420567</a></td>
+  <td style="padding:4px 8px;font-size:11px">[Memory Thermal Management] DDRIO Temperature Compensation</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420570" target="_blank" style="color:#1a56db;text-decoration:none">22022420570</a></td>
+  <td style="padding:4px 8px;font-size:11px">[Memory Thermal Management] Memhot</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">6</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420575" target="_blank" style="color:#1a56db;text-decoration:none">22022420575</a></td>
+  <td style="padding:4px 8px;font-size:11px">[Memory Thermal Management] Memtrip</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">6</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030763141" target="_blank" style="color:#1a56db;text-decoration:none">16030763141</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] Thermal Reporting/Telemetry</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">26</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420582" target="_blank" style="color:#1a56db;text-decoration:none">22022420582</a></td>
+  <td style="padding:4px 8px;font-size:11px">[SoC Thermal Management] CBB DTS &amp; Telemetry</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">7</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420593" target="_blank" style="color:#1a56db;text-decoration:none">22022420593</a></td>
+  <td style="padding:4px 8px;font-size:11px">[SoC Thermal Management] IMH DTS &amp; Telemetry</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">8</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420619" target="_blank" style="color:#1a56db;text-decoration:none">22022420619</a></td>
+  <td style="padding:4px 8px;font-size:11px">[SoC Thermal Management] Thermal Reporting</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">11</span></td>
+</tr></tbody></table>
+    </div>
+
+  </div>
+</div>
+<div class="tp-card" id="tp-16030763243">
+  <div class="tp-hdr">
+    <div class="tp-title">
+      <a href="https://hsdes.intel.com/appstore/article-one/#/16030763243" target="_blank" style="color:#1a56db;font-family:Consolas,monospace;font-size:11px">16030763243</a>
+      <span style="font-weight:700;font-size:14px;margin-left:8px">[NWP PM] Fabric DVFS (UFS)</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <span style="background:#d97706;color:#fff;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700">8 TCs, 2 empty TCDs</span>
+      <span style="background:#e5e7eb;color:#374151;padding:3px 8px;border-radius:4px;font-size:10px">TCDs: 5 | Empty: 2</span>
+      <span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:4px;font-size:10px">Active TCs: 8</span>
+    </div>
+  </div>
+  <div class="tp-body">
+    
+    <div class="tp-section">
+      <div class="sec-label">&#128206; Source Documents</div>
+      <div style="margin-top:4px"><span style="background:#eff6ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>HAS</strong>: UFS / Fabric DVFS HAS</span> <span style="background:#f0fdf4;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>CSR</strong>: UFS_CONTROL, ufs_ratio registers</span> <span style="background:#f5f3ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>KB</strong>: KB/pm_tcd_kb/16030763253*</span> </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128295; Feature Summary (from local KB)</div>
+      <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px;background:#f9fafb;padding:8px 10px;border-radius:4px;border-left:3px solid #3b82f6">
+        Fabric DVFS &gt; DVFS &gt; Status: Enriched — full touchpoint enrichment (2026-05-28) &gt; Parent: Fabric DVFS Baseline (DMR) Fabric DVFS (also called Uncore Frequency Scaling / UFS or FabricGV) autonomously scales frequency and voltage across 3 independent fabric domains per IMH die — IO Fabric (CFCIO, 400–2000 MHz), Memory Fabric (CFCMEM, 800–2000 MHz), and CBB CCF Ring (PCode-managed) — based on real-ti Fabric DVFS — Main Flow &gt; Status: Enriched — full touchpoint enrichment (2026-05-28) &gt; Generated: 2026-05-23 from nwp_pm_test_cases.json (7 TCs) Baseline (DMR) Fabric DVFS dynamically scales frequency and voltage across three independent fabric domains per IMH die — IO Fabric (CFCIO, 400–2000 MHz), Memory Fabric (CFCMEM, 800–2000 MHz), and CBB CCF Ring (PCode-managed) — using real-time bandwidth t
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128196; TPF → TCD → TC Hierarchy</div>
+      <table style="width:100%;border-collapse:collapse;margin-top:4px"><thead><tr style="background:#f8faff"><th style="padding:4px 8px;text-align:left;font-size:10px;width:40px">Type</th><th style="padding:4px 8px;text-align:left;font-size:10px;width:100px">ID</th><th style="padding:4px 8px;text-align:left;font-size:10px">Title</th><th style="padding:4px 8px;font-size:10px;width:60px">TCs</th></tr></thead><tbody><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030763253" target="_blank" style="color:#1a56db;text-decoration:none">16030763253</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] CBB DVFS</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420830" target="_blank" style="color:#1a56db;text-decoration:none">22022420830</a></td>
+  <td style="padding:4px 8px;font-size:11px">Fabric DVFS RAPL/RACL Limits and ELC Mode</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420838" target="_blank" style="color:#1a56db;text-decoration:none">22022420838</a></td>
+  <td style="padding:4px 8px;font-size:11px">Fabric DVFS cross products</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420853" target="_blank" style="color:#1a56db;text-decoration:none">22022420853</a></td>
+  <td style="padding:4px 8px;font-size:11px">Solar DVFS</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030763254" target="_blank" style="color:#1a56db;text-decoration:none">16030763254</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] IMH DVFS</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420849" target="_blank" style="color:#1a56db;text-decoration:none">22022420849</a></td>
+  <td style="padding:4px 8px;font-size:11px">Memory Fabric DVFS</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030763255" target="_blank" style="color:#1a56db;text-decoration:none">16030763255</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] IOH DVFS</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">5</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420842" target="_blank" style="color:#1a56db;text-decoration:none">22022420842</a></td>
+  <td style="padding:4px 8px;font-size:11px">IO Fabric DVFS</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">5</span></td>
+</tr></tbody></table>
+    </div>
+
+  </div>
+</div>
+<div class="tp-card" id="tp-16030765561">
+  <div class="tp-hdr">
+    <div class="tp-title">
+      <a href="https://hsdes.intel.com/appstore/article-one/#/16030765561" target="_blank" style="color:#1a56db;font-family:Consolas,monospace;font-size:11px">16030765561</a>
+      <span style="font-weight:700;font-size:14px;margin-left:8px">[NWP PM] PM Interfaces (OS2P/TPMI/PECI/PMT)</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <span style="background:#166534;color:#fff;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700">7 TCs, all TCDs covered</span>
+      <span style="background:#e5e7eb;color:#374151;padding:3px 8px;border-radius:4px;font-size:10px">TCDs: 2 | Empty: 0</span>
+      <span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:4px;font-size:10px">Active TCs: 7</span>
+    </div>
+  </div>
+  <div class="tp-body">
+    
+    <div class="tp-section">
+      <div class="sec-label">&#128206; Source Documents</div>
+      <div style="margin-top:4px"><span style="background:#eff6ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>HAS</strong>: OS2P / TPMI / PECI / PMT HAS</span> <span style="background:#f0fdf4;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>CSR</strong>: OS_MAILBOX_INTERFACE, PLR mailbox</span> <span style="background:#f5f3ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>KB</strong>: KB/pm_tc_kb/fv/HSD_22022421*</span> </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128295; Feature Summary (from local KB)</div>
+      <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px;background:#f9fafb;padding:8px 10px;border-radius:4px;border-left:3px solid #3b82f6">
+        Platform PM Interface &gt; OS2P Mailbox &gt; Status: Enriched &gt; Parent: Platform PM Interface Architecture Summary The OS2P (OS-to-Punit) Mailbox is a software interface allowing the OS/kernel to send commands to PCode firmware at runtime. It is architecturally distinct from B2P (BIOS-to-Punit, used during boot/reset). OS2P reuses the same command encoding and handler infrastructure as the B2P mailbox,  Platform PM Interface &gt; PECI PM &gt; Status: Enriched &gt; Parent: Platform PM Interface Architecture Summary PECI (Platform Environment Control Interface) is the out-of-band (OOB) management interface between the BMC and the CPU package. For PM, the BMC uses PECI commands to read thermal data, power telemetry, and per-core MSRs without OS involvement. In DMR/NWP, PECI is delivered over MCTP/I3C (replac
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128196; TPF → TCD → TC Hierarchy</div>
+      <table style="width:100%;border-collapse:collapse;margin-top:4px"><thead><tr style="background:#f8faff"><th style="padding:4px 8px;text-align:left;font-size:10px;width:40px">Type</th><th style="padding:4px 8px;text-align:left;font-size:10px;width:100px">ID</th><th style="padding:4px 8px;text-align:left;font-size:10px">Title</th><th style="padding:4px 8px;font-size:10px;width:60px">TCs</th></tr></thead><tbody><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030767552" target="_blank" style="color:#1a56db;text-decoration:none">16030767552</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] OS2P Mailbox</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030768338" target="_blank" style="color:#1a56db;text-decoration:none">16030768338</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] OS2P Mailbox Validation</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030767553" target="_blank" style="color:#1a56db;text-decoration:none">16030767553</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] TPMI (Topology-aware PM Interface)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030767554" target="_blank" style="color:#1a56db;text-decoration:none">16030767554</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] PECI (Platform Environment Control Interface)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030767555" target="_blank" style="color:#1a56db;text-decoration:none">16030767555</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] PMT (Platform Monitoring Technology)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">6</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420612" target="_blank" style="color:#1a56db;text-decoration:none">22022420612</a></td>
+  <td style="padding:4px 8px;font-size:11px">[SoC Thermal Management] TPMI/PMT</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">6</span></td>
+</tr></tbody></table>
+    </div>
+
+  </div>
+</div>
+<div class="tp-card" id="tp-16030765631">
+  <div class="tp-hdr">
+    <div class="tp-title">
+      <a href="https://hsdes.intel.com/appstore/article-one/#/16030765631" target="_blank" style="color:#1a56db;font-family:Consolas,monospace;font-size:11px">16030765631</a>
+      <span style="font-weight:700;font-size:14px;margin-left:8px">[NWP PM] PM Cross Product</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <span style="background:#166534;color:#fff;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700">30 TCs, all TCDs covered</span>
+      <span style="background:#e5e7eb;color:#374151;padding:3px 8px;border-radius:4px;font-size:10px">TCDs: 4 | Empty: 0</span>
+      <span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:4px;font-size:10px">Active TCs: 30</span>
+    </div>
+  </div>
+  <div class="tp-body">
+    
+    <div class="tp-section">
+      <div class="sec-label">&#128206; Source Documents</div>
+      <div style="margin-top:4px"><span style="background:#eff6ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>HAS</strong>: Cross-product methodology</span> <span style="background:#fef2f2;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>Methodology</strong>: SB Harasser, Solar XML configs</span> <span style="background:#f5f3ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>KB</strong>: KB/pm_tc_kb/fv</span> </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128295; Feature Summary (from local KB)</div>
+      <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px;background:#f9fafb;padding:8px 10px;border-radius:4px;border-left:3px solid #3b82f6">
+        PM Cross Products &gt; Autonomous Idle PM (AIPM) &gt; Status: Enriched — HW/FW/OS touchpoints + KPI &amp; Timing + Baseline topology + NWP scoping + PkgC6/L1 combined impact analysis + TPF TC review + AIPM/PkgC6 independence clarification (2026-06-01) &gt; Expert: Hector (AIPM feature owner — open question on DVP/TCG mitigation, see Open Questions) &gt; Parent: PM Cross Products &gt; TP Feature HSD: 22022562533 Base PM Cross Products — Main Flow &gt; Status: Enriched — HW/FW/OS touchpoints + KPI &amp; Timing; AIPM sub-feature added (2026-05-31) &gt; Parent: KB Index Baseline (DMR) What is PM Cross Products? PM Cross Products validates that multiple PM features work correctly simultaneously. Individual PM features (C-states, P-states, RAPL, thermal, SVID, PECI) are validated in isolation by dedicated suites; cross-produ
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128196; TPF → TCD → TC Hierarchy</div>
+      <table style="width:100%;border-collapse:collapse;margin-top:4px"><thead><tr style="background:#f8faff"><th style="padding:4px 8px;text-align:left;font-size:10px;width:40px">Type</th><th style="padding:4px 8px;text-align:left;font-size:10px;width:100px">ID</th><th style="padding:4px 8px;text-align:left;font-size:10px">Title</th><th style="padding:4px 8px;font-size:10px;width:60px">TCs</th></tr></thead><tbody><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030768367" target="_blank" style="color:#1a56db;text-decoration:none">16030768367</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] PM x Reset</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030768368" target="_blank" style="color:#1a56db;text-decoration:none">16030768368</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] PM x OOB (Out-of-Band)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030768369" target="_blank" style="color:#1a56db;text-decoration:none">16030768369</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] PM x Others (RAS, Security, Virt, Debug)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/22022562325" target="_blank" style="color:#1a56db;text-decoration:none">22022562325</a></td>
+  <td style="padding:4px 8px;font-size:11px">PM Integration Testing</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">30</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420631" target="_blank" style="color:#1a56db;text-decoration:none">22022420631</a></td>
+  <td style="padding:4px 8px;font-size:11px">pmx cross products</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">6</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022420633" target="_blank" style="color:#1a56db;text-decoration:none">22022420633</a></td>
+  <td style="padding:4px 8px;font-size:11px">Solar Cross Products</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">12</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421309" target="_blank" style="color:#1a56db;text-decoration:none">22022421309</a></td>
+  <td style="padding:4px 8px;font-size:11px">Cross Products</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">7</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421311" target="_blank" style="color:#1a56db;text-decoration:none">22022421311</a></td>
+  <td style="padding:4px 8px;font-size:11px">EndPoint Sweep</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">5</span></td>
+</tr></tbody></table>
+    </div>
+
+  </div>
+</div>
+<div class="tp-card" id="tp-16030767511">
+  <div class="tp-hdr">
+    <div class="tp-title">
+      <a href="https://hsdes.intel.com/appstore/article-one/#/16030767511" target="_blank" style="color:#1a56db;font-family:Consolas,monospace;font-size:11px">16030767511</a>
+      <span style="font-weight:700;font-size:14px;margin-left:8px">[NWP PM] Telemetry (PEM/PLR)</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <span style="background:#166534;color:#fff;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700">13 TCs, all TCDs covered</span>
+      <span style="background:#e5e7eb;color:#374151;padding:3px 8px;border-radius:4px;font-size:10px">TCDs: 4 | Empty: 0</span>
+      <span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:4px;font-size:10px">Active TCs: 13</span>
+    </div>
+  </div>
+  <div class="tp-body">
+    
+    <div class="tp-section">
+      <div class="sec-label">&#128206; Source Documents</div>
+      <div style="margin-top:4px"><span style="background:#eff6ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>HAS</strong>: PEM/PLR HAS</span> <span style="background:#f0fdf4;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>CSR</strong>: pem_status, pem_control, plr_mailbox_interface</span> <span style="background:#f5f3ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>KB</strong>: KB/pm_tcd_kb/16030767513*</span> </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128295; Feature Summary (from local KB)</div>
+      <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px;background:#f9fafb;padding:8px 10px;border-radius:4px;border-left:3px solid #3b82f6">
+        Power/RAPL &gt; Memory PM (MemCLOS / DRC + CLTT) &gt; Status: Restructured — NWP delta enriched from MCP HAS/MAS query &gt; Parent: Power / RAPL Baseline (DMR) Memory PM encompasses two distinct mechanisms: 1. MemCLOS / DRC (Dynamic Resource Controller) — firmware-based memory bandwidth QoS that throttles low-priority cores to protect high-priority workload memory access 2. CLTT (Closed Loop Thermal Thrott Power/RAPL &gt; PEM (PnP Excursion Monitor) &gt; Status: Restructured — NWP delta enriched from MCP HAS/MAS query &gt; Parent: Power / RAPL Baseline (DMR) PEM provides configurable power and performance excursion monitors for CSP at-scale manageability. It detects sustained core frequency drops below a user-defined threshold (FET) and reports which throttling reason caused the excursion (RAPL, thermal, PRO
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128196; TPF → TCD → TC Hierarchy</div>
+      <table style="width:100%;border-collapse:collapse;margin-top:4px"><thead><tr style="background:#f8faff"><th style="padding:4px 8px;text-align:left;font-size:10px;width:40px">Type</th><th style="padding:4px 8px;text-align:left;font-size:10px;width:100px">ID</th><th style="padding:4px 8px;text-align:left;font-size:10px">Title</th><th style="padding:4px 8px;font-size:10px;width:60px">TCs</th></tr></thead><tbody><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030767512" target="_blank" style="color:#1a56db;text-decoration:none">16030767512</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] PEM (Power and Energy Monitoring)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">12</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421010" target="_blank" style="color:#1a56db;text-decoration:none">22022421010</a></td>
+  <td style="padding:4px 8px;font-size:11px">Consistent Throttling</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421012" target="_blank" style="color:#1a56db;text-decoration:none">22022421012</a></td>
+  <td style="padding:4px 8px;font-size:11px">Corelating timings</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421014" target="_blank" style="color:#1a56db;text-decoration:none">22022421014</a></td>
+  <td style="padding:4px 8px;font-size:11px">Inconsistent Throttling</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030767513" target="_blank" style="color:#1a56db;text-decoration:none">16030767513</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] PLR (Performance Limit Reasons)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421017" target="_blank" style="color:#1a56db;text-decoration:none">22022421017</a></td>
+  <td style="padding:4px 8px;font-size:11px">Performance Limit Reason</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030767516" target="_blank" style="color:#1a56db;text-decoration:none">16030767516</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP PM] Misc Telemetry (Thermal, Perf Counters)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr></tbody></table>
+    </div>
+
+  </div>
+</div>
+<div class="tp-card" id="tp-16030785148">
+  <div class="tp-hdr">
+    <div class="tp-title">
+      <a href="https://hsdes.intel.com/appstore/article-one/#/16030785148" target="_blank" style="color:#1a56db;font-family:Consolas,monospace;font-size:11px">16030785148</a>
+      <span style="font-weight:700;font-size:14px;margin-left:8px">[NWP PM] Platform TCD tranformation</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <span style="background:#d97706;color:#fff;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700">73 TCs, 7 empty TCDs</span>
+      <span style="background:#e5e7eb;color:#374151;padding:3px 8px;border-radius:4px;font-size:10px">TCDs: 24 | Empty: 7</span>
+      <span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:4px;font-size:10px">Active TCs: 73</span>
+    </div>
+  </div>
+  <div class="tp-body">
+    
+    <div class="tp-section">
+      <div class="sec-label">&#128206; Source Documents</div>
+      <div style="margin-top:4px"><span style="background:#fef2f2;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>Methodology</strong>: Platform TCD transformation</span> <span style="background:#fffbeb;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>FR</strong>: Platform TCD scope</span> </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128295; Feature Summary (from local KB)</div>
+      <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px;background:#f9fafb;padding:8px 10px;border-radius:4px;border-left:3px solid #3b82f6">
+        NWP HAS Impact on PM FV Test Plan — TPF/TCD/TC Analysis Date: 2026-05-30 Sources: NWP HAS Overview, NWP NIO PM MAS, NWP MIO Stack MAS, NWP Memory IO Stack MAS Test Plan: NWP PM FV (442 TCs total) --- Impact Legend --- 1. ZBB&#x27;d Features — REJECT Candidates These features are fused off or explicitly ZBB&#x27;d on NWP. All related TCD/TCs should be rejected. 1.1 PkgC6 (HSD 22021155362) Status: REJECT — fu NWP HAS Overview — Architecture Summary Source: NWP HAS Overview Date: 2026-05-30 --- 1. Overview - Newport (NWP) is a custom Xeon processor for Nimbus customer; DMR derivative on OKS-AP derivative platform - Design philosophy: change only what is necessary to maximize HW/SW/validation leverage from DMR - Supports same features as DMR unless otherwise stated - CPUID: Family 0x4F (same as DMR), Mod
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128196; TPF → TCD → TC Hierarchy</div>
+      <table style="width:100%;border-collapse:collapse;margin-top:4px"><thead><tr style="background:#f8faff"><th style="padding:4px 8px;text-align:left;font-size:10px;width:40px">Type</th><th style="padding:4px 8px;text-align:left;font-size:10px;width:100px">ID</th><th style="padding:4px 8px;text-align:left;font-size:10px">Title</th><th style="padding:4px 8px;font-size:10px;width:60px">TCs</th></tr></thead><tbody><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030784935" target="_blank" style="color:#1a56db;text-decoration:none">16030784935</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP Platform] C-States</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">11</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785049" target="_blank" style="color:#1a56db;text-decoration:none">16030785049</a></td>
+  <td style="padding:4px 8px;font-size:11px">C-States General</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785050" target="_blank" style="color:#1a56db;text-decoration:none">16030785050</a></td>
+  <td style="padding:4px 8px;font-size:11px">Core C6 Validation</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785051" target="_blank" style="color:#1a56db;text-decoration:none">16030785051</a></td>
+  <td style="padding:4px 8px;font-size:11px">Fast C1E</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785052" target="_blank" style="color:#1a56db;text-decoration:none">16030785052</a></td>
+  <td style="padding:4px 8px;font-size:11px">Module C-States (MC6)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030784936" target="_blank" style="color:#1a56db;text-decoration:none">16030784936</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP Platform] Misc</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785053" target="_blank" style="color:#1a56db;text-decoration:none">16030785053</a></td>
+  <td style="padding:4px 8px;font-size:11px">Miscellaneous</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030784937" target="_blank" style="color:#1a56db;text-decoration:none">16030784937</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP Platform] OS2P</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785054" target="_blank" style="color:#1a56db;text-decoration:none">16030785054</a></td>
+  <td style="padding:4px 8px;font-size:11px">OS2P Mailbox</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030784938" target="_blank" style="color:#1a56db;text-decoration:none">16030784938</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP Platform] P-State / HWP</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">15</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785055" target="_blank" style="color:#1a56db;text-decoration:none">16030785055</a></td>
+  <td style="padding:4px 8px;font-size:11px">Flex Ratio &amp; Base Frequency</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785056" target="_blank" style="color:#1a56db;text-decoration:none">16030785056</a></td>
+  <td style="padding:4px 8px;font-size:11px">HWP &amp; OOB TPMI</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785057" target="_blank" style="color:#1a56db;text-decoration:none">16030785057</a></td>
+  <td style="padding:4px 8px;font-size:11px">P-State Basic</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785058" target="_blank" style="color:#1a56db;text-decoration:none">16030785058</a></td>
+  <td style="padding:4px 8px;font-size:11px">Turbo / AVX / TMUL</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">5</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030784939" target="_blank" style="color:#1a56db;text-decoration:none">16030784939</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP Platform] PKGC / PC6</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785059" target="_blank" style="color:#1a56db;text-decoration:none">16030785059</a></td>
+  <td style="padding:4px 8px;font-size:11px">PC6 Functionality</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785060" target="_blank" style="color:#1a56db;text-decoration:none">16030785060</a></td>
+  <td style="padding:4px 8px;font-size:11px">PKGC Configuration &amp; Cross Products</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030784940" target="_blank" style="color:#1a56db;text-decoration:none">16030784940</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP Platform] RACL</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785061" target="_blank" style="color:#1a56db;text-decoration:none">16030785061</a></td>
+  <td style="padding:4px 8px;font-size:11px">RACL Validation</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030784941" target="_blank" style="color:#1a56db;text-decoration:none">16030784941</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP Platform] RAPL &amp; Power Limiting</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">8</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785062" target="_blank" style="color:#1a56db;text-decoration:none">16030785062</a></td>
+  <td style="padding:4px 8px;font-size:11px">PEM / TPMI Power Validation</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785063" target="_blank" style="color:#1a56db;text-decoration:none">16030785063</a></td>
+  <td style="padding:4px 8px;font-size:11px">Socket RAPL &amp; Power Limits</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">8</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030784942" target="_blank" style="color:#1a56db;text-decoration:none">16030784942</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP Platform] SST</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">15</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785064" target="_blank" style="color:#1a56db;text-decoration:none">16030785064</a></td>
+  <td style="padding:4px 8px;font-size:11px">PCT (Priority Core Turbo)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785065" target="_blank" style="color:#1a56db;text-decoration:none">16030785065</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST General / Reset / Discovery</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">7</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785066" target="_blank" style="color:#1a56db;text-decoration:none">16030785066</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-BF (Base Frequency)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785067" target="_blank" style="color:#1a56db;text-decoration:none">16030785067</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-CP (Core Power)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785068" target="_blank" style="color:#1a56db;text-decoration:none">16030785068</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-PP (Perf Profile)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785069" target="_blank" style="color:#1a56db;text-decoration:none">16030785069</a></td>
+  <td style="padding:4px 8px;font-size:11px">SST-TF (Turbo Frequency)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030784943" target="_blank" style="color:#1a56db;text-decoration:none">16030784943</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP Platform] TPMI / Harasser</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785070" target="_blank" style="color:#1a56db;text-decoration:none">16030785070</a></td>
+  <td style="padding:4px 8px;font-size:11px">TPMI Interface &amp; Harasser</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030784944" target="_blank" style="color:#1a56db;text-decoration:none">16030784944</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP Platform] Thermal</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">15</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785071" target="_blank" style="color:#1a56db;text-decoration:none">16030785071</a></td>
+  <td style="padding:4px 8px;font-size:11px">Platform Thermal (PROCHOT/TCC/ThermalTrip)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">15</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030784945" target="_blank" style="color:#1a56db;text-decoration:none">16030784945</a></td>
+  <td style="padding:4px 8px;font-size:11px">[NWP Platform] UFS / Uncore Frequency</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/16030785072" target="_blank" style="color:#1a56db;text-decoration:none">16030785072</a></td>
+  <td style="padding:4px 8px;font-size:11px">Uncore Frequency Scaling (UFS/ELC)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr></tbody></table>
+    </div>
+
+  </div>
+</div>
+<div class="tp-card" id="tp-22022420505">
+  <div class="tp-hdr">
+    <div class="tp-title">
+      <a href="https://hsdes.intel.com/appstore/article-one/#/22022420505" target="_blank" style="color:#1a56db;font-family:Consolas,monospace;font-size:11px">22022420505</a>
+      <span style="font-weight:700;font-size:14px;margin-left:8px">[NWP PM] CBB CCF PM</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">
+      <span style="background:#d97706;color:#fff;padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700">15 TCs, 7 empty TCDs</span>
+      <span style="background:#e5e7eb;color:#374151;padding:3px 8px;border-radius:4px;font-size:10px">TCDs: 19 | Empty: 7</span>
+      <span style="background:#dbeafe;color:#1e40af;padding:3px 8px;border-radius:4px;font-size:10px">Active TCs: 15</span>
+    </div>
+  </div>
+  <div class="tp-body">
+    
+    <div class="tp-section">
+      <div class="sec-label">&#128206; Source Documents</div>
+      <div style="margin-top:4px"><span style="background:#eff6ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>HAS</strong>: CBB CCF PM HAS</span> <span style="background:#f0fdf4;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>CSR</strong>: CCF DVFS TPMI, GV registers</span> <span style="background:#f5f3ff;border:1px solid #e5e7eb;border-radius:4px;padding:2px 8px;font-size:10px;margin:2px;display:inline-block"><strong>KB</strong>: KB/pm_tcd_kb/22022420507/514</span> </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128295; Feature Summary (from local KB)</div>
+      <div style="font-size:11px;color:#374151;line-height:1.6;margin-top:4px;background:#f9fafb;padding:8px 10px;border-radius:4px;border-left:3px solid #3b82f6">
+        NWP HAS Impact on PM FV Test Plan — TPF/TCD/TC Analysis Date: 2026-05-30 Sources: NWP HAS Overview, NWP NIO PM MAS, NWP MIO Stack MAS, NWP Memory IO Stack MAS Test Plan: NWP PM FV (442 TCs total) --- Impact Legend --- 1. ZBB&#x27;d Features — REJECT Candidates These features are fused off or explicitly ZBB&#x27;d on NWP. All related TCD/TCs should be rejected. 1.1 PkgC6 (HSD 22021155362) Status: REJECT — fu NWP HAS Overview — Architecture Summary Source: NWP HAS Overview Date: 2026-05-30 --- 1. Overview - Newport (NWP) is a custom Xeon processor for Nimbus customer; DMR derivative on OKS-AP derivative platform - Design philosophy: change only what is necessary to maximize HW/SW/validation leverage from DMR - Supports same features as DMR unless otherwise stated - CPUID: Family 0x4F (same as DMR), Mod
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="sec-label">&#128196; TPF → TCD → TC Hierarchy</div>
+      <table style="width:100%;border-collapse:collapse;margin-top:4px"><thead><tr style="background:#f8faff"><th style="padding:4px 8px;text-align:left;font-size:10px;width:40px">Type</th><th style="padding:4px 8px;text-align:left;font-size:10px;width:100px">ID</th><th style="padding:4px 8px;text-align:left;font-size:10px">Title</th><th style="padding:4px 8px;font-size:10px;width:60px">TCs</th></tr></thead><tbody><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420507" target="_blank" style="color:#1a56db;text-decoration:none">22022420507</a></td>
+  <td style="padding:4px 8px;font-size:11px">CBB CCF Active States</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">4</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421165" target="_blank" style="color:#1a56db;text-decoration:none">22022421165</a></td>
+  <td style="padding:4px 8px;font-size:11px">CBB CCF GV BIOS Configuration</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421168" target="_blank" style="color:#1a56db;text-decoration:none">22022421168</a></td>
+  <td style="padding:4px 8px;font-size:11px">CBB CCF GV PEGA</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421171" target="_blank" style="color:#1a56db;text-decoration:none">22022421171</a></td>
+  <td style="padding:4px 8px;font-size:11px">CBB CCF GV TPMI Interface</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421174" target="_blank" style="color:#1a56db;text-decoration:none">22022421174</a></td>
+  <td style="padding:4px 8px;font-size:11px">CBB CCF VF Curves</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420512" target="_blank" style="color:#1a56db;text-decoration:none">22022420512</a></td>
+  <td style="padding:4px 8px;font-size:11px">CBB CCF Idle States</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421179" target="_blank" style="color:#1a56db;text-decoration:none">22022421179</a></td>
+  <td style="padding:4px 8px;font-size:11px">CBB CCF Idle states</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">3</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420513" target="_blank" style="color:#1a56db;text-decoration:none">22022420513</a></td>
+  <td style="padding:4px 8px;font-size:11px">CBB CCF NonAutoGV</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421183" target="_blank" style="color:#1a56db;text-decoration:none">22022421183</a></td>
+  <td style="padding:4px 8px;font-size:11px">CBB CCF NonAutoGV Mode - Drainless / Fast GV</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420514" target="_blank" style="color:#1a56db;text-decoration:none">22022420514</a></td>
+  <td style="padding:4px 8px;font-size:11px">CBB CCF Ring Frequency Scalability</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">7</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421190" target="_blank" style="color:#1a56db;text-decoration:none">22022421190</a></td>
+  <td style="padding:4px 8px;font-size:11px">CBB  CCF PMON</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421194" target="_blank" style="color:#1a56db;text-decoration:none">22022421194</a></td>
+  <td style="padding:4px 8px;font-size:11px">CBB CCF CBO Telemetry</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421197" target="_blank" style="color:#1a56db;text-decoration:none">22022421197</a></td>
+  <td style="padding:4px 8px;font-size:11px">CBB CCF Distress Signal</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">2</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421199" target="_blank" style="color:#1a56db;text-decoration:none">22022421199</a></td>
+  <td style="padding:4px 8px;font-size:11px">CBB CCF Message To Punit</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421202" target="_blank" style="color:#1a56db;text-decoration:none">22022421202</a></td>
+  <td style="padding:4px 8px;font-size:11px">CBB CCF SBO Telemetry</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421205" target="_blank" style="color:#1a56db;text-decoration:none">22022421205</a></td>
+  <td style="padding:4px 8px;font-size:11px">CCB CCF PCODE algorithm for distress input</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">1</span></td>
+</tr><tr style="background:#dbeafe">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TPF</td>
+  <td style="padding:4px 8px;font-size:11px"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420515" target="_blank" style="color:#1a56db;text-decoration:none">22022420515</a></td>
+  <td style="padding:4px 8px;font-size:11px">CBB Uniform Fabric Frequency</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421207" target="_blank" style="color:#1a56db;text-decoration:none">22022421207</a></td>
+  <td style="padding:4px 8px;font-size:11px">•	UNIFORM_CBB_FABRIC_MODE Cross Fast Ring C3</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421209" target="_blank" style="color:#1a56db;text-decoration:none">22022421209</a></td>
+  <td style="padding:4px 8px;font-size:11px">•	UNIFORM_CBB_FABRIC_MODE Cross PC6</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421211" target="_blank" style="color:#1a56db;text-decoration:none">22022421211</a></td>
+  <td style="padding:4px 8px;font-size:11px">•	UNIFORM_CBB_FABRIC_MODE Cross ProcHot</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421212" target="_blank" style="color:#1a56db;text-decoration:none">22022421212</a></td>
+  <td style="padding:4px 8px;font-size:11px">•	UNIFORM_CBB_FABRIC_MODE Cross RAPL</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421214" target="_blank" style="color:#1a56db;text-decoration:none">22022421214</a></td>
+  <td style="padding:4px 8px;font-size:11px">•	UNIFORM_CBB_FABRIC_MODE Enabled/Disable via BIOS</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421216" target="_blank" style="color:#1a56db;text-decoration:none">22022421216</a></td>
+  <td style="padding:4px 8px;font-size:11px">•	UNIFORM_CBB_FABRIC_MODE Enabled/Disable via TPMI UFS_CONTROL</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr><tr style="background:#f0fdf4">
+  <td style="padding:4px 8px;font-size:10px;color:#6b7280">TCD</td>
+  <td style="padding:4px 8px;font-size:11px">&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://hsdes.intel.com/appstore/article-one/#/22022421218" target="_blank" style="color:#1a56db;text-decoration:none">22022421218</a></td>
+  <td style="padding:4px 8px;font-size:11px">•	UNIFORM_CBB_FABRIC_MODE HPM messaging verification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px">0</span></td>
+</tr></tbody></table>
+    </div>
+
+  </div>
+</div></div>
+</body></html>

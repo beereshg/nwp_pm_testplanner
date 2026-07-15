@@ -1,0 +1,132 @@
+[
+  {
+    "tc_id": "22022422343",
+    "tc_title": "Consistent throttling_silicon_I3C",
+    "tcd_id": "22022421010",
+    "tcd_title": "Consistent Throttling",
+    "tpf_id": "16030767512",
+    "tpf_title": "[NWP PM] PEM (Power and Energy Monitoring)",
+    "status": "open",
+    "val_framework": "os-svos,python-sv"
+  },
+  {
+    "tc_id": "22022422346",
+    "tc_title": "Consistent throttling_silicon_PCIE",
+    "tcd_id": "22022421010",
+    "tcd_title": "Consistent Throttling",
+    "tpf_id": "16030767512",
+    "tpf_title": "[NWP PM] PEM (Power and Energy Monitoring)",
+    "status": "open",
+    "val_framework": "os-svos,python-sv"
+  },
+  {
+    "tc_id": "22022422348",
+    "tc_title": "Consistent throttling_silicon_TPMI",
+    "tcd_id": "22022421010",
+    "tcd_title": "Consistent Throttling",
+    "tpf_id": "16030767512",
+    "tpf_title": "[NWP PM] PEM (Power and Energy Monitoring)",
+    "status": "open",
+    "val_framework": "os-svos,python-sv"
+  },
+  {
+    "tc_id": "22022422351",
+    "tc_title": "Consistent throttling_silicon_vp",
+    "tcd_id": "22022421010",
+    "tcd_title": "Consistent Throttling",
+    "tpf_id": "16030767512",
+    "tpf_title": "[NWP PM] PEM (Power and Energy Monitoring)",
+    "status": "open",
+    "val_framework": "os-svos,python-sv"
+  },
+  {
+    "tc_id": "22022422353",
+    "tc_title": "Corelating timings_silicon_I3C",
+    "tcd_id": "22022421012",
+    "tcd_title": "Corelating timings",
+    "tpf_id": "16030767512",
+    "tpf_title": "[NWP PM] PEM (Power and Energy Monitoring)",
+    "status": "open",
+    "val_framework": "os-svos,python-sv"
+  },
+  {
+    "tc_id": "22022422356",
+    "tc_title": "Corelating timings_silicon_PCIE",
+    "tcd_id": "22022421012",
+    "tcd_title": "Corelating timings",
+    "tpf_id": "16030767512",
+    "tpf_title": "[NWP PM] PEM (Power and Energy Monitoring)",
+    "status": "open",
+    "val_framework": "os-svos,python-sv"
+  },
+  {
+    "tc_id": "22022422358",
+    "tc_title": "Corelating timings_silicon_TPMI",
+    "tcd_id": "22022421012",
+    "tcd_title": "Corelating timings",
+    "tpf_id": "16030767512",
+    "tpf_title": "[NWP PM] PEM (Power and Energy Monitoring)",
+    "status": "open",
+    "val_framework": "os-svos,python-sv"
+  },
+  {
+    "tc_id": "22022422361",
+    "tc_title": "Corelating timings_silicon_vp",
+    "tcd_id": "22022421012",
+    "tcd_title": "Corelating timings",
+    "tpf_id": "16030767512",
+    "tpf_title": "[NWP PM] PEM (Power and Energy Monitoring)",
+    "status": "open",
+    "val_framework": "os-svos,python-sv"
+  },
+  {
+    "tc_id": "22022422363",
+    "tc_title": "Inconsistent Throttling_silicon_I3C",
+    "tcd_id": "22022421014",
+    "tcd_title": "Inconsistent Throttling",
+    "tpf_id": "16030767512",
+    "tpf_title": "[NWP PM] PEM (Power and Energy Monitoring)",
+    "status": "open",
+    "val_framework": "os-svos,python-sv"
+  },
+  {
+    "tc_id": "22022422372",
+    "tc_title": "Inconsistent Throttling_silicon_PCIE",
+    "tcd_id": "22022421014",
+    "tcd_title": "Inconsistent Throttling",
+    "tpf_id": "16030767512",
+    "tpf_title": "[NWP PM] PEM (Power and Energy Monitoring)",
+    "status": "open",
+    "val_framework": "os-svos,python-sv"
+  },
+  {
+    "tc_id": "22022422374",
+    "tc_title": "Inconsistent Throttling_silicon_TPMI",
+    "tcd_id": "22022421014",
+    "tcd_title": "Inconsistent Throttling",
+    "tpf_id": "16030767512",
+    "tpf_title": "[NWP PM] PEM (Power and Energy Monitoring)",
+    "status": "open",
+    "val_framework": "os-svos,python-sv"
+  },
+  {
+    "tc_id": "22022422377",
+    "tc_title": "Inconsistent Throttling_silicon_vp",
+    "tcd_id": "22022421014",
+    "tcd_title": "Inconsistent Throttling",
+    "tpf_id": "16030767512",
+    "tpf_title": "[NWP PM] PEM (Power and Energy Monitoring)",
+    "status": "open",
+    "val_framework": "os-svos,python-sv"
+  },
+  {
+    "tc_id": "22022422383",
+    "tc_title": "Platform Limit Reason Check",
+    "tcd_id": "22022421017",
+    "tcd_title": "Performance Limit Reason",
+    "tpf_id": "16030767513",
+    "tpf_title": "[NWP PM] PLR (Performance Limit Reasons)",
+    "status": "open",
+    "val_framework": "os-svos,python-sv"
+  }
+]

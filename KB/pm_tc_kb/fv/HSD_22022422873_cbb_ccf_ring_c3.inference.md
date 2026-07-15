@@ -126,3 +126,25 @@ print("Ring C3 ratio:", ratio, "-> expected 0 (PLL off)")
 ### Pass Criteria
 
 Silicon: Fast Ring C3 per TC 22022422865. HSLE: CURRENT_RATIO = 0; D2D L1; VCCRING gated; exit restores to P0; PLR = 0x0.
+---
+
+## Section S: Script Implementation Details
+
+**Script file:** `pm/Active_PM/CCF_GV/pmx_ccf_cbo.py`
+**Library:** `pm/pmutils/ccf_utils.py`
+**PMX option flag:** `--test_ccf_ring_c3`
+**Run command:** `runPmx.py -x dmr.xml -p ccf_cbo_test -tM 60 -M 5 --test_ccf_ring_c3`
+
+### Function Called
+
+```python
+# pmx_ccf_cbo.py → mainTest()
+ccfu = diamondrapids.pm.pmutils.ccf_utils
+ccfu.ccf_ring_c3_test(sktNum, rtime=100)
+```
+
+### Workload
+
+**Workload type:** C-state injection (synthetic)
+
+Workload: Ring C3 state machine injection via PEGA cstate (`op='c6sp'`). No external workload.

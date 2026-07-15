@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>DMR DCCB to NWP PM TC Mapping</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:12px}.section{background:#fff;border:1px solid #d1d5db;border-radius:8px;margin-bottom:14px;overflow:hidden}table td{border-bottom:1px solid #f3f4f6;vertical-align:top}tr:hover td{background:#f0f7ff!important}th{border-bottom:2px solid #e5e7eb;font-weight:600;color:#374151;text-align:left}</style>
+</head><body>
+<div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);color:#fff;padding:18px 28px">
+  <h1 style="font-size:20px;font-weight:700;margin-bottom:4px">DMR DCCB &rarr; NWP PM Test Case Mapping</h1>
+  <p style="font-size:11px;opacity:.85">Source: <code>collaterals/DMR_DCCB/DCCB_DMR_ALL.csv</code> &nbsp;|&nbsp; 522 DCCBs total &nbsp;|&nbsp; 113 PM-relevant &nbsp;|&nbsp; 409 Non-PM &nbsp;|&nbsp; Generated: 2026-07-08</p>
+</div>
+<div style="display:flex;gap:10px;background:#1a3a5f;padding:8px 24px;flex-wrap:wrap">
+  <div style="background:rgba(255,255,255,.18);border-radius:6px;padding:5px 14px;text-align:center;color:#fff"><span style="font-size:20px;font-weight:700;display:block">522</span><span style="font-size:9px;opacity:.8">Total DCCBs</span></div>
+  <div style="background:rgba(255,255,255,.18);border-radius:6px;padding:5px 14px;text-align:center;color:#fff"><span style="font-size:20px;font-weight:700;display:block">113</span><span style="font-size:9px;opacity:.8">PM-Relevant</span></div>
+  <div style="background:#166534;border-radius:6px;padding:5px 14px;text-align:center;color:#fff"><span style="font-size:20px;font-weight:700;display:block">23</span><span style="font-size:9px;opacity:.8">Strong Match</span></div>
+  <div style="background:#d97706;border-radius:6px;padding:5px 14px;text-align:center;color:#fff"><span style="font-size:20px;font-weight:700;display:block">20</span><span style="font-size:9px;opacity:.8">Partial Match</span></div>
+  <div style="background:#2563eb;border-radius:6px;padding:5px 14px;text-align:center;color:#fff"><span style="font-size:20px;font-weight:700;display:block">70</span><span style="font-size:9px;opacity:.8">Weak/Auto</span></div>
+  <div style="background:#dc2626;border-radius:6px;padding:5px 14px;text-align:center;color:#fff"><span style="font-size:20px;font-weight:700;display:block">2</span><span style="font-size:9px;opacity:.8">New TP Needed</span></div>
+  <div style="background:#6b7280;border-radius:6px;padding:5px 14px;text-align:center;color:#fff"><span style="font-size:20px;font-weight:700;display:block">409</span><span style="font-size:9px;opacity:.8">Non-PM</span></div>
+</div>
+<div style="background:#fff;border-bottom:1px solid #e5e7eb;padding:8px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+  <strong style="font-size:10px;color:#374151">Jump to TP:</strong>
+  <a href="#tp-15019477771" style="font-size:10px;color:#1a56db;text-decoration:none;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 8px;border-radius:4px">[NWP PM] RAPL (4)</a><a href="#tp-15019477838" style="font-size:10px;color:#1a56db;text-decoration:none;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 8px;border-radius:4px">[NWP PM] PKGC (5)</a><a href="#tp-15019477845" style="font-size:10px;color:#1a56db;text-decoration:none;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 8px;border-radius:4px">[NWP PM] Power Control (SIMPL/ (10)</a><a href="#tp-15019478558" style="font-size:10px;color:#1a56db;text-decoration:none;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 8px;border-radius:4px">[NWP PM] C-State (4)</a><a href="#tp-16030686481" style="font-size:10px;color:#1a56db;text-decoration:none;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 8px;border-radius:4px">[NWP PM] P-State / HWP (24)</a><a href="#tp-16030762529" style="font-size:10px;color:#1a56db;text-decoration:none;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 8px;border-radius:4px">[NWP PM] AIPM (21)</a><a href="#tp-16030763137" style="font-size:10px;color:#1a56db;text-decoration:none;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 8px;border-radius:4px">[NWP PM] Thermal Management (8)</a><a href="#tp-16030763243" style="font-size:10px;color:#1a56db;text-decoration:none;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 8px;border-radius:4px">[NWP PM] Fabric DVFS (UFS) (5)</a><a href="#tp-16030765561" style="font-size:10px;color:#1a56db;text-decoration:none;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 8px;border-radius:4px">[NWP PM] PM Interfaces (10)</a><a href="#tp-16030765631" style="font-size:10px;color:#1a56db;text-decoration:none;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 8px;border-radius:4px">[NWP PM] PM Cross Product (1)</a><a href="#tp-16030767511" style="font-size:10px;color:#1a56db;text-decoration:none;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 8px;border-radius:4px">[NWP PM] Telemetry (PEM/PLR) (6)</a><a href="#tp-22022420505" style="font-size:10px;color:#1a56db;text-decoration:none;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 8px;border-radius:4px">[NWP PM] CBB CCF PM (3)</a><a href="#tp-[Perfmon]" style="font-size:10px;color:#1a56db;text-decoration:none;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 8px;border-radius:4px">Telemetry TP (partial) (1)</a><a href="#tp-NEW_FIVR" style="font-size:10px;color:#1a56db;text-decoration:none;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 8px;border-radius:4px">NEW: FIVR/Power-Rail TCD neede (2)</a><a href="#tp-NEW_HPM" style="font-size:10px;color:#1a56db;text-decoration:none;background:#eff6ff;border:1px solid #bfdbfe;padding:3px 8px;border-radius:4px">NEW: [NWP PM] HPM Test Plan ne (9)</a>
+</div>
+<div style="max-width:1700px;margin:12px auto;padding:0 14px 50px">
+<div style="background:#fffbeb;border-left:4px solid #f59e0b;padding:8px 14px;margin-bottom:12px;font-size:11px;border-radius:4px">
+  <strong>Match quality:</strong>
+  <span style="background:#166534;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px">STRONG</span> = DCCB directly drives an existing NWP PM TC or TCD &nbsp;|&nbsp;
+  <span style="background:#d97706;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px">PARTIAL</span> = DCCB overlaps with TP scope but needs new TCD &nbsp;|&nbsp;
+  <span style="background:#2563eb;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px">WEAK/auto</span> = keyword-matched, needs human review
+</div>
+
+<div class="section" id="tp-15019477771">
+<div class="sec-hdr" style="background:#1e40af;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px">
+  <span>[NWP PM] RAPL</span>
+  <span style="background:rgba(255,255,255,.25);border-radius:4px;padding:2px 8px;font-size:10px">4 DCCBs</span>
+  
+  <a href="https://hsdes.intel.com/appstore/article-one/#/15019477771" target="_blank" style="color:#bfdbfe;font-size:10px;margin-left:auto">HSD 15019477771 &#x2197;</a>
+</div>
+<table style="width:100%;border-collapse:collapse">
+<thead><tr style="background:#f8faff">
+  <th style="padding:5px 8px;font-size:9px;width:100px;text-align:left">DCCB ID</th>
+  <th style="padding:5px 8px;font-size:9px;width:140px;text-align:left">Component</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">DCCB Title</th>
+  <th style="padding:5px 8px;font-size:9px;width:85px;text-align:center">Match</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">NWP Rationale</th>
+</tr></thead>
+<tbody><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14016333882" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14016333882</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PrimeCode 2.0</td>
+  <td style="padding:4px 8px;font-size:11px">Simplify RAPL Interfaces and interactions in PrimeCode</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Simplify RAPL interfaces in PrimeCode — directly drives RAPL TP socket_rapl_pmx.py test scenarios</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14019467361" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14019467361</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PUNIT_4.0</td>
+  <td style="padding:4px 8px;font-size:11px">Punit to remove support for Socket Rapl Extensions</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Remove Socket RAPL Extensions — RAPL TP needs negative test verifying removed extensions are absent</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14021877641" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14021877641</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PrimeCode 2.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Connect RAPL/RACL feedback to IMH Mem &amp; IO Frequency</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Connect RAPL/RACL feedback to IMH Mem &amp; IO Frequency — RAPL x Fabric DVFS cross-product; RAPL TP + H</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22021585188" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22021585188</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PrimeCode 2.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Release GNR NNPID POC IFWI officially to DMR, incrementally improve PI</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] Release GNR NNPID POC IFWI officially to DMR, incr&#x27;</td>
+</tr></tbody>
+</table>
+</div>
+<div class="section" id="tp-15019477838">
+<div class="sec-hdr" style="background:#065f46;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px">
+  <span>[NWP PM] PKGC</span>
+  <span style="background:rgba(255,255,255,.25);border-radius:4px;padding:2px 8px;font-size:10px">5 DCCBs</span>
+  
+  <a href="https://hsdes.intel.com/appstore/article-one/#/15019477838" target="_blank" style="color:#bfdbfe;font-size:10px;margin-left:auto">HSD 15019477838 &#x2197;</a>
+</div>
+<table style="width:100%;border-collapse:collapse">
+<thead><tr style="background:#f8faff">
+  <th style="padding:5px 8px;font-size:9px;width:100px;text-align:left">DCCB ID</th>
+  <th style="padding:5px 8px;font-size:9px;width:140px;text-align:left">Component</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">DCCB Title</th>
+  <th style="padding:5px 8px;font-size:9px;width:85px;text-align:center">Match</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">NWP Rationale</th>
+</tr></thead>
+<tbody><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14016149630" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14016149630</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PUNIT_4.0</td>
+  <td style="padding:4px 8px;font-size:11px">PC6 debug requirement support</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">PC6 debug requirement support — PkgC debug TCD (currently 0 TCs in NWP PKGC TP)</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22016255807" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22016255807</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PUNIT_4.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Punit changes to support PkgC SVID actions from both root and leaf IMH</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Punit changes for PkgC SVID actions from both root and non-root die — PKGC voltage actions TCD</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14018738105" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14018738105</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.UCIE_1.0_p1276.4opt4_V1</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB][Bug push from GNR] Fabric ITD request while entering PkgC causes a han</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB][Bug push from GNR] Fabric ITD request while enteri&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22016138000" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22016138000</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">PkgC feature definition scope and opens closure</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;PkgC feature definition scope and opens closure&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22016252924" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22016252924</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">PkgC opens - closure required for feature POR-1</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;PkgC opens - closure required for feature POR-1&#x27;</td>
+</tr></tbody>
+</table>
+</div>
+<div class="section" id="tp-15019477845">
+<div class="sec-hdr" style="background:#7c2d12;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px">
+  <span>[NWP PM] Power Control (SIMPL/PMAX/SVID)</span>
+  <span style="background:rgba(255,255,255,.25);border-radius:4px;padding:2px 8px;font-size:10px">10 DCCBs</span>
+  
+  <a href="https://hsdes.intel.com/appstore/article-one/#/15019477845" target="_blank" style="color:#bfdbfe;font-size:10px;margin-left:auto">HSD 15019477845 &#x2197;</a>
+</div>
+<table style="width:100%;border-collapse:collapse">
+<thead><tr style="background:#f8faff">
+  <th style="padding:5px 8px;font-size:9px;width:100px;text-align:left">DCCB ID</th>
+  <th style="padding:5px 8px;font-size:9px;width:140px;text-align:left">Component</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">DCCB Title</th>
+  <th style="padding:5px 8px;font-size:9px;width:85px;text-align:center">Match</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">NWP Rationale</th>
+</tr></thead>
+<tbody><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14018676280" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14018676280</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PrimeCode 2.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] SoC IccMax Proactive Licensing (SIMPL) Control</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">[DMR-CCB] SoC IccMax SIMPL Control — SIMPL DFC policy; maps to NWP Power Control TP SIMPL TCDs</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/16020277023" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">16020277023</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB][DMR.Power] Remove MIO Power Gates and have Dedicated FIVR per stack</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Remove MIO Power Gates, dedicated FIVR per MIO stack — SVID/FIVR power rail change; needs SVID TCD u</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/18028882452" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">18028882452</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB][DMR-POWER][DMR D2D] Remove Support for D2D Dynamic Width Modulation</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Remove D2D Dynamic Width Modulation — FIVR/PM interaction; Power Control TP for power rail behavior</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22018925528" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22018925528</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.RA_2.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] PMAX calibration error not connected to RA and RA not signaling RSRC_E</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">PMAX calibration error not connected to RA — PMAX coverage gap; Power Control TP PL4 scenarios</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14018702475" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14018702475</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.S3M_3.0_FW</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Fuse offload provisioning simplification and on-die certificate author</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] Fuse offload provisioning simplification and on-di&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14019537098" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14019537098</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.fw.oCode</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Ocode/OOBMSM simplification for MMC runtime RAS</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] Ocode/OOBMSM simplification for MMC runtime RAS&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14019700655" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14019700655</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.IOMMU_Server_5.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Implementation Simplification in setting the CXL.io field in a PCIe Tr</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] Implementation Simplification in setting the CXL.i&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22016206945" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22016206945</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB]Early iMH2iMH D2D bringup before CPUPWRGOOD for Design/Val simplificati</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB]Early iMH2iMH D2D bringup before CPUPWRGOOD for Des&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22019066009" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22019066009</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.pmax sip 4.2</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] PMAX Quick hard Throttle Simplification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] PMAX Quick hard Throttle Simplification&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22020195952" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22020195952</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.pmaxgen6cbb p1276.4 opt4</td>
+  <td style="padding:4px 8px;font-size:11px">PCR for PMAX HIP to assess feasibility of moving to PDK1.1.1 for DMR TI</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;PCR for PMAX HIP to assess feasibility of moving to PDK1.1.1&#x27;</td>
+</tr></tbody>
+</table>
+</div>
+<div class="section" id="tp-15019478558">
+<div class="sec-hdr" style="background:#374151;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px">
+  <span>[NWP PM] C-State</span>
+  <span style="background:rgba(255,255,255,.25);border-radius:4px;padding:2px 8px;font-size:10px">4 DCCBs</span>
+  
+  <a href="https://hsdes.intel.com/appstore/article-one/#/15019478558" target="_blank" style="color:#bfdbfe;font-size:10px;margin-left:auto">HSD 15019478558 &#x2197;</a>
+</div>
+<table style="width:100%;border-collapse:collapse">
+<thead><tr style="background:#f8faff">
+  <th style="padding:5px 8px;font-size:9px;width:100px;text-align:left">DCCB ID</th>
+  <th style="padding:5px 8px;font-size:9px;width:140px;text-align:left">Component</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">DCCB Title</th>
+  <th style="padding:5px 8px;font-size:9px;width:85px;text-align:center">Match</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">NWP Rationale</th>
+</tr></thead>
+<tbody><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14017797661" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14017797661</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] CBB &#x27;Static&#x27; Disable Support for DMR</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">[DMR-CCB] CBB Static Disable Support — C-state related CBB disable; C-State TP TCD for CBB disable s</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22016166091" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22016166091</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Define D2D Disable Mode and interaction with PM/Reset flows</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Define D2D Disable Mode and PM/Reset flows — D2D + PM interaction; C-State TP reset/wake events</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22019492926" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22019492926</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.CPG PCIe6 Controller 8p (DMR)</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Officially drop PCIe RP VC1 support from DMR</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] Officially drop PCIe RP VC1 support from DMR&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22019523499" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22019523499</a></td>
+  <td style="padding:4px 8px;font-size:10px">platform.bios</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Add required BIOS support for core C-states</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] Add required BIOS support for core C-states&#x27;</td>
+</tr></tbody>
+</table>
+</div>
+<div class="section" id="tp-16030686481">
+<div class="sec-hdr" style="background:#5b21b6;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px">
+  <span>[NWP PM] P-State / HWP</span>
+  <span style="background:rgba(255,255,255,.25);border-radius:4px;padding:2px 8px;font-size:10px">24 DCCBs</span>
+  
+  <a href="https://hsdes.intel.com/appstore/article-one/#/16030686481" target="_blank" style="color:#bfdbfe;font-size:10px;margin-left:auto">HSD 16030686481 &#x2197;</a>
+</div>
+<table style="width:100%;border-collapse:collapse">
+<thead><tr style="background:#f8faff">
+  <th style="padding:5px 8px;font-size:9px;width:100px;text-align:left">DCCB ID</th>
+  <th style="padding:5px 8px;font-size:9px;width:140px;text-align:left">Component</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">DCCB Title</th>
+  <th style="padding:5px 8px;font-size:9px;width:85px;text-align:center">Match</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">NWP Rationale</th>
+</tr></thead>
+<tbody><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/13013702830" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">13013702830</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] max turbo frequency (MTF) as defined by p0n/2 is insufficient for comp</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] max turbo frequency (MTF) as defined by p0n/2 is i&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14010884087" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14010884087</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">2LM Configurations Supported</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;2LM Configurations Supported&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14011379451" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14011379451</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[dmrhub-a0] IMH SOC Clock Generation, Delivery, and Control</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[dmrhub-a0] IMH SOC Clock Generation, Delivery, and Control&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14017525204" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14017525204</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.ljpll-gen3.5-p1276-dmr-a0</td>
+  <td style="padding:4px 8px;font-size:11px">Request to LJPLL3.5 to support VCCDIST 0.585V @ 2.7GHz operation for 1276.4 DMR </td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;Request to LJPLL3.5 to support VCCDIST 0.585V @ 2.7GHz opera&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14018443983" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14018443983</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.SCF_4.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Reduce the BL HDR/Data Separation to 1 cycle and 0 for UFI</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] Reduce the BL HDR/Data Separation to 1 cycle and 0&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14018752777" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14018752777</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[dmrhub-a0]  [DMR-CCB] Changes to IMH SOC Clock Generation and Control (item # 2</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[dmrhub-a0]  [DMR-CCB] Changes to IMH SOC Clock Generation a&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14018752892" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14018752892</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[dmrhub-a0] Changes to IMH SOC Clock Generation and Control (item # 2b)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[dmrhub-a0] Changes to IMH SOC Clock Generation and Control &#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14018915261" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14018915261</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB]New AIC Buttress configurations (RCLK, CMLBUF, UCIE PHY)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB]New AIC Buttress configurations (RCLK, CMLBUF, UCIE&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14020523387" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14020523387</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PrimeCode 2.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Support 1 DIMM per socket as POR configuration for Oak Stream</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] Support 1 DIMM per socket as POR configuration for&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14020718817" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14020718817</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.fw.zCode</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] MMC should verify DIMM Addressing tables configuration (detect 24 vs 3</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] MMC should verify DIMM Addressing tables configura&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14021294832" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14021294832</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.HIOP_Agent_4.0_IP</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Drop Weighted Round Robin Arbitration from HIOP</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] Drop Weighted Round Robin Arbitration from HIOP&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14021451780" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14021451780</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.S3M_3.0_FW</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB][Effort Reduction] POR configuration for Sunpass (Trusted Paths) Disabl</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB][Effort Reduction] POR configuration for Sunpass (T&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14022370044" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14022370044</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] 2S OKS-AP 2x16 UPI configuration support for accelerator head node usa</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] 2S OKS-AP 2x16 UPI configuration support for accel&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14022489405" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14022489405</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.CPG PCIe6 Controller 8p (DMR)</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB][RAS]Enable configuration with ROOTCTLOVR and ROOTERRMSK</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB][RAS]Enable configuration with ROOTCTLOVR and ROOTE&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14023218941" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14023218941</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.CPM 5.1</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] QAT needs to have QATZip streaming API Support for HTTP Compression Ac</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] QAT needs to have QATZip streaming API Support for&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14023691168" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14023691168</a></td>
+  <td style="padding:4px 8px;font-size:10px">platform.bios</td>
+  <td style="padding:4px 8px;font-size:11px">[RDT][DMR-CCB][CXL] BIOS IO RDT ACPI enumeration to support CXL link bifurcation</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[RDT][DMR-CCB][CXL] BIOS IO RDT ACPI enumeration to support &#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14024439972" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024439972</a></td>
+  <td style="padding:4px 8px;font-size:10px">platform.bios</td>
+  <td style="padding:4px 8px;font-size:11px">[CXL] Root Complex IDE Key Configuration Unit Software Programming Guide should </td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[CXL] Root Complex IDE Key Configuration Unit Software Progr&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14024531976" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024531976</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.stack.acc</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Ensure that DSA gets 63GB/s for Memfill ( and Memmove ) 4K in 2S/4S co</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] Ensure that DSA gets 63GB/s for Memfill ( and Memm&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/16021218441" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">16021218441</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">New AIC Buttress configurations - Acc Complex Gen4 Phy</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;New AIC Buttress configurations - Acc Complex Gen4 Phy&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22011280086" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22011280086</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.RAS_4.0</td>
+  <td style="padding:4px 8px;font-size:11px">SCI generation for error events</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;SCI generation for error events&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22019571016" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22019571016</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.DC_FIVR_4.0_i3_V1</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR IMH] Request to add VCCIN pin to the left edge of the FIVR for ease of inte</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR IMH] Request to add VCCIN pin to the left edge of the F&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22019809285" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22019809285</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.SCF_4.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] CMS needs to have independent TGR ring scheduler and drop port configu</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] CMS needs to have independent TGR ring scheduler a&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22019822024" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22019822024</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.IP_FxB_Logphy_4.0_Host_8X16</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB][FBLP] : Adaptive TxEq stage 2 (ftype=3) is not supported for Gen6 oper</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB][FBLP] : Adaptive TxEq stage 2 (ftype=3) is not sup&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22022147583" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22022147583</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">DMR - A noisy neighbor configuration could cause electrical failures in the Core</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;DMR - A noisy neighbor configuration could cause electrical &#x27;</td>
+</tr></tbody>
+</table>
+</div>
+<div class="section" id="tp-16030762529">
+<div class="sec-hdr" style="background:#0369a1;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px">
+  <span>[NWP PM] AIPM</span>
+  <span style="background:rgba(255,255,255,.25);border-radius:4px;padding:2px 8px;font-size:10px">21 DCCBs</span>
+  
+  <a href="https://hsdes.intel.com/appstore/article-one/#/16030762529" target="_blank" style="color:#bfdbfe;font-size:10px;margin-left:auto">HSD 16030762529 &#x2197;</a>
+</div>
+<table style="width:100%;border-collapse:collapse">
+<thead><tr style="background:#f8faff">
+  <th style="padding:5px 8px;font-size:9px;width:100px;text-align:left">DCCB ID</th>
+  <th style="padding:5px 8px;font-size:9px;width:140px;text-align:left">Component</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">DCCB Title</th>
+  <th style="padding:5px 8px;font-size:9px;width:85px;text-align:center">Match</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">NWP Rationale</th>
+</tr></thead>
+<tbody><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14020020908" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14020020908</a></td>
+  <td style="padding:4px 8px;font-size:10px">platform.bios</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Request for a BIOS knob to disable MIO stacks (MIO Power removal)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">BIOS knob to disable MIO stacks (MIO Power removal) — AIPM MIO trunk clock gating TCD</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14024448609" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024448609</a></td>
+  <td style="padding:4px 8px;font-size:10px">platform.bios</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Move L0P control registers programming from PrimeCode to BIOS for PCIe</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Move L0P control registers from PrimeCode to BIOS — AIPM BIOS knob TCD; impacts trunk gating</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/16017439782" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">16017439782</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.CXL_3.0_Host</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR.Power] Trunk level clockgating for IO stack during L1 and deeper states</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Trunk level clockgating for IO stack during L1 — AIPM / Trunk clock gating for CXL L1</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14016246194" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14016246194</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.FSA_2.0</td>
+  <td style="padding:4px 8px;font-size:11px">Early-valid on NSIP interface and ready signal allowing NSIP interface stall (ma</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;Early-valid on NSIP interface and ready signal allowing NSIP&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14017869580" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14017869580</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.CPG PCIe6 Controller 8p (DMR)</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] PCIe ,CXL and UXI L0p support</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] PCIe ,CXL and UXI L0p support&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14018000694" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14018000694</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.CPG PCIe6 Controller 8p (DMR)</td>
+  <td style="padding:4px 8px;font-size:11px">[TRACKING-IPG]DMR : DFD L0P override for PCIe, CXL and UXI</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[TRACKING-IPG]DMR : DFD L0P override for PCIe, CXL and UXI&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14018848532" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14018848532</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.SCF_4.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] MUXing on UFI to reduce wiring/crossbar in the bridge with support for</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] MUXing on UFI to reduce wiring/crossbar in the bri&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14019644773" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14019644773</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] MIO stack IPs : side_clk frequency</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] MIO stack IPs : side_clk frequency&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14021484727" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14021484727</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top.dfd</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] [PnP Recovery] DMR DFD Clock Gating</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] [PnP Recovery] DMR DFD Clock Gating&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14021597931" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14021597931</a></td>
+  <td style="padding:4px 8px;font-size:10px">platform.bios</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB][DMR.Power] [PnP Recovery] Update aventine phy L1 PS for MIO stack conf</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB][DMR.Power] [PnP Recovery] Update aventine phy L1 P&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14023592674" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14023592674</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.IP_FxB_Logphy_4.0_Host_8X16</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB][FBLP] : Separate L1 and L0p lane staggering for SP platform power deli</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB][FBLP] : Separate L1 and L0p lane staggering for SP&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14024142315" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024142315</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">IMH2 Power:  Caliber rule causing clock gating exclusions</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;IMH2 Power:  Caliber rule causing clock gating exclusions&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14024220069" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024220069</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.CPG PCIe6 Controller 8p (DMR)</td>
+  <td style="padding:4px 8px;font-size:11px">IMH2 Power:  Meet Dynamic Power Budget on PCIe6 parmiopcie6ttcore Partition by R</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;IMH2 Power:  Meet Dynamic Power Budget on PCIe6 parmiopcie6t&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14024336342" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024336342</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.IP_FxB_Logphy_4.0_Host_8X16</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB][DMR] UXI L0P mode support - scope reduction to asymmetric only mode</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB][DMR] UXI L0P mode support - scope reduction to asy&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14024429677" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024429677</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">IMH2 Power:  Test Point Insertion registers are not clock gated -&gt; need fix</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;IMH2 Power:  Test Point Insertion registers are not clock ga&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/18036819363" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">18036819363</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] [PnP Recovery] Clock gating in disabled D2Ds</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] [PnP Recovery] Clock gating in disabled D2Ds&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/18041757597" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">18041757597</a></td>
+  <td style="padding:4px 8px;font-size:10px">platform.bios</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Disable Multicast on non VMD and non NTB ports in an MIO stack that is</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] Disable Multicast on non VMD and non NTB ports in &#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22019548425" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22019548425</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.CPG PCIe6 Controller 8p (DMR)</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] LPIF 2.0 rev1.1 Errata to support L0p, DRS, and new PCIe interrupts</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] LPIF 2.0 rev1.1 Errata to support L0p, DRS, and ne&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22020029740" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22020029740</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Leucadia B0 will not support/implement L0p feature</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] Leucadia B0 will not support/implement L0p feature&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22020732361" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22020732361</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.UXI_LinkAgent_UIO_1.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] UXI L0p support</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] UXI L0p support&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22021057664" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22021057664</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">chicken bit to disable CRUX NoC spine clock gating in IMH2</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;chicken bit to disable CRUX NoC spine clock gating in IMH2&#x27;</td>
+</tr></tbody>
+</table>
+</div>
+<div class="section" id="tp-16030763137">
+<div class="sec-hdr" style="background:#7c2d12;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px">
+  <span>[NWP PM] Thermal Management</span>
+  <span style="background:rgba(255,255,255,.25);border-radius:4px;padding:2px 8px;font-size:10px">8 DCCBs</span>
+  
+  <a href="https://hsdes.intel.com/appstore/article-one/#/16030763137" target="_blank" style="color:#bfdbfe;font-size:10px;margin-left:auto">HSD 16030763137 &#x2197;</a>
+</div>
+<table style="width:100%;border-collapse:collapse">
+<thead><tr style="background:#f8faff">
+  <th style="padding:5px 8px;font-size:9px;width:100px;text-align:left">DCCB ID</th>
+  <th style="padding:5px 8px;font-size:9px;width:140px;text-align:left">Component</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">DCCB Title</th>
+  <th style="padding:5px 8px;font-size:9px;width:85px;text-align:center">Match</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">NWP Rationale</th>
+</tr></thead>
+<tbody><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14015412878" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14015412878</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR SOC] MR4-based CLTT/memhot/memtrip for DDR5/MCR thermal management</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">MR4-based CLTT/memhot/memtrip for DDR5/MCR — Memory Thermal TCDs (CLTT MR4, Memhot, Memtrip) in Ther</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14020488326" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14020488326</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PrimeCode 2.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] iMH Thermal throttling algorithm change from Nstrike to Closed loop ba</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">IMH Thermal throttling change from Nstrike to CLOS — Thermal throttling TM2 scenario; maps to IMH Th</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14017836872" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14017836872</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.DC_FIVR_4.0_i3_V1</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR IMH ] FIVR  templates request</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">[DMR IMH] FIVR templates request — FIVR power rail + thermal sensor integration</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14020892519" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14020892519</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PrimeCode 2.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] - Periodic temperature data to be delivered to Aventine Phy</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Periodic temperature data to Aventine Phy — DTS telemetry path; IMH DTS &amp; Telemetry TCD</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14021540296" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14021540296</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.DC_FIVR_4.0_i3_V1</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR IMH ] FIVR  Sense Points</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">[DMR IMH] FIVR Sense Points — FIVR thermal sense point, DTS path verification</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22014910547" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22014910547</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">add FIVR Dump to CrashLog</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Add FIVR Dump to CrashLog — FIVR crash log verification; thermal MCA TCD</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14012022884" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14012022884</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">Making DTS Temperature register codes available to DDR IP</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;Making DTS Temperature register codes available to DDR IP&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22017859207" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22017859207</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.DDR5C_Gen5_V1</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] MC Temperature registers need to be in private CR space</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] MC Temperature registers need to be in private CR &#x27;</td>
+</tr></tbody>
+</table>
+</div>
+<div class="section" id="tp-16030763243">
+<div class="sec-hdr" style="background:#166534;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px">
+  <span>[NWP PM] Fabric DVFS (UFS)</span>
+  <span style="background:rgba(255,255,255,.25);border-radius:4px;padding:2px 8px;font-size:10px">5 DCCBs</span>
+  
+  <a href="https://hsdes.intel.com/appstore/article-one/#/16030763243" target="_blank" style="color:#bfdbfe;font-size:10px;margin-left:auto">HSD 16030763243 &#x2197;</a>
+</div>
+<table style="width:100%;border-collapse:collapse">
+<thead><tr style="background:#f8faff">
+  <th style="padding:5px 8px;font-size:9px;width:100px;text-align:left">DCCB ID</th>
+  <th style="padding:5px 8px;font-size:9px;width:140px;text-align:left">Component</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">DCCB Title</th>
+  <th style="padding:5px 8px;font-size:9px;width:85px;text-align:center">Match</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">NWP Rationale</th>
+</tr></thead>
+<tbody><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14018043302" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14018043302</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Legacy BW Counters Telemetry Support for Fabric DVFS in the UBR</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Legacy BW Counters Telemetry Support for Fabric DVFS — CBO/SBO telemetry; Fabric DVFS TP BW heuristi</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14018676072" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14018676072</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.UFI_ASFW_1.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] MIO Low Latency Traffic Indicator for iMH Fabric DVFS</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">MIO Low Latency Traffic Indicator for iMH Fabric DVFS — IMH Fabric GV; Fabric DVFS TP IO Fabric DVFS</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22016184509" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22016184509</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">PnP raised concerned if fabric DVFS can reduce frequency below 1.8GHz - need Arc</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">PnP: fabric DVFS frequency floor at 1.8GHz concern — Fabric DVFS ELC/dynamic frequency capping TCD</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/16018484917" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">16018484917</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.stack.uio</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB][DMR.Power][PnP Recovery] RCB level Clock gating granularity for MIO st</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">RCB level Clock gating granularity — AIPM trunk clock gating + Fabric DVFS interaction</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/18030288545" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">18030288545</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.ltm</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Move Uncore to MMIO and cap CR-SB - (LTM image and OCODE impact)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Move Uncore to MMIO, cap CR-SB — Uncore frequency/power interaction with Fabric DVFS</td>
+</tr></tbody>
+</table>
+</div>
+<div class="section" id="tp-16030765561">
+<div class="sec-hdr" style="background:#0369a1;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px">
+  <span>[NWP PM] PM Interfaces</span>
+  <span style="background:rgba(255,255,255,.25);border-radius:4px;padding:2px 8px;font-size:10px">10 DCCBs</span>
+  
+  <a href="https://hsdes.intel.com/appstore/article-one/#/16030765561" target="_blank" style="color:#bfdbfe;font-size:10px;margin-left:auto">HSD 16030765561 &#x2197;</a>
+</div>
+<table style="width:100%;border-collapse:collapse">
+<thead><tr style="background:#f8faff">
+  <th style="padding:5px 8px;font-size:9px;width:100px;text-align:left">DCCB ID</th>
+  <th style="padding:5px 8px;font-size:9px;width:140px;text-align:left">Component</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">DCCB Title</th>
+  <th style="padding:5px 8px;font-size:9px;width:85px;text-align:center">Match</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">NWP Rationale</th>
+</tr></thead>
+<tbody><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14020330424" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14020330424</a></td>
+  <td style="padding:4px 8px;font-size:10px">platform.bios</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB][PM] DMR Power Management BIOS Knob requirements</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">[DMR-CCB][PM] DMR PM BIOS Knob requirements — PM Interfaces BIOS knob TCD; covers OS2P mailbox comma</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14023766334" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14023766334</a></td>
+  <td style="padding:4px 8px;font-size:10px">platform.bios</td>
+  <td style="padding:4px 8px;font-size:11px">[Power][DMR-CCB] Add Low Power Idle (_LPI) Objects alongside  _CST Objects</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Add Low Power Idle (_LPI) Objects alongside _CST — PM Interfaces; OS2P mailbox commands for C-state/</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14018655804" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14018655804</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PrimeCode 2.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] MMIO Mapping of IOCA Registers affecting Phy2Phy programming</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">MMIO Mapping of IOCA Registers — TPMI MMIO register mapping; PM Interfaces TPMI TCD</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14016399656" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14016399656</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.S3M_3.0</td>
+  <td style="padding:4px 8px;font-size:11px">Upgrade CPU Attestation Capability to the latest SPDM specification</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;Upgrade CPU Attestation Capability to the latest SPDM specif&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14020770791" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14020770791</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.S3M_3.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] DMR: S3M Mailbox changes to support Seamless patching</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] DMR: S3M Mailbox changes to support Seamless patch&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14020811922" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14020811922</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">Removal of B2P message for SET_MC_FREQ</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;Removal of B2P message for SET_MC_FREQ&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14024172006" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024172006</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.ltm</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Need ocode change to assume single set of security rules for TPMI CSR_</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] Need ocode change to assume single set of security&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/18021036465" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">18021036465</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.OOBMSM 4.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] [Legacy] Telemetry, PECI and all management traffic via MCTP exposed v</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] [Legacy] Telemetry, PECI and all management traffi&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/18021036490" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">18021036490</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.OOBMSM 4.0</td>
+  <td style="padding:4px 8px;font-size:11px">OOB  PECI WRIAMSREx</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;OOB  PECI WRIAMSREx&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22018676476" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22018676476</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PrimeCode 2.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] ADR B2P change based on DMR HW cache flush for IMH and CBB</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] ADR B2P change based on DMR HW cache flush for IMH&#x27;</td>
+</tr></tbody>
+</table>
+</div>
+<div class="section" id="tp-16030765631">
+<div class="sec-hdr" style="background:#374151;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px">
+  <span>[NWP PM] PM Cross Product</span>
+  <span style="background:rgba(255,255,255,.25);border-radius:4px;padding:2px 8px;font-size:10px">1 DCCBs</span>
+  
+  <a href="https://hsdes.intel.com/appstore/article-one/#/16030765631" target="_blank" style="color:#bfdbfe;font-size:10px;margin-left:auto">HSD 16030765631 &#x2197;</a>
+</div>
+<table style="width:100%;border-collapse:collapse">
+<thead><tr style="background:#f8faff">
+  <th style="padding:5px 8px;font-size:9px;width:100px;text-align:left">DCCB ID</th>
+  <th style="padding:5px 8px;font-size:9px;width:140px;text-align:left">Component</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">DCCB Title</th>
+  <th style="padding:5px 8px;font-size:9px;width:85px;text-align:center">Match</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">NWP Rationale</th>
+</tr></thead>
+<tbody><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14023254921" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14023254921</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PrimeCode 2.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB][SB Harasser] Request for Primecode &amp; Ocode FW based Sideband Harassers</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">[SB Harasser] PrimeCode &amp; Ocode FW Sideband Harasser — SB Harasser cross-product; PM Cross Product T</td>
+</tr></tbody>
+</table>
+</div>
+<div class="section" id="tp-16030767511">
+<div class="sec-hdr" style="background:#4338ca;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px">
+  <span>[NWP PM] Telemetry (PEM/PLR)</span>
+  <span style="background:rgba(255,255,255,.25);border-radius:4px;padding:2px 8px;font-size:10px">6 DCCBs</span>
+  
+  <a href="https://hsdes.intel.com/appstore/article-one/#/16030767511" target="_blank" style="color:#bfdbfe;font-size:10px;margin-left:auto">HSD 16030767511 &#x2197;</a>
+</div>
+<table style="width:100%;border-collapse:collapse">
+<thead><tr style="background:#f8faff">
+  <th style="padding:5px 8px;font-size:9px;width:100px;text-align:left">DCCB ID</th>
+  <th style="padding:5px 8px;font-size:9px;width:140px;text-align:left">Component</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">DCCB Title</th>
+  <th style="padding:5px 8px;font-size:9px;width:85px;text-align:center">Match</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">NWP Rationale</th>
+</tr></thead>
+<tbody><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22010598227" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22010598227</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.RESCTRL_4.0</td>
+  <td style="padding:4px 8px;font-size:11px">Telemetry widget improvements on DMR - Pushing telemetry to multiple PMSB PortID</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Telemetry widget improvements — Telemetry TP PEM/PLR counter improvements</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/13012326747" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">13012326747</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.S3M_3.0_FW</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB][DMR] Clarification on Secure Telemetry feature</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB][DMR] Clarification on Secure Telemetry feature&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14015997997" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14015997997</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.OOBMSM 4.0</td>
+  <td style="padding:4px 8px;font-size:11px">COR Telemetry ask  - CNS --Accessibility to  telemetry data with personality-bas</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;COR Telemetry ask  - CNS --Accessibility to  telemetry data &#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14021499773" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14021499773</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.SCF_4.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] UBR telemetry for request data to reflect max value across layers inst</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB] UBR telemetry for request data to reflect max valu&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/18021105578" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">18021105578</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.OOBMSM 4.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB]  [DMR HUB Manageability] MCTP 1.0 EID Segment support with PCIe Gen6 S</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR-CCB]  [DMR HUB Manageability] MCTP 1.0 EID Segment supp&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22014761262" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22014761262</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">Uncore PMON Global features with and w/o hard partitioning</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;Uncore PMON Global features with and w/o hard partitioning&#x27;</td>
+</tr></tbody>
+</table>
+</div>
+<div class="section" id="tp-22022420505">
+<div class="sec-hdr" style="background:#1e40af;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px">
+  <span>[NWP PM] CBB CCF PM</span>
+  <span style="background:rgba(255,255,255,.25);border-radius:4px;padding:2px 8px;font-size:10px">3 DCCBs</span>
+  
+  <a href="https://hsdes.intel.com/appstore/article-one/#/22022420505" target="_blank" style="color:#bfdbfe;font-size:10px;margin-left:auto">HSD 22022420505 &#x2197;</a>
+</div>
+<table style="width:100%;border-collapse:collapse">
+<thead><tr style="background:#f8faff">
+  <th style="padding:5px 8px;font-size:9px;width:100px;text-align:left">DCCB ID</th>
+  <th style="padding:5px 8px;font-size:9px;width:140px;text-align:left">Component</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">DCCB Title</th>
+  <th style="padding:5px 8px;font-size:9px;width:85px;text-align:center">Match</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">NWP Rationale</th>
+</tr></thead>
+<tbody><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14017887273" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14017887273</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB][DMR.Power] [DMR D2D]UCIe TX EarlyValid for Improved Clock Gating</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">UCIe TX EarlyValid for Clock Gating — CCF PM clock gating; CBB CCF PM TP fast ring C3</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14023512430" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14023512430</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PrimeCode 2.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] PrimeCode needs to program SCF credits for performance isolation mode</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">PrimeCode program SCF credits for performance isolation — SCF/CCF credit programming; CCF PM TP</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22016236746" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22016236746</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.SCF_4.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB]Redefinition of CBB tracking mechanism for DDIO flows</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Redefinition of CBB tracking mechanism for DDIO — CCF CBO telemetry; CBB CCF PM PMON TCD</td>
+</tr></tbody>
+</table>
+</div>
+<div class="section" id="tp-[Perfmon]">
+<div class="sec-hdr" style="background:#4338ca;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px">
+  <span>Telemetry TP (partial)</span>
+  <span style="background:rgba(255,255,255,.25);border-radius:4px;padding:2px 8px;font-size:10px">1 DCCBs</span>
+  
+  
+</div>
+<table style="width:100%;border-collapse:collapse">
+<thead><tr style="background:#f8faff">
+  <th style="padding:5px 8px;font-size:9px;width:100px;text-align:left">DCCB ID</th>
+  <th style="padding:5px 8px;font-size:9px;width:140px;text-align:left">Component</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">DCCB Title</th>
+  <th style="padding:5px 8px;font-size:9px;width:85px;text-align:center">Match</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">NWP Rationale</th>
+</tr></thead>
+<tbody><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14016268961" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14016268961</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[Perfmon] - Defining IP PMON register OSXML and Events template</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">[Perfmon] IP PMON register OSXML — PMON telemetry; Telemetry TP PM Performance Monitor TCD</td>
+</tr></tbody>
+</table>
+</div>
+<div class="section" id="tp-NEW_FIVR">
+<div class="sec-hdr" style="background:#d97706;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px">
+  <span>NEW: FIVR/Power-Rail TCD needed</span>
+  <span style="background:rgba(255,255,255,.25);border-radius:4px;padding:2px 8px;font-size:10px">2 DCCBs</span>
+  <span style='background:#fef9c3;color:#854d0e;padding:2px 8px;border-radius:4px;font-size:9px'>NEW TP NEEDED</span>
+  
+</div>
+<table style="width:100%;border-collapse:collapse">
+<thead><tr style="background:#f8faff">
+  <th style="padding:5px 8px;font-size:9px;width:100px;text-align:left">DCCB ID</th>
+  <th style="padding:5px 8px;font-size:9px;width:140px;text-align:left">Component</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">DCCB Title</th>
+  <th style="padding:5px 8px;font-size:9px;width:85px;text-align:center">Match</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">NWP Rationale</th>
+</tr></thead>
+<tbody><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14022226731" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14022226731</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.HWRS_2.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] DMR FIVR Requires Synchronous Triggering</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">DMR FIVR Requires Synchronous Triggering — FIVR trigger mechanism; needs SVID/Power Control TCD</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/16018146017" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">16018146017</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">Add extra FIVR clock in the CGU to support 2nd FIVR switching frequency (Fsw)</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Extra FIVR clock in CGU for 2nd FIVR switching frequency — FIVR PS states; maps to FR 22021910787 NW</td>
+</tr></tbody>
+</table>
+</div>
+<div class="section" id="tp-NEW_HPM">
+<div class="sec-hdr" style="background:#dc2626;color:#fff;padding:10px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:10px">
+  <span>NEW: [NWP PM] HPM Test Plan needed</span>
+  <span style="background:rgba(255,255,255,.25);border-radius:4px;padding:2px 8px;font-size:10px">9 DCCBs</span>
+  <span style='background:#fef9c3;color:#854d0e;padding:2px 8px;border-radius:4px;font-size:9px'>NEW TP NEEDED</span>
+  
+</div>
+<table style="width:100%;border-collapse:collapse">
+<thead><tr style="background:#f8faff">
+  <th style="padding:5px 8px;font-size:9px;width:100px;text-align:left">DCCB ID</th>
+  <th style="padding:5px 8px;font-size:9px;width:140px;text-align:left">Component</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">DCCB Title</th>
+  <th style="padding:5px 8px;font-size:9px;width:85px;text-align:center">Match</th>
+  <th style="padding:5px 8px;font-size:9px;text-align:left">NWP Rationale</th>
+</tr></thead>
+<tbody><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14016513552" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14016513552</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR.Power_Delivery] IMH PD arch</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">[DMR SOC] MH PD arch — IMH Power Delivery arch; HPM TP needed (no NWP equivalent)</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14024102448" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024102448</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">IMH2 Power: 2-step PC Legacy Leakage Recovery Flow Enablement</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#166534;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">STRONG</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">IMH2 Power: 2-step PC Legacy Leakage Recovery — IMH PM leakage recovery; HPM TP needed</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14018047958" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14018047958</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.S3M_3.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Allocate sideband connection-IDs (channel IDs) for communication betwe</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Allocate sideband connection-IDs for communication — HPM sideband connection IDs; HPM TP needed</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14019313736" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14019313736</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.S3M_3.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Open iMH-CBB d2d bridge for all traffic before Pcode requests timestam</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Open iMH-CBB D2D bridge before Pcode requests — HPM D2D bridge flow; HPM TP needed</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14019509853" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14019509853</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PrimeCode 2.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR][PrimeCode] ISA signals handling MSM Aggregator</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">ISA signals handling MSM Aggregator — HPM message aggregation; HPM TP needed</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14020443061" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14020443061</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.top</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB][DMR.Power]:Support topology aware MIO FIVR and PLL disable for stacks </td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Topology aware MIO FIVR and PLL disable — HPM topology-aware PM; HPM TP needed</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/14020789474" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14020789474</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PrimeCode 2.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR-CCB] Primecode - Inconsistency between IMH and CBB sourced transactions.</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Inconsistency between IMH and CBB sourced transactions — HPM MSR/transaction hierarchy; HPM TP neede</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/18038439147" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">18038439147</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PrimeCode 2.0</td>
+  <td style="padding:4px 8px;font-size:11px">SPD Hang recovery updates not included in HPM HAS</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;SPD Hang recovery updates not included in HPM HAS&#x27;</td>
+</tr><tr>
+  <td style="padding:4px 8px"><a href="https://hsdes.intel.com/appstore/article-one/#/22019199207" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22019199207</a></td>
+  <td style="padding:4px 8px;font-size:10px">soc.PrimeCode 2.0</td>
+  <td style="padding:4px 8px;font-size:11px">[DMR][Change Request-Enhancement] HPM ADR message reformat</td>
+  <td style="padding:4px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">WEAK</span> <span style="background:#e5e7eb;color:#374151;padding:1px 5px;border-radius:3px;font-size:8px">auto</span></td>
+  <td style="padding:4px 8px;font-size:10px;color:#374151">Auto-classified by keyword match on: &#x27;[DMR][Change Request-Enhancement] HPM ADR message reformat&#x27;</td>
+</tr></tbody>
+</table>
+</div>
+</div>
+</body></html>

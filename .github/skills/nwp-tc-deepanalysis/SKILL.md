@@ -751,6 +751,49 @@ Use templates with strict separation of scope:
 
 Before rendering either template, ensure all required data fields are present in `KB/**/*.md` sources (especially `KB/pm_tc_kb/**/*.inference.md`).
 
+### ⚠️ CRITICAL: Pushing TC Descriptions to HSD
+
+`generate_tc_description.py` generates a **full HTML page** that wraps the TC description inside a tabbed UI with NWP grading tabs (A: NWP Delta, B: Interactions, C: Coverage, D: Spec Refs, E: Risks, F: Recommendations). **Do NOT push the full HTML file to HSD** — HSD will render all the tabs including the grading navigation, producing a broken/confusing description.
+
+**Rule: Main scope text MUST come first in `## Test Case Intent`.**
+The generator uses the first paragraph of `## Test Case Intent` as the `tc.scope` for the Validation Scope section. If you put a NOTE or warning (`**⚠️ NOTE**`) before the main description text, HSD will show an empty or note-only Validation Scope. Always write the actual validation intent first, then add NOTE/differentiation blocks below it.
+
+```markdown
+## Test Case Intent
+
+Verify that [main description here]...          ← FIRST: this becomes tc.scope
+
+**⚠️ NOTE — Differentiation from related TCs:**  ← SECOND: goes below scope
+- TC XXXXX ...
+```
+
+**Always extract the inner TC panel** before pushing:
+
+```python
+import re, requests, urllib3
+from requests_kerberos import HTTPKerberosAuth, OPTIONAL
+urllib3.disable_warnings()
+s = requests.Session()
+s.auth = HTTPKerberosAuth(mutual_authentication=OPTIONAL)
+s.verify = False
+s.headers.update({'Content-Type': 'application/json', 'Accept': 'application/json'})
+
+html = open('tc_description_output/HSD_{id}_{slug}_tc_desc.html', encoding='utf-8').read()
+# Extract ONLY the inner TC description panel — strip the full-page wrapper + grading tabs
+m = re.search(r'<div id="tc" class="panel active tc-content">\s*(.*?)\s*</div>\s*\n\s*<div id="sec-a"', html, re.DOTALL)
+if not m:
+    m = re.search(r'<div id="tc"[^>]*>(.*?)</div>\s*\n\s*<div id="sec', html, re.DOTALL)
+content = m.group(1).strip()
+
+r = s.put(f'https://hsdes-api.intel.com/rest/article/{tc_id}', json={
+    'tenant': 'server', 'subject': 'test_case',
+    'fieldValues': [{'description': content}, {'send_mail': 'false'}]
+}, timeout=60)
+print(r.status_code, 'OK' if r.status_code == 200 else r.text[:200])
+```
+
+This extracts the `<div id="tc">` panel content which contains the Jinja2-rendered `tc_hsd_description.html.j2` output (Validation Scope → Preconditions → Test Steps → Pass/Fail Criteria → Post-Process) — matching the same format as other FV TCs in HSD.
+
 Required data completeness checks for KB markdown:
 
 - Metadata present: HSD ID, title, feature, sub-feature, date/version

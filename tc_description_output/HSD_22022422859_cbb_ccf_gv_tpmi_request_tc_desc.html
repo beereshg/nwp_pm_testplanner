@@ -45,7 +45,7 @@
     <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022422859" target="_blank" rel="noopener">HSD 22022422859 ↗</a>
   </h1>
   <div class="chips">
-    <span class="chip">Fabric DVFS / CBB CCF GV -- TPMI-driven ratio locking › </span>
+    <span class="chip">Fabric DVFS / CBB CCF GV / TPMI interface › </span>
     <span class="chip disp"></span>
     <span class="chip">Env: silicon, virtual_platform</span>
   </div>
@@ -71,7 +71,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
-<br/><p style="margin:10px 0 16px 0;"><strong>Objective:</strong> Verify that CBB CCF ring frequency (GV) can be controlled via direct TPMI <code>UFS_CONTROL</code> register writes. By programming <code>MAX_RATIO = MIN_RATIO = target</code>, the autonomous UFS bandwidth-heuristic algorithm is overridden and PCode GVFSM holds the CCF ring at the programmed fixed ratio. Tests: (1) ratio lock at mid-range; (2) <code>UFS_STATUS.CURRENT_RATIO</code> reflects the locked value; (3) autonomous mode restores when <code>MIN_RATIO &lt; MAX_RATIO</code>; (4) boundary enforcement -- ratio clamped to fused P0/Pm limits. <strong>Mechanism:</strong> Setting <code>UFS_CONTROL.MAX_RATIO = UFS_CONTROL.MIN_RATIO</code> collapses the allowed operating window to a single point, effectively pinning the GVFSM target. This is the standard way to force CCF to a known frequency for validation. Removing the pin (<code>MIN &lt; MAX</code>) restores autonomous bandwidth-driven DVFS. <strong>PASS:</strong> TPMI <code>UFS_CONTROL</code> writes accepted and reflected on readback; CURRENT_RATIO matches locked value within 1 convergence window (5M cycles); boundary clamping to P0/Pm caps correct; autonomous mode restores cleanly; PLR = 0x0 throughout. <strong>FAIL:</strong> Write rejected or not reflected; CURRENT_RATIO does not match locked ratio; no boundary clamping; autonomous mode does not restore; PLR non-zero. Save: UFS_HEADER caps, UFS_CONTROL baseline, UFS_STATUS.CURRENT_RATIO snapshots at each step (lock mid, lock max, lock min, restore), PLR_DIE_LEVEL values for both CBBs.</p>
+<br/><p style="margin:10px 0 16px 0;">Verify that CBB CCF GV UFS features are controlled exclusively through TPMI registers (<code>UFS_CONTROL</code>, <code>UFS_STATUS</code>, <code>UFS_HEADER</code>) with per-die scoping — one independent TPMI instance per CBB. Legacy MSR 0x620, 0x621 and BIOS_SPARE2 interfaces are deprecated on DMR; TPMI is the only SW interface. <strong>Open #1 resolved — CCF GV TPMI entries in LUT:</strong> YES. Each CBB has its own TPMI PFS entry and LUT offset for the UFS register bank. Confirmed via <code>ccf_utils.py:ccf_tpmi_gv_sweep()</code> which accesses <code>cbb.base.tpmi.ufs_control</code> per-die, and <code>TpmiIpLib.c:TpmiSetUfsControlRegPerHub()</code> which writes per-CBB via TPMI indexed access. <strong>Flow:</strong></p>
 
 <br/>
 
@@ -81,15 +81,13 @@
 <br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
 <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">System booted to XOS/SVOS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; PCode running CCF GVFSM</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">System booted to OS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; PCode initialized</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">TPMI UFS_CONTROL writable</td><td style="text-align:left;padding:8px;">`ufs_control` field writes reflected on readback</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">TPMI accessible per CBB</td><td style="text-align:left;padding:8px;">`sv.sockets.cbbs.base.tpmi.ufs_header` readable; `AUTONOMOUS_UFS_DISABLED=0`</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">Baseline CCF ratio known</td><td style="text-align:left;padding:8px;">`UFS_STATUS.CURRENT_RATIO` non-zero on both CBBs</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Python-SV available</td><td style="text-align:left;padding:8px;">`import namednodes; sv = namednodes.sv` succeeds</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">`UFS_HEADER` fuse limits readable</td><td style="text-align:left;padding:8px;">`max_ratio_cap` and `min_ratio_cap` available</td></tr>
-
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">No active RAPL throttle</td><td style="text-align:left;padding:8px;">RAPL PL1 not constraining CCF</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">BIOS knobs</td><td style="text-align:left;padding:8px;">Default (`UncoreFreqCtrlCbb=1`, `UncoreFreqRatioCbb=0`)</td></tr>
 
 </table>
 
@@ -109,65 +107,37 @@
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read `UFS_HEADER` per CBB to get fused P0 cap and Pm floor</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">`max_ratio_cap` and `min_ratio_cap` non-zero; note as boundaries</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Zero caps -- fuse not propagated</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read `UFS_HEADER` per CBB: `cbb.base.tpmi.ufs_header.interface_version` and `.autonomous_ufs_disabled`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`interface_version=0x2`; `autonomous_ufs_disabled=0` on all CBBs</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero disable bit — CCF GV TPMI not initialized</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read current `UFS_CONTROL.MAX_RATIO` and `MIN_RATIO` as baseline</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero valid range; MAX > MIN</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Invalid baseline -- BIOS did not program UFS_CONTROL</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read `UFS_CONTROL` per CBB: `.ufs_throttle_mode`, `.max_ratio`, `.min_ratio`, `.efficiency_latency_ctrl_ratio`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">All fields readable; non-garbage values; throttle_mode=1 (default Clamp)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read error or all-zero fields — TPMI not enumerated for this CBB</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Lock ratio: write `UFS_CONTROL.MAX_RATIO = MIN_RATIO = 0x12` (1.8 GHz) on cbb0; wait 5M cycles</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Write accepted (readback matches); GVFSM receives single-point target</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Write rejected or readback mismatch</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify per-die scoping: write `max_ratio=10` to cbb0 and `max_ratio=14` to cbb1 via TPMI; read both back</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">cbb0 reads 10; cbb1 reads 14 — independent per-die</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Writes bleed across CBBs — per-die scoping broken</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read `UFS_STATUS.CURRENT_RATIO` on cbb0</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">`CURRENT_RATIO = 0x12` (1.8 GHz); GVFSM settled at locked value</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Ratio != 0x12 -- GVFSM not honoring TPMI pin</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Sweep full fused [Pm..P0] range via in-band TPMI: `ccf_tpmi_gv_sweep_test(skt, 'cbbs', 'fu', cs=True)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Each requested ratio reflected in `UFS_STATUS.CURRENT_RATIO`; no ratio mismatch logged</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Any mismatch — TPMI write not reaching CCF GVFSM</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Repeat steps 3-4 on cbb1 (independently)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">cbb1 CURRENT_RATIO = 0x12 independent of cbb0</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">cbb1 not responding -- per-CBB independence broken</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Boundary test: write `MAX_RATIO = MIN_RATIO = 0xFF` (above P0 cap)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">GVFSM clamps to P0 cap value; CURRENT_RATIO = max_ratio_cap</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">No clamping -- GVFSM above fused P0 cap</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Boundary test: write `MAX_RATIO = MIN_RATIO = 0x01` (below Pm)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">GVFSM clamps to min_ratio_cap; CURRENT_RATIO = min_ratio_cap</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">No clamping -- GVFSM below Pm floor</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">8</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Restore autonomous mode: write original `MAX_RATIO` and `MIN_RATIO` (MAX > MIN) per CBB; wait 5M cycles</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">CURRENT_RATIO returns to bandwidth-heuristic-driven value; no longer pinned</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Ratio stays at locked value -- GVFSM stuck</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">9</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify `PLR_DIE_LEVEL = 0x0` after all transitions</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">No spurious Performance Limit Reason from ratio transitions</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">PLR non-zero -- unexpected throttle during GV change</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read fused P0 and Pm from TPMI SST: `cbb.base.tpmi.sst_pp_info_11.p0_fabric_ratio` and `.pm_fabric_ratio`; confirm GVFSM clamps to fused range</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Ratios outside [Pm, P0] are clipped to fused boundary</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">No clipping — TPMI enforcement not active</td>
 </tr>
 
 </table>
@@ -182,13 +152,13 @@
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
   <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
-  <p style="margin:0;font-size:0.9em;">** TPMI `UFS_CONTROL` writes accepted and reflected on readback; CURRENT_RATIO matches locked value within 1 convergence window (5M cycles); boundary clamping to P0/Pm caps correct; autonomous mode restores cleanly; PLR = 0x0 throughout.</p>
+  <p style="margin:0;font-size:0.9em;">** All `UFS_CONTROL` and `UFS_STATUS` fields accessible per CBB via TPMI. Per-die scoping confirmed (independent writes to cbb0 and cbb1 hold separate values). Full [Pm..P0] frequency sweep completed with CURRENT_RATIO tracking injected value. GVFSM clamps out-of-range requests to fused boundary.</p>
 </div>
 
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
   <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
-  <p style="margin:0;font-size:0.9em;">** Write rejected or not reflected; CURRENT_RATIO does not match locked ratio; no boundary clamping; autonomous mode does not restore; PLR non-zero.</p>
+  <p style="margin:0;font-size:0.9em;">** Any TPMI UFS register unreadable or returning zero; per-die isolation broken (write to one CBB affects another); CURRENT_RATIO does not track TPMI write; no fused-range clipping.</p>
 </div>
 
 
@@ -208,7 +178,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
-<br/><p style="margin:10px 0;">Save: UFS_HEADER caps, UFS_CONTROL baseline, UFS_STATUS.CURRENT_RATIO snapshots at each step (lock mid, lock max, lock min, restore), PLR_DIE_LEVEL values for both CBBs. - [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv) -- GVFSM, ratio locking via UFS_CONTROL</p>
+<br/><p style="margin:10px 0;">Save: <code>UFS_HEADER</code>, <code>UFS_CONTROL</code>, <code>UFS_STATUS</code> register dumps for all CBBs; per-die sweep pass/fail ratio list; fused P0/Pm from <code>sst_pp_info_11</code>.</p>
 
 <br/>
 
@@ -220,15 +190,21 @@
 
 
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv">CBB CCF Power Management HAS</a></li>
-
 <li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_TPMI/cbb_tpmi.html">DMR CBB TPMI Support</a></li>
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/server/arch_common/TPMI/TPMI.html#dmr-family">Architectural TPMI Interface</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/server/arch_common/TPMI/TPMI.html#dmr-family">Architectural UFS TPMI Interface</a></li>
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/server/GNR/Features/Hierarchical%20UFS/HPM_UFS.html#bios-control">Uncore Frequency Scaling HAS</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv">CBB CCF Power Management HAS</a></li>
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html">CBB Power Management HAS Index</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/server/GNR/Features/Hierarchical%20UFS/HPM_UFS.html#bios-control">Uncore Frequency Scaling in a Hierarchical SoC</a></li>
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html">CBB CCF Power Management HAS index</a></li>
+
+<li><a href="https://docs.intel.com/documents/arch_datacenter/DMR/Overview/DMR_Overview_HAS.html#figure-hub-and-spoke">DMR SoC HAS</a></li>
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html">CBB Telemetry Aggregator</a></li>
+
+<li><a href="https://wiki.ith.intel.com/display/ServerPcode/Server+Pcode+Home">pCode Home</a></li>
 
 
 </ul>

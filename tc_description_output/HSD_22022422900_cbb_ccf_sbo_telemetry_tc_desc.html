@@ -45,7 +45,7 @@
     <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022422900" target="_blank" rel="noopener">HSD 22022422900 ↗</a>
   </h1>
   <div class="chips">
-    <span class="chip">CBB CCF -- Snoop Back-pressure Oracle telemetry as DVFS input › </span>
+    <span class="chip">Ring Scalability / SBO Telemetry / Snoop Counter › </span>
     <span class="chip disp"></span>
     <span class="chip">Env: silicon, virtual_platform</span>
   </div>
@@ -71,7 +71,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
-<br/><p style="margin:10px 0 16px 0;"><strong>Objective:</strong> Validate CBB SBO (Snoop Back-pressure Oracle) telemetry used as input to CCF DVFS. SBO measures snoop occupancy and back-pressure in the CBO mesh; high SBO utilization is an input to the CCF ring BW heuristics that drives frequency up-decisions. Tests verify: SBO counters increment under high-coherency workload; SBO threshold triggers distress/frequency boost; SBO correctly reflects snoop pressure. <strong>NWP topology:</strong> 2 CBBs (cbb0/cbb1) x 48 cores = 96 cores total. CCF ring managed autonomously by CBB PCode GVFSM. CCF target = 2.2 GHz (ratio 0x16) for full bandwidth (460 GB/s). MC6 is the deepest idle state (PkgC6 fused off). <strong>PASS:</strong> SBO counters increment under coherency load; threshold triggers frequency boost; per-CBB independence; SBO drops at idle; PLR = 0x0. <strong>FAIL:</strong> SBO static; no threshold response; symmetric across CBBs; SBO stuck high post-workload. Save: counter snapshots (baseline and under load), UFS_STATUS.CURRENT_RATIO trace, PLR_DIE_LEVEL for both CBBs.</p>
+<br/><p style="margin:10px 0 16px 0;">Verify post-silicon extraction of CBB CCF ring scalability telemetry from the <strong>SBO (Snoop Box)</strong> — specifically the SBO snoop counter per cluster. The SBO accumulates snoop traffic grades once per RSE and sends the result to PCode via the distress message. This TC focuses on the SBO side of ring scalability telemetry (complement to TC [22022422889](https://hsdes.intel.com/appstore/article-one/#/22022422889) which covers CBO telemetry). <strong>SBO telemetries (from original description):</strong></p>
 
 <br/>
 
@@ -81,13 +81,11 @@
 <br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
 <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">System booted to XOS/SVOS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; PCode running</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">System booted to OS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; ring scalability running</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">TPMI accessible per CBB</td><td style="text-align:left;padding:8px;">`sv.socket0.cbbN.base.tpmi.*` readable</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">SBO counters accessible</td><td style="text-align:left;padding:8px;">`cbb.base.i_ccf_env0.sbo_misc_regs.sbo_snoop_counter` readable/writable</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">PythonSV namednodes loaded</td><td style="text-align:left;padding:8px;">`import namednodes; sv = namednodes.sv` succeeds</td></tr>
-
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">Workload available</td><td style="text-align:left;padding:8px;">CPU stress or coherency workload can be launched</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Snoop traffic present</td><td style="text-align:left;padding:8px;">Coherent workload or idle OS to generate SBO snoop traffic</td></tr>
 
 </table>
 
@@ -107,51 +105,37 @@
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Read baseline SBO telemetry counters at system idle</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">SBO counter near-zero at idle; no false back-pressure</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero SBO at idle -- false back-pressure detection</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Enable all SBO snoop counters per CBB: set `snoop_counter_enable=1` for all `i_ccf_env{0-3}`. Let run 15s. Read `snoop_counter`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">At least one `snoop_counter > 0` per CBB (snoop traffic counted)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">All counters zero — SBO snoop counting not functional</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Apply high-coherency workload (e.g., cache-thrashing across 96 cores)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">SBO occupancy counter increments; snoop back-pressure measured</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">SBO counter static -- snoop traffic not detected by SBO</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Test SBO counter disable (freeze): `ccf_sbo_telemetry_snoop_cntr_disable_test(skt, 'cbbs', 'i_ccf_envs', rtime=100)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PASS (diff==0) — disabled SBO counters stable across 100M cycles</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">FAIL — disabled counters changed; SBO freeze mechanism broken</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify SBO counter rate correlates with coherency workload intensity (compare light vs heavy load)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Heavy load shows higher SBO rate than light load; linear-ish correlation</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">No correlation -- SBO not measuring actual snoop pressure</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Test SBO counter enable/disable toggle: `ccf_sbo_telemetry_snoop_cntr_chk(skt, 'cbbs', 'i_ccf_envs', 'enable')` then `'disable'`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Toggle accepted; `snoop_counter_enable` reflects written value per cluster</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Toggle not accepted — SBO counter control not working</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify SBO threshold triggers CCF frequency boost: increase load until SBO > threshold</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">CCF ratio increases (distress path) when SBO exceeds configured threshold</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">No frequency response -- SBO not feeding BW heuristic</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify per-cluster isolation: enable only `i_ccf_env0` snoop counter; verify other clusters (env1-3) stay zero</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Only `i_ccf_env0` counts; others remain 0 — per-cluster scoping works</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Other clusters count despite being disabled — isolation broken</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify SBO counter per-CBB: asymmetric load (load cbb0 only) shows cbb0 SBO > cbb1 SBO</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">cbb0 SBO elevated; cbb1 near baseline</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Symmetric SBO -- CBBs sharing counter or cross-talk</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Reduce workload; verify SBO counter drops and CCF frequency returns to autonomous value</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">SBO drops within 2 slow-loop periods (~2ms); CCF ratio reduces</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">SBO stays high after workload removed -- hysteresis too long or counter stuck</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify PLR_DIE_LEVEL = 0x0 throughout SBO telemetry test</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">PLR = 0x0; no throttle from SBO monitoring</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">PLR non-zero -- SBO-triggered boost causing power event</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read SBO counter across multiple RSE periods under coherent OS load. Verify counter increments monotonically when enabled</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Counter value grows over time — SBO accumulating snoop traffic per RSE</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Counter stays zero or non-monotonic — SBO not accumulating correctly</td>
 </tr>
 
 </table>
@@ -166,13 +150,13 @@
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
   <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
-  <p style="margin:0;font-size:0.9em;">** SBO counters increment under coherency load; threshold triggers frequency boost; per-CBB independence; SBO drops at idle; PLR = 0x0.</p>
+  <p style="margin:0;font-size:0.9em;">** SBO `snoop_counter` accessible per cluster per CBB; enable/disable toggle works per cluster; at least one cluster shows `snoop_counter > 0` under OS activity; disabled clusters remain stable.</p>
 </div>
 
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
   <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
-  <p style="margin:0;font-size:0.9em;">** SBO static; no threshold response; symmetric across CBBs; SBO stuck high post-workload.</p>
+  <p style="margin:0;font-size:0.9em;">** Any SBO counter inaccessible; enable/disable not working; all counters remain 0 when enabled with system activity; freeze mechanism broken.</p>
 </div>
 
 
@@ -192,7 +176,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
-<br/><p style="margin:10px 0;">Save: counter snapshots (baseline and under load), UFS_STATUS.CURRENT_RATIO trace, PLR_DIE_LEVEL for both CBBs. - [CBB Telemetry Aggregator](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details) -- SBO counter definitions</p>
+<br/><p style="margin:10px 0;">Save: <code>sbo_snoop_counter</code> values for all <code>i_ccf_env{0-3}</code> per CBB (enabled and disabled states); enable/disable toggle pass/fail counts.</p>
 
 <br/>
 
@@ -203,14 +187,18 @@
 <ul>
 
 
+<li><a href="https://hsdes.intel.com/appstore/article-one/#/22022422889">HSD 22022422889</a> — Related TC 22022422889 - CBO Telemetry</li>
+
+
+
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#cbb-ring-frequency-scalability">CBB Ring Frequency Scalability</a></li>
 
 <li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details">CBB Telemetry Aggregator</a></li>
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html">CBB CCF Power Management HAS</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html">CBB CCF Power Management HAS index</a></li>
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html">CBB Power Management HAS Index</a></li>
-
-<li><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html">NWP PM MAS</a></li>
+<li><a href="https://wiki.ith.intel.com/display/ServerPcode/Server+Pcode+Home">pCode Home</a></li>
 
 
 </ul>

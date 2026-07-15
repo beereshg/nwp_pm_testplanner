@@ -1,0 +1,356 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>NWP FR/CCB to PM Validation Coverage</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px}.hdr{background:linear-gradient(135deg,#1e1b4b,#3730a3);color:#fff;padding:20px 28px}.hdr h1{font-size:20px;font-weight:700;margin-bottom:4px}.hdr p{font-size:11px;opacity:.85;line-height:1.7}.stats{display:flex;gap:12px;background:#312e81;padding:10px 24px;flex-wrap:wrap}.stat{background:rgba(255,255,255,.18);border-radius:8px;padding:8px 16px;text-align:center;color:#fff}.stat .n{font-size:22px;font-weight:700;display:block}.stat .l{font-size:9px;opacity:.8}.wrap{max-width:1700px;margin:14px auto;padding:0 16px 50px}.section{background:#fff;border:1px solid #d1d5db;border-radius:10px;margin-bottom:20px;overflow:hidden}.sec-hdr{padding:12px 16px;font-weight:700;font-size:14px;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:8px}.sec-hdr.red{background:#fef2f2;color:#991b1b}.sec-hdr.amber{background:#fffbeb;color:#92400e}.sec-hdr.gray{background:#f9fafb;color:#374151}table{width:100%;border-collapse:collapse}th{background:#f8faff;padding:6px 8px;text-align:left;font-size:10px;font-weight:600;color:#374151;border-bottom:2px solid #e5e7eb}td{border-bottom:1px solid #f3f4f6;vertical-align:top}tr:hover td{background:#f0f7ff}.note{background:#eff6ff;border-left:4px solid #3b82f6;padding:8px 14px;margin:10px 16px;font-size:11px;border-radius:4px}</style></head><body>
+<div class="hdr"><h1>NWP FR/CCB &#x2192; PM Validation Coverage Analysis</h1>
+<p><strong>47 NWP FRs/CCBs analyzed</strong> &nbsp;|&nbsp; <strong>10 PM-direct</strong> (need test coverage) &nbsp;|&nbsp; <strong>5 PM-indirect</strong> (assess) &nbsp;|&nbsp; <strong>32 Non-PM</strong> &nbsp;|&nbsp; Generated: 2026-07-07</p></div>
+<div class="stats">
+  <div class="stat"><span class="n">47</span><span class="l">Total FR/CCB</span></div>
+  <div class="stat"><span class="n">10</span><span class="l">PM Direct</span></div>
+  <div class="stat" style="background:#dc2626"><span class="n">6</span><span class="l">GAP (No Coverage)</span></div>
+  <div class="stat" style="background:#d97706"><span class="n">4</span><span class="l">PARTIAL Coverage</span></div>
+  <div class="stat" style="background:#2563eb"><span class="n">5</span><span class="l">Assess Impact</span></div>
+  <div class="stat" style="background:#374151"><span class="n">32</span><span class="l">Non-PM</span></div>
+</div>
+<div class="wrap">
+<div class="note"><strong>Coverage key:</strong>
+<span style="background:#dc2626;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">GAP</span> = no NWP TCD covers this scenario &nbsp;|&nbsp;
+<span style="background:#d97706;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">PARTIAL</span> = TP/TCD exists but specific scenario not captured &nbsp;|&nbsp;
+<span style="background:#2563eb;color:#fff;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700">ASSESS</span> = indirect PM impact, needs analysis
+</div>
+<div class="section"><div class="sec-hdr red">&#x26A0;&#xFE0F; PM-Direct FRs/CCBs &mdash; NWP PM Test Plan Coverage Required (10 items, 6 GAP, 4 PARTIAL)</div>
+<table><thead><tr><th style="width:110px">HSD ID</th><th style="width:280px">Title</th><th style="width:120px">PM Domain</th><th style="width:75px">Coverage</th><th style="width:175px">NWP TP</th><th>Gap / Action Needed</th></tr></thead><tbody><tr style="background:#fef2f2">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/22021910787" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22021910787</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] FIVR PS states</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">SVID/Power Rails</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:5px 8px;font-size:10px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477845" target="_blank" style="color:#1a56db;font-size:10px">[NWP PM] Power Control (SIMPL/PMAX/SVI</a></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">FIVR PS states -- new FIVR power state machine for NWP; Power Control TP covers SVID/SIMPL but FIVR PS state transitions not in an</td>
+</tr><tr style="background:#fef2f2">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027041647" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027041647</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">Need to move three BGRs due to FIVR interactions</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">SVID/Power Rails</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:5px 8px;font-size:10px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477845" target="_blank" style="color:#1a56db;font-size:10px">[NWP PM] Power Control (SIMPL/PMAX/SVI</a></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">Move 3 BGRs due to FIVR interactions -- BGR relocation may affect SVID telemetry paths; needs SVID checkout TCD for NWP BGR positi</td>
+</tr><tr style="background:#fef2f2">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/22022032536" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22022032536</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] ITD/Binning on Fivr VCCC2CDIG and VCCFIXDIG_E, and VCCFIXDI</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">Thermal/ITD</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:5px 8px;font-size:10px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030763137" target="_blank" style="color:#1a56db;font-size:10px">[NWP PM] Thermal Management</a></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">ITD/Binning on FIVR VCCC2CDIG + VCCFIXDIG_E/W -- new ITD rails for NWP; Thermal TP has ITD TCD but VCCC2CDIG and VCCFIXDIG_E/W sce</td>
+</tr><tr style="background:#fef2f2">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027672807" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027672807</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] Add SVID control to VCCDDRDIG MBVR domain</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">SVID/Power Rails</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">GAP</span></td>
+  <td style="padding:5px 8px;font-size:10px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477845" target="_blank" style="color:#1a56db;font-size:10px">[NWP PM] Power Control (SIMPL/PMAX/SVI</a></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">Add SVID control to VCCDDRDIG MBVR domain -- new MBVR SVID mapping; VCCDDRDIG MBVR not in any NWP Power Control TCD. New TCD neede</td>
+</tr><tr style="background:#fef2f2">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027373379" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027373379</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] VCCC2C SVID control</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">SVID/Power Rails</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">GAP</span></td>
+  <td style="padding:5px 8px;font-size:10px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477845" target="_blank" style="color:#1a56db;font-size:10px">[NWP PM] Power Control (SIMPL/PMAX/SVI</a></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">VCCC2C SVID control -- new die-to-die interconnect SVID rail; not covered. New TCD for VCCC2C SVID addressing and telemetry needed</td>
+</tr><tr style="background:#fef2f2">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14024641958" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024641958</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] NIO: Power Plane/Freq domain implementation</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">Fabric DVFS</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">PARTIAL</span></td>
+  <td style="padding:5px 8px;font-size:10px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030763243" target="_blank" style="color:#1a56db;font-size:10px">[NWP PM] Fabric DVFS (UFS)</a></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">NIO Power Plane/Freq domain implementation -- new power plane topology for NWP NIO; Fabric DVFS TP exists but Power Plane / freq d</td>
+</tr><tr style="background:#fef2f2">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14026944858" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14026944858</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] Define LP6 register list for Prime Code Mailbox</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">PM Interfaces</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">GAP</span></td>
+  <td style="padding:5px 8px;font-size:10px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030765561" target="_blank" style="color:#1a56db;font-size:10px">[NWP PM] PM Interfaces (OS2P/TPMI/PECI</a></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">Define LP6 register list for Prime Code Mailbox -- NWP LPDDR6 mailbox commands; PM Interfaces TP covers OS2P sweep but LP6-specifi</td>
+</tr><tr style="background:#fef2f2">
+  <td style="padding:5px 8px"><span style="background:#7c3aed;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">CCB</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027235624" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027235624</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP CCB] Remove VCCFA_EHV from SVID</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">SVID/Power Rails</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">GAP</span></td>
+  <td style="padding:5px 8px;font-size:10px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477845" target="_blank" style="color:#1a56db;font-size:10px">[NWP PM] Power Control (SIMPL/PMAX/SVI</a></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">[CCB] Remove VCCFA_EHV from SVID -- SVID address table change; existing SVID TCDs validated all rails including VCCFA_EHV. TCD upd</td>
+</tr><tr style="background:#fef2f2">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027181891" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027181891</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] NIO: need to redo the DTS and remote diode placement</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">Thermal/DTS</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">GAP</span></td>
+  <td style="padding:5px 8px;font-size:10px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030763137" target="_blank" style="color:#1a56db;font-size:10px">[NWP PM] Thermal Management</a></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">NIO: redo DTS and remote diode placement -- DTS sensor locations changed on NWP NIO die; Thermal TP has DTS TCDs but NIO remote di</td>
+</tr><tr style="background:#fef2f2">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/22021968250" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22021968250</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] LPDDR6 VDDQXC/VDDQXD/VDDQ supplies</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">Power Rails/SVID</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#dc2626;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">GAP</span></td>
+  <td style="padding:5px 8px;font-size:10px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477845" target="_blank" style="color:#1a56db;font-size:10px">[NWP PM] Power Control (SIMPL/PMAX/SVI</a></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">LPDDR6 VDDQXC/VDDQXD/VDDQ supplies -- new DDR power rails for NWP; SVID TP covers VR verification but LPDDR6-specific rails not in</td>
+</tr></tbody></table></div>
+<div class="section"><div class="sec-hdr amber">&#x1F50D; PM-Indirect FRs &mdash; Assess Impact (5 items)</div>
+<table><thead><tr><th style="width:110px">HSD ID</th><th style="width:280px">Title</th><th style="width:120px">PM Domain</th><th style="width:75px">Coverage</th><th style="width:175px">NWP TP</th><th>Assessment Note</th></tr></thead><tbody><tr style="background:#fffbeb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14024559294" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024559294</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] Support for GRS FW download, update and measurement collect</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">PM Interfaces</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">ASSESS</span></td>
+  <td style="padding:5px 8px;font-size:10px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030765561" target="_blank" style="color:#1a56db;font-size:10px">[NWP PM] PM Interfaces</a></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">Support for GRS FW download -- GRS firmware affects PM init; may need PM Interfaces TP to cover GRS PM mailbox interaction</td>
+</tr><tr style="background:#fffbeb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14026603527" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14026603527</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] RAS changes for NWP topology changes</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">RAPL/Power</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">ASSESS</span></td>
+  <td style="padding:5px 8px;font-size:10px"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477771" target="_blank" style="color:#1a56db;font-size:10px">[NWP PM] RAPL</a></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">RAS changes for NWP topology -- RAS power actions impact RAPL; RAPL TP may need RAS x RAPL cross-product TC</td>
+</tr><tr style="background:#fffbeb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/22022037892" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22022037892</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">NWP SOC implementation for intra die and inter die global time ac</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">Telemetry</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">ASSESS</span></td>
+  <td style="padding:5px 8px;font-size:10px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030767511" target="_blank" style="color:#1a56db;font-size:10px">[NWP PM] Telemetry (PEM/PLR)</a></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">Intra/inter die global time accuracy -- timestamp accuracy impacts PEM counter precision and PLR timing</td>
+</tr><tr style="background:#fffbeb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14026944960" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14026944960</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] Define Register Level Firewalls - Initiator ID solution</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">PM Interfaces</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">ASSESS</span></td>
+  <td style="padding:5px 8px;font-size:10px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030765561" target="_blank" style="color:#1a56db;font-size:10px">[NWP PM] PM Interfaces</a></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">Register Level Firewalls (Initiator ID) -- affects which agents can access PM registers via TPMI/OS2P</td>
+</tr><tr style="background:#fffbeb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027372154" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027372154</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] NIO: Convert custom RFs with depth &gt; 128 entries for 2GHz 0</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">Thermal</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">ASSESS</span></td>
+  <td style="padding:5px 8px;font-size:10px"><a href="https://hsdes.intel.com/appstore/article-one/#/16030763137" target="_blank" style="color:#1a56db;font-size:10px">[NWP PM] Thermal Management</a></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">Convert custom RFs for 2GHz 0.55V -- register file changes at low voltage may affect DTS accuracy</td>
+</tr></tbody></table></div>
+<div class="section"><div class="sec-hdr gray">&#x2713; Non-PM FRs/CCBs &mdash; No PM Validation Impact (32 items)</div>
+<table><thead><tr><th style="width:110px">HSD ID</th><th style="width:280px">Title</th><th style="width:120px">Domain</th><th style="width:75px">PM Impact</th><th colspan="2">Notes</th></tr></thead><tbody><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/22021710923" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22021710923</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] : Map the CPU from 1 RN/Socket to 4 RN/Socket</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">Fabric/CHI</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">CPU RN topology -- fabric/CHI, no direct PM impact</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14024641936" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024641936</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] CAB - CHI accelerator bridge flows &amp; arch</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">CHI/CAB</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">CAB CHI accelerator bridge -- fabric</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/22021795731" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22021795731</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] Move P3 stack to x8 UPI</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">UPI</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">Move P3 to x8 UPI -- interconnect</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14026756487" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14026756487</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] CXL to allow more than 4K UQID from fabric</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">CXL</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">CXL UQID -- interconnect</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14024533594" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024533594</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] Buffer size changes to support NWP KPI</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">Fabric</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">Buffer size changes</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14025926200" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14025926200</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] CLFLUSH, CLFLUSHOPT, CLWB instr should flush PWB</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">ISA</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">CLFLUSH/CLWB -- cache coherency</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14024641935" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024641935</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] CAB - CHI accelerator bridge arch fabric topology</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">CHI/CAB</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">CAB arch fabric topology</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14024534253" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024534253</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] CAB - CHI accelerator bridge perimeter</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">CHI/CAB</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">CAB perimeter</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14026543976" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14026543976</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] Support for reduced lite weight topology</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">Fabric</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">Lite weight topology</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/22021899947" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22021899947</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] HIOP buffering impact for MemPushWR RO=1</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">HIOP/Mem</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">HIOP MemPushWR buffering</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14026756281" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14026756281</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] HAP &amp; DTISFI changes to support increased ATS KPI requireme</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">ATS</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">HAP/DTISFI ATS KPI</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14026029502" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14026029502</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] CHI interface changes - REQ, RSP, DATA, SNP interfaces per </td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">CHI</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">CHI interface changes</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027021946" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027021946</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">NWP CMLBUF location changes</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">Memory</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">CMLBUF location</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14024580328" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024580328</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] Security changes to support LPDDR</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">Security</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">Security for LPDDR</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14024559209" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14024559209</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] TDX changes to support LPDDR and customer accelerator</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">TDX</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">TDX changes</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/22021884390" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22021884390</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] BW KPI impact from requiring WAW ordering on 64B, 128B (Fra</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">Fabric/BW</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">WAW ordering BW KPI</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/22021884362" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">22021884362</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] Support for host (NWP) based HPA access check</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">Security</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">HPA access check</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027275854" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027275854</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] GRS 27MHz refclk GPIO receiver location</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">GRS/HW</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">GRS refclk GPIO location</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027343287" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027343287</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] NIO: request to move pargpiod2d to the northwest whitespace</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">Physical</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">pargpiod2d placement</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14026846905" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14026846905</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">Update NWP 0p3 RTL to Align with NWP MIO repeater plan</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">RTL/MIO</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">MIO repeater plan</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027607756" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027607756</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] New ask from SCF IP team to support LRU bits in PWB Cache</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">SCF/Cache</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">LRU bits in PWB Cache</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#0369a1;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">FR</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027547542" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027547542</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP] NIO: Baseline debug trace capability for AXI, DTI, and CHI </td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">Debug</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">AXI/DTI/CHI debug trace</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#7c3aed;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">CCB</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027205604" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027205604</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP CCB] Ensure C2C GRS can be fuse disabled for NIO</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">GRS/Fuse</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">C2C GRS fuse disable</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#7c3aed;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">CCB</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14026977215" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14026977215</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP CCB] Support for address range (partial) mirroring</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">Memory</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">Address range mirroring</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#7c3aed;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">CCB</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027162617" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027162617</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP CCB] Support for 10.7 GT/s (2R), 9.6 GT/s (4R) lpddr6 speed</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">LPDDR6</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">LPDDR6 speed bins</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#7c3aed;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">CCB</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027344654" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027344654</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP CCB] IOCA to use WCT to track writebacks for WCiLF with earl</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">IOCA</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">WCT tracking</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#7c3aed;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">CCB</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027456607" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027456607</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP CCB] Add SRAM storage to CHI/DTI DVP protocol aware packetiz</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">CHI/DTI</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">SRAM DVP packetizer</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#7c3aed;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">CCB</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027353461" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027353461</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP-CCB] Change GPU cache size to 8MB, HMA SF 24MB</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">GPU/HMA</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">GPU cache/HMA SF</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#7c3aed;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">CCB</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027353323" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027353323</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP-CCB] Change CHI port interleave to 256B or 512B</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">CHI</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">CHI port interleave</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#7c3aed;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">CCB</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027472692" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027472692</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP CCB]Add PWB Clean Evict support</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">PWB</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">PWB Clean Evict</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#7c3aed;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">CCB</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027360514" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027360514</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP-CCB] Support 512 in-flight ATS requests per DTI port</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">ATS</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">512 in-flight ATS</td>
+</tr><tr style="background:#f9fafb">
+  <td style="padding:5px 8px"><span style="background:#7c3aed;color:#fff;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">CCB</span> <a href="https://hsdes.intel.com/appstore/article-one/#/14027643794" target="_blank" style="color:#1a56db;font-family:Consolas;font-size:10px">14027643794</a></td>
+  <td style="padding:5px 8px;font-size:11px;font-weight:500">[NWP CCB]DTI2SFI required to zero keyID from upper bits of HPA pr</td>
+  <td style="padding:5px 8px"><span style="background:#e5e7eb;color:#374151;padding:1px 6px;border-radius:3px;font-size:9px">DTI2SFI</span></td>
+  <td style="padding:5px 8px;text-align:center"><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">N/A</span></td>
+  <td style="padding:5px 8px;font-size:10px"></td>
+  <td style="padding:5px 8px;font-size:10px;color:#374151">ATS keyID</td>
+</tr></tbody></table></div>
+</div></body></html>

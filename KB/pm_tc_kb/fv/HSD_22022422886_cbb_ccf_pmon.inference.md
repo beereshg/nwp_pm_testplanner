@@ -1,92 +1,72 @@
-# Deep Analysis: CBB CCF PMON
+# CBB CCF PMON
 
 | Field | Value |
 |-------|-------|
 | **HSD ID** | [22022422886](https://hsdes.intel.com/appstore/article-one/#/22022422886) |
 | **Title** | CBB CCF PMON |
 | **Status** | open |
+| **Owner** | bg3 |
 | **Val Environment** | silicon, virtual_platform |
-| **Feature** | CBB CCF -- Performance Monitor counters (CCF ring activity) |
-| **Parent TCD** | [22022421190](https://hsdes.intel.com/appstore/article-one/#/22022421190) |
-| **KB last updated** | 2026-06-25 |
+| **Feature** | CCF PMON / Ring Scalability Telemetry |
+| **Parent TCD** | [22022421186](https://hsdes.intel.com/appstore/article-one/#/22022421186) |
+| **KB last updated** | 2026-07-08 |
 
 ---
 
 ## Test Case Intent
 
-**Objective:** Validate CBB CCF Performance Monitor (PMON) counters that measure CCF ring activity: bandwidth utilization, stall cycles, snoop traffic, and frequency-state occupancy. Tests verify counters increment correctly under known workload, PMU programming via MSR/TPMI, and counter accuracy against expected values.
+Verify post-silicon extraction of CBB CCF ring scalability telemetry via PMON (Performance Monitoring Unit) counters. Ensure that PMON CLR (Compute Ring Scalability) counters can be enabled, programmed with RING_SCALE_EVENTS, and produce non-zero counts during CCF activity. Also verify PMON Fast C3 residency counter increments during Fast Ring C3 events.
 
-**NWP topology:** 2 CBBs (cbb0/cbb1) x 48 cores = 96 cores total. CCF ring managed autonomously by CBB PCode GVFSM. CCF target = 2.2 GHz (ratio 0x16) for full bandwidth (460 GB/s). MC6 is the deepest idle state (PkgC6 fused off).
+**Open resolved — PMON POR?** YES. CLR PMON is implemented in hardware at `cbb.base.i_ccf_env{N}.egress_{00-77}.pmoncounter[0-3]` with event selection, freeze/unfreeze, and counter-control registers. Test infrastructure exists in `ccf_utils.py` (`ccf_pmon_clr_*` functions). Fast C3 residency is at `cbb.base.ccf_pma.ccf_pmc_regs.fast_c3_residency.counter`.
 
-### Pre-Conditions
+**Flow:** Post-silicon telemetry extraction — verify ring scalability PMON counters and Fast C3 residency counter are accessible and produce non-zero counts during CCF activity.
 
-| Pre-Condition | Expected State | Failure Indication |
-|---------------|---------------|-------------------|
-| System booted to XOS/SVOS | BIOS CPL4 complete; PCode running | System not booted |
-| TPMI accessible per CBB | `sv.socket0.cbbN.base.tpmi.*` readable | TPMI path invalid |
-| PythonSV namednodes loaded | `import namednodes; sv = namednodes.sv` succeeds | PythonSV not connected |
-| Workload available | CPU stress or coherency workload can be launched | No workload -- cannot stimulate counters |
+**Note on existing script vs TC intent:** `--test_ccf_pmon` calls `ccf_pmon_clr_disable_test()` which tests the FREEZE mechanism (frozen counters stay zero = PASS). The TC intent (counters are NON-ZERO during activity) requires enabling counting with a workload and verifying increment. Both aspects are needed.
 
-### Test Steps
+---
+
+## Pre-Conditions
+
+| Pre-Condition | Requirement |
+|---|---|
+| System booted to OS | BIOS CPL4 complete; PCode initialized |
+| CCF PMON accessible | `cbb.base.i_ccf_env0.egress_00.pmoncountercontrol[0]` readable/writable |
+| Fast C3 residency accessible | `cbb.base.ccf_pma.ccf_pmc_regs.fast_c3_residency.counter` readable |
+| PEGA available | For injecting CCF activity to drive PMON counts |
+
+---
+
+## Test Steps
 
 | # | Action | Expected Result (PASS) | Failure Indication |
 |---|--------|------------------------|--------------------|
-| 1 | Program PMON: select CCF bandwidth event in PMON control MSR | PMU accepts programming; event selector written | MSR write rejected or not reflected |
-| 2 | Apply mesh-bound workload on cbb0; read PMON bandwidth counter before and after | Counter increments by expected amount proportional to traffic | Counter stuck at 0 -- PMON not connected to CCF event |
-| 3 | Repeat for stall-cycle event: verify counter increments under CCF congestion | Stall counter advances; rate proportional to congestion level | Counter frozen -- stall event mux incorrect |
-| 4 | Verify frequency-state occupancy counter: lock CCF to ratio 0x16 for 100ms; read occupancy | Occupancy accumulates at ratio 0x16 for ~100ms equivalent | Occupancy at wrong ratio -- state bucket mux error |
-| 5 | Verify PMON counters per CBB are independent: cbb0 and cbb1 show different values under asymmetric load | cbb0 counter > cbb1 counter when only cbb0 loaded | Counters identical -- CBB mux not working |
-| 6 | Reset PMON counters and verify they clear to 0 | All counters read 0 after reset | Non-zero after reset -- counter not clearable |
-| 7 | Verify PLR_DIE_LEVEL = 0x0 and no unexpected DVFS changes during PMON read | PLR = 0x0; CCF ratio unchanged by PMON operations | PLR asserts -- PMON overhead affecting CCF behavior |
-
-### Pass / Fail Criteria
-
-**PASS:** PMON counters increment under workload; event selection correct; occupancy accurate; per-CBB independence; counter reset works; PLR = 0x0.
-
-**FAIL:** Counter stuck at 0; wrong event counted; occupancy at wrong ratio; CBBs not independent; counter not resettable.
-
-### Post-Process
-
-Save: counter snapshots (baseline and under load), UFS_STATUS.CURRENT_RATIO trace, PLR_DIE_LEVEL for both CBBs.
-
-### Reference Documents
-
-- [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html) -- CCF PMON event mapping
-- [CBB Telemetry Aggregator](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details) -- CBB PMON telemetry space
-- [CBB Power Management HAS Index](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html) -- CBB PM feature index
-- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) -- NWP CCF ring scope
+| 1 | For each CBB, reset CLR PMON: `ccf_pmon_clr_unitcontrol_op(skt, cbb, 'i_ccf_envs', 'egresss', op='w', w_dict={'frz':1,'rst_ctrl':1,'rst_ctrs':1})` | All counters reset to 0; no error | Reset fails — PMON registers inaccessible |
+| 2 | Program RING_SCALE_EVENTS: `ccf_pmon_clr_countercontrol_op(..., op='w', w_dict={'ev_sel':0x24,'umask':0x3f})` | Event select written; `ev_sel=0x24` reads back | Write rejected — counter control not programmable |
+| 3 | Enable counting (unfreeze): `ccf_pmon_clr_unitcontrol_op(..., op='c')`. Inject CCF activity via PEGA: `pega.uncoreRatioSingleShot(skt, cbb, target_ratio)`. Wait 15s. Freeze again. Read counters | At least one `pmoncounter[N].event_count > 0` — ring scale events counted | All counters stay 0 — no CCF activity counted; PMON not functional |
+| 4 | Verify PMON CLR freeze: freeze and verify counters do NOT change: `ccf_pmon_clr_disable_test(skt, 'cbbs', 'i_ccf_envs', 'egresss', 'all', rtime=100)` | PASS (diff==0) — frozen counters stable | FAIL (diff>0) — frozen counters changed; freeze mechanism broken |
+| 5 | Verify Fast C3 residency: read baseline `fast_c3_residency.counter`; inject Fast C3 via PEGA C-state; re-read | `fast_c3_residency.counter` incremented — Fast C3 residency tracked | Counter unchanged — Fast C3 PMON not functional |
 
 ---
 
-## Section A: NWP Disposition & Justification
+## Pass / Fail Criteria
 
-**Disposition: Runnable -- CBB CCF PMON present on NWP**
+**PASS:** CLR PMON counters accessible and programmable per CBB; at least one `pmoncounter[N].event_count > 0` after RING_SCALE_EVENTS programming and CCF activity; freeze mechanism works (frozen counters stay stable); `fast_c3_residency.counter` increments after Fast C3 injection.
 
-CBB CCF telemetry and DVFS algorithm are inherited from DMR CBB shared source. NWP: 2 CBBs; iterate both cbb0 and cbb1. CCF P0 = 2.2 GHz; test under full 96-core coherency load for maximum signal.
-
-Tags: `CBB CCF`, `plc.feature.p1`.
+**FAIL:** Any PMON counter register inaccessible; all counters remain 0 after activity; freeze mechanism broken (counters change while frozen); `fast_c3_residency.counter` does not increment.
 
 ---
 
-## Section B: NWP-Specific Test Procedure
+## Post-Process
 
-### Key Namednodes Paths (NWP)
+Save: PMON counter values (all CBBs, all i_ccf_env, all egress) before/after activity, `fast_c3_residency.counter` before/after Fast C3 injection.
 
-| Register | NWP Path | Purpose |
-|----------|----------|---------|
-| UFS_STATUS | `sv.socket0.cbbN.base.tpmi.ufs_status` | CURRENT_RATIO |
-| PLR_DIE_LEVEL | `sv.socket0.cbbN.base.tpmi.plr_die_level` | Perf Limit Reason |
-| UFS_ADV_CONTROL_1 | `sv.socket0.cbbN.base.tpmi.ufs_adv_control_1` | RAPL/distress slopes |
+---
 
-### Adapted Steps
+## References
 
-| Step | Action | NWP Details |
-|------|--------|-------------|
-| 1 | Iterate both CBBs | `for cbb in sv.sockets.cbbs:` |
-| 2 | Read telemetry | Per-CBB TPMI or GPSB path |
-| 3 | Apply workload | `pega_mailbox.pega_pstate()` or OS-level stress tool |
-| 4 | Verify response | `cbb.base.tpmi.ufs_status.current_ratio.read()` |
-
-### Pass Criteria
-
-PMON counters increment under workload; event selection correct; occupancy accurate; per-CBB independence; counter reset works; PLR = 0x0.
+- [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#switching-between-fast-gv-drainless-gv)
+- [CBB Telemetry Aggregator](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details)
+- [CBB CCF Power Management HAS index](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html)
+- [CBB Power Event Generation Architecture (PEGA)](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/Features/PEGA/PEGA.html)
+- [DMR CBB TPMI Support](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_TPMI/cbb_tpmi.html)
+- [pCode Home](https://wiki.ith.intel.com/display/ServerPcode/Server+Pcode+Home)

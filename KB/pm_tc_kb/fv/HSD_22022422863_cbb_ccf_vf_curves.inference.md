@@ -1,4 +1,4 @@
-# Deep Analysis: CBB CCF VF Curves
+# CBB CCF VF Curves
 
 | Field | Value |
 |-------|-------|
@@ -7,104 +7,78 @@
 | **Status** | open |
 | **Owner** | bg3 |
 | **Val Environment** | silicon, virtual_platform |
-| **Feature** | Fabric DVFS / CBB CCF GV -- Voltage-Frequency curve validation |
+| **Feature** | Fabric DVFS / CBB CCF GV / VF Curves |
 | **Parent TCD** | [22022421174](https://hsdes.intel.com/appstore/article-one/#/22022421174) |
-| **KB last updated** | 2026-06-25 |
+| **KB last updated** | 2026-07-08 |
 
 ---
 
 ## Test Case Intent
 
-**Objective:** Validate CBB CCF ring Voltage-Frequency (VF) curve programming and enforcement. The VF curve defines the minimum supply voltage required at each CCF frequency operating point. GVFSM (GV Finite State Machine) in CBB PCode must select the correct voltage from the fused VF table when transitioning between frequency points. Key transition rules: **V-first** (voltage raised before frequency increases); **PLL-first** (frequency reduced before voltage drops). Tests verify the complete path: fuse readback, GVFSM voltage selection, FIVR output, and transition ordering.
+Verify that PCode correctly loads and applies the CBB CCF ring VF (Voltage-Frequency) curve fuse data. For each VF point in the fused curve, inject the corresponding ring ratio via PEGA and verify the observed voltage from `UFS_STATUS.CURRENT_VOLTAGE` matches the PCode-expected voltage within tolerance (50mV).
 
-**VF Curve Mechanism:** CBB PCode reads SST_PP_INFO and VF fuse tables at boot. Each frequency ratio maps to a minimum voltage (U3.13 fixed-point in UFS_STATUS.CURRENT_VOLTAGE). TPMI UFS_CONTROL ratio lock (MAX=MIN) is used to force each VF operating point for measurement.
+**Opens resolved:**
 
-### Pre-Conditions
+- **Where are the fuses defined?** — Ring VF curve fuse values are loaded by PCode into `cbb.pcode.vars.ring.vf_curve.at{N}.points.ats.{ratio, voltage}` during boot. The source fuses are part of the CBB fuse array (read at reset). Fuse override tool can substitute alternate values.
+- **Which is the fuse format?** — Expected voltage: `float` (converted via `tools.convert.bin2float(val, "float")`). Observed voltage: `U3.13` fixed-point from `UFS_STATUS.CURRENT_VOLTAGE`.
+- **How many VF points for ring?** — **6 VF points** per slice (`VF_TABLE_CFC_POINTS_COUNT = 6`). Multiple slices (`vf_curve.ats`) per CBB.
 
-| Pre-Condition | Expected State | Failure Indication |
-|---------------|---------------|-------------------|
-| System booted, PCode initialized | BIOS CPL4 complete; GVFSM running | System hang or reset |
-| No thermal throttle (TCC inactive) | Die temperature below TCC threshold | TCC active -- FIVR voltage artificially limited |
-| TPMI accessible per CBB | `ufs_control`, `ufs_status`, `sst_pp_info_*` readable | TPMI path invalid |
-| CBB GPSB accessible | `sv.socket0.cbb0.compute0.pma0.gpsb` readable | GPSB not accessible |
-| BIOS: no VF OC override | Default VF curves in effect | OC mode would override fused curves |
+**Flow:**
 
-### Test Steps
+- Ensure all ratio points in each CBB CCF VF curve are accessible via PCode vars (`pcode.vars.ring.vf_curve`)
+- Inject each VF curve ratio via PEGA (`ccf_pegaPstate` with `clrgv=ratio`) and observe voltage
+- Match PCode interpretation: observed voltage must be within 50mV of fused VF point voltage
+- Verify per-CBB: each CBB has independent VF curves (cbb0, cbb1)
+
+**Test script:** `pmx_ccf_cbo.py --test_ccf_vf_curve` → `ccfu.cbb_ccf_vf_curve_test(sktNum, dieName='ats', sliceName='ats')`.
+
+---
+
+## Pre-Conditions
+
+| Pre-Condition | Requirement |
+|---|---|
+| System booted to OS | BIOS CPL4 complete; PCode initialized with VF curve fuse data |
+| VF curve data accessible | `sv.sockets.cbbs.pcode.vars.ring.vf_curve` readable and non-zero |
+| TPMI `UFS_STATUS.CURRENT_VOLTAGE` readable | `cbb.base.tpmi.ufs_status.current_voltage` returns valid U3.13 value |
+| PEGA available | `import diamondrapids.pm.pmutils.pega as pega` succeeds |
+| Python-SV available | `import namednodes; sv = namednodes.sv` succeeds |
+
+---
+
+## Test Steps
 
 | # | Action | Expected Result (PASS) | Failure Indication |
 |---|--------|------------------------|--------------------|
-| 1 | Read fused turbo ratios from `SST_PP_INFO_4` and P0/P1/Pm from `SST_PP_INFO_11` per CBB | Non-zero turbo ratios; P0 ≈ 22 (2.2 GHz) on NWP; Pm ≈ 8 (800 MHz) | Zero ratios -- fuses not propagated |
-| 2 | Read baseline `UFS_STATUS.CURRENT_RATIO` and `CURRENT_VOLTAGE` | Non-zero ratio and voltage; voltage in U3.13 format | Zero voltage -- FIVR not reporting |
-| 3 | Lock CCF at Pm (ratio = 0x08, 800 MHz): `MAX_RATIO = MIN_RATIO = 0x08`; wait 5M cycles | CURRENT_RATIO = 0x08; voltage = VF[Pm] (minimum supply voltage) | Ratio or voltage mismatch at Pm |
-| 4 | Increase to mid-point (ratio = 0x12, 1.8 GHz): first verify V ramps **before** frequency | During transition: voltage rises to VF[1.8 GHz] before GVFSM locks new ratio (V-first rule) | Frequency increased before voltage -- V-first violated |
-| 5 | Read `UFS_STATUS.CURRENT_VOLTAGE` at 1.8 GHz lock | Voltage = VF table entry for 1.8 GHz; higher than at Pm | Voltage same as Pm level -- GVFSM not selecting correct VF point |
-| 6 | Increase to P0 (ratio = 0x16, 2.2 GHz on NWP): verify V-first again | Voltage rises to VF[P0] before frequency step; CURRENT_RATIO = 0x16 | V-first violated on freq increase to P0 |
-| 7 | Decrease to P1 (ratio = 0x12): verify **PLL-first** (frequency drops before voltage) | CURRENT_RATIO drops to 0x12 before voltage decreases; no glitch | Voltage dropped before frequency -- PLL-first violated |
-| 8 | Sweep all VF points (Pm → P1 → P0 and reverse) for both CBBs | Voltage monotonically increases with ratio; each VF pair matches fused table | Non-monotonic voltage -- VF curve corruption or wrong table |
-| 9 | Restore autonomous mode (`MAX_RATIO ≠ MIN_RATIO`) and verify GVFSM resumes | CURRENT_RATIO returns to BW-heuristic value; voltage tracks autonomously | GVFSM stuck after sweep |
-
-### Pass / Fail Criteria
-
-**PASS:** Fused VF ratios readable and non-zero; CURRENT_VOLTAGE matches VF table entry at each locked ratio; V-first observed on frequency increase; PLL-first observed on frequency decrease; voltage monotonically tracks ratio across full sweep; autonomous recovery after test.
-
-**FAIL:** Zero fused ratios; CURRENT_VOLTAGE does not match VF table; V-first or PLL-first ordering violated; non-monotonic voltage-frequency relationship; GVFSM stuck post-test.
-
-### Post-Process
-
-Save: SST_PP_INFO_4/11 values, UFS_STATUS.CURRENT_RATIO and CURRENT_VOLTAGE at each VF test point (Pm, mid, P0, reverse), transition ordering timestamps, PLR_DIE_LEVEL values for both CBBs.
-
-### Reference Documents
-
-- [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#switching-between-fast-gv-drainless-gv) -- V-first/PLL-first transition rules, GVFSM states
-- [CBB CCP PM Integration HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCP%20HAS/cbb_cpp_has.html#vf-curves-grouping) -- VF curve grouping, fuse layout
-- [DMR CBB TPMI Support](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_TPMI/cbb_tpmi.html) -- UFS_STATUS.CURRENT_VOLTAGE encoding (U3.13), SST_PP_INFO fields
-- [CBB Telemetry Aggregator](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details) -- CBB PMSB telemetry, GPSB voltage reporting
-- [CBB Power Management HAS Index](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html) -- CBB PM feature index
-- [Fabric DVFS KB](../../../pm_features/fabric_dvfs/fabric_dvfs_main.md) -- GVFSM, CCF ring context
+| 1 | Read VF curve data per CBB: iterate `cbb.pcode.vars.ring.vf_curve.ats`; print each point's `ratio.value_` and `voltage.val` | 6 valid VF points per slice; ratios non-zero and ascending; voltages in valid range | Zero ratios or zero voltages — fuse data not loaded by PCode |
+| 2 | For each VF point ratio, inject ratio via PEGA: `ccf_pegaPstate(sktNum, dieName, clrgv=ratio_value)`. Verify `UFS_STATUS.CURRENT_RATIO` matches | Current ratio tracks injected value per CBB | Ratio not reached — PEGA not driving CCF |
+| 3 | Read observed voltage from TPMI: `tools.convert.bin2float(cbb.base.tpmi.ufs_status.current_voltage, "U3.13")`. Compare to expected: `tools.convert.bin2float(point.voltage.val, "float")` | Observed voltage within 50mV of fused VF curve expected voltage for all 6 points per slice | Voltage deviation > 50mV — VF curve mismatch between fuses and silicon |
+| 4 | Repeat for all slices (`cbb.pcode.vars.ring.vf_curve.ats`) and all CBBs | All slices and CBBs pass voltage verification | Any slice or CBB failing — VF curve asymmetry |
+| 5 | Optional: use fuse override tool to inject a modified VF curve; reboot; re-verify voltage tracking | Modified VF point voltages observed at correct ratios | Override not applied — fuse override path broken |
 
 ---
 
-## Section A: NWP Disposition & Justification
+## Pass / Fail Criteria
 
-**Disposition: Runnable -- CBB CCF VF curves present on NWP**
+**PASS:** All VF curve ratio points in each CBB CCF accessible via PCode vars. For each injected ratio, observed `UFS_STATUS.CURRENT_VOLTAGE` within 50mV of fused VF curve expected voltage. PCode interpretation matches fuse data per-CBB.
 
-CBB PCode GVFSM uses the same VF curve infrastructure on NWP as DMR. NWP CCF: P0 = 2.2 GHz (ratio 22 = 0x16), Pm = 800 MHz (ratio 8 = 0x08). NWP has 2 CBBs -- sweep VF on both cbb0 and cbb1.
-
-Tags: `CBB CCF`, `plc.feature.p1`.
+**FAIL:** VF curve data not loaded (zero ratio or voltage); observed voltage deviates > 50mV from expected; PEGA ratio injection fails; any CBB shows different VF curve than fuses specify.
 
 ---
 
-## Section B: NWP-Specific Test Procedure
+## Post-Process
 
-### Key Register Paths (NWP)
+Save: VF curve point dump per CBB (`pcode.vars.ring.vf_curve.ats`), observed voltage samples per ratio point, pass/fail summary per slice.
 
-| Register | NWP Path | Purpose |
-|----------|----------|---------|
-| SST_PP_INFO_4 | `sv.socket0.cbbN.base.tpmi.sst_pp_info_4` | TRL ratios (P0/turbo ratios) |
-| SST_PP_INFO_11 | `sv.socket0.cbbN.base.tpmi.sst_pp_info_11` | P0, P1, Pm encoding |
-| UFS_CONTROL | `sv.socket0.cbbN.base.tpmi.ufs_control` | MAX_RATIO/MIN_RATIO for VF point lock |
-| UFS_STATUS | `sv.socket0.cbbN.base.tpmi.ufs_status` | CURRENT_RATIO [6:0], CURRENT_VOLTAGE [22:7] (U3.13) |
-| GPSB pma | `sv.socket0.cbbN.compute0.pma0.gpsb` | GPSB for additional voltage monitoring |
+---
 
-### NWP VF Test Ratios
+## References
 
-| VF Point | Ratio | Freq | Expected |
-|----------|-------|------|---------|
-| Pm (min) | 0x08 | 800 MHz | Minimum FIVR voltage |
-| Mid | 0x12 | 1800 MHz | Mid-range voltage |
-| P1 | 0x14 | 2000 MHz | Near-max voltage |
-| P0 (max) | 0x16 | 2200 MHz | Maximum voltage |
-
-### Adapted Steps
-
-| Step | Action | NWP Details |
-|------|--------|-------------|
-| 1 | Iterate both CBBs | `for cbb in sv.sockets.cbbs:` |
-| 2 | Lock to Pm | `cbb.base.tpmi.ufs_control.max_ratio.write(0x08); .min_ratio.write(0x08)` |
-| 3 | Read voltage at each point | `(cbb.base.tpmi.ufs_status.read() >> 7) & 0x7FFF` (U3.13) |
-| 4 | Verify monotonic | Assert voltage increases with each ratio step |
-| 5 | Restore | Write original MAX/MIN values |
-
-### Pass Criteria
-
-Fused ratios non-zero; CURRENT_VOLTAGE increases monotonically with ratio; V-first on increase, PLL-first on decrease; autonomous recovery after sweep.
+- [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv)
+- [CBB CCP PM Integration HAS — VF Curves Grouping](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCP%20HAS/cbb_cpp_has.html#vf-curves-grouping)
+- [DMR CBB TPMI Support](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_TPMI/cbb_tpmi.html)
+- [Architectural UFS TPMI Interface](https://docs.intel.com/documents/pm_doc/src/server/arch_common/TPMI/TPMI.html#dmr-family)
+- [CBB Power Event Generation Architecture (PEGA)](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/Features/PEGA/PEGA.html)
+- [CBB CCF Power Management HAS index](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html)
+- [CBB Telemetry Aggregator](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html)
+- [pCode Home](https://wiki.ith.intel.com/display/ServerPcode/Server+Pcode+Home)

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/>
+<title>NWP PM — TC-Level Scenario Gap Analysis vs GNR</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px}
+.hdr{background:linear-gradient(135deg,#7c2d12 0%,#dc2626 100%);color:#fff;padding:18px 28px}
+.hdr h1{font-size:19px;font-weight:700;margin-bottom:4px}
+.hdr .sub{font-size:11px;opacity:.85;line-height:1.6}
+.stats{display:flex;gap:12px;padding:10px 20px;background:#1a5fa8;flex-wrap:wrap}
+.stat{background:rgba(255,255,255,.18);border-radius:8px;padding:6px 16px;text-align:center;color:#fff}
+.stat .n{font-size:22px;font-weight:700;display:block}
+.stat .l{font-size:9px;opacity:.8}
+.wrap{max-width:1600px;margin:14px auto;padding:0 16px 50px}
+.note{background:#fffbeb;border-left:4px solid #f59e0b;padding:10px 16px;margin-bottom:14px;font-size:12px;border-radius:4px}
+.section{background:#fff;border:1px solid #d1d5db;border-radius:10px;overflow:hidden;margin-bottom:16px}
+.sec-hdr{padding:11px 16px;font-weight:700;font-size:14px;border-bottom:1px solid #e5e7eb;background:#fef2f2;color:#991b1b}
+table{width:100%;border-collapse:collapse}
+th{background:#f8faff;padding:7px 10px;text-align:left;font-size:10px;font-weight:600;color:#374151;border-bottom:2px solid #e5e7eb}
+td{padding:6px 10px;border-bottom:1px solid #f3f4f6;vertical-align:top}
+.tp-hdr td{padding:8px 12px}
+tr.tp-hdr:hover td{background:inherit!important}
+tr:not(.tp-hdr):hover td{background:#f0f7ff}</style>
+</head><body>
+<div class="hdr">
+  <h1>NWP PM — TC-Level Scenario Gap Analysis vs GNR</h1>
+  <div class="sub">
+    Based on TCD-to-TCD comparison within "covered" TPs &nbsp;|&nbsp;
+    Two gap types: <strong>MISSING SCENARIO</strong> (no NWP TCD at all) and <strong>ZERO TCS</strong> (TCD exists but has 0 test cases) &nbsp;|&nbsp;
+    2026-07-04<br>
+    <em>Note: TP-level gaps (HPM, PkgC1E, AFS, etc.) are in the separate <a href="nwp_vs_gnr_gap_analysis.html" style="color:#fde68a">TP-level gap report</a></em>
+  </div>
+</div>
+<div class="stats">
+  <div class="stat"><span class="n">61</span><span class="l">Total Scenario Gaps</span></div>
+  <div class="stat" style="background:#dc2626"><span class="n">6</span><span class="l">🔴 Critical</span></div>
+  <div class="stat" style="background:#d97706"><span class="n">24</span><span class="l">🟠 High</span></div>
+  <div class="stat" style="background:#2563eb"><span class="n">28</span><span class="l">🟡 Medium</span></div>
+  <div class="stat" style="background:#6b7280"><span class="n">3</span><span class="l">⚪ Low</span></div>
+  <div class="stat" style="background:#991b1b"><span class="n">0</span><span class="l">Scenarios Missing</span></div>
+  <div class="stat" style="background:#92400e"><span class="n">0</span><span class="l">TCDs with 0 TCs</span></div>
+</div>
+<div class="wrap">
+<div class="note">
+  <strong>How to read this:</strong>
+  <strong>MISSING SCENARIO</strong> = no TCD/TC exists in NWP for this scenario (complete gap).
+  <strong>ZERO TCS</strong> = a TCD with the right title was created in NWP but no test cases have been authored yet (structural skeleton only — no actual validation).
+  <strong>PARTIAL</strong> = some TCs exist but the scenario is only partially covered.
+  This analysis is within TPs already considered "covered" at the TP level.
+</div>
+<div class="section">
+<div class="sec-hdr">&#10060; TC-Level Scenario Gaps — Within "Covered" NWP TPs</div>
+<table>
+<thead><tr>
+  <th style="width:120px">Severity</th>
+  <th style="width:130px">GNR Source TP</th>
+  <th style="width:280px">Scenario / TCD Title</th>
+  <th style="width:130px">Gap Type</th>
+  <th>Notes</th>
+</tr></thead>
+<tbody><tr class="tp-hdr"><td colspan="5" style="background:#1e40af;color:#fff;font-weight:700;font-size:13px;padding:8px 12px">RAPL (15019477771) — 17 scenario gaps <a href="https://hsdes.intel.com/appstore/article-one/#/15019477771" target="_blank" style="color:#bfdbfe;font-size:10px;float:right">HSD &#x2197;</a></td></tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">DRAM RAPL</td>
+  <td style="font-size:11px;font-weight:500">DRAM RAPL Algorithm Scenarios</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">DRAM RAPL</td>
+  <td style="font-size:11px;font-weight:500">DRAM RAPL Bios Knob Verification</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">DRAM RAPL</td>
+  <td style="font-size:11px;font-weight:500">DRAM RAPL Cross Products</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">DRAM RAPL</td>
+  <td style="font-size:11px;font-weight:500">DRAM RAPL HPM Message Verification</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">DRAM RAPL</td>
+  <td style="font-size:11px;font-weight:500">DRAM RAPL Registers Verification</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">DRAM RAPL</td>
+  <td style="font-size:11px;font-weight:500">DRAM RAPL SVID Reporting</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">DRAM RAPL</td>
+  <td style="font-size:11px;font-weight:500">DRAM RAPL Telemetry</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">Fast RAPL</td>
+  <td style="font-size:11px;font-weight:500">Fast RAPL duty cycle quality</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">Fast RAPL</td>
+  <td style="font-size:11px;font-weight:500">PL2_SAFETY_NET Budget released</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">Fast RAPL</td>
+  <td style="font-size:11px;font-weight:500">PL2_SAFETY_NET Budget reduction</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">Psys RAPL</td>
+  <td style="font-size:11px;font-weight:500">Psys RAPL Algorithm &amp; Functionality</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#f9fafb">
+  <td><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">⚪ LOW</span></td>
+  <td style="font-size:11px;color:#4b5563">Psys RAPL</td>
+  <td style="font-size:11px;font-weight:500">Psys RAPL Cross-products</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">Psys RAPL</td>
+  <td style="font-size:11px;font-weight:500">Psys RAPL HPM</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">RACL</td>
+  <td style="font-size:11px;font-weight:500">RACL Counters Verification</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">RACL</td>
+  <td style="font-size:11px;font-weight:500">RACL Cross Product</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">RACL</td>
+  <td style="font-size:11px;font-weight:500">RACL HPM Verification</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">RACL</td>
+  <td style="font-size:11px;font-weight:500">RACL Security</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr class="tp-hdr"><td colspan="5" style="background:#065f46;color:#fff;font-weight:700;font-size:13px;padding:8px 12px">PKGC (15019477838) — 10 scenario gaps <a href="https://hsdes.intel.com/appstore/article-one/#/15019477838" target="_blank" style="color:#bfdbfe;font-size:10px;float:right">HSD &#x2197;</a></td></tr>
+<tr style="background:#fef2f2">
+  <td><span style="background:#dc2626;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🔴 CRITICAL</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">Clock Actions</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fef2f2">
+  <td><span style="background:#dc2626;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🔴 CRITICAL</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">Link/Fabric/Mem State</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fef2f2">
+  <td><span style="background:#dc2626;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🔴 CRITICAL</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">Voltage Actions</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fef2f2">
+  <td><span style="background:#dc2626;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🔴 CRITICAL</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">Primecode Initialization</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fef2f2">
+  <td><span style="background:#dc2626;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🔴 CRITICAL</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">Primecode actions in idle entry</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fef2f2">
+  <td><span style="background:#dc2626;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🔴 CRITICAL</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">Wake Events</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">PKGC Cross Products</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">PkgC debug requirements</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">PMX</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">Solar</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr class="tp-hdr"><td colspan="5" style="background:#374151;color:#fff;font-weight:700;font-size:13px;padding:8px 12px">C-State (15019478558) — 0 scenario gaps <a href="https://hsdes.intel.com/appstore/article-one/#/15019478558" target="_blank" style="color:#bfdbfe;font-size:10px;float:right">HSD &#x2197;</a></td></tr>
+<tr class="tp-hdr"><td colspan="5" style="background:#4338ca;color:#fff;font-weight:700;font-size:13px;padding:8px 12px">P-State/HWP (16030686481) — 3 scenario gaps <a href="https://hsdes.intel.com/appstore/article-one/#/16030686481" target="_blank" style="color:#bfdbfe;font-size:10px;float:right">HSD &#x2197;</a></td></tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">GNR</td>
+  <td style="font-size:11px;font-weight:500">PECI PM services PCS Index-49/50</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP</td>
+  <td style="font-size:11px;font-weight:500">Legacy Pstate Fast GV configuration</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP</td>
+  <td style="font-size:11px;font-weight:500">EPB and SAPM-DLL</td>
+  <td><span style="background:#1d4ed8;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Partial coverage</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr class="tp-hdr"><td colspan="5" style="background:#5b21b6;color:#fff;font-weight:700;font-size:13px;padding:8px 12px">SST (16030762839) — 8 scenario gaps <a href="https://hsdes.intel.com/appstore/article-one/#/16030762839" target="_blank" style="color:#bfdbfe;font-size:10px;float:right">HSD &#x2197;</a></td></tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">SST-BF Enabling &amp; Discovery</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">SST-BF Functionality</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">SST-CP Enabling &amp; Discovery</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">SST-CP Functionality</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">SST-PP Dynamic Functionality</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">SST-PP Dynamic Boot flow</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">SST-PP Dynamic Fusing</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP TCD exists</td>
+  <td style="font-size:11px;font-weight:500">HGS Enabling and Discovery</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr class="tp-hdr"><td colspan="5" style="background:#7c2d12;color:#fff;font-weight:700;font-size:13px;padding:8px 12px">Thermal (16030763137) — 16 scenario gaps <a href="https://hsdes.intel.com/appstore/article-one/#/16030763137" target="_blank" style="color:#bfdbfe;font-size:10px;float:right">HSD &#x2197;</a></td></tr>
+<tr style="background:#f9fafb">
+  <td><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">⚪ LOW</span></td>
+  <td style="font-size:11px;color:#4b5563">CPU Thermals</td>
+  <td style="font-size:11px;font-weight:500">CPUID thermal verification</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">CPU Thermals</td>
+  <td style="font-size:11px;font-weight:500">Out of Spec thermal event</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">Temp Sensors</td>
+  <td style="font-size:11px;font-weight:500">DTS Tap Connectivity/Activity</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">Temp Sensors</td>
+  <td style="font-size:11px;font-weight:500">DTS 2.0 Functionality</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">Temp Sensors</td>
+  <td style="font-size:11px;font-weight:500">Uncore DTS Connectivity</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">Temp Sensors</td>
+  <td style="font-size:11px;font-weight:500">Disable CPU Thermal Sensor</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">Thermal Throttle</td>
+  <td style="font-size:11px;font-weight:500">Verify TM1 functionality</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">Thermal Throttle</td>
+  <td style="font-size:11px;font-weight:500">Thermal Nstrike Algorithm</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">Thermal Throttle</td>
+  <td style="font-size:11px;font-weight:500">BIOS knobs for throttling</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#f9fafb">
+  <td><span style="background:#6b7280;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">⚪ LOW</span></td>
+  <td style="font-size:11px;color:#4b5563">Thermal Throttle</td>
+  <td style="font-size:11px;font-weight:500">Advanced Thermal Mgmt (ATM)</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">Prochot</td>
+  <td style="font-size:11px;font-weight:500">Fast Prochot</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">Prochot</td>
+  <td style="font-size:11px;font-weight:500">Prochot via PECI/PCS</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">Prochot</td>
+  <td style="font-size:11px;font-weight:500">MCP Prochot Event</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">Prochot</td>
+  <td style="font-size:11px;font-weight:500">Prochot before CPL4 / early boot</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">Prochot</td>
+  <td style="font-size:11px;font-weight:500">Prochot BIOS knobs</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">ITD</td>
+  <td style="font-size:11px;font-weight:500">Dual Slope ITD</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr class="tp-hdr"><td colspan="5" style="background:#166534;color:#fff;font-weight:700;font-size:13px;padding:8px 12px">Fabric DVFS (16030763243) — 4 scenario gaps <a href="https://hsdes.intel.com/appstore/article-one/#/16030763243" target="_blank" style="color:#bfdbfe;font-size:10px;float:right">HSD &#x2197;</a></td></tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">UFS</td>
+  <td style="font-size:11px;font-weight:500">Efficiency Latency Control (ELC) Mode</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">UFS</td>
+  <td style="font-size:11px;font-weight:500">Dynamic Frequency Capping</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP</td>
+  <td style="font-size:11px;font-weight:500">Fabric DVFS RAPL/RACL Limits</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">NWP</td>
+  <td style="font-size:11px;font-weight:500">Memory Fabric DVFS</td>
+  <td><span style="background:#d97706;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">TCD has 0 TCs</span></td>
+  <td style="font-size:11px;color:#374151">Existing NWP TCD has no test cases yet</td>
+</tr>
+<tr class="tp-hdr"><td colspan="5" style="background:#0369a1;color:#fff;font-weight:700;font-size:13px;padding:8px 12px">PM Interfaces (16030765561) — 3 scenario gaps <a href="https://hsdes.intel.com/appstore/article-one/#/16030765561" target="_blank" style="color:#bfdbfe;font-size:10px;float:right">HSD &#x2197;</a></td></tr>
+<tr style="background:#eff6ff">
+  <td><span style="background:#2563eb;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟡 MEDIUM</span></td>
+  <td style="font-size:11px;color:#4b5563">GNR</td>
+  <td style="font-size:11px;font-weight:500">PECI PM services with PCS Index-49</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">GNR</td>
+  <td style="font-size:11px;font-weight:500">TPMI (0 TCDs for TPMI TPF)</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+<tr style="background:#fffbeb">
+  <td><span style="background:#d97706;color:#fff;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700">🟠 HIGH</span></td>
+  <td style="font-size:11px;color:#4b5563">GNR</td>
+  <td style="font-size:11px;font-weight:500">PECI (0 TCDs for PECI TPF)</td>
+  <td><span style="background:#991b1b;color:#fff;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700">Scenario missing</span></td>
+  <td style="font-size:11px;color:#374151">No corresponding TCD/TC in NWP TP</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</body></html>

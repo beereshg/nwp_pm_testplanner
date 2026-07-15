@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
-  <title>TC: CBB CCF Snoop Scalability / Distress</title>
+  <title>TC: CBB CCF Snoop Scalability/Distress</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
@@ -41,11 +41,11 @@
 </head>
 <body>
 <div class="header">
-  <h1>CBB CCF Snoop Scalability / Distress
+  <h1>CBB CCF Snoop Scalability/Distress
     <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022422895" target="_blank" rel="noopener">HSD 22022422895 ↗</a>
   </h1>
   <div class="chips">
-    <span class="chip">CBB CCF -- Snoop scalability under high coherency workload and distress mechanism › </span>
+    <span class="chip">Ring Scalability / Snoop Distress / SBO Telemetry › </span>
     <span class="chip disp"></span>
     <span class="chip">Env: silicon, virtual_platform</span>
   </div>
@@ -71,7 +71,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
-<br/><p style="margin:10px 0 16px 0;"><strong>Objective:</strong> Validate CBB CCF ring scalability under high snoop rates and the snoop back-pressure / distress mechanism. With 96 cores (2 CBBs x 48 cores), high-coherency workloads drive extreme snoop traffic. Tests verify: CCF ring frequency scales with snoop traffic demand; snoop back-pressure (SBO) triggers distress and frequency boost; scalability improves latency vs fixed-low-frequency baseline. <strong>NWP topology:</strong> 2 CBBs (cbb0/cbb1) x 48 cores = 96 cores total. CCF ring managed autonomously by CBB PCode GVFSM. CCF target = 2.2 GHz (ratio 0x16) for full bandwidth (460 GB/s). MC6 is the deepest idle state (PkgC6 fused off). <strong>PASS:</strong> CCF scales to P0 under snoop pressure; SBO counter increments; distress fires at threshold; throughput scales with frequency; per-CBB independence; PLR = 0x0. <strong>FAIL:</strong> CCF stays at Pm despite snoop load; SBO stuck at 0; no distress; no throughput scaling; both CBBs scale together. Save: counter snapshots (baseline and under load), UFS_STATUS.CURRENT_RATIO trace, PLR_DIE_LEVEL for both CBBs.</p>
+<br/><p style="margin:10px 0 16px 0;">Verify the <strong>Snoop</strong> scalability/distress path — the snoop grade field in the distress message sent from CCF PMA to PCode. The same distress register (PUNIT_CR_RING_DISTRESS_STATUS, address 0x1C8) carries <code>snoop_level[11:8]</code> (0-15 snoop stress level) alongside <code>ia_distress[3:0]</code>. This TC focuses specifically on the snoop side: SBO snoop counters → snoop grade → PCode snoop distress input. <strong>Differentiator from TC 22022422894 (IA Distress):</strong></p>
 
 <br/>
 
@@ -81,13 +81,13 @@
 <br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
 <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">System booted to XOS/SVOS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; PCode running</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">System booted to OS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; PCode running ring scalability</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">TPMI accessible per CBB</td><td style="text-align:left;padding:8px;">`sv.socket0.cbbN.base.tpmi.*` readable</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Ring scalability enabled</td><td style="text-align:left;padding:8px;">MSR POWER_CTL 0x1FC bit[25] `disable_ring_ee=0`</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">PythonSV namednodes loaded</td><td style="text-align:left;padding:8px;">`import namednodes; sv = namednodes.sv` succeeds</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">`ring_distress_status` accessible</td><td style="text-align:left;padding:8px;">`cbb.base.punit_regs.punit_pmsb.pmsb_pcu.ring_distress_status` readable</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">Workload available</td><td style="text-align:left;padding:8px;">CPU stress or coherency workload can be launched</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">SBO snoop counters accessible</td><td style="text-align:left;padding:8px;">`cbb.base.i_ccf_env0.sbo_misc_regs.sbo_snoop_counter` readable/writable</td></tr>
 
 </table>
 
@@ -107,51 +107,37 @@
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Baseline: pin CCF at Pm (800 MHz) and run high-coherency workload; measure snoop latency</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Snoop latency measured at 800 MHz (high, baseline)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Cannot measure snoop latency -- missing instrumentation</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read `ring_distress_status.snoop_level_invalid` per CBB</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`snoop_level_invalid=0` (valid snoop data) on all CBBs</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`snoop_level_invalid=1` — snoop grade not initialized</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Allow autonomous CCF DVFS: run same workload; observe CCF scale to P0 (2.2 GHz)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">CCF ratio rises toward P0 under snoop pressure; latency improves vs Pm baseline</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">CCF stays at Pm -- BW heuristic / distress not triggering scale-up</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read `ring_distress_status.snoop_level` per CBB at idle</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Non-garbage value in [11:8]; note baseline</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read error — distress register not accessible</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify SBO back-pressure counter increments during high snoop load</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">SBO occupancy counter > 0 under coherency workload</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">SBO counter stuck -- snoop back-pressure not detected</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Enable SBO snoop counters: `ccf_sbo_telemetry_snoop_cntr_disable_test(skt, 'cbbs', 'i_ccf_envs', rtime=100)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PASS (diff==0) — disabled SBO counters stable; enable/disable mechanism works</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">FAIL — disabled counters changed; SBO disable broken</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify distress signal fires when SBO occupancy exceeds threshold</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Distress HPM message sent; CCF frequency boost observed</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">No distress despite high SBO -- threshold misconfigured</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Enable SBO snoop counting; apply coherent workload (idle OS sufficient). Re-read `ring_distress_status.snoop_level`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`snoop_level` changes or is non-zero under snoop activity — snoop distress path active</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`snoop_level` always 0 regardless of load — snoop grade not reaching PCode</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Measure peak snoop throughput at P0 (2.2 GHz) vs Pm (800 MHz)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Throughput scales ~linearly with CCF frequency (NWP CCF target: 460 GB/s at 2.2 GHz)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">No throughput improvement at higher CCF freq -- CCF not the bottleneck</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify snoop scalability is per-CBB: apply load to one CBB; verify other CBB not disturbed</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Loaded CBB scales to P0; unloaded CBB stays at low freq</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Both CBBs scale together -- loss of per-CBB independence</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify PLR_DIE_LEVEL = 0x0 throughout scalability test</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">PLR = 0x0; no spurious power throttle limiting CCF</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">PLR non-zero -- power throttle interfering with scalability</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify `ring_distress_status.group` field toggles: PCode receives both Main (group=0) and Snoop (group=1) messages</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Both group values observed in register across sampling interval</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Only one group type observed — snoop message not being sent</td>
 </tr>
 
 </table>
@@ -166,13 +152,13 @@
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
   <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
-  <p style="margin:0;font-size:0.9em;">** CCF scales to P0 under snoop pressure; SBO counter increments; distress fires at threshold; throughput scales with frequency; per-CBB independence; PLR = 0x0.</p>
+  <p style="margin:0;font-size:0.9em;">** `snoop_level_invalid=0` per CBB; `snoop_level` accessible and reflects snoop load; SBO snoop counter disable mechanism works; both Group=0 (IA) and Group=1 (Snoop) messages visible in `ring_distress_status`; all snoop distress PCode inputs available.</p>
 </div>
 
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
   <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
-  <p style="margin:0;font-size:0.9em;">** CCF stays at Pm despite snoop load; SBO stuck at 0; no distress; no throughput scaling; both CBBs scale together.</p>
+  <p style="margin:0;font-size:0.9em;">** `snoop_level_invalid=1`; `snoop_level` always 0 regardless of system load; SBO disable mechanism broken; only Group=0 messages (snoop messages not sent).</p>
 </div>
 
 
@@ -192,7 +178,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
-<br/><p style="margin:10px 0;">Save: counter snapshots (baseline and under load), UFS_STATUS.CURRENT_RATIO trace, PLR_DIE_LEVEL for both CBBs. - [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html) -- Snoop distress, SBO threshold, frequency scaling</p>
+<br/><p style="margin:10px 0;">Save: <code>ring_distress_status</code> (snoop_level, snoop_level_invalid, group field) per CBB across multiple samples; SBO snoop counter values per cluster.</p>
 
 <br/>
 
@@ -203,14 +189,20 @@
 <ul>
 
 
+<li><a href="https://hsdes.intel.com/appstore/article-one/#/22022422894">HSD 22022422894</a> — Related TC 22022422894 - IA Distress</li>
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html">CBB CCF Power Management HAS</a></li>
+
+
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#cbb-ring-frequency-scalability">CBB CCF Power Management HAS (Ring Scalability)</a></li>
 
 <li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details">CBB Telemetry Aggregator</a></li>
 
-<li><a href="https://docs.intel.com/documents/arch_datacenter/DMR/Overview/DMR_Overview_HAS.html#figure-hub-and-spoke">DMR SoC HAS</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv">CBB CCF Power Management HAS</a></li>
 
-<li><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html">NWP PM MAS</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html">CBB CCF Power Management HAS index</a></li>
+
+<li><a href="https://wiki.ith.intel.com/display/ServerPcode/Server+Pcode+Home">pCode Home</a></li>
 
 
 </ul>

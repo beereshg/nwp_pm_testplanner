@@ -1,4 +1,4 @@
-# Deep Analysis: CBB CCF Fast Ring C3
+# CBB CCF Fast Ring C3
 
 | Field | Value |
 |-------|-------|
@@ -7,113 +7,77 @@
 | **Status** | open |
 | **Owner** | bg3 |
 | **Val Environment** | silicon, virtual_platform |
-| **Feature** | CBB CCF -- Fast Ring C3 (PkgC0 idle power state) |
-| **Parent TCD** | [22022421179](https://hsdes.intel.com/appstore/article-one/#/22022421179) |
-| **KB last updated** | 2026-06-25 |
+| **Feature** | CCF PM States / Fast Ring C3 / Ring C3 |
+| **Parent TCD** | [22022421177](https://hsdes.intel.com/appstore/article-one/#/22022421177) |
+| **KB last updated** | 2026-07-08 |
 
 ---
 
 ## Test Case Intent
 
-**Objective:** Validate CBB CCF Fast Ring C3, an autonomous low-power state entered when all cores in a DCM module reach MC6 (Module C6). Fast Ring C3 closes the Global Uclk tree drivers (clock gating), retaining VCCRING and the Ring PLL for fast wake latency. It fires in **PkgC0 context** with no PUNIT handshake, driven solely by the CBB PMA Q-channel logic.
+Verify CBB entry into Fast Ring C3 (during PkgC0) and Ring C3 (during PkgC6), and confirm the correct status of Ring PLL, Global CLK Gating, Core state, and D2D state for each.
 
-**NWP scope:** Fast Ring C3 is **fully supported** on NWP silicon. Ring C3 (the deeper CCF power-down requiring PkgC6) is **ZBB'd** on NWP customer silicon (PkgC6 fused off) and is tested only on HSLE/Simics.
+**CCF PM States (from original description):**
+- **Fast Ring C3** — quickly closes main Global drivers for the Uclk tree; fully controlled by CCF PMA; allowed during PkgC0; does NOT require PUnit involvement
+- **Ring C3** — drives D2D into L1, drains CCF, shuts down Ring PLLs; prerequisite to PkgC6 entry
 
-**Fast Ring C3 trigger:** All three Q-channels deasserted simultaneously: `cfcclk_qactive=0`, `cfcpwr_qactive=0`, `inf_qactive=0`. PMA autonomously fires without PUNIT involvement.
+**Open resolved — enable/disable option:** YES. Fast C3 is controlled by register `ccf_pma_fast_c3_ctrl.fast_c3_en` (bit 32, RW, runtime writable). No dedicated BIOS knob — it is a PMA register configurable at runtime. The field `fast_c3_en` defaults to 1 (enabled). C-state enable and PkgCx BIOS knobs control whether cores enter C6sp/C6s/C6a to trigger Ring C3.
 
-### Pre-Conditions
+**Flow:**
 
-| Pre-Condition | Expected State | Failure Indication |
-|---------------|---------------|-------------------|
-| System booted to XOS/SVOS | BIOS CPL4 complete; PCode GVFSM running | System hang or reset |
-| Core C6 (CC6) enabled in BIOS | C-states enabled; `cpupower idle-set -e 2` on Linux | CC6 not reachable -- cores cannot trigger MC6 |
-| No workload on test cores | All cores on test module must be idle | Cores stay in C0 -- Q-channels never deassert |
-| MSR CC6 residency counter accessible | `pd.debug.access_to_msr(0x3FD, core=core)` readable | MSR not accessible on pre-silicon model |
-| MC6 residency accessible | `pd.debug.access_to_msr(0x664, core=core)` readable | Module C6 counter not exposed |
-| CBB GPSB accessible | `sv.socket0.cbb0.compute0.pma0.gpsb` readable | PMA GPSB not accessible in this model |
+1. **Fast Ring C3:** Set `fast_c3_en=1`. Inject core C-state (c1e/c6sp/c6s/c6a) via PEGA. Verify: `fast_c3_residency.counter` increments; `ring_pll_ratio != 0` (PLL stays ON during Fast C3); `resolved_cores_state` matches injected state
+2. **Ring C3:** Set `fast_c3_en=1`. Inject PkgC6 (c6sp) via PEGA. Verify: `ring_pll_ratio == 0` (PLL gated during Ring C3); `resolved_cores_state=0x3` (C6)
 
-### Test Steps
+**Test scripts:**
+- Fast Ring C3: `pmx_ccf_cbo.py --test_ccf_fast_ring_c3` → `ccfu.ccf_fast_ring_c3_test(sktNum, 'cbbs')`
+- Ring C3: `pmx_ccf_cbo.py --test_ccf_ring_c3` → `ccfu.ccf_ring_c3_test(sktNum)`
+
+---
+
+## Pre-Conditions
+
+| Pre-Condition | Requirement |
+|---|---|
+| System booted to OS | BIOS CPL4 complete; PCode and CCF PMA initialized |
+| C-states enabled | `PackageCState` BIOS knob = C6 or Auto; C1E enabled |
+| PkgCx enabled | BIOS knobs: `PackageCState`, `ProcessorC1eEnable` set to allow C6sp entry |
+| PEGA available | `import diamondrapids.pm.pmutils.pega as pega` succeeds |
+| `fast_c3_en` accessible | `cbb.base.ccf_pma.ccf_pmc_regs.ccf_pma_fast_c3_ctrl.fast_c3_en` writable |
+
+---
+
+## Test Steps
 
 | # | Action | Expected Result (PASS) | Failure Indication |
 |---|--------|------------------------|--------------------|
-| 1 | Read baseline CC6 and MC6 residency counters on all cores of module0 | Counters accessible; note baseline values | Counters at max or unreadable -- pre-silicon model gap |
-| 2 | Idle all cores in module0 of cbb0: MWAIT with `EAX=0x23` (C6S hint) | Cores enter CC6; MC6 residency counter increments | Cores stay in C0 -- C-states not enabled or platform too noisy |
-| 3 | Wait ~10ms for Q-channels to deassert and Fast C3 to fire | PMA detects all Q-channels deasserted; Fast C3 sequence initiated | Q-channels never deassert -- active IP holding qactive |
-| 4 | Read `GPSB.HWP_REQUEST_RESOLVED` on pma0 | Request shows reduced ratio consistent with CCF clock gate state | Request unchanged -- PMA not detecting idle state |
-| 5 | Verify Global Uclk tree gated: check `GPSB` clock gate status register | Clock gate active on module0 (`cfcclk` tree closed) | Clock gate not asserted -- Fast C3 not engaged |
-| 6 | Verify VCCRING retained (Fast C3 retains voltage) | FIVR VCCRING still powered; `UFS_STATUS.CURRENT_VOLTAGE` non-zero | Voltage dropped -- unexpected Ring C3 / deeper power state |
-| 7 | Trigger core wakeup (interrupt or PythonSV write) | Fast re-enable of Uclk drivers in <10 cycles; cores return to C0 | Wake latency excessive or core stuck in C6 |
-| 8 | Verify `PLR_DIE_LEVEL = 0x0` on cbb0 after exit | No spurious Performance Limit Reason from Fast C3 transition | PLR non-zero -- unexpected throttle event during C3 exit |
-| 9 | Repeat for module1 of cbb0 and for cbb1 (both modules) | Same Fast C3 behavior on all modules; per-module independence confirmed | One module fails -- PMA asymmetry or stuck Q-channel |
-| 10 | **HSLE/Simics only** — Ring C3 via PkgC6: idle all cores; verify D2D enters L1, Ring PLL powers down | D2D L1 state; `UFS_STATUS.CURRENT_RATIO = 0`; RING PLL disabled | D2D stays in L0 or PLL stays powered -- Ring C3 not reached |
-
-### Pass / Fail Criteria
-
-**PASS:** MC6 residency increments; PMA Fast C3 Q-channel assertion observed; Global Uclk tree clock-gated during module idle; VCCRING retained; fast wake on interrupt (<10 cycles); PLR = 0x0; per-module and per-CBB independence confirmed. HSLE: Ring C3 achieves D2D L1 and PLL powerdown.
-
-**FAIL:** MC6 residency does not increment; Q-channels never deassert (stuck active IP); clock gate never asserted; VCCRING drops unexpectedly; wake fails or is excessively slow; PLR non-zero; Ring C3 fails D2D L1 handshake (HSLE only).
-
-### Post-Process
-
-Save: CC6/MC6 residency counters (before/during/after), HWP_REQUEST_RESOLVED, GPSB clock gate status, PLR_DIE_LEVEL for both CBBs, UFS_STATUS.CURRENT_VOLTAGE during C3, D2D link state (HSLE only).
-
-### Reference Documents
-
-- [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#switching-between-fast-gv-drainless-gv) -- Fast Ring C3 sequence, Q-channel logic, VCCRING retention
-- [CBB CCP PM Integration HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCP%20HAS/cbb_cpp_has.html#vf-curves-grouping) -- CBB power states, PMA autonomous control
-- [CBB Telemetry Aggregator](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details) -- GPSB telemetry, HWP_REQUEST_RESOLVED
-- [DMR CBB Power Management HAS Index](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html) -- CBB PM feature index
-- [DMR SoC HAS](https://docs.intel.com/documents/arch_datacenter/DMR/Overview/DMR_Overview_HAS.html#figure-hub-and-spoke) -- CCF ring topology, D2D L1 handshake
-- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) -- NWP PKGC ZBB scope, Fast Ring C3 support
+| 1 | Enable Fast C3: `cbb.base.ccf_pma.ccf_pmc_regs.ccf_pma_fast_c3_ctrl.fast_c3_en.write(1)` on all CBBs | Write succeeds; field reads back 1 | Write fails — PMA register inaccessible |
+| 2 | **Fast Ring C3:** Read baseline `fast_c3_residency.counter`. Inject C-state via PEGA (randomly chosen from c1e/c6sp/c6s/c6a): `pega.pegaCstate(sktNum, dieName, domainDict={op:'all'})` | C-state injection accepted (PEGA returns 0) | PEGA C-state injection error |
+| 3 | Verify Fast Ring C3 status: check `resolved_cores_state` matches injected state; `fast_c3_residency.counter` incremented; `ccf_pma_debug.ring_pll_ratio != 0` (Ring PLL remains active) | All 3 checks pass per CBB | `ring_pll_ratio=0` during Fast C3 — PLL incorrectly gated; or residency counter stuck |
+| 4 | **Ring C3:** Inject PkgC6 (c6sp) via PEGA: `pega.pegaCstate(sktNum, dieName, domainDict={'c6sp':'all'})` | C-state injection accepted | PEGA error |
+| 5 | Verify Ring C3 status: `resolved_cores_state=0x3` (C6); `resolved_cores_sub_state=0x0` (c6sp); `ccf_pma_debug.ring_pll_ratio == 0` (Ring PLL gated) | PLL gated; cores in C6 | `ring_pll_ratio != 0` — Ring PLL not shutting down for Ring C3; or wrong core state |
 
 ---
 
-## Section A: NWP Disposition & Justification
+## Pass / Fail Criteria
 
-**Disposition: Runnable (Fast Ring C3) / HSLE-only (Ring C3)**
+**PASS:** Fast Ring C3 — cores enter target C-state; `fast_c3_residency.counter` increments; `ring_pll_ratio != 0` (PLL active). Ring C3 — cores in C6sp; `ring_pll_ratio == 0` (PLL gated). Both verified per CBB.
 
-Fast Ring C3 (PkgC0 context) is supported on NWP silicon -- validate on real silicon. Ring C3 (PkgC6 prerequisite) requires PkgC6 which is fused off on NWP customer parts (FUSE_PKG_C_STATE=0) -- only testable on HSLE/Simics with UFS_DISABLE=0 override.
-
-NWP has 2 CBBs, each with 2 compute dies, each with 6 modules x 8 cores = 96 cores per CBB. Each module (8 cores) can independently enter MC6 and trigger Fast Ring C3.
-
-Tags: `CBB CCF`, `plc.feature.p1`.
+**FAIL:** Any C-state injection fails; `fast_c3_residency.counter` does not increment; `ring_pll_ratio` wrong for either state (active during Ring C3, or gated during Fast C3); `resolved_cores_state` does not match injected C-state.
 
 ---
 
-## Section B: NWP-Specific Test Procedure
+## Post-Process
 
-### Key Register Paths (NWP)
+Save: `ccf_pma_fast_c3_ctrl`, `fast_c3_residency`, `ccf_pma_debug`, `ccp_status` register dumps per CBB for both Fast Ring C3 and Ring C3 scenarios.
 
-| Register | NWP Path | Purpose |
-|----------|----------|---------|
-| GPSB HWP_REQUEST_RESOLVED | `sv.socket0.cbbN.compute0.pma0.gpsb.hwp_request_resolved` | Resolved HWP request -- CCF state |
-| CC6 Residency | `pd.debug.access_to_msr(0x3FD, core=core)` | Per-core C6 residency |
-| MC6 Residency | `pd.debug.access_to_msr(0x664, core=core)` | Per-module C6 residency |
-| PLR_DIE_LEVEL | `sv.socket0.cbbN.base.tpmi.plr_die_level` | Perf Limit Reason |
-| UFS_STATUS | `sv.socket0.cbbN.base.tpmi.ufs_status` | CURRENT_RATIO + CURRENT_VOLTAGE |
-| ACP_PERF_LIMIT | `sv.socket0.cbbN.base.punit_regs.punit_pmsb.pmsb_pcu.acp_perf_limit` | ACP power limit |
+---
 
-### Idle Induction (Simics)
+## References
 
-```python
-# Force module0 cores into CC6S (MWAIT hint EAX=0x23)
-for core_idx in range(8):  # 8 cores per module on NWP
-    core = sv.socket0.cbb0.compute0.module0.cores[core_idx]
-    core.thread0.write_reg("rax", 0x23)
-    core.thread0.write_reg("rcx", 0x0)
-# Hardware then sequences: CC6 -> MC6 -> Q-channels deassert -> Fast Ring C3
-```
-
-### Adapted Steps
-
-| Step | Action | NWP Details |
-|------|--------|-------------|
-| 1 | Idle all cores in one module | MWAIT EAX=0x23 on all 8 cores of module0 |
-| 2 | Wait for Q-channel assertion | `cli.run_command("emu.engine.wait-for-cycle -relative 1000000")` |
-| 3 | Check GPSB state | `sv.socket0.cbb0.compute0.pma0.gpsb.hwp_request_resolved.read()` |
-| 4 | Check MC6 counter | `pd.debug.access_to_msr(0x664, core=first_core)` -- expect > baseline |
-| 5 | Verify PLR clean | `sv.socket0.cbb0.base.tpmi.plr_die_level.read()` -- expect 0x0 |
-
-### Pass Criteria
-
-MC6 counter increments; GPSB shows resolved low-power request; Uclk tree gated; VCCRING retained; PLR = 0x0; fast wake on interrupt.
+- [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#switching-between-fast-gv-drainless-gv)
+- [CBB CCF Power Management HAS (CCF GV)](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv)
+- [CBB Power Event Generation Architecture (PEGA)](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/Features/PEGA/PEGA.html)
+- [DMR CBB TPMI Support](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_TPMI/cbb_tpmi.html)
+- [CBB CCF Power Management HAS index](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html)
+- [CBB Telemetry Aggregator](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html)
+- [pCode Home](https://wiki.ith.intel.com/display/ServerPcode/Server+Pcode+Home)

@@ -1,0 +1,203 @@
+{
+  "tp_id": "22022420505",
+  "tp_title": "[NWP PM] CBB CCF PM",
+  "tpfs": [
+    {
+      "id": "22022420507",
+      "title": "CBB CCF Active States",
+      "tcds": [
+        {
+          "id": "22022421165",
+          "title": "CBB CCF GV BIOS Configuration",
+          "tcs": [
+            {
+              "id": "22022422850",
+              "title": "CBB CCF GV BIOS Configuration"
+            }
+          ]
+        },
+        {
+          "id": "22022421168",
+          "title": "CBB CCF GV PEGA",
+          "tcs": [
+            {
+              "id": "22022422851",
+              "title": "CBB CCF GV PEGA Injection"
+            }
+          ]
+        },
+        {
+          "id": "22022421171",
+          "title": "CBB CCF GV TPMI Interface",
+          "tcs": [
+            {
+              "id": "22022422859",
+              "title": "CBB CCF GV TPMI Request"
+            }
+          ]
+        },
+        {
+          "id": "22022421174",
+          "title": "CBB CCF VF Curves",
+          "tcs": [
+            {
+              "id": "22022422863",
+              "title": "CBB CCF VF Curves"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "22022420512",
+      "title": "CBB CCF Idle States",
+      "tcds": [
+        {
+          "id": "22022421179",
+          "title": "CBB CCF Idle states",
+          "tcs": [
+            {
+              "id": "22022422865",
+              "title": "CBB CCF Fast Ring C3"
+            },
+            {
+              "id": "22022422868",
+              "title": "CBB CCF PM Cstate wake events across Activeidle"
+            },
+            {
+              "id": "22022422873",
+              "title": "CBB CCF Ring C3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "22022420513",
+      "title": "CBB CCF NonAutoGV",
+      "tcds": [
+        {
+          "id": "22022421183",
+          "title": "CBB CCF NonAutoGV Mode - Drainless / Fast GV",
+          "tcs": [
+            {
+              "id": "22022422878",
+              "title": "CBB CCF NonAutoGV Mode -  Fast GV"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "22022420514",
+      "title": "CBB CCF Ring Frequency Scalability",
+      "tcds": [
+        {
+          "id": "22022421190",
+          "title": "CBB  CCF PMON",
+          "tcs": [
+            {
+              "id": "22022422886",
+              "title": "CBB CCF PMON"
+            }
+          ]
+        },
+        {
+          "id": "22022421194",
+          "title": "CBB CCF CBO Telemetry",
+          "tcs": [
+            {
+              "id": "22022422889",
+              "title": "CBB CCF CBO Telemetry"
+            }
+          ]
+        },
+        {
+          "id": "22022421197",
+          "title": "CBB CCF Distress Signal",
+          "tcs": [
+            {
+              "id": "22022422894",
+              "title": "CBB CCF Distress signal"
+            },
+            {
+              "id": "22022422895",
+              "title": "CBB CCF Snoop Scalability/Distress"
+            }
+          ]
+        },
+        {
+          "id": "22022421199",
+          "title": "CBB CCF Message To Punit",
+          "tcs": [
+            {
+              "id": "22022422896",
+              "title": "CBB CCF Message to Punit"
+            }
+          ]
+        },
+        {
+          "id": "22022421202",
+          "title": "CBB CCF SBO Telemetry",
+          "tcs": [
+            {
+              "id": "22022422900",
+              "title": "CBB CCF SBO Telemetry"
+            }
+          ]
+        },
+        {
+          "id": "22022421205",
+          "title": "CCB CCF PCODE algorithm for distress input",
+          "tcs": [
+            {
+              "id": "22022422905",
+              "title": "CBB CCF PCODE algorithm for distress input"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "22022420515",
+      "title": "CBB Uniform Fabric Frequency",
+      "tcds": [
+        {
+          "id": "22022421207",
+          "title": "\u00e2\u20ac\u00a2\tUNIFORM_CBB_FABRIC_MODE Cross Fast Ring C3",
+          "tcs": []
+        },
+        {
+          "id": "22022421209",
+          "title": "\u00e2\u20ac\u00a2\tUNIFORM_CBB_FABRIC_MODE Cross PC6",
+          "tcs": []
+        },
+        {
+          "id": "22022421211",
+          "title": "\u00e2\u20ac\u00a2\tUNIFORM_CBB_FABRIC_MODE Cross ProcHot",
+          "tcs": []
+        },
+        {
+          "id": "22022421212",
+          "title": "\u00e2\u20ac\u00a2\tUNIFORM_CBB_FABRIC_MODE Cross RAPL",
+          "tcs": []
+        },
+        {
+          "id": "22022421214",
+          "title": "\u00e2\u20ac\u00a2\tUNIFORM_CBB_FABRIC_MODE Enabled/Disable via BIOS",
+          "tcs": []
+        },
+        {
+          "id": "22022421216",
+          "title": "\u00e2\u20ac\u00a2\tUNIFORM_CBB_FABRIC_MODE Enabled/Disable via TPMI UFS_CONTROL",
+          "tcs": []
+        },
+        {
+          "id": "22022421218",
+          "title": "\u00e2\u20ac\u00a2\tUNIFORM_CBB_FABRIC_MODE HPM messaging verification",
+          "tcs": []
+        }
+      ]
+    }
+  ]
+}

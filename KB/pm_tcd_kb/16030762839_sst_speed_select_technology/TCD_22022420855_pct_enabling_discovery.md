@@ -22,21 +22,61 @@ partitioning to designate a small subset of HP cores to operate at an elevated t
 ### Block Diagram
 
 ```
++---------------------------------------------+   +------------------------------------------+
+| Silicon Fuses (read-only, set at mfg)       |   | DLCP Fuse (SKU-specific)                 |
+|                                             |   |                                          |
+|  GNR: CAPID4.bit29 = 1  <- PCT enable fuse |   |  PCT_Module_Mask fuse                    |
+|  DMR/NWP: NOT USED -- all SKUs can opt-in  |   |  Encodes fixed HP core/module positions  |
+|                                             |   |  per CBB die per PP level                |
+|  SST_TF_INFO_0.LP_CLIP_RATIO_0 (fuse-set)  |   |  Non-zero = DLCP mode active             |
+|    LP frequency ceiling (>= P1)            |   |  CLOS_ASSOC[] overridden by fuse mask    |
+|  SST_TF_INFO_2.RATIO_0     (fuse-set)      |   |  Exposed to SW via SST_TF_INFO_10        |
+|    HP TRL ratio (~4.4 GHz on NWP)          |   |  HWP_CAPABILITY per-core:                |
+|  SST_TF_INFO_8.NUM_CORE_0  (fuse-set)      |   |    HP cores: highest_perf = P0max        |
+|    Max HP cores supported                  |   |    LP cores: highest_perf = LP clip      |
++--------------------+------------------------+   +------------------+-----------------------+
+                     |                                               |
+                     | PCode Phase 5 reads fuses, populates TPMI    |
+                     |   (at boot, before BIOS CPL3 handoff)        |
+                     v                                               v
++-------------------------------------------------------------------------+
+| PCode Phase 5 Init (per CBB Root Punit)                                 |
+|                                                                         |
+|  Writes TPMI from fuse data:                                            |
+|    SST_TF_INFO_0.LP_CLIP_RATIO_0  <- LP ceiling (from fuse)            |
+|    SST_TF_INFO_2.RATIO_0          <- HP TRL ratio (from fuse)          |
+|    SST_TF_INFO_10                 <- DLCP PCT_Module_Mask (0 if std)   |
+|    SST_TF_INFO_8.NUM_CORE_0       <- max HP core count (from fuse)     |
++-----------------------------+-------------------------------------------+
+                              |
+                              | BIOS CPL3 reads TPMI, programs CLOS
+                              v
 +-------------------------------------------------------------------------+
 | Boot Time (BIOS CPL3) -- per CBB dielet (cbb0, cbb1 on NWP)            |
 |                                                                         |
-|  SST_CLOS_CONFIG[0].max = HP TRL (~4.4 GHz)   <- HP ceiling            |
-|  SST_CLOS_CONFIG[3].max = LP clip (~P1)        <- LP ceiling            |
-|  SST_CLOS_ASSOC[core]: HP -> CLOS[0], LP -> CLOS[3]                    |
-|  SST_CP_CONTROL.SST_CP_PRIORITY_TYPE = 1       <- Ordered throttle      |
-|  SST_PP_CONTROL.feature_state[1] = 1           <- SST-TF active         |
-|  MSR 0x1AD = SST_TF_INFO_2.RATIO_0             <- HP TRL (not 0xFF)    |
+|  Standard SKU (CLOS-based assignment):                                  |
+|    SST_CLOS_CONFIG[0].max = HP TRL (~4.4 GHz)  <- HP ceiling           |
+|    SST_CLOS_CONFIG[3].max = LP clip (~P1)       <- LP ceiling           |
+|    SST_CLOS_ASSOC[core]: HP -> CLOS[0], LP -> CLOS[3]                  |
+|                                                                         |
+|  DLCP SKU (fuse-fixed assignment):                                      |
+|    SST_CLOS_ASSOC[] IGNORED by PCode                                    |
+|    HP cores determined solely by PCT_Module_Mask fuse                   |
+|                                                                         |
+|  Both SKUs:                                                             |
+|    SST_CP_CONTROL.SST_CP_PRIORITY_TYPE = 1     <- Ordered throttle     |
+|    SST_PP_CONTROL.feature_state[1] = 1         <- SST-TF active        |
+|    MSR 0x1AD = SST_TF_INFO_2.RATIO_0           <- HP TRL (not 0xFF)   |
+|    PCT Partition Count (BIOS knob) -> NVRAM PctHpModuleCount            |
 +-----------------------------+-------------------------------------------+
                               |
                               | PCode reads CLOS config at runtime
                               v
 +-------------------------------------------------------------------------+
 | Runtime: PCode SST-TF FSM (per CBB Root Punit)                         |
+|                                                                         |
+|  Standard SKU: uses CLOS[0/3] assignments from BIOS                    |
+|  DLCP SKU:     uses PCT_Module_Mask fuse (ignores CLOS_ASSOC)          |
 |                                                                         |
 |  HP cores: WP4 = SST_TF_INFO_2.RATIO_0  (~4.4 GHz ceiling)            |
 |  LP cores: WP4 = SST_TF_INFO_0.LP_CLIP_RATIO_0  (~P1 ceiling)         |
@@ -51,9 +91,13 @@ partitioning to designate a small subset of HP cores to operate at an elevated t
                               v
 +-------------------------------------------------------------------------+
 | Core Perimeter (ACP / Acode) -- NWP: 2 CBBs x 48 cores = 96 total     |
-|  HP cores (~8): operate at HP TRL (~4.4 GHz) when power allows         |
-|  LP cores (~88): clipped to LP_CLIP (~P1) at all times                 |
-|  HWP_CAPABILITY.highest_perf: HP=P0max, LP=LP_clip (DLCP mode)        |
+|                                                                         |
+|  Standard SKU:  HP cores (~8): P0max turbo  |  LP cores (~88): ~P1     |
+|  DLCP SKU:      HP positions fuse-fixed     |  LP = all remaining      |
+|                                                                         |
+|  HWP_CAPABILITY.highest_perf:                                           |
+|    Standard: HP=highest_perf (all same), LP=same                        |
+|    DLCP:     HP=P0max (per-core reported), LP=LP_clip (per-core)        |
 +-------------------------------------------------------------------------+
 ```
 
@@ -150,8 +194,18 @@ DLCP is a PCT evolution where HP core positions are **fixed at specific physical
 | 7 | BIOS CPL3 | SST_CLOS_ASSOC[core] | HP → CLOS[0]; LP → CLOS[3] |
 | 8 | BIOS CPL3 | SST_PP_CONTROL.feature_state[1] = 1 | SST-TF active |
 | 9 | BIOS CPL3 | MSR 0x1AD = SST_TF_INFO_2.RATIO_0 | HP TRL broadcast (0xFF no longer valid per HSD 14025997048) |
-| [22022422103](https://hsdes.intel.com/appstore/article-one/#/22022422103) | PCT - TPMI register check | open | virtual_platform |
 
+## TC Coverage
+
+| TC ID | Title | Status | Environment |
+|-------|-------|--------|-------------|
+| [22022422100](https://hsdes.intel.com/appstore/article-one/#/22022422100) | PCT - BIOS Menu | open | silicon, virtual_platform |
+| [22022422103](https://hsdes.intel.com/appstore/article-one/#/22022422103) | PCT - TPMI register check | open | virtual_platform |
+| [22022422118](https://hsdes.intel.com/appstore/article-one/#/22022422118) | PCT - DQ Rules (FlexconPM) | open | silicon, virtual_platform |
+| [16030715678](https://hsdes.intel.com/appstore/article-one/#/16030715678) | [PSS] PCT - BIOS Menu | open | silicon, virtual_platform |
+| [16030715682](https://hsdes.intel.com/appstore/article-one/#/16030715682) | [PSS] PCT - DQ Rules (FlexconPM) | open | silicon, virtual_platform |
+| [16030715690](https://hsdes.intel.com/appstore/article-one/#/16030715690) | [PSS] PCT - TPMI register check (FlexconPM) | open | silicon, virtual_platform |
+| [16030717720](https://hsdes.intel.com/appstore/article-one/#/16030717720) | [PV]PMSS - SST PCT Discovery | open | — |
 
 ## References
 

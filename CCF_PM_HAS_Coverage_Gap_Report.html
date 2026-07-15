@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>CBB CCF PM HAS — NWP Coverage Gap Report</title>
+<style>
+:root {
+  --primary: #1e3a5f; --accent: #2563eb; --bg: #f8fafc;
+  --card: #fff; --border: #e2e8f0; --text: #1e293b; --muted: #64748b;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+
+.header {
+  background: linear-gradient(135deg, #0f2744 0%, #1e4d8c 60%, #2563eb 100%);
+  color: white; padding: 36px 48px 28px;
+}
+.header h1 { font-size: 1.85rem; font-weight: 800; margin-bottom: 6px; }
+.header-sub { font-size: 0.92rem; opacity: 0.85; margin-bottom: 20px; }
+.header-sub a { color: #93c5fd; text-decoration: none; }
+.header-sub a:hover { text-decoration: underline; }
+.header-meta { display: flex; gap: 36px; flex-wrap: wrap; }
+.meta-item { display: flex; flex-direction: column; }
+.meta-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.65; }
+.meta-value { font-size: 1rem; font-weight: 700; }
+
+.stats-bar {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(130px,1fr));
+  gap: 12px; padding: 20px 48px; background: white;
+  border-bottom: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
+.stat { text-align: center; padding: 10px 6px; border-radius: 8px; border: 1px solid var(--border); }
+.stat-num { font-size: 1.8rem; font-weight: 800; }
+.stat-num.green { color: #16a34a; }
+.stat-num.yellow { color: #ca8a04; }
+.stat-num.orange { color: #ea580c; }
+.stat-num.red { color: #dc2626; }
+.stat-num.blue { color: #2563eb; }
+.stat-label { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+
+.legend-bar {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  padding: 12px 48px; background: white; border-bottom: 1px solid var(--border);
+  align-items: center; font-size: 0.8rem;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-dot { width: 14px; height: 14px; border-radius: 3px; }
+
+.main { display: flex; min-height: calc(100vh - 280px); }
+.sidebar { width: 240px; flex-shrink: 0; background: white; border-right: 1px solid var(--border); padding: 20px 16px; position: sticky; top: 0; max-height: 100vh; overflow-y: auto; }
+.sidebar-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 700; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+.sidebar-link { display: block; font-size: 0.8rem; color: var(--accent); text-decoration: none; padding: 5px 6px; border-radius: 4px; margin-bottom: 2px; }
+.sidebar-link:hover { background: #eff6ff; }
+.sidebar-section { margin-top: 16px; }
+
+.content { flex: 1; padding: 28px 40px; min-width: 0; }
+
+.coverage-overview { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 28px; }
+.coverage-overview h2 { font-size: 1rem; font-weight: 700; color: var(--primary); margin-bottom: 16px; }
+.area-bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.area-bar-label { font-size: 0.8rem; font-weight: 600; color: var(--text); min-width: 180px; }
+.stacked-bar { flex: 1; height: 16px; background: #f1f5f9; border-radius: 8px; overflow: hidden; display: flex; }
+.bar-seg { height: 100%; transition: width 0.3s; }
+.bar-seg.covered { background: #16a34a; }
+.bar-seg.partial { background: #ca8a04; }
+.bar-seg.tcd-no-tc { background: #ea580c; }
+.bar-seg.gap { background: #dc2626; }
+.area-bar-stats { font-size: 0.72rem; color: var(--muted); min-width: 100px; white-space: nowrap; }
+
+.priority-section { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 28px; }
+.priority-section h2 { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); }
+.pri-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.pri-table th { background: var(--primary); color: white; padding: 9px 12px; text-align: left; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.pri-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.pri-table tr:hover { background: #f8fafc; }
+.pri-badge { display: inline-block; font-size: 0.7rem; font-weight: 800; color: white; border-radius: 4px; padding: 2px 8px; }
+.ptitle { font-weight: 600; }
+.pwhere { font-size: 0.78rem; color: #1d4ed8; }
+.pwhy { font-size: 0.78rem; color: var(--muted); }
+.fid-inline { font-size: 0.75rem; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; }
+
+.area-section { margin-bottom: 32px; }
+.area-title {
+  font-size: 1.1rem; font-weight: 700; color: white;
+  background: var(--primary); padding: 10px 16px; border-radius: 8px 8px 0 0;
+  border-bottom: 2px solid var(--accent);
+}
+.table-wrapper { overflow-x: auto; border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; }
+.flow-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.flow-table th { background: #f1f5f9; color: var(--muted); padding: 8px 10px; text-align: left; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 2px solid var(--border); white-space: nowrap; }
+.flow-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.flow-row:hover { background: #f8fafc !important; }
+.fid code { font-size: 0.72rem; font-weight: 700; color: var(--accent); background: #eff6ff; padding: 2px 6px; border-radius: 4px; }
+.fname { font-weight: 600; color: var(--text); }
+.fhas { font-size: 0.77rem; color: var(--muted); line-height: 1.5; }
+.fregs { }
+.reg-chips { display: flex; flex-wrap: wrap; gap: 3px; }
+.reg-chip { font-size: 0.68rem; background: #f1f5f9; color: #374151; border: 1px solid #d1d5db; border-radius: 3px; padding: 1px 5px; font-family: monospace; }
+.cov-badge { font-size: 0.72rem; font-weight: 700; border-radius: 4px; padding: 3px 8px; white-space: nowrap; }
+.tc-chips { display: flex; flex-direction: column; gap: 3px; }
+.tc-chip { font-size: 0.7rem; color: #1d4ed8; background: #dbeafe; border-radius: 4px; padding: 2px 6px; }
+.no-tc { font-size: 0.75rem; color: var(--muted); font-style: italic; }
+.gap-cell { font-size: 0.77rem; color: #7f1d1d; background: #fff5f5; border-left: 3px solid #dc2626; padding-left: 8px; }
+.gap-cell.ok { color: var(--muted); background: transparent; border-left: none; }
+
+.footer { background: var(--primary); color: white; text-align: center; padding: 16px; font-size: 0.78rem; opacity: 0.8; }
+
+@media (max-width: 900px) {
+  .main { flex-direction: column; }
+  .sidebar { width: 100%; max-height: none; position: static; }
+  .content { padding: 20px; }
+  .stats-bar { padding: 16px; }
+  .header { padding: 24px 20px; }
+  .legend-bar { padding: 10px 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>CBB CCF PM HAS — NWP Coverage Gap Report</h1>
+  <div class="header-sub">
+    Source: <a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html" target="_blank">CBB CCF PM HAS (docs.intel.com)</a>
+    &nbsp;|&nbsp; Target TP: <a href="https://hsdes.intel.com/appstore/article-one/#/22022420505" target="_blank">22022420505 — [NWP PM] CBB CCF PM</a>
+    &nbsp;|&nbsp; Analyzed: 2026-07-15 &nbsp;|&nbsp; Projects queried: DMR_CBB, NWP
+  </div>
+  <div class="header-meta">
+    <div class="meta-item"><span class="meta-label">HAS PM Flows Analyzed</span><span class="meta-value">36</span></div>
+    <div class="meta-item"><span class="meta-label">Fully Covered</span><span class="meta-value">14 (38%)</span></div>
+    <div class="meta-item"><span class="meta-label">Partial Coverage</span><span class="meta-value">3</span></div>
+    <div class="meta-item"><span class="meta-label">TCD Exists / 0 TCs</span><span class="meta-value">7</span></div>
+    <div class="meta-item"><span class="meta-label">Coverage Gaps</span><span class="meta-value">12</span></div>
+    <div class="meta-item"><span class="meta-label">Risk Exposure</span><span class="meta-value">52%</span></div>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-num blue">36</div><div class="stat-label">HAS PM Flows</div></div>
+  <div class="stat"><div class="stat-num green">14</div><div class="stat-label">✓ Fully Covered</div></div>
+  <div class="stat"><div class="stat-num yellow">3</div><div class="stat-label">~ Partially Covered</div></div>
+  <div class="stat"><div class="stat-num orange">7</div><div class="stat-label">! TCD / 0 TCs</div></div>
+  <div class="stat"><div class="stat-num red">12</div><div class="stat-label">✗ Coverage Gap</div></div>
+  <div class="stat"><div class="stat-num red">52%</div><div class="stat-label">Risk Exposure</div></div>
+  <div class="stat"><div class="stat-num blue">14</div><div class="stat-label">NWP TCs (total)</div></div>
+  <div class="stat"><div class="stat-num orange">0</div><div class="stat-label">TPF UFF TCs</div></div>
+</div>
+
+<div class="legend-bar">
+  <strong style="font-size:0.78rem;color:var(--muted)">Coverage Legend:</strong>
+  <div class="legend-item"><div class="legend-dot" style="background:#16a34a"></div> Covered</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ca8a04"></div> Partial — TC exists but incomplete</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#ea580c"></div> TCD exists, 0 TCs — scaffolded but empty</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div> GAP — no TCD or TC exists</div>
+</div>
+
+<div class="main">
+  <div class="sidebar">
+    <div class="sidebar-title">Navigation</div>
+    <a class="sidebar-link" href="#overview">Coverage Overview</a>
+    <a class="sidebar-link" href="#priority">Priority Gap Table</a>
+    <div class="sidebar-section">
+      <div class="sidebar-title">HAS Areas</div>
+      <a class="sidebar-link" href="#area-gv">GV Management</a><a class="sidebar-link" href="#area-idle">Idle States</a><a class="sidebar-link" href="#area-scalability">Ring Frequency Scalability</a><a class="sidebar-link" href="#area-uniform">Uniform Fabric Frequency</a><a class="sidebar-link" href="#area-boot">Boot & Reset Initialization</a>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Coverage Overview -->
+    <div class="coverage-overview" id="overview">
+      <h2>Coverage by HAS Area</h2>
+      <div class="area-bar-row">
+          <div class="area-bar-label">GV Management</div>
+          <div class="stacked-bar">
+            <div class="bar-seg covered" style="width:62%" title="Covered: 5"></div>
+            <div class="bar-seg partial" style="width:0%" title="Partial: 0"></div>
+            <div class="bar-seg tcd-no-tc" style="width:0%" title="TCD/No TC: 0"></div>
+            <div class="bar-seg gap" style="width:37%" title="GAP: 3"></div>
+          </div>
+          <div class="area-bar-stats">5✓ 0~ 0! 3✗ / 8</div>
+        </div><div class="area-bar-row">
+          <div class="area-bar-label">Idle States</div>
+          <div class="stacked-bar">
+            <div class="bar-seg covered" style="width:33%" title="Covered: 3"></div>
+            <div class="bar-seg partial" style="width:11%" title="Partial: 1"></div>
+            <div class="bar-seg tcd-no-tc" style="width:0%" title="TCD/No TC: 0"></div>
+            <div class="bar-seg gap" style="width:55%" title="GAP: 5"></div>
+          </div>
+          <div class="area-bar-stats">3✓ 1~ 0! 5✗ / 9</div>
+        </div><div class="area-bar-row">
+          <div class="area-bar-label">Ring Frequency Scalability</div>
+          <div class="stacked-bar">
+            <div class="bar-seg covered" style="width:60%" title="Covered: 6"></div>
+            <div class="bar-seg partial" style="width:10%" title="Partial: 1"></div>
+            <div class="bar-seg tcd-no-tc" style="width:0%" title="TCD/No TC: 0"></div>
+            <div class="bar-seg gap" style="width:30%" title="GAP: 3"></div>
+          </div>
+          <div class="area-bar-stats">6✓ 1~ 0! 3✗ / 10</div>
+        </div><div class="area-bar-row">
+          <div class="area-bar-label">Uniform Fabric Frequency</div>
+          <div class="stacked-bar">
+            <div class="bar-seg covered" style="width:0%" title="Covered: 0"></div>
+            <div class="bar-seg partial" style="width:0%" title="Partial: 0"></div>
+            <div class="bar-seg tcd-no-tc" style="width:100%" title="TCD/No TC: 7"></div>
+            <div class="bar-seg gap" style="width:0%" title="GAP: 0"></div>
+          </div>
+          <div class="area-bar-stats">0✓ 0~ 7! 0✗ / 7</div>
+        </div><div class="area-bar-row">
+          <div class="area-bar-label">Boot & Reset Initialization</div>
+          <div class="stacked-bar">
+            <div class="bar-seg covered" style="width:0%" title="Covered: 0"></div>
+            <div class="bar-seg partial" style="width:50%" title="Partial: 1"></div>
+            <div class="bar-seg tcd-no-tc" style="width:0%" title="TCD/No TC: 0"></div>
+            <div class="bar-seg gap" style="width:50%" title="GAP: 1"></div>
+          </div>
+          <div class="area-bar-stats">0✓ 1~ 0! 1✗ / 2</div>
+        </div>
+      <div style="margin-top:12px;font-size:0.75rem;color:var(--muted)">
+        <span style="color:#ea580c;font-weight:700">⚠ TPF 22022420515 (Uniform Fabric Frequency): 7 TCDs with 0 TCs each</span> — this entire TPF is scaffolded but never executed.
+      </div>
+    </div>
+
+    <!-- Priority Table -->
+    <div class="priority-section" id="priority">
+      <h2>Prioritized Gap Action Plan</h2>
+      <table class="pri-table">
+        <thead>
+          <tr>
+            <th style="width:50px">Priority</th>
+            <th style="width:80px">Flow ID</th>
+            <th style="width:220px">Gap Title</th>
+            <th style="width:220px">Recommended Action</th>
+            <th>Why It Matters</th>
+          </tr>
+        </thead>
+        <tbody><tr>
+      <td><span class="pri-badge" style="background:#dc2626">P1</span></td>
+      <td><code class="fid-inline">GV-08</code></td>
+      <td class="ptitle">AGV/FGV contention under C-state transitions</td>
+      <td class="pwhere">Add to TCD 22022421168 (PEGA) or new TCD under TPF 22022420507</td>
+      <td class="pwhy">GV arbitration during C-state transitions is the core CCF PM correctness gate. A missed arbitration causes frequency glitch or system hang.</td>
+    </tr><tr>
+      <td><span class="pri-badge" style="background:#dc2626">P1</span></td>
+      <td><code class="fid-inline">IDLE-05</code></td>
+      <td class="ptitle">Ring C3 abort on mid-entry wake event</td>
+      <td class="pwhere">Add to TCD 22022421179 (Idle States)</td>
+      <td class="pwhy">Unhandled abort during Ring C3 entry causes in-flight transaction loss and potential deadlock.</td>
+    </tr><tr>
+      <td><span class="pri-badge" style="background:#dc2626">P1</span></td>
+      <td><code class="fid-inline">SCALE-08</code></td>
+      <td class="ptitle">PVP → IA_DISTRESS → CCF ring frequency</td>
+      <td class="pwhere">New TC under TCD 22022421197 (Distress Signal)</td>
+      <td class="pwhy">PVP throttle is the primary dV/dt protection path. If the PVP→distress chain breaks, silicon damage risk on power virus workloads.</td>
+    </tr><tr>
+      <td><span class="pri-badge" style="background:#dc2626">P1</span></td>
+      <td><code class="fid-inline">IDLE-07</code></td>
+      <td class="ptitle">LC6 / FC6 ring coordination</td>
+      <td class="pwhere">New TCD under TPF 22022420512 (Idle States)</td>
+      <td class="pwhy">LC6/FC6 are package-level C-states used in production. No coverage means entire power-off CCF sequence is unvalidated.</td>
+    </tr><tr>
+      <td><span class="pri-badge" style="background:#f59e0b">P2</span></td>
+      <td><code class="fid-inline">UFF-01..07</code></td>
+      <td class="ptitle">All 7 Uniform Fabric Frequency TCs (TPF 22022420515)</td>
+      <td class="pwhere">7 existing TCDs (22022421207–22022421218) each need at least 1 TC</td>
+      <td class="pwhy">Entire TPF 22022420515 has 0 TCs. Uniform fabric mode is a shipped feature used by VMM workloads — completely unvalidated.</td>
+    </tr><tr>
+      <td><span class="pri-badge" style="background:#f59e0b">P2</span></td>
+      <td><code class="fid-inline">SCALE-09</code></td>
+      <td class="ptitle">ProcHot → ring frequency reduction</td>
+      <td class="pwhere">New TC under TCD 22022421197 (Distress Signal) or new TCD</td>
+      <td class="pwhy">ProcHot is a key thermal protection path. Ring frequency not scaling down on ProcHot causes thermal violation.</td>
+    </tr><tr>
+      <td><span class="pri-badge" style="background:#f59e0b">P2</span></td>
+      <td><code class="fid-inline">IDLE-04</code></td>
+      <td class="ptitle">D2D → L1 transition during Ring C3</td>
+      <td class="pwhere">Extend TC 22022422873 (Ring C3) to check D2D link state</td>
+      <td class="pwhy">Ring C3 without D2D L1 is not a complete ring drain. Leaving D2D in L0 during PLL shutdown causes UCIe link errors.</td>
+    </tr><tr>
+      <td><span class="pri-badge" style="background:#f59e0b">P2</span></td>
+      <td><code class="fid-inline">GV-07</code></td>
+      <td class="ptitle">Per-die independent GV — NWP multi-die</td>
+      <td class="pwhere">New TC under TCD 22022421171 (TPMI Interface)</td>
+      <td class="pwhy">NWP-specific critical path. If per-die GV is broken, one CBB die can stall while another scales, breaking cache coherency latency.</td>
+    </tr><tr>
+      <td><span class="pri-badge" style="background:#f59e0b">P2</span></td>
+      <td><code class="fid-inline">IDLE-09</code></td>
+      <td class="ptitle">Staggered module C6 entry ordering</td>
+      <td class="pwhere">New TC under TCD 22022421179 (Idle States)</td>
+      <td class="pwhy">didt from simultaneous module C6 entry can cause voltage droops. Stagger ordering validation prevents silicon reliability issues.</td>
+    </tr><tr>
+      <td><span class="pri-badge" style="background:#22c55e">P3</span></td>
+      <td><code class="fid-inline">GV-06</code></td>
+      <td class="ptitle">GVFSM state machine progression</td>
+      <td class="pwhere">Add assertions to existing GV TCs or new TC under TPF 22022420507</td>
+      <td class="pwhy">GVFSM stuck in intermediate state causes CCF hang. State visibility helps debug future GV failures.</td>
+    </tr><tr>
+      <td><span class="pri-badge" style="background:#22c55e">P3</span></td>
+      <td><code class="fid-inline">SCALE-07</code></td>
+      <td class="ptitle">Distress fast path (100us DistressCycleUpdate)</td>
+      <td class="pwhere">Extend TC 22022422905 (PCode algorithm)</td>
+      <td class="pwhy">Fast path timing is important for ring frequency recovery under bursty LLC load. Slow path only validation misses timing SLA.</td>
+    </tr><tr>
+      <td><span class="pri-badge" style="background:#22c55e">P3</span></td>
+      <td><code class="fid-inline">IDLE-06</code></td>
+      <td class="ptitle">PKGC6 full entry/exit coordination (cNCU block/unblock)</td>
+      <td class="pwhere">New TC under TCD 22022421179 (Idle States) or new TCD under TPF 22022420512</td>
+      <td class="pwhy">Ring C3 TC covers PLL shutdown but not cNCU block/unblock, which is the PC6 handshake with IMH. Incomplete PC6 path validation.</td>
+    </tr><tr>
+      <td><span class="pri-badge" style="background:#22c55e">P3</span></td>
+      <td><code class="fid-inline">BOOT-02</code></td>
+      <td class="ptitle">VCCRING SVID voltage management during GV</td>
+      <td class="pwhere">Extend TC 22022422863 (VF Curves) to check voltage transitions</td>
+      <td class="pwhy">Incorrect V-before-F or F-before-V sequencing during GV is a voltage drooping risk. VF curve TC only checks frequency endpoints.</td>
+    </tr><tr>
+      <td><span class="pri-badge" style="background:#22c55e">P3</span></td>
+      <td><code class="fid-inline">SCALE-10</code></td>
+      <td class="ptitle">Thermal throttling → ring frequency + VCCRING reduction</td>
+      <td class="pwhere">New TC, possibly under a new TPF (CCF Thermal/Protection)</td>
+      <td class="pwhy">Thermal-triggered ring scaling path is distinct from distress-based scaling. Complete thermal protection chain is unvalidated.</td>
+    </tr><tr>
+      <td><span class="pri-badge" style="background:#22c55e">P3</span></td>
+      <td><code class="fid-inline">IDLE-08</code></td>
+      <td class="ptitle">D2D active-idle state (NWP-specific)</td>
+      <td class="pwhere">New TC under TPF 22022420512 (Idle States)</td>
+      <td class="pwhy">NWP-only power-saving feature. Active-idle bugs manifest as unnecessary power consumption on compute chiplets.</td>
+    </tr></tbody>
+      </table>
+    </div>
+
+    <!-- Detailed Area Sections -->
+    
+<div class="area-section" id="area-gv">
+  <h2 class="area-title">GV Management</h2>
+  <div class="table-wrapper">
+    <table class="flow-table">
+      <thead>
+        <tr>
+          <th style="width:70px">ID</th>
+          <th style="width:220px">HAS PM Flow</th>
+          <th style="width:260px">HAS Description</th>
+          <th style="width:200px">Key Registers</th>
+          <th style="width:110px">NWP Coverage</th>
+          <th style="width:200px">NWP TCs</th>
+          <th>Gap Detail</th>
+        </tr>
+      </thead>
+      <tbody><tr class="flow-row" style="background:#dcfce710">
+      <td class="fid"><code>GV-01</code></td>
+      <td class="fname">NonAutoGV mode — default workpoint execution</td>
+      <td class="fhas">Default and only supported GV mode in CBB. PCode provides workpoint via CCF_WP register. CCF executes GV transitions without autonomous frequency selection. Active at reset/boot and C-state exit.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">CCF_WP</code><code class="reg-chip">UFS_CONTROL.MAX_RATIO</code><code class="reg-chip">UFS_CONTROL.MIN_RATIO</code><code class="reg-chip">UFS_STATUS</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#dcfce7;color:#16a34a;border:1px solid #16a34a">✓ Covered</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422878 — CBB CCF NonAutoGV Mode Fast GV</span></div></td>
+      <td class="gap-cell ok">—</td>
+    </tr><tr class="flow-row" style="background:#dcfce710">
+      <td class="fid"><code>GV-02</code></td>
+      <td class="fname">BIOS-time UFS_CONTROL initialization (P0/Pm cap)</td>
+      <td class="fhas">During TPMI_INIT (PH1.x), BIOS writes UFS_CONTROL with min/max ratios derived from fused P0/Pm caps in UFS_HEADER. AUTONOMOUS_UFS_DISABLED flag prevents autonomous override post-BIOS.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">UFS_HEADER</code><code class="reg-chip">UFS_CONTROL.MAX_RATIO</code><code class="reg-chip">UFS_CONTROL.MIN_RATIO</code><code class="reg-chip">AUTONOMOUS_UFS_DISABLED</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#dcfce7;color:#16a34a;border:1px solid #16a34a">✓ Covered</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422850 — CBB CCF GV BIOS Configuration</span></div></td>
+      <td class="gap-cell ok">—</td>
+    </tr><tr class="flow-row" style="background:#dcfce710">
+      <td class="fid"><code>GV-03</code></td>
+      <td class="fname">PEGA mailbox GV injection (B2P path)</td>
+      <td class="fhas">PEGA injects synthetic P-state requests via B2P mailbox, bypassing OS/TPMI path. Used for validation to directly control GVFSM without OS involvement.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">pega_mailbox.pega_pstate(meshgv=...)</code><code class="reg-chip">UFS_STATUS</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#dcfce7;color:#16a34a;border:1px solid #16a34a">✓ Covered</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422851 — CBB CCF GV PEGA Injection</span></div></td>
+      <td class="gap-cell ok">—</td>
+    </tr><tr class="flow-row" style="background:#dcfce710">
+      <td class="fid"><code>GV-04</code></td>
+      <td class="fname">TPMI UFS_CONTROL runtime GV requests (OS path)</td>
+      <td class="fhas">OS/FW writes UFS_CONTROL.MAX_RATIO at runtime to request ring frequency changes. CCF PMA transitions via GVFSM. UFS_STATUS reflects current ratio.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">UFS_CONTROL</code><code class="reg-chip">UFS_STATUS</code><code class="reg-chip">TPMI per-die instances</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#dcfce7;color:#16a34a;border:1px solid #16a34a">✓ Covered</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422859 — CBB CCF GV TPMI Request</span></div></td>
+      <td class="gap-cell ok">—</td>
+    </tr><tr class="flow-row" style="background:#dcfce710">
+      <td class="fid"><code>GV-05</code></td>
+      <td class="fname">VF curve enforcement (voltage-frequency operating points)</td>
+      <td class="fhas">CCF must not operate outside defined VF curve points. BIOS/fuse-derived VF table sets legal (V, F) pairs. GV transitions must land on or between VF table entries.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">VF_CURVE_TABLE</code><code class="reg-chip">UFS_STATUS.CURRENT_RATIO</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#dcfce7;color:#16a34a;border:1px solid #16a34a">✓ Covered</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422863 — CBB CCF VF Curves</span></div></td>
+      <td class="gap-cell ok">—</td>
+    </tr><tr class="flow-row" style="background:#fee2e210">
+      <td class="fid"><code>GV-06</code></td>
+      <td class="fname">GVFSM state machine progression</td>
+      <td class="fhas">GVFSM progresses through: IDLE → BLOCK → INC_GB (increment global barrier) → DEC_DB (decrement database) → RESUME → BLK_INTF (block interface). Each state must complete before advancing. No partial transitions allowed.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">UFS_STATUS.GVFSM_STATE</code><code class="reg-chip">CCF_GV_STATE</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fee2e2;color:#dc2626;border:1px solid #dc2626">✗ GAP</span></td>
+      <td class="ftcs"><span class="no-tc">None</span></td>
+      <td class="gap-cell">No TC validates the GVFSM state machine progression. NWP only checks final frequency outcome, not the intermediate IDLE→BLOCK→INC_GB→DEC_DB→RESUME transition states.</td>
+    </tr><tr class="flow-row" style="background:#fee2e210">
+      <td class="fid"><code>GV-07</code></td>
+      <td class="fname">Per-die independent GV (NWP multi-die)</td>
+      <td class="fhas">NWP CBB dies can independently scale mesh frequency. Each die exposes its own UFS_CONTROL/UFS_STATUS TPMI registers. Frequency steps in 100 MHz increments due to PLL/UCIE limitations. No inter-die handshake for GV.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">sv.socket0.cbb0.base.tpmi.ufs_control</code><code class="reg-chip">sv.socket0.cbb1.base.tpmi.ufs_control</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fee2e2;color:#dc2626;border:1px solid #dc2626">✗ GAP</span></td>
+      <td class="ftcs"><span class="no-tc">None</span></td>
+      <td class="gap-cell">NWP tests single-CBB TPMI GV. No TC validates that each CBB die scales independently, or that per-die GV does not affect adjacent dies.</td>
+    </tr><tr class="flow-row" style="background:#fee2e210">
+      <td class="fid"><code>GV-08</code></td>
+      <td class="fname">AGV/FGV contention under simultaneous C-state transitions</td>
+      <td class="fhas">When multiple GV requestors (AGV from CCF PMA, FGV via PCode) issue simultaneous requests during C6/MC3 entry or exit, PCode arbitrates. The winning workpoint must be applied atomically. didt prevention via staggered transitions.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">CCF_WP</code><code class="reg-chip">UFS_STATUS</code><code class="reg-chip">PMA_FSM_STATE</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fee2e2;color:#dc2626;border:1px solid #dc2626">✗ GAP</span></td>
+      <td class="ftcs"><span class="no-tc">None</span></td>
+      <td class="gap-cell">No TC tests simultaneous AGV+FGV contention. NWP validates each GV path in isolation. Contention scenarios and arbitration atomicity under C-state transitions are uncovered.</td>
+    </tr></tbody>
+    </table>
+  </div>
+</div>
+<div class="area-section" id="area-idle">
+  <h2 class="area-title">Idle States</h2>
+  <div class="table-wrapper">
+    <table class="flow-table">
+      <thead>
+        <tr>
+          <th style="width:70px">ID</th>
+          <th style="width:220px">HAS PM Flow</th>
+          <th style="width:260px">HAS Description</th>
+          <th style="width:200px">Key Registers</th>
+          <th style="width:110px">NWP Coverage</th>
+          <th style="width:200px">NWP TCs</th>
+          <th>Gap Detail</th>
+        </tr>
+      </thead>
+      <tbody><tr class="flow-row" style="background:#dcfce710">
+      <td class="fid"><code>IDLE-01</code></td>
+      <td class="fname">Fast Ring C3 — autonomous clock gating</td>
+      <td class="fhas">CCF PMA autonomously enters Fast Ring C3 by gating main global Uclk tree drivers. No Punit involvement. UCIE Uclk remains running. PMA can autonomously exit unless locked by Punit for PKGC6 entry.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">UDI resource</code><code class="reg-chip">UFS_STATUS.FAST_RING_C3</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#dcfce7;color:#16a34a;border:1px solid #16a34a">✓ Covered</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422865 — CBB CCF Fast Ring C3</span></div></td>
+      <td class="gap-cell ok">—</td>
+    </tr><tr class="flow-row" style="background:#dcfce710">
+      <td class="fid"><code>IDLE-02</code></td>
+      <td class="fname">Ring C3 — Punit-directed CCF drain + PLL shutdown</td>
+      <td class="fhas">Punit instructs CCF PMA to enter Ring C3 (requires Fast Ring C3 first). CCF drains all transactions, transitions D2D to L1, shuts down ring PLLs, asserts global clock gating. Wake: PLL restore → deassert resets → resume.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">UFS_STATUS.RING_C3</code><code class="reg-chip">D2D_LINK_STATE</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#dcfce7;color:#16a34a;border:1px solid #16a34a">✓ Covered</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422873 — CBB CCF Ring C3</span></div></td>
+      <td class="gap-cell ok">—</td>
+    </tr><tr class="flow-row" style="background:#dcfce710">
+      <td class="fid"><code>IDLE-03</code></td>
+      <td class="fname">Cstate wake events across active/idle (HPM, PECI, stagger)</td>
+      <td class="fhas">Wake events from HPM, PECI, and stagger injection trigger C-state exit. CCF PMA must restore clocks/frequency correctly. Wake injection timing affects exit latency.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">WAKE_EVENT_SOURCE</code><code class="reg-chip">UFS_STATUS</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#dcfce7;color:#16a34a;border:1px solid #16a34a">✓ Covered</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422868 — CBB CCF PM Cstate wake events</span></div></td>
+      <td class="gap-cell ok">—</td>
+    </tr><tr class="flow-row" style="background:#fee2e210">
+      <td class="fid"><code>IDLE-04</code></td>
+      <td class="fname">D2D → L1 transition during Ring C3 entry</td>
+      <td class="fhas">Before ring PLLs are shut down in Ring C3, D2D link must be transitioned to L1 state. CCF must verify L1 acknowledgment before proceeding. On exit, D2D must be restored to L0 in correct order.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">D2D_LINK_STATE</code><code class="reg-chip">D2D_PM_CTRL</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fee2e2;color:#dc2626;border:1px solid #dc2626">✗ GAP</span></td>
+      <td class="ftcs"><span class="no-tc">None</span></td>
+      <td class="gap-cell">Ring C3 TC exists but does not validate D2D L1 entry/exit as part of the Ring C3 sequence. D2D state transitions are not checked.</td>
+    </tr><tr class="flow-row" style="background:#fee2e210">
+      <td class="fid"><code>IDLE-05</code></td>
+      <td class="fname">Ring C3 abort on wake event (mid-entry race)</td>
+      <td class="fhas">If a wake event arrives after Ring C3 entry has started but before PLLs are shut down, CCF must abort entry cleanly and return to active state without losing in-flight transactions.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">UFS_STATUS.RING_C3</code><code class="reg-chip">WAKE_ABORT_COUNT</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fee2e2;color:#dc2626;border:1px solid #dc2626">✗ GAP</span></td>
+      <td class="ftcs"><span class="no-tc">None</span></td>
+      <td class="gap-cell">No TC injects wake events mid-Ring-C3 entry. The abort/race path is completely uncovered.</td>
+    </tr><tr class="flow-row" style="background:#fef9c310">
+      <td class="fid"><code>IDLE-06</code></td>
+      <td class="fname">PKGC6 (PC6) entry/exit — CCF coordination with Ring C3</td>
+      <td class="fhas">PC6 entry: Punit directs CCF to enter Ring C3 as prerequisite. CCF drains, blocks cNCUs, disables PLLs, gates clocks. PC6 exit: CCF unblocks, restores PLLs, resumes normal operation. Timing must meet platform latency budgets.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">PCU_PM_STATUS</code><code class="reg-chip">UFS_STATUS</code><code class="reg-chip">PKG_CSTATE</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fef9c3;color:#ca8a04;border:1px solid #ca8a04">~ Partial</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422873 — CBB CCF Ring C3 (covers Ring C3 which is prerequisite)</span></div></td>
+      <td class="gap-cell">NWP tests Ring C3 but does not test full PC6 entry+exit coordination sequence. cNCU block/unblock and PLL restore timing under PC6 not validated.</td>
+    </tr><tr class="flow-row" style="background:#fee2e210">
+      <td class="fid"><code>IDLE-07</code></td>
+      <td class="fname">LC6 / FC6 ring coordination</td>
+      <td class="fhas">LC6 (Light C6) and FC6 (Full C6) are additional CCF idle states with distinct entry/exit sequences. LC6 allows partial CCF state retention; FC6 is complete shutdown. Both require specific ring drain sequences.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">PKG_CSTATE</code><code class="reg-chip">CCF_IDLE_STATE</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fee2e2;color:#dc2626;border:1px solid #dc2626">✗ GAP</span></td>
+      <td class="ftcs"><span class="no-tc">None</span></td>
+      <td class="gap-cell">No TC covers LC6 or FC6 ring state transitions. Only Ring C3 (for PC6) is tested. LC6/FC6 specific ring drain sequences and wake latencies are uncovered.</td>
+    </tr><tr class="flow-row" style="background:#fee2e210">
+      <td class="fid"><code>IDLE-08</code></td>
+      <td class="fname">D2D active-idle state (NWP-specific)</td>
+      <td class="fhas">NWP supports a D2D active-idle state where the TX direction is gated independently per die. No inter-chiplet signaling required. CCF must be able to resume from active-idle on demand.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">D2D_ACTIVE_IDLE_CTRL</code><code class="reg-chip">D2D_LINK_STATE</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fee2e2;color:#dc2626;border:1px solid #dc2626">✗ GAP</span></td>
+      <td class="ftcs"><span class="no-tc">None</span></td>
+      <td class="gap-cell">NWP-specific flow. No TC validates D2D active-idle entry/exit interaction with CCF idle state management.</td>
+    </tr><tr class="flow-row" style="background:#fee2e210">
+      <td class="fid"><code>IDLE-09</code></td>
+      <td class="fname">Staggered module C6 entry ordering</td>
+      <td class="fhas">When multiple CBB modules enter C6, the order must be staggered to prevent simultaneous didt events. PCode controls the staggering sequence. Incorrect ordering can cause voltage droop or stability issues.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">MODULE_C6_STAGGER_CTRL</code><code class="reg-chip">PMA_FSM_STATE</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fee2e2;color:#dc2626;border:1px solid #dc2626">✗ GAP</span></td>
+      <td class="ftcs"><span class="no-tc">None</span></td>
+      <td class="gap-cell">No TC validates module staggering order or timing. NWP tests single-module C6 entry only. Multi-module simultaneous entry with didt prevention is uncovered.</td>
+    </tr></tbody>
+    </table>
+  </div>
+</div>
+<div class="area-section" id="area-scalability">
+  <h2 class="area-title">Ring Frequency Scalability</h2>
+  <div class="table-wrapper">
+    <table class="flow-table">
+      <thead>
+        <tr>
+          <th style="width:70px">ID</th>
+          <th style="width:220px">HAS PM Flow</th>
+          <th style="width:260px">HAS Description</th>
+          <th style="width:200px">Key Registers</th>
+          <th style="width:110px">NWP Coverage</th>
+          <th style="width:200px">NWP TCs</th>
+          <th>Gap Detail</th>
+        </tr>
+      </thead>
+      <tbody><tr class="flow-row" style="background:#dcfce710">
+      <td class="fid"><code>SCALE-01</code></td>
+      <td class="fname">PMON counters (LLC access, hit, TOR occupancy)</td>
+      <td class="fhas">Each CBO contains PMON counters for LLC accesses, LLC hits, and TOR occupancy. These feed into SBO distress telemetry.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">CBO_PMON_CTL</code><code class="reg-chip">CBO_PMON_CTR</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#dcfce7;color:#16a34a;border:1px solid #16a34a">✓ Covered</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422886 — CBB CCF PMON</span></div></td>
+      <td class="gap-cell ok">—</td>
+    </tr><tr class="flow-row" style="background:#dcfce710">
+      <td class="fid"><code>SCALE-02</code></td>
+      <td class="fname">CBO telemetry per-cluster grade accumulation</td>
+      <td class="fhas">Each CBO accumulates distress grades based on LLC event telemetry. CBOs report to SBO for cluster-level aggregation per RSE interval.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">CBO_DISTRESS_GRADE</code><code class="reg-chip">CBO_TELEMETRY_STATUS</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#dcfce7;color:#16a34a;border:1px solid #16a34a">✓ Covered</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422889 — CBB CCF CBO Telemetry</span></div></td>
+      <td class="gap-cell ok">—</td>
+    </tr><tr class="flow-row" style="background:#dcfce710">
+      <td class="fid"><code>SCALE-03</code></td>
+      <td class="fname">SBO telemetry — cluster distress aggregation + IA_DISTRESS</td>
+      <td class="fhas">SBO accumulates CBO grades and sends IA_DISTRESS[3:0] to Punit via IO register once per RSE (every 2k/4k/8k/16k uclk cycles). SBO provides per-cluster status and snoop information.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">SBO_DISTRESS_OUTPUT</code><code class="reg-chip">IA_DISTRESS[3:0]</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#dcfce7;color:#16a34a;border:1px solid #16a34a">✓ Covered</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422900 — CBB CCF SBO Telemetry</span></div></td>
+      <td class="gap-cell ok">—</td>
+    </tr><tr class="flow-row" style="background:#dcfce710">
+      <td class="fid"><code>SCALE-04</code></td>
+      <td class="fname">Distress signal → PCode ring scaling (message to Punit)</td>
+      <td class="fhas">SBO-to-Punit message carries IA_DISTRESS value. Pcode translates distress into ia_ring_factor and adjusts ring frequency. Slow loop ~1ms; fast path on distress change or every DistressCycleUpdate (100us).</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">SBO_TO_PUNIT_IO_REG</code><code class="reg-chip">IA_RING_FACTOR</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#dcfce7;color:#16a34a;border:1px solid #16a34a">✓ Covered</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422896 — CBB CCF Message to Punit</span></div></td>
+      <td class="gap-cell ok">—</td>
+    </tr><tr class="flow-row" style="background:#dcfce710">
+      <td class="fid"><code>SCALE-05</code></td>
+      <td class="fname">IA distress signal (snoop scalability)</td>
+      <td class="fhas">Snoop distress is integrated into the IA_DISTRESS telemetry path. Pcode samples snoop counters (one per SBO, four per CBB) every 1ms and adjusts ring frequency accordingly.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">SNOOP_PMON_CTR</code><code class="reg-chip">IA_DISTRESS</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#dcfce7;color:#16a34a;border:1px solid #16a34a">✓ Covered</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422894 — CBB CCF Distress signal</span><span class="tc-chip">22022422895 — CBB CCF Snoop Scalability/Distress</span></div></td>
+      <td class="gap-cell ok">—</td>
+    </tr><tr class="flow-row" style="background:#dcfce710">
+      <td class="fid"><code>SCALE-06</code></td>
+      <td class="fname">PCode distress algorithm (EWMA, ia_ring_factor mapping)</td>
+      <td class="fhas">Pcode uses exponential moving averages to smooth distress values. Maps distress level to scaling parameters (min/max value, up/down step, high distress level). Algorithm is tunable post-silicon.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">DISTRESS_ALGO_CONFIG</code><code class="reg-chip">IA_RING_FACTOR</code><code class="reg-chip">RING_FREQ_CTRL</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#dcfce7;color:#16a34a;border:1px solid #16a34a">✓ Covered</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422905 — CBB CCF PCODE algorithm for distress input</span></div></td>
+      <td class="gap-cell ok">—</td>
+    </tr><tr class="flow-row" style="background:#fef9c310">
+      <td class="fid"><code>SCALE-07</code></td>
+      <td class="fname">Distress fast path (DistressCycleUpdate 100us)</td>
+      <td class="fhas">Beyond the 1ms slow loop, PCode has a fast response path triggered on distress state change or every DistressCycleUpdate interval (~100us). This fast path reduces latency in ring frequency recovery.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">DISTRESS_CYCLE_UPDATE_INTERVAL</code><code class="reg-chip">IA_RING_FACTOR</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fef9c3;color:#ca8a04;border:1px solid #ca8a04">~ Partial</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422905 — PCode algorithm (slow loop only)</span></div></td>
+      <td class="gap-cell">TC covers PCode algorithm but timing of the fast path (100us DistressCycleUpdate) is not validated. No test verifies that the fast path triggers correctly on distress level change.</td>
+    </tr><tr class="flow-row" style="background:#fee2e210">
+      <td class="fid"><code>SCALE-08</code></td>
+      <td class="fname">PVP → IA_DISTRESS → ring frequency reduction</td>
+      <td class="fhas">Power Virus Protection (PVP) throttling via EXE port dispatch halt triggers IA_DISTRESS signaling to CCF. This reduces ring frequency to protect silicon from dV/dt excursions caused by power virus patterns.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">PVP_STATUS</code><code class="reg-chip">IA_DISTRESS</code><code class="reg-chip">IA_RING_FACTOR</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fee2e2;color:#dc2626;border:1px solid #dc2626">✗ GAP</span></td>
+      <td class="ftcs"><span class="no-tc">None</span></td>
+      <td class="gap-cell">PVP-to-CCF distress path is not tested. NWP tests IA_DISTRESS from LLC telemetry but not from PVP throttle events. PVP trigger conditions (64/1024-cycle windows) are not exercised.</td>
+    </tr><tr class="flow-row" style="background:#fee2e210">
+      <td class="fid"><code>SCALE-09</code></td>
+      <td class="fname">ProcHot assertion → ring frequency reduction</td>
+      <td class="fhas">PROCHOT assertion causes CCF PMA to reduce ring frequency to safe minimum. PROCHOT_STATUS reports current assertion state and source. PROCHOT_OVERRIDE allows firmware to mask for debug.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">PROCHOT_STATUS</code><code class="reg-chip">PROCHOT_OVERRIDE</code><code class="reg-chip">UFS_STATUS.CURRENT_RATIO</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fee2e2;color:#dc2626;border:1px solid #dc2626">✗ GAP</span></td>
+      <td class="ftcs"><span class="no-tc">None</span></td>
+      <td class="gap-cell">No TC validates ProcHot → ring frequency reduction flow. PROCHOT_STATUS and PROCHOT_OVERRIDE registers are not exercised in NWP CCF PM TP.</td>
+    </tr><tr class="flow-row" style="background:#fee2e210">
+      <td class="fid"><code>SCALE-10</code></td>
+      <td class="fname">Thermal throttling → ring frequency and VCCRING voltage reduction</td>
+      <td class="fhas">Thermal events (DTS-based, from Punit/Pcode signals) cause CCF PMA to lower ring frequency and VCCRING via VID/SVID. Telemetry interfaces report throttling actions.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">THERMAL_STATUS</code><code class="reg-chip">VCCRING_VID</code><code class="reg-chip">UFS_STATUS.CURRENT_RATIO</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fee2e2;color:#dc2626;border:1px solid #dc2626">✗ GAP</span></td>
+      <td class="ftcs"><span class="no-tc">None</span></td>
+      <td class="gap-cell">No TC validates thermal-triggered ring frequency or voltage reduction. DTS-to-CCF throttling path and VCCRING voltage management are completely uncovered.</td>
+    </tr></tbody>
+    </table>
+  </div>
+</div>
+<div class="area-section" id="area-uniform">
+  <h2 class="area-title">Uniform Fabric Frequency</h2>
+  <div class="table-wrapper">
+    <table class="flow-table">
+      <thead>
+        <tr>
+          <th style="width:70px">ID</th>
+          <th style="width:220px">HAS PM Flow</th>
+          <th style="width:260px">HAS Description</th>
+          <th style="width:200px">Key Registers</th>
+          <th style="width:110px">NWP Coverage</th>
+          <th style="width:200px">NWP TCs</th>
+          <th>Gap Detail</th>
+        </tr>
+      </thead>
+      <tbody><tr class="flow-row" style="background:#fff7ed10">
+      <td class="fid"><code>UFF-01</code></td>
+      <td class="fname">UNIFORM_CBB_FABRIC_FREQ_MODE enable via BIOS knob</td>
+      <td class="fhas">BIOS sets UFS_CONTROL bit 30 to enable uniform frequency mode. All CBB dies must be programmed to the same mode. BIOS knob exposes this to platform configuration.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">UFS_CONTROL.UNIFORM_CBB_FABRIC_FREQ_MODE (bit 30)</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fff7ed;color:#ea580c;border:1px solid #ea580c">! TCD — 0 TCs</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">TCD 22022421214 — exists, 0 TCs</span></div></td>
+      <td class="gap-cell">TCD 22022421214 exists but has no TCs. BIOS knob enable/verify path is not tested.</td>
+    </tr><tr class="flow-row" style="background:#fff7ed10">
+      <td class="fid"><code>UFF-02</code></td>
+      <td class="fname">UNIFORM_CBB_FABRIC_FREQ_MODE enable/disable via TPMI at runtime</td>
+      <td class="fhas">SW can enable or disable uniform mode at runtime by writing UFS_CONTROL.UNIFORM_CBB_FABRIC_FREQ_MODE. All dies must be programmed consistently.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">UFS_CONTROL.UNIFORM_CBB_FABRIC_FREQ_MODE</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fff7ed;color:#ea580c;border:1px solid #ea580c">! TCD — 0 TCs</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">TCD 22022421216 — exists, 0 TCs</span></div></td>
+      <td class="gap-cell">TCD 22022421216 exists but has no TCs. Runtime enable/disable via TPMI not validated.</td>
+    </tr><tr class="flow-row" style="background:#fff7ed10">
+      <td class="fid"><code>UFF-03</code></td>
+      <td class="fname">HPM messaging — CBB_CCF_FREQUENCY upstream/downstream</td>
+      <td class="fhas">When uniform mode is active, each CBB sends HPM opcode 0x1b with UPSTREAM_CCF_DESIRED_RATIO (bits 39:32). IMH collects, selects maximum, sends DOWNSTREAM_CCF_RESOLVED_MIN_RATIO (bits 47:40) back to all CBBs.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">HPM_MSG_CCF_FREQUENCY (opcode 0x1b)</code><code class="reg-chip">UPSTREAM_CCF_DESIRED_RATIO</code><code class="reg-chip">DOWNSTREAM_CCF_RESOLVED_MIN_RATIO</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fff7ed;color:#ea580c;border:1px solid #ea580c">! TCD — 0 TCs</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">TCD 22022421218 — exists, 0 TCs</span></div></td>
+      <td class="gap-cell">TCD 22022421218 exists but has no TCs. HPM message fields and IMH max-select logic not validated.</td>
+    </tr><tr class="flow-row" style="background:#fff7ed10">
+      <td class="fid"><code>UFF-04</code></td>
+      <td class="fname">Uniform frequency cross Fast Ring C3</td>
+      <td class="fhas">When uniform mode is enabled, Fast Ring C3 entry on one CBB must not break the uniform frequency contract. Resolved min frequency must be re-negotiated on exit.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">UFS_CONTROL.UNIFORM_CBB_FABRIC_FREQ_MODE</code><code class="reg-chip">UFS_STATUS</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fff7ed;color:#ea580c;border:1px solid #ea580c">! TCD — 0 TCs</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">TCD 22022421207 — exists, 0 TCs</span></div></td>
+      <td class="gap-cell">TCD 22022421207 exists but has no TCs. Interaction between uniform mode and Fast Ring C3 not tested.</td>
+    </tr><tr class="flow-row" style="background:#fff7ed10">
+      <td class="fid"><code>UFF-05</code></td>
+      <td class="fname">Uniform frequency cross PC6</td>
+      <td class="fhas">PC6 entry suspends uniform frequency mode. On PC6 exit, CBBs renegotiate uniform frequency via HPM messaging.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">UFS_CONTROL</code><code class="reg-chip">HPM_MSG_CCF_FREQUENCY</code><code class="reg-chip">PKG_CSTATE</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fff7ed;color:#ea580c;border:1px solid #ea580c">! TCD — 0 TCs</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">TCD 22022421209 — exists, 0 TCs</span></div></td>
+      <td class="gap-cell">TCD 22022421209 exists but has no TCs. PC6 entry/exit + uniform frequency re-negotiation not validated.</td>
+    </tr><tr class="flow-row" style="background:#fff7ed10">
+      <td class="fid"><code>UFF-06</code></td>
+      <td class="fname">Uniform frequency cross ProcHot</td>
+      <td class="fhas">ProcHot assertion reduces ring frequency below the uniform mode minimum. ProcHot takes priority over the uniform fabric frequency floor.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">PROCHOT_STATUS</code><code class="reg-chip">UFS_CONTROL.UNIFORM_CBB_FABRIC_FREQ_MODE</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fff7ed;color:#ea580c;border:1px solid #ea580c">! TCD — 0 TCs</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">TCD 22022421211 — exists, 0 TCs</span></div></td>
+      <td class="gap-cell">TCD 22022421211 exists but has no TCs. ProcHot override of uniform frequency floor not validated.</td>
+    </tr><tr class="flow-row" style="background:#fff7ed10">
+      <td class="fid"><code>UFF-07</code></td>
+      <td class="fname">Uniform frequency cross RAPL</td>
+      <td class="fhas">RAPL power cap can restrict ring frequency below the uniform mode minimum. RAPL constraint takes priority over uniform frequency floor.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">RAPL_LIMIT</code><code class="reg-chip">UFS_CONTROL.UNIFORM_CBB_FABRIC_FREQ_MODE</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fff7ed;color:#ea580c;border:1px solid #ea580c">! TCD — 0 TCs</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">TCD 22022421212 — exists, 0 TCs</span></div></td>
+      <td class="gap-cell">TCD 22022421212 exists but has no TCs. RAPL power cap interaction with uniform frequency floor not tested.</td>
+    </tr></tbody>
+    </table>
+  </div>
+</div>
+<div class="area-section" id="area-boot">
+  <h2 class="area-title">Boot & Reset Initialization</h2>
+  <div class="table-wrapper">
+    <table class="flow-table">
+      <thead>
+        <tr>
+          <th style="width:70px">ID</th>
+          <th style="width:220px">HAS PM Flow</th>
+          <th style="width:260px">HAS Description</th>
+          <th style="width:200px">Key Registers</th>
+          <th style="width:110px">NWP Coverage</th>
+          <th style="width:200px">NWP TCs</th>
+          <th>Gap Detail</th>
+        </tr>
+      </thead>
+      <tbody><tr class="flow-row" style="background:#fef9c310">
+      <td class="fid"><code>BOOT-01</code></td>
+      <td class="fname">Post-reset CCF frequency defaults (fused P0/Pm)</td>
+      <td class="fhas">On cold boot or reset, CCF starts in NonAutoGV mode. Default frequency is set from fused caps in UFS_HEADER. BIOS must update UFS_CONTROL before BIOS_DONE.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">UFS_HEADER</code><code class="reg-chip">UFS_CONTROL</code><code class="reg-chip">BIOS_DONE</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fef9c3;color:#ca8a04;border:1px solid #ca8a04">~ Partial</span></td>
+      <td class="ftcs"><div class="tc-chips"><span class="tc-chip">22022422850 — BIOS Config (covers BIOS init, not reset default)</span></div></td>
+      <td class="gap-cell">No TC validates post-reset CCF frequency before BIOS writes UFS_CONTROL. The fused default state (UFS_HEADER values) is not verified independently.</td>
+    </tr><tr class="flow-row" style="background:#fee2e210">
+      <td class="fid"><code>BOOT-02</code></td>
+      <td class="fname">VID/SVID voltage management during GV (VCCRING)</td>
+      <td class="fhas">CCF PMA manages VCCRING voltage via VID/SVID protocol during GV transitions. Voltage must be adjusted in sync with frequency changes per VF table. Up-transitions: voltage first; down-transitions: frequency first.</td>
+      <td class="fregs"><div class="reg-chips"><code class="reg-chip">SVID_CTRL</code><code class="reg-chip">VCCRING_VID</code><code class="reg-chip">VF_CURVE_TABLE</code></div></td>
+      <td class="fcov"><span class="cov-badge" style="background:#fee2e2;color:#dc2626;border:1px solid #dc2626">✗ GAP</span></td>
+      <td class="ftcs"><span class="no-tc">None</span></td>
+      <td class="gap-cell">No TC validates VCCRING SVID voltage management during GV. VF curve TC checks frequency endpoints but not voltage sequencing (V before F on up-GV, F before V on down-GV).</td>
+    </tr></tbody>
+    </table>
+  </div>
+</div>
+
+  </div>
+</div>
+
+<div class="footer">
+  LLM-backed analysis using DMR_CBB + NWP Co-Design spec sources &nbsp;|&nbsp; NWP PM Test Plan Repo &nbsp;|&nbsp; 2026-07-15
+</div>
+
+</body>
+</html>

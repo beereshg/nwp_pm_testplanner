@@ -1,94 +1,96 @@
-# Deep Analysis: CBB CCF PCODE Algorithm for Distress Input
+# CBB CCF PCODE Algorithm for Distress Input
 
 | Field | Value |
 |-------|-------|
 | **HSD ID** | [22022422905](https://hsdes.intel.com/appstore/article-one/#/22022422905) |
-| **Title** | CBB CCF PCODE Algorithm for Distress Input |
+| **Title** | CBB CCF PCODE algorithm for distress input |
 | **Status** | open |
+| **Owner** | bg3 |
 | **Val Environment** | silicon, virtual_platform |
-| **Feature** | CBB CCF -- PCode distress-input to CCF frequency-boost algorithm |
-| **Parent TCD** | [22022421205](https://hsdes.intel.com/appstore/article-one/#/22022421205) |
-| **KB last updated** | 2026-06-25 |
+| **Feature** | Ring Scalability / PCode Algorithm / ia_ring_factor / WP Calculation |
+| **Parent TCD** | [22022421197 -- CBB CCF Ring Frequency Scalability](https://hsdes.intel.com/appstore/article-one/#/22022421197) |
+| **KB last updated** | 2026-07-10 |
 
 ---
 
 ## Test Case Intent
 
-**Objective:** Validate the CBB PCode algorithm that processes distress inputs (SBO back-pressure, CBO occupancy) and converts them into CCF frequency up-decisions. The algorithm uses threshold-based hysteresis: distress above threshold triggers GVFSM frequency boost; below threshold for N slow-loops, boost is removed. Tests verify: correct threshold behavior; hysteresis prevents oscillation; frequency response magnitude and timing.
+Verify that PCode correctly processes the CCF distress input via the ring scalability algorithm and produces accurate ring GV frequency working points. The algorithm translates `ia_distress[3:0]` (0-15 grade) into `ia_ring_factor` (0..1), then computes:
 
-**NWP topology:** 2 CBBs (cbb0/cbb1) x 48 cores = 96 cores total. CCF ring managed autonomously by CBB PCode GVFSM. CCF target = 2.2 GHz (ratio 0x16) for full bandwidth (460 GB/s). MC6 is the deepest idle state (PkgC6 fused off).
+`ia_promote_ring = (max{core_ratios} - ia_to_ring_downbin) × ia_ring_factor`
 
-### Pre-Conditions
+PCode initiates ring scalability via: slow loop, fast-path on distress change, and fast-path per DistressCycleUpdate (200µs). Verify all PCode algorithm inputs are accessible and that ring frequency responds correctly to distress input changes.
 
-| Pre-Condition | Expected State | Failure Indication |
-|---------------|---------------|-------------------|
-| System booted to XOS/SVOS | BIOS CPL4 complete; PCode running | System not booted |
-| TPMI accessible per CBB | `sv.socket0.cbbN.base.tpmi.*` readable | TPMI path invalid |
-| PythonSV namednodes loaded | `import namednodes; sv = namednodes.sv` succeeds | PythonSV not connected |
-| Workload available | CPU stress or coherency workload can be launched | No workload -- cannot stimulate counters |
+**⚠️ NOTE — Differentiation from related TCs using the same script:**
+- **TC 22022422851** (CBB CCF GV PEGA Injection, TCD 22022421168, Active States TPF): Uses the same `--test_ccf_pega_pstate` script but validates the **PEGA-driven GV state machine output** (does CCF frequency reach the requested PEGA operating point?). Verifies `ufs_status.current_ratio` only.
+- **THIS TC (22022422905)**: Validates the **PCode ring scalability algorithm internals** — specifically the distress-to-ring-factor conversion (`ia_distress → ia_ring_factor → ia_promote_ring`). Verifies `pcode.vars.ring.*`, `ia_distress`, `ia_ring_factor`. Uses PEGA as stimulus but checks algorithm correctness, not just GV state.
+- **TC 22022422896** (CBB CCF Message to Punit): Validates the **sideband message DELIVERY** (`CR_WR` to `PUNIT_CR_RING_DISTRESS_STATUS`, 4-bit grade readability). THIS TC validates the PCode ALGORITHM that processes the already-delivered grade.
 
-### Test Steps
+`ia_promote_ring = (max{core_ratios} - ia_to_ring_downbin) × ia_ring_factor`
+
+PCode initiates ring scalability via: slow loop, fast-path on distress change, and fast-path per DistressCycleUpdate (200µs). Verify all PCode algorithm inputs are accessible and that ring frequency responds correctly to distress input changes.
+
+**PCode algorithm inputs to verify (from original description):**
+- `ia_distress[3:0]` — grade input (0-15), read from `ring_distress_status`
+- Per-level parameters (7 levels): Min/Max Val, UpStep, DownStep, HighDisLevel
+- RSE = 16K uclk, Wgrade = 1 (EMA), DistressCycleUpdate = 200µs
+- `cbb.pcode.vars.ring.resolved_ratios.{max, guaranteed, min}` — resolved ring ratios after algorithm
+- `cbb.base.ccf_pma.ccf_pmc_regs.ccf_wp[0].target_max_ratio` — final WP output
+
+**Flow:**
+
+- Verify distress input reaches PCode: `ring_distress_status.ia_distress` readable and valid
+- Verify PCode resolved ring ratios are accessible: `pcode.vars.ring.resolved_ratios.*`
+- Verify PCode WP output responds to injected distress: PEGA P-state injection → CCF_WP changes → `ufs_status.current_ratio` tracks
+- Verify algorithm triggers: slow loop and fast path both update WP
+- Verify post-reset persistence: algorithm parameters survive warm reset
+
+**Test script (closest match):** `pmx_ccf_cbo.py --test_ccf_pega_pstate` → `ccfu.ccf_pegaPstate_test(sktNum, dieName, clrgv=ratio, chkstr='ccf_wp,ufs_status')` — exercises the PEGA P-state path which is the silicon-level simulation of distress-driven ring frequency change.
+
+---
+
+## Pre-Conditions
+
+| Pre-Condition | Requirement |
+|---|---|
+| System booted to OS | BIOS CPL4 complete; PCode ring scalability running |
+| Ring scalability enabled | MSR 0x1FC bit[25] `disable_ring_ee=0`; `ring_distress_status.ia_distress_invalid=0` |
+| PCode vars accessible | `cbb.pcode.vars.ring.resolved_ratios` readable |
+| PEGA available | `import diamondrapids.pm.pmutils.pega as pega` succeeds |
+
+---
+
+## Test Steps
 
 | # | Action | Expected Result (PASS) | Failure Indication |
 |---|--------|------------------------|--------------------|
-| 1 | Read configured distress threshold from TPMI or BIOS (UFS_ADV_CONTROL or vendor-specific register) | Threshold readable; non-zero value confirming BIOS programmed it | Threshold = 0 -- BIOS did not configure distress threshold |
-| 2 | Apply moderate load (SBO below threshold); verify no distress-triggered boost | CCF ratio stays at BW-heuristic-driven value; no boost from distress path | Spurious boost below threshold -- algorithm triggering too early |
-| 3 | Apply high load (SBO above threshold for 2+ slow-loops); verify distress boost fires | CCF ratio increases toward P0 after distress threshold exceeded for hysteresis window | No boost -- threshold not crossed or algorithm not running |
-| 4 | Remove load: verify hysteresis holds boost for N slow-loop periods before reducing ratio | CCF stays at boosted ratio for N x 1ms after distress clears; then ramps down | Instant drop after load removed -- no hysteresis; oscillation risk |
-| 5 | Verify oscillation prevention: rapid load changes (on/off at 10 Hz) do not cause frequency thrashing | CCF frequency stable during rapid load oscillation; hysteresis smooths transitions | CCF oscillates at load frequency -- hysteresis not working |
-| 6 | Verify frequency response magnitude: boost at maximum distress reaches P0 (0x16 = 2.2 GHz) | At full distress, CCF boosted to P0; no intermediate cap | CCF capped below P0 -- algorithm limiting boost magnitude |
-| 7 | Verify algorithm operates independently per-CBB: distress on cbb0 does not trigger cbb1 boost | cbb0 boosts; cbb1 stays at autonomous value | cbb1 also boosts -- distress not scoped to per-CBB |
-| 8 | Verify PLR_DIE_LEVEL = 0x0 throughout distress algorithm test | PLR = 0x0; power events from CCF boost are clean | PLR non-zero -- unexpected power event from distress boost |
-
-### Pass / Fail Criteria
-
-**PASS:** Threshold behavior correct; boost fires only above threshold; hysteresis holds boost N slow-loops; no oscillation under rapid load; boost reaches P0; per-CBB independence; PLR = 0x0.
-
-**FAIL:** Spurious boost below threshold; no boost above threshold; no hysteresis; oscillation; boost capped below P0; cross-CBB coupling.
-
-### Post-Process
-
-Save: counter snapshots (baseline and under load), UFS_STATUS.CURRENT_RATIO trace, PLR_DIE_LEVEL for both CBBs.
-
-### Reference Documents
-
-- [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html) -- Distress algorithm, threshold, hysteresis
-- [CBB Telemetry Aggregator](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details) -- Distress input counters
-- [Fabric DVFS KB](../../../pm_features/fabric_dvfs/fabric_dvfs_main.md) -- CBB CCF DVFS, distress -> frequency
-- [CBB Power Management HAS Index](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html) -- CBB PM feature index
-- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) -- NWP CCF ring scope
+| 1 | Read distress input: `ring_distress_status.ia_distress` and verify validity flag; read `pcode.vars.ring.resolved_ratios.{max,guaranteed,min}` | `ia_distress_invalid=0`; resolved ratios non-zero and ordered max≥guaranteed≥min | Invalid flag set or zero ratios — algorithm inputs missing |
+| 2 | Verify PCode WP responds to PEGA injection: `ccf_pegaPstate_test(skt, 'cbbs', clrgv=target, chkstr='ccf_wp,ufs_status')` across full fused [Pm..P0] range | Each injected ratio reflected in `ccf_wp[0].target_max_ratio` and `ufs_status.current_ratio` | Ratio mismatch — PCode WP calculation not following injected demand |
+| 3 | Verify slow loop trigger: read `ring_distress_status.ia_distress` at 1s intervals (3 samples). Verify value changes under varying OS load | `ia_distress` varies — slow loop updating distress input and PCode responding | `ia_distress` stuck at one value — slow loop not triggering |
+| 4 | Verify fast-path trigger: read `ccf_wp_status.ratio` before and immediately after PEGA injection | WP updates within 1 tick after injection — fast path active (distress change detected) | WP unchanged after injection — fast path not triggering |
+| 5 | Verify PCode algorithm parameters accessible: check `pcode.vars.ring.resolved_ratios.min` equals fused Pm and `.max` equals fused P0 | Resolved ratios match `sst_pp_info_11.{pm_fabric_ratio, p0_fabric_ratio}` | Mismatch — PCode not initialized from fuses correctly |
 
 ---
 
-## Section A: NWP Disposition & Justification
+## Pass / Fail Criteria
 
-**Disposition: Runnable -- CBB CCF PCODE Algorithm for Distress Input present on NWP**
+**PASS:** `ring_distress_status.ia_distress` readable with `ia_distress_invalid=0`; `pcode.vars.ring.resolved_ratios` accessible and fuse-consistent; CCF WP (`ccf_wp[0].target_max_ratio`, `ufs_status.current_ratio`) tracks PEGA-injected ring ratio across full [Pm..P0] range; distress value updates under load; fast-path WP update within 1 tick.
 
-CBB CCF telemetry and DVFS algorithm are inherited from DMR CBB shared source. NWP: 2 CBBs; iterate both cbb0 and cbb1. CCF P0 = 2.2 GHz; test under full 96-core coherency load for maximum signal.
-
-Tags: `CBB CCF`, `plc.feature.p1`.
+**FAIL:** Distress input invalid; resolved ratios inaccessible or zero; WP not tracking PEGA injection; distress value never changes under varying load.
 
 ---
 
-## Section B: NWP-Specific Test Procedure
+## Post-Process
 
-### Key Namednodes Paths (NWP)
+Save: `ring_distress_status` samples, `pcode.vars.ring.resolved_ratios`, `ccf_wp[0].target_max_ratio` and `ufs_status.current_ratio` per CBB for each injected ratio, MSR 0x1FC per core.
 
-| Register | NWP Path | Purpose |
-|----------|----------|---------|
-| UFS_STATUS | `sv.socket0.cbbN.base.tpmi.ufs_status` | CURRENT_RATIO |
-| PLR_DIE_LEVEL | `sv.socket0.cbbN.base.tpmi.plr_die_level` | Perf Limit Reason |
-| UFS_ADV_CONTROL_1 | `sv.socket0.cbbN.base.tpmi.ufs_adv_control_1` | RAPL/distress slopes |
+---
 
-### Adapted Steps
+## References
 
-| Step | Action | NWP Details |
-|------|--------|-------------|
-| 1 | Iterate both CBBs | `for cbb in sv.sockets.cbbs:` |
-| 2 | Read telemetry | Per-CBB TPMI or GPSB path |
-| 3 | Apply workload | `pega_mailbox.pega_pstate()` or OS-level stress tool |
-| 4 | Verify response | `cbb.base.tpmi.ufs_status.current_ratio.read()` |
-
-### Pass Criteria
-
-Threshold behavior correct; boost fires only above threshold; hysteresis holds boost N slow-loops; no oscillation under rapid load; boost reaches P0; per-CBB independence; PLR = 0x0.
+- [CBB CCF Power Management HAS (Ring Scalability)](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#cbb-ring-frequency-scalability)
+- [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv)
+- [CBB Telemetry Aggregator](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details)
+- [CBB CCF Power Management HAS index](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html)
+- [pCode Home](https://wiki.ith.intel.com/display/ServerPcode/Server+Pcode+Home)
+- [Related TC 22022422894 - IA Distress Input](https://hsdes.intel.com/appstore/article-one/#/22022422894)

@@ -1,0 +1,740 @@
+[
+  {
+    "file": "Idle_PM\\autonomous_idle\\tcg.py",
+    "module_doc": "",
+    "functions": [
+      {
+        "name": "main",
+        "doc": ""
+      }
+    ],
+    "classes": [
+      {
+        "name": "TrunkClKGTest",
+        "doc": "",
+        "methods": [
+          "__init__",
+          "get_options",
+          "mainTest",
+          "loopCleanup",
+          "u1_8_to_decimal",
+          "tcgFreqCheck",
+          "tcgVoltageCheck",
+          "tcgEnabling",
+          "tcgTimercheck",
+          "tcgRcCapbility",
+          "loopSetup",
+          "tcgEntrycheck",
+          "tcgEntrycheck_pllMode"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "Idle_PM\\autonomous_idle\\ssr.py",
+    "module_doc": "Team: PM\n\nSub-Team:  PM Idle \n\nOwner:  Tensae, Kebede \n\nemail:  tensae.kebede@intel.com\n\nIntent of the script: This is a debug script to check and set basic commands/functionality of Shallow Self-refrsh feature\n\nInput arguments/options for the script: \n\nScript usage example:  \nimport pm.Idle_PM.autonomus_idle as ssr",
+    "functions": [
+      {
+        "name": "main",
+        "doc": ""
+      }
+    ],
+    "classes": [
+      {
+        "name": "SSRTest",
+        "doc": "",
+        "methods": [
+          "__init__",
+          "get_options",
+          "u1_8_to_decimal",
+          "mainTest",
+          "resolve_path",
+          "loopCleanup",
+          "ssrFreqCheck",
+          "ssrVoltageCheck",
+          "ssrEnablingCheck",
+          "ssrCheckTimer",
+          "ssrRcCapbility",
+          "pStateTblecheck",
+          "loopSetup",
+          "PhyPwrDowncheck",
+          "pmonCount_delta"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "Idle_PM\\autonomous_idle\\autonomous_idle_debug.py",
+    "module_doc": "Team: PM\n\nSub-Team:  PM Idle \n\nOwner:  Perez Macias, Lizette \n\nemail:  lizette.perez.macias@intel.com\n\nIntent of the script: This is a debug script to check and set basic commands/functionality of autonomous idle feature\n\nInput arguments/options for the script: \n\nScript usage example:  \nimport pm.Idle_PM.autonomous_idle.autonomous_idle_debug as aid",
+    "functions": [
+      {
+        "name": "template",
+        "doc": "Description/Purpose:  <Briefly describe what the class/function is used for>\nInputs to the class/function:  <List all the inputs which are needed by the function. Provide a brief description of each o"
+      }
+    ],
+    "classes": []
+  },
+  {
+    "file": "Idle_PM\\cstates\\cstates.py",
+    "module_doc": "   INTEL CONFIDENTIAL - DO NOT RE-DISTRUBUTE\n   Copyright 2012 Intel Corporation All Rights Reserved.\n\n   Team: Columbia Design Center\n   Author: Joshua Stahl\n   e-mail: joshua.k.stahl@intel.com\n   Date:   April 2014\n\n   \n#   INTEL CONFIDENTIAL - DO NOT RE-DISTRUBUTE\n#   Changes done for ICX-SP\n#   Team:  AN4 FV PM\n#   Author: Javier Rodriguez\n#   e-mail: javier.rodriguez-cortes@intel.com\n#   Date",
+    "functions": [
+      {
+        "name": "main",
+        "doc": "    "
+      }
+    ],
+    "classes": [
+      {
+        "name": "CstatesTest",
+        "doc": "",
+        "methods": [
+          "get_options",
+          "__init__",
+          "getCstateCounter",
+          "getTSC",
+          "waitForState",
+          "_selectCore",
+          "loopSetup",
+          "mainTest",
+          "loopCleanup"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "Idle_PM\\cstates\\cstate_check.py",
+    "module_doc": "",
+    "functions": [
+      {
+        "name": "main",
+        "doc": "    "
+      },
+      {
+        "name": "run",
+        "doc": "This is the function that emulation will run.  Will get the test type from the environment."
+      }
+    ],
+    "classes": [
+      {
+        "name": "_ImportClass",
+        "doc": "",
+        "methods": [
+          "__init__"
+        ]
+      },
+      {
+        "name": "svObjRef",
+        "doc": "Class to manage DFX counter reads and calculations",
+        "methods": [
+          "__init__",
+          "get",
+          "sample",
+          "compare"
+        ]
+      },
+      {
+        "name": "TrackTime",
+        "doc": "Class to track time when running in standalone",
+        "methods": [
+          "__init__",
+          "printTime",
+          "printElapsedTime",
+          "getElapsedTime",
+          "_sample",
+          "_calc"
+        ]
+      },
+      {
+        "name": "CstateTest",
+        "doc": "Main Test",
+        "methods": [
+          "get_options",
+          "__init__",
+          "checkPatch23",
+          "checkFreezeIaFreq",
+          "checkMonitorFsmEnabled",
+          "resolveCstateLimit",
+          "getTestSchedEAX",
+          "getTestSchedRoutine",
+          "setDfxCoverage",
+          "ccxMsrRcntrsMoved",
+          "bool_hasRegValChanged",
+          "_resolve2Type",
+          "loopSetup",
+          "mainTest",
+          "loopCleanup"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "Idle_PM\\cstates\\cstate_focus.py",
+    "module_doc": "cstate_focus.py\n====================================\nFocused testing of specific C-state features",
+    "functions": [
+      {
+        "name": "cst_residency_focus",
+        "doc": "Focused test to verify c1 and c6 residency counters are incrementing\n    "
+      },
+      {
+        "name": "c6_demotion_focus",
+        "doc": "Focused test to verify c6-state demotion is working\n    "
+      },
+      {
+        "name": "check_cst_focus",
+        "doc": "Focus test to verify correct core pma hardware actions in C6, C0 or C1E\n    "
+      },
+      {
+        "name": "check_acp_c6_demotion_focus",
+        "doc": "Focus test to verify that ACP is enabled to handle C6 demotion\n    "
+      },
+      {
+        "name": "check_mcst_test",
+        "doc": "just a debug test to verify how pega cstate command works on module\n    "
+      },
+      {
+        "name": "main",
+        "doc": ""
+      }
+    ],
+    "classes": [
+      {
+        "name": "_ImportClass",
+        "doc": "",
+        "methods": []
+      }
+    ]
+  },
+  {
+    "file": "Idle_PM\\cstates\\cstate_demotion.py",
+    "module_doc": "",
+    "functions": [
+      {
+        "name": "main",
+        "doc": ""
+      }
+    ],
+    "classes": [
+      {
+        "name": "CStateDemotionTest",
+        "doc": "",
+        "methods": [
+          "__init__",
+          "get_options",
+          "log_section",
+          "mainTest",
+          "loopCleanup"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "Idle_PM\\cstates\\ccx_residency_test.py",
+    "module_doc": "INTEL CONFIDENTIAL - DO NOT RE-DISTRIBUTE\nCopyright Intel Corporation All Rights Reserved.\n\nTeam:  PostDNV PM\nSub-Team: Idle PM \nOwner: Lizette Perez Macias \nemail: lizette.perez.macias@intel.com \nDate:  Feb 2025 \nIntent of the script: This is an automated cstates test, the script has 3 subtests 0.- Check c1 and c6 residency when monitor_mwait is disabled 1.-Limit Cstates to C1 2.- set Cstates to ",
+    "functions": [
+      {
+        "name": "kill_process",
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "doc": ""
+      }
+    ],
+    "classes": [
+      {
+        "name": "ccx_residency_test",
+        "doc": "",
+        "methods": [
+          "get_options",
+          "__init__",
+          "sleep_simics",
+          "delta_cc0",
+          "delta_cc1",
+          "delta_cc6",
+          "delta_mc6",
+          "delta_all_cores",
+          "check_core_state",
+          "get_resolved_cstate",
+          "print_reg_fields",
+          "print_sigterm_debug",
+          "print_debug_things",
+          "loopSetup",
+          "mainTest"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "Idle_PM\\PKGC\\pkgc_pmx.py",
+    "module_doc": "PMX script for integrating package c testing into PMX\n\nFunctions:\n    No functions\nClasses:\n    PkgcPmxBase",
+    "functions": [
+      {
+        "name": "u1_8_to_decimal",
+        "doc": ""
+      },
+      {
+        "name": "_get_bits",
+        "doc": ""
+      },
+      {
+        "name": "get_pll_ratio",
+        "doc": ""
+      },
+      {
+        "name": "get_pll_mode",
+        "doc": ""
+      }
+    ],
+    "classes": [
+      {
+        "name": "PkgcPmx",
+        "doc": "",
+        "methods": [
+          "__init__",
+          "histo_io_idle",
+          "histo_qactive",
+          "test_check_CCF_RingC3_PLL",
+          "sleep_simics",
+          "test_check_MC_self_refresh",
+          "test_check_DDRIO_self_refresh",
+          "test_ensure_MIO_UXIinL1",
+          "test_check_RC_CFCMEM_PLL",
+          "test_check_RC_MC_PLL",
+          "test_check_RC_CFCIO_PLL_WP",
+          "test_check_RC_MIO_PLL",
+          "test_check_PrimecodeInit_PChs",
+          "test_check_PrimecodeInit_WakeMasks",
+          "test_check_RingPLL"
+        ]
+      },
+      {
+        "name": "PmTestCase",
+        "doc": "",
+        "methods": [
+          "__init__",
+          "_get_test_id",
+          "_get_name",
+          "_get_return_code",
+          "_increment_return_code",
+          "expect_not_equal",
+          "expect_equal",
+          "log_error",
+          "log_info",
+          "log_result",
+          "start_test",
+          "end_test"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "Idle_PM\\PKGC\\pkgc.py",
+    "module_doc": "Team: PM\n\nSub-Team:  PM Idle \n\nOwner:  Gong, Jimmy \n\nemail:  jinwen.gong@intel.com\n\nIntent of the script: This is a test script to check and set basic commands/functionality of pkgc feature\n\nInput arguments/options for the script: \n\nScript usage example:  \nimport pm.Idle_PM.PKGC.pkgc as pkgc",
+    "functions": [
+      {
+        "name": "template",
+        "doc": "Description/Purpose:  <Briefly describe what the class/function is used for>\nInputs to the class/function:  <List all the inputs which are needed by the function. Provide a brief description of each o"
+      },
+      {
+        "name": "fuses_check",
+        "doc": "Description/Purpose:  This funtion check all the fuses for pkgc.\nInputs to the class/function:  \nResult/output of the function: Print the value of the diferent fuses. \nPass/fail criteria used:  \nUsage"
+      },
+      {
+        "name": "sapmctl_cfg_knob",
+        "doc": ""
+      },
+      {
+        "name": "check_MC_self_refresh",
+        "doc": ""
+      },
+      {
+        "name": "check_DDRIO_self_refresh",
+        "doc": ""
+      },
+      {
+        "name": "histo_qactive",
+        "doc": ""
+      },
+      {
+        "name": "histo_pactive",
+        "doc": ""
+      },
+      {
+        "name": "histo_io_idle",
+        "doc": ""
+      },
+      {
+        "name": "histo_io_idle_mask",
+        "doc": ""
+      },
+      {
+        "name": "pc6_residency",
+        "doc": ""
+      },
+      {
+        "name": "pcu_cr_residency_counter",
+        "doc": ""
+      },
+      {
+        "name": "sleep_simics",
+        "doc": ""
+      },
+      {
+        "name": "check_VccFIXDIG",
+        "doc": ""
+      },
+      {
+        "name": "check_VccCFCMEM",
+        "doc": ""
+      },
+      {
+        "name": "check_VccCFCIO",
+        "doc": ""
+      },
+      {
+        "name": "check_VccFIXDIG_UIO",
+        "doc": ""
+      },
+      {
+        "name": "check_VCCUCIEA",
+        "doc": ""
+      },
+      {
+        "name": "u1_8_to_decimal",
+        "doc": ""
+      },
+      {
+        "name": "check_RC_MC_PLL",
+        "doc": ""
+      },
+      {
+        "name": "check_RC_MIO_PLL",
+        "doc": ""
+      },
+      {
+        "name": "check_RC_CFCIO_PLL",
+        "doc": ""
+      },
+      {
+        "name": "check_RC_CFCMEM_PLL",
+        "doc": ""
+      },
+      {
+        "name": "check_PrimecodeInit_PChs",
+        "doc": ""
+      },
+      {
+        "name": "check_PrimecodeInit_WakeMasks",
+        "doc": ""
+      },
+      {
+        "name": "check_Primecode_MBVR",
+        "doc": ""
+      },
+      {
+        "name": "check_NPKonLeafIMH",
+        "doc": ""
+      },
+      {
+        "name": "check_PkgCxProbe",
+        "doc": ""
+      },
+      {
+        "name": "check_Primecode_IO_Registers",
+        "doc": ""
+      },
+      {
+        "name": "histo_oobmsm",
+        "doc": ""
+      },
+      {
+        "name": "check_OOBMSMinPkgc",
+        "doc": ""
+      },
+      {
+        "name": "Ensure_MIO_UXIinL1",
+        "doc": ""
+      },
+      {
+        "name": "Ensure_D2DinL1",
+        "doc": ""
+      },
+      {
+        "name": "check_PC6_Voltage_Fuses",
+        "doc": ""
+      },
+      {
+        "name": "check_PrimecodeInit_RC_WP",
+        "doc": ""
+      },
+      {
+        "name": "check_RingPLL",
+        "doc": ""
+      },
+      {
+        "name": "check_CorePLL",
+        "doc": ""
+      },
+      {
+        "name": "check_CCB_FIVR",
+        "doc": ""
+      },
+      {
+        "name": "Is_PC6",
+        "doc": ""
+      },
+      {
+        "name": "check_OPC_PKGC_ENTRY_CONTROL",
+        "doc": ""
+      },
+      {
+        "name": "check_PKGC_while_OS_offlines_cores",
+        "doc": ""
+      },
+      {
+        "name": "PC6_Debug_Register_Checks",
+        "doc": ""
+      },
+      {
+        "name": "check_PC6_MSR",
+        "doc": ""
+      },
+      {
+        "name": "check_PEGA_Support_PC6",
+        "doc": ""
+      },
+      {
+        "name": "PkgC_control_knob",
+        "doc": ""
+      },
+      {
+        "name": "PC6_UCIE_L1_Checks",
+        "doc": ""
+      },
+      {
+        "name": "run_all",
+        "doc": ""
+      }
+    ],
+    "classes": []
+  },
+  {
+    "file": "Idle_PM\\PKGC\\pkgc_2.py",
+    "module_doc": "Team: PM\n\nSub-Team:  PM Idle \n\nOwner:  Gong, Jimmy \n\nemail:  jinwen.gong@intel.com\n\nIntent of the script: This is a test script to check and set basic commands/functionality of pkgc feature\n\nInput arguments/options for the script: \n\nScript usage example:  \nimport pm.Idle_PM.PKGC.pkgc as pkgc",
+    "functions": [
+      {
+        "name": "template",
+        "doc": "Description/Purpose:  <Briefly describe what the class/function is used for>\nInputs to the class/function:  <List all the inputs which are needed by the function. Provide a brief description of each o"
+      },
+      {
+        "name": "check_VccFIXDIG",
+        "doc": ""
+      },
+      {
+        "name": "check_VccCFCMEM",
+        "doc": ""
+      },
+      {
+        "name": "check_VccCFCIO",
+        "doc": ""
+      },
+      {
+        "name": "check_VccFIXDIG_UIO",
+        "doc": ""
+      },
+      {
+        "name": "u1_8_to_decimal",
+        "doc": ""
+      },
+      {
+        "name": "check_RC_MC_PLL",
+        "doc": ""
+      },
+      {
+        "name": "check_RC_MIO_PLL",
+        "doc": ""
+      },
+      {
+        "name": "check_RC_CFCIO_PLL",
+        "doc": ""
+      },
+      {
+        "name": "check_RC_CFCMEM_PLL",
+        "doc": ""
+      },
+      {
+        "name": "check_PrimecodeInit_RC_WP",
+        "doc": ""
+      },
+      {
+        "name": "check_CCB_FIVR",
+        "doc": ""
+      }
+    ],
+    "classes": []
+  },
+  {
+    "file": "Idle_PM\\PKGC\\package_cstate_check.py",
+    "module_doc": "",
+    "functions": [
+      {
+        "name": "main",
+        "doc": "    "
+      }
+    ],
+    "classes": [
+      {
+        "name": "pcu_cregs",
+        "doc": "Class to contain pcu uncore control registers used in this application",
+        "methods": [
+          "io_dfx_ctrl_unprotected",
+          "io_dfx_ctrl_unprotected_core_cstate_limit",
+          "pcu_cr_dfx_ctrl_unprotected",
+          "pcu_cr_pcode_system_modes_control_pkg_cstate_disable",
+          "pcu_cr_pcode_system_modes_control_pkg_c6deep_disable",
+          "pcu_cr_pkg_c_state_limit_req",
+          "pcu_cr_pkg_c_state_limit_req_global",
+          "pcu_cr_pkg_c_state_limit_req_fused",
+          "pcu_cr_pcX_rcntr"
+        ]
+      },
+      {
+        "name": "pcu_ioregs",
+        "doc": "Class to contain pcudata io registers used in this application",
+        "methods": [
+          "io_bios_mailbox_interface",
+          "io_bios_mailbox_data",
+          "io_idle_hw_wake_status",
+          "io_idle_pcode_wake",
+          "io_idle_pm_control_mbvr_action_dis",
+          "io_idle_pm_control_global_qch_action_dis",
+          "io_pmax_config_hw_enable"
+        ]
+      },
+      {
+        "name": "pcu_vars",
+        "doc": "Class to contain pcudata variables used in this application",
+        "methods": [
+          "saved_pkgc_limit",
+          "resolvedCstateLimit",
+          "fused_core_c_state_limit",
+          "global_patch_revision"
+        ]
+      },
+      {
+        "name": "msr",
+        "doc": "",
+        "methods": [
+          "fscp_cr_core_c6_residency_counter",
+          "fscp_cr_core_c7_residency_counter",
+          "ucode_cr_core_c1_residency",
+          "ucode_cr_cc3_rcntr",
+          "fscp_clock_cst_cfg_control",
+          "core_cr_misc_enables",
+          "pc2_rcntr",
+          "pc6_rcntr"
+        ]
+      },
+      {
+        "name": "svObjRef",
+        "doc": "Class to manage DFX counter reads and calculations",
+        "methods": [
+          "__init__",
+          "get",
+          "sample",
+          "compare"
+        ]
+      },
+      {
+        "name": "TrackTime",
+        "doc": "Class to track time when running in standalone",
+        "methods": [
+          "__init__",
+          "printTime",
+          "printElapsedTime",
+          "getElapsedTime",
+          "_sample",
+          "_calc",
+          "reset"
+        ]
+      },
+      {
+        "name": "PkgcTest",
+        "doc": "Main Test",
+        "methods": [
+          "get_options",
+          "__init__",
+          "checkPatch23",
+          "checkFreezeIaFreq",
+          "checkMonitorFsmEnabled",
+          "resolveCstateLimit",
+          "resolvePkgCstateLimit",
+          "getResolvedIioL1Mask",
+          "getResolvedKtiL1Mask",
+          "getTestSchedEAX",
+          "setDfxCoverage",
+          "ccxMsrRcntrsMoved",
+          "pcxMsrRcntrsMoved",
+          "pcxIoRcntrsMoved",
+          "checkIdlePmControl"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "pss\\pkgc\\tc_22022060655_pkgc_zbb.py",
+    "module_doc": "",
+    "functions": [
+      {
+        "name": "_ok",
+        "doc": ""
+      },
+      {
+        "name": "_fail",
+        "doc": ""
+      },
+      {
+        "name": "_warn",
+        "doc": ""
+      },
+      {
+        "name": "_read_node",
+        "doc": ""
+      },
+      {
+        "name": "_read_msr",
+        "doc": ""
+      },
+      {
+        "name": "_get_first_core",
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "doc": ""
+      }
+    ],
+    "classes": []
+  },
+  {
+    "file": "pss\\pkgc\\pega_c6.py",
+    "module_doc": "pega.py",
+    "functions": [
+      {
+        "name": "v14_injections",
+        "doc": ""
+      },
+      {
+        "name": "main",
+        "doc": "Main function for pega.py"
+      }
+    ],
+    "classes": []
+  },
+  {
+    "file": "pss\\cstate\\dmr_pegaCstate.py",
+    "module_doc": "",
+    "functions": [],
+    "classes": []
+  }
+]

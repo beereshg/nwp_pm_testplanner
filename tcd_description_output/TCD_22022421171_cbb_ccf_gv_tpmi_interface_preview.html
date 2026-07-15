@@ -27,7 +27,7 @@
     <a href="https://hsdes.intel.com/appstore/article-one/#/22022421171" target="_blank">22022421171</a>
     &nbsp;|&nbsp; Status: open &nbsp;|&nbsp; Owner: bg3
     &nbsp;|&nbsp; Parent: <a href="https://hsdes.intel.com/appstore/article-one/#/22022420507" target="_blank">22022420507</a>
-    &nbsp;|&nbsp; 2026-06-25 13:38
+    &nbsp;|&nbsp; 2026-07-08 23:11
   </div>
 </div>
 <div class="wrap">
@@ -35,7 +35,28 @@
   <div class="tc-box">
     <h3>Test Cases (1)</h3><table style="width:100%;border-collapse:collapse;font-size:12px;margin:8px 0;"><thead><tr style="background:#e8eef7;"><th style="padding:6px 8px;text-align:left;">ID</th><th style="padding:6px 8px;text-align:left;">Title</th><th style="padding:6px 8px;text-align:left;">Status</th><th style="padding:6px 8px;text-align:left;">Val Env</th><th style="padding:6px 8px;text-align:left;">Feature</th></tr></thead><tbody><tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422859" target="_blank">22022422859</a></td><td>CBB CCF GV TPMI Request</td><td style="color:#2e7d32">open</td><td>silicon,virtual_platform</td><td>CBB CCF</td></tr></tbody></table>
   </div>
-  <div class="desc-box"><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">1. Architecture / Micro-architecture and Functionality</div><div style="padding:25px;"><p style="margin:10px 0 12px;line-height:1.6;"><strong>CBB CCF GV TPMI Interface</strong> covers runtime control of the CCF ring frequency via TPMI <code style="font-family:Consolas,monospace;font-size:0.9em;">UFS_CONTROL</code> register writes. The TPMI interface provides OS/validation visibility and control of CCF operating range. The key validation scenario is <strong>ratio locking</strong>: setting <code style="font-family:Consolas,monospace;font-size:0.9em;">MAX_RATIO = MIN_RATIO</code> collapses the GVFSM operating window to a single point, effectively pinning the CCF ring at a fixed frequency. Normal Autonomous Mode: UFS_CONTROL.MAX_RATIO = 0x16 (2.2 GHz)</p><h3 style="color:rgb(0,113,197);border-bottom:2px solid rgb(0,113,197);padding-bottom:8px;margin-top:20px;">Ratio Lock Mechanism</h3><pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">Normal Autonomous Mode:
+  <div class="desc-box"><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">1. Architecture / Micro-architecture and Functionality</div><div style="padding:25px;"><p style="margin:10px 0 12px;line-height:1.6;"><strong>CBB CCF GV TPMI Interface</strong> covers runtime control of the CCF ring frequency via TPMI <code style="font-family:Consolas,monospace;font-size:0.9em;">UFS_CONTROL</code> register writes. The TPMI interface provides OS/validation visibility and control of CCF operating range. The key validation scenario is <strong>ratio locking</strong>: setting <code style="font-family:Consolas,monospace;font-size:0.9em;">MAX_RATIO = MIN_RATIO</code> collapses the GVFSM operating window to a single point, effectively pinning the CCF ring at a fixed frequency. ┌──────────────────────────────────────────────────────────────┐ │                SW Interface Layer (per CBB)                  │</p><h3 style="color:rgb(0,113,197);border-bottom:2px solid rgb(0,113,197);padding-bottom:8px;margin-top:20px;">Architecture Block Diagram</h3><pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">  ┌──────────────────────────────────────────────────────────────┐
+  │                SW Interface Layer (per CBB)                  │
+  │                                                              │
+  │  DEPRECATED:  MSR 0x620 / MSR 0x621 / BIOS_SPARE2          │
+  │               (NOT supported on DMR CBB)                    │
+  │                                                              │
+  │  POR (DMR CBB): TPMI UFS register bank (in-band, per CBB)  │
+  │    ┌──────────────────────────────────────────────────┐     │
+  │    │  cbb.base.tpmi                                   │     │
+  │    │    ufs_header   [R/O] version, disabled flag     │     │
+  │    │    ufs_control  [R/W] max_ratio, min_ratio, ELC  │     │
+  │    │    ufs_status   [R/O] current_ratio, voltage     │     │
+  │    │    ufs_adv_ctrl [R/W] RAPL slope, base           │     │
+  │    └──────────────────────────┬───────────────────────┘     │
+  └─────────────────────────────  │  ──────────────────────────┘
+                                   │ PCode reads
+                            ┌──────▼────────┐
+                            │  CBB PCode    │
+                            │  GVFSM        │
+                            │ freq = f(BW,  │
+                            │  MAX, MIN)    │
+                            └───────────────┘</pre><h3 style="color:rgb(0,113,197);border-bottom:2px solid rgb(0,113,197);padding-bottom:8px;margin-top:20px;">Ratio Lock Mechanism</h3><pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">Normal Autonomous Mode:
   UFS_CONTROL.MAX_RATIO = 0x16 (2.2 GHz)
   UFS_CONTROL.MIN_RATIO = 0x08 (800 MHz)
   GVFSM freely selects within [MIN, MAX] based on BW heuristics

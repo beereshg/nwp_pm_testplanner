@@ -45,7 +45,7 @@
     <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022422886" target="_blank" rel="noopener">HSD 22022422886 ↗</a>
   </h1>
   <div class="chips">
-    <span class="chip">CBB CCF -- Performance Monitor counters (CCF ring activity) › </span>
+    <span class="chip">CCF PMON / Ring Scalability Telemetry › </span>
     <span class="chip disp"></span>
     <span class="chip">Env: silicon, virtual_platform</span>
   </div>
@@ -71,7 +71,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
-<br/><p style="margin:10px 0 16px 0;"><strong>Objective:</strong> Validate CBB CCF Performance Monitor (PMON) counters that measure CCF ring activity: bandwidth utilization, stall cycles, snoop traffic, and frequency-state occupancy. Tests verify counters increment correctly under known workload, PMU programming via MSR/TPMI, and counter accuracy against expected values. <strong>NWP topology:</strong> 2 CBBs (cbb0/cbb1) x 48 cores = 96 cores total. CCF ring managed autonomously by CBB PCode GVFSM. CCF target = 2.2 GHz (ratio 0x16) for full bandwidth (460 GB/s). MC6 is the deepest idle state (PkgC6 fused off). <strong>PASS:</strong> PMON counters increment under workload; event selection correct; occupancy accurate; per-CBB independence; counter reset works; PLR = 0x0. <strong>FAIL:</strong> Counter stuck at 0; wrong event counted; occupancy at wrong ratio; CBBs not independent; counter not resettable. Save: counter snapshots (baseline and under load), UFS_STATUS.CURRENT_RATIO trace, PLR_DIE_LEVEL for both CBBs.</p>
+<br/><p style="margin:10px 0 16px 0;">Verify post-silicon extraction of CBB CCF ring scalability telemetry via PMON (Performance Monitoring Unit) counters. Ensure that PMON CLR (Compute Ring Scalability) counters can be enabled, programmed with RING_SCALE_EVENTS, and produce non-zero counts during CCF activity. Also verify PMON Fast C3 residency counter increments during Fast Ring C3 events. <strong>Open resolved — PMON POR?</strong> YES. CLR PMON is implemented in hardware at <code>cbb.base.i_ccf_env{N}.egress_{00-77}.pmoncounter[0-3]</code> with event selection, freeze/unfreeze, and counter-control registers. Test infrastructure exists in <code>ccf_utils.py</code> (<code>ccf_pmon_clr_*</code> functions). Fast C3 residency is at <code>cbb.base.ccf_pma.ccf_pmc_regs.fast_c3_residency.counter</code>. <strong>Flow:</strong> Post-silicon telemetry extraction — verify ring scalability PMON counters and Fast C3 residency counter are accessible and produce non-zero counts during CCF activity. <strong>Note on existing script vs TC intent:</strong> <code>--test_ccf_pmon</code> calls <code>ccf_pmon_clr_disable_test()</code> which tests the FREEZE mechanism (frozen counters stay zero = PASS). The TC intent (counters are NON-ZERO during activity) requires enabling counting with a workload and verifying increment. Both aspects are needed.</p>
 
 <br/>
 
@@ -81,13 +81,13 @@
 <br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
 <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">System booted to XOS/SVOS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; PCode running</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">System booted to OS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; PCode initialized</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">TPMI accessible per CBB</td><td style="text-align:left;padding:8px;">`sv.socket0.cbbN.base.tpmi.*` readable</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">CCF PMON accessible</td><td style="text-align:left;padding:8px;">`cbb.base.i_ccf_env0.egress_00.pmoncountercontrol[0]` readable/writable</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">PythonSV namednodes loaded</td><td style="text-align:left;padding:8px;">`import namednodes; sv = namednodes.sv` succeeds</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Fast C3 residency accessible</td><td style="text-align:left;padding:8px;">`cbb.base.ccf_pma.ccf_pmc_regs.fast_c3_residency.counter` readable</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">Workload available</td><td style="text-align:left;padding:8px;">CPU stress or coherency workload can be launched</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">PEGA available</td><td style="text-align:left;padding:8px;">For injecting CCF activity to drive PMON counts</td></tr>
 
 </table>
 
@@ -107,51 +107,37 @@
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Program PMON: select CCF bandwidth event in PMON control MSR</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">PMU accepts programming; event selector written</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">MSR write rejected or not reflected</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">For each CBB, reset CLR PMON: `ccf_pmon_clr_unitcontrol_op(skt, cbb, 'i_ccf_envs', 'egresss', op='w', w_dict={'frz':1,'rst_ctrl':1,'rst_ctrs':1})`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">All counters reset to 0; no error</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Reset fails — PMON registers inaccessible</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Apply mesh-bound workload on cbb0; read PMON bandwidth counter before and after</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Counter increments by expected amount proportional to traffic</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Counter stuck at 0 -- PMON not connected to CCF event</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Program RING_SCALE_EVENTS: `ccf_pmon_clr_countercontrol_op(..., op='w', w_dict={'ev_sel':0x24,'umask':0x3f})`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Event select written; `ev_sel=0x24` reads back</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Write rejected — counter control not programmable</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Repeat for stall-cycle event: verify counter increments under CCF congestion</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Stall counter advances; rate proportional to congestion level</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Counter frozen -- stall event mux incorrect</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Enable counting (unfreeze): `ccf_pmon_clr_unitcontrol_op(..., op='c')`. Inject CCF activity via PEGA: `pega.uncoreRatioSingleShot(skt, cbb, target_ratio)`. Wait 15s. Freeze again. Read counters</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">At least one `pmoncounter[N].event_count > 0` — ring scale events counted</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">All counters stay 0 — no CCF activity counted; PMON not functional</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify frequency-state occupancy counter: lock CCF to ratio 0x16 for 100ms; read occupancy</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Occupancy accumulates at ratio 0x16 for ~100ms equivalent</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Occupancy at wrong ratio -- state bucket mux error</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify PMON CLR freeze: freeze and verify counters do NOT change: `ccf_pmon_clr_disable_test(skt, 'cbbs', 'i_ccf_envs', 'egresss', 'all', rtime=100)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PASS (diff==0) — frozen counters stable</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">FAIL (diff>0) — frozen counters changed; freeze mechanism broken</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify PMON counters per CBB are independent: cbb0 and cbb1 show different values under asymmetric load</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">cbb0 counter > cbb1 counter when only cbb0 loaded</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Counters identical -- CBB mux not working</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Reset PMON counters and verify they clear to 0</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">All counters read 0 after reset</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero after reset -- counter not clearable</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify PLR_DIE_LEVEL = 0x0 and no unexpected DVFS changes during PMON read</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">PLR = 0x0; CCF ratio unchanged by PMON operations</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">PLR asserts -- PMON overhead affecting CCF behavior</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify Fast C3 residency: read baseline `fast_c3_residency.counter`; inject Fast C3 via PEGA C-state; re-read</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`fast_c3_residency.counter` incremented — Fast C3 residency tracked</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Counter unchanged — Fast C3 PMON not functional</td>
 </tr>
 
 </table>
@@ -166,13 +152,13 @@
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
   <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
-  <p style="margin:0;font-size:0.9em;">** PMON counters increment under workload; event selection correct; occupancy accurate; per-CBB independence; counter reset works; PLR = 0x0.</p>
+  <p style="margin:0;font-size:0.9em;">** CLR PMON counters accessible and programmable per CBB; at least one `pmoncounter[N].event_count > 0` after RING_SCALE_EVENTS programming and CCF activity; freeze mechanism works (frozen counters stay stable); `fast_c3_residency.counter` increments after Fast C3 injection.</p>
 </div>
 
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
   <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
-  <p style="margin:0;font-size:0.9em;">** Counter stuck at 0; wrong event counted; occupancy at wrong ratio; CBBs not independent; counter not resettable.</p>
+  <p style="margin:0;font-size:0.9em;">** Any PMON counter register inaccessible; all counters remain 0 after activity; freeze mechanism broken (counters change while frozen); `fast_c3_residency.counter` does not increment.</p>
 </div>
 
 
@@ -192,7 +178,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
-<br/><p style="margin:10px 0;">Save: counter snapshots (baseline and under load), UFS_STATUS.CURRENT_RATIO trace, PLR_DIE_LEVEL for both CBBs. - [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html) -- CCF PMON event mapping</p>
+<br/><p style="margin:10px 0;">Save: PMON counter values (all CBBs, all i_ccf_env, all egress) before/after activity, <code>fast_c3_residency.counter</code> before/after Fast C3 injection.</p>
 
 <br/>
 
@@ -204,13 +190,17 @@
 
 
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html">CBB CCF Power Management HAS</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#switching-between-fast-gv-drainless-gv">CBB CCF Power Management HAS</a></li>
 
 <li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details">CBB Telemetry Aggregator</a></li>
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html">CBB Power Management HAS Index</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html">CBB CCF Power Management HAS index</a></li>
 
-<li><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html">NWP PM MAS</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/Features/PEGA/PEGA.html">CBB Power Event Generation Architecture (PEGA)</a></li>
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_TPMI/cbb_tpmi.html">DMR CBB TPMI Support</a></li>
+
+<li><a href="https://wiki.ith.intel.com/display/ServerPcode/Server+Pcode+Home">pCode Home</a></li>
 
 
 </ul>

@@ -45,7 +45,7 @@
     <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/22022422868" target="_blank" rel="noopener">HSD 22022422868 ↗</a>
   </h1>
   <div class="chips">
-    <span class="chip">CBB CCF -- Active Idle wake event handling › </span>
+    <span class="chip">CCF PM States / Active-Idle / Wake Events › </span>
     <span class="chip disp"></span>
     <span class="chip">Env: silicon, virtual_platform</span>
   </div>
@@ -71,7 +71,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
-<br/><p style="margin:10px 0 16px 0;"><strong>Objective:</strong> Validate that the CBB CCF ring correctly handles wake events that arrive during <strong>Active Idle</strong> — the transient window where all cores have issued a MWAIT C-state hint but the Q-channel deassert sequence (CFC_CLK / CFC_PWR / INF qactive) has not yet completed. Wake events must abort Active Idle cleanly: Q-channels re-assert, core power-up resumes, PICLET replays queued interrupts, and the CCF ring restores to its pre-idle frequency without spurious PLR or stuck state. <strong>Active Idle definition:</strong> All cores have deasserted <code>core_active</code> and the PMA is transitioning Q-channels toward zero. A wake event (timer, interrupt, or PEGA injection) during this window triggers immediate abort — the CCF ring never fully powers down and must recover within the normal wake latency. <strong>NWP scope:</strong> MC6 is the deepest idle state on NWP (PkgC6 fused off). Active Idle / wake event behavior in MC6 context is the primary validation target on silicon. PkgC6 cross-product scenarios are not applicable on NWP customer parts. <strong>PASS:</strong> All phases complete without hang; MC6 residency increments; Q-channels re-assert on wake; CCF ratio restores to pre-idle value; PICLET delivers interrupts correctly; no duplicate/missed events; PLR = 0x0; per-module and per-CBB independence confirmed. <strong>FAIL:</strong> Stuck Q-channel (never re-asserts); wrong or stale residency counter; CCF frequency does not restore; PICLET drops or duplicates interrupt; PLR non-zero; system hang during any phase. Save: CC6/MC6 counters (baseline, mid-test, post-test), GPSB state at each phase, UFS_STATUS.CURRENT_RATIO pre/during/post Active Idle, PLR_DIE_LEVEL for both CBBs, PICLET delivery confirmation log.</p>
+<br/><p style="margin:10px 0 16px 0;">Verify that CBB CCF correctly handles C-state wake events while the CCF is in an active-idle (low-activity) state. Specifically, inject a C-state or frequency-change request while CCF is idling, and confirm that CCF responds — updating <code>ia_distress</code> level and driving a frequency change — without hanging or missing the wake event. <strong>Note on original Opens:</strong> The three opens in the original HSD (fuse format, fuse location, VF point count) are copy-paste errors from a sibling TC (VF Curves). They do not apply to this TC. <strong>Flow (from original):</strong> Wake event across while CCF is in active idle state. <strong>Test script:</strong> <code>pmx_ccf_cbo.py --test_ccf_cstate_x_wake_event</code> → <code>ccfu.cbb_ccf_cstate_x_wake_event_test(sktNum, &#x27;cbbs&#x27;)</code>. <strong>⚠️ Script implementation status:</strong> The function <code>cbb_ccf_cstate_x_wake_event_test</code> in <code>ccf_utils.py</code> is <strong>registered but not fully implemented</strong>. The current body reads <code>ring_distress_status.ia_distress</code> twice and logs the path, but contains no pass/fail comparison. The test body is commented out. This TC <strong>requires implementation</strong> before silicon validation.</p>
 
 <br/>
 
@@ -81,19 +81,15 @@
 <br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
 <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform booted to XOS/SVOS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; PCode running</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">System booted to OS</td><td style="text-align:left;padding:8px;">BIOS CPL4 complete; PCode and CCF PMA initialized</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">BIOS: C-states enabled</td><td style="text-align:left;padding:8px;">CC6 reachable; MonitorMWait enabled</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">C-states enabled</td><td style="text-align:left;padding:8px;">`ProcessorC1eEnable`, `PackageCState` BIOS knobs enable C6</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">CPU governor: powersave</td><td style="text-align:left;padding:8px;">Allows CC6 entry under zero load</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">CCF in active-idle state</td><td style="text-align:left;padding:8px;">CCF at low activity (cores in light workload or C0 idle)</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">No sustained workload</td><td style="text-align:left;padding:8px;">All test cores at idle baseline before injection</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">PEGA available</td><td style="text-align:left;padding:8px;">`import diamondrapids.pm.pmutils.pega as pega` succeeds</td></tr>
 
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">CC6/MC6 residency MSRs accessible</td><td style="text-align:left;padding:8px;">`msr(0x3FD)`, `msr(0x664)` readable</td></tr>
-
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">CBB GPSB accessible</td><td style="text-align:left;padding:8px;">`sv.socket0.cbb0.compute0.pma0.gpsb` readable</td></tr>
-
-<tr><td style="text-align:left;vertical-align:top;padding:8px;">PEGA/pmutil available</td><td style="text-align:left;padding:8px;">`pega_mailbox.pega_pstate()` importable</td></tr>
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">`ring_distress_status` readable</td><td style="text-align:left;padding:8px;">`cbb.base.punit_regs.punit_pmsb.pmsb_pcu.ring_distress_status` accessible</td></tr>
 
 </table>
 
@@ -113,72 +109,37 @@
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Baseline: read CC6 residency (`MSR 0x3FD`), MC6 residency (`MSR 0x664`), and `UFS_STATUS.CURRENT_RATIO` on cbb0 module0</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero residency counters; baseline CCF ratio recorded</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">MSR unreadable or ratio = 0</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read baseline CCF state: `ring_distress_status.ia_distress` and `ufs_status.current_ratio` per CBB while system is at active-idle</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Non-zero ratio; `ia_distress` reflects low stress level</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Zero ratio — CCF not running</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Phase 1 — Clean Active Idle: idle all cores in module0 via MWAIT `EAX=0x23`; wait 10ms for Q-channels to deassert fully</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">MC6 residency increments; Q-channels deassert; Fast Ring C3 engages</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">MC6 counter stale -- cores not reaching MC6</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Inject a C-state wake event via PEGA: `pega.pegaCstate(sktNum, dieName, domainDict={'c1e':'all'})` then release to C0</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PEGA accepted; cores return to C0</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PEGA error; cores stuck in C-state</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify Active Idle state: read `GPSB.HWP_REQUEST_RESOLVED` and CCF clock gate status</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">GPSB shows low-power resolved state; Uclk tree gated</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">No state change -- Active Idle not engaged</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read `ring_distress_status.ia_distress` after wake</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`ia_distress` changes from sleep value — CCF responded to wake event</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`ia_distress` unchanged — CCF not responding to wake</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Phase 2 — Timer wake during Active Idle: re-idle all cores; inject ARAT timer interrupt mid-transition (before Q-channel deassert completes)</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Timer fires during Active Idle window; Q-channels immediately re-assert; no stuck state</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Q-channels stuck deasserted -- abort failed</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Inject PEGA P-state request while CCF is in active-idle: `ccfu.ccf_pegaPstate(sktNum, dieName, clrgv=target_ratio)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">`ufs_status.current_ratio` updates to target within 1s</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Ratio unchanged — CCF stuck in idle</td>
 </tr>
 
 <tr>
   <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify post-timer-wake CCF state: `UFS_STATUS.CURRENT_RATIO` and `GPSB.HWP_REQUEST_RESOLVED`</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">CCF ratio restores to pre-idle baseline value; GPSB reflects active state</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">CCF stuck at low ratio -- wake did not restore freq</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Phase 3 — External interrupt wake: re-idle cores; inject external interrupt via PEGA mailbox during Q-channel transition</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Interrupt delivery aborts Active Idle; PICLET queues and replays interrupt; no ordering errors</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">PICLET drops interrupt -- wake event lost</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify PICLET interrupt replay: read interrupt delivery counter or use PEGA inject-and-check API</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Interrupt received by correct core; no duplicate or missed delivery</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Interrupt not received -- PICLET replay broken</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">8</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Phase 4 — Repeat on cbb1 and module1: run phases 1-3 on cbb1 and on module1 of cbb0</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Same behavior; per-module and per-CBB independence confirmed</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">One module/CBB asymmetry -- PMA state stuck</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">9</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify residency counters after full test: CC6 and MC6 both advanced from baseline</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Residency reflects all idle cycles across phases; no rollback</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Counters unchanged -- HW not accounting C-state residency</td>
-</tr>
-
-<tr>
-  <td style="text-align:left;vertical-align:top;padding:8px;">10</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">Verify `PLR_DIE_LEVEL = 0x0` on both CBBs throughout all phases</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">No spurious Performance Limit Reason from Active Idle transitions</td>
-  <td style="text-align:left;vertical-align:top;padding:8px;">PLR non-zero -- unexpected throttle from CCF state transitions</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Repeat for all CBBs; verify each CBB independently tracks its wake events</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">All CBBs update `ia_distress` and `current_ratio` after wake</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Any CBB frozen — per-die wake handling broken</td>
 </tr>
 
 </table>
@@ -193,13 +154,13 @@
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
   <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
-  <p style="margin:0;font-size:0.9em;">** All phases complete without hang; MC6 residency increments; Q-channels re-assert on wake; CCF ratio restores to pre-idle value; PICLET delivers interrupts correctly; no duplicate/missed events; PLR = 0x0; per-module and per-CBB independence confirmed.</p>
+  <p style="margin:0;font-size:0.9em;">** `ring_distress_status.ia_distress` changes in response to C-state wake injection; `ufs_status.current_ratio` updates after PEGA P-state request while CCF is in active-idle; no CBB hangs or misses wake events.</p>
 </div>
 
 
 <div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
   <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
-  <p style="margin:0;font-size:0.9em;">** Stuck Q-channel (never re-asserts); wrong or stale residency counter; CCF frequency does not restore; PICLET drops or duplicates interrupt; PLR non-zero; system hang during any phase.</p>
+  <p style="margin:0;font-size:0.9em;">** `ia_distress` unchanged after wake event injection; CCF ratio stuck at idle value; any CBB unresponsive to wake signals.</p>
 </div>
 
 
@@ -219,7 +180,7 @@
 
 
 <div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
-<br/><p style="margin:10px 0;">Save: CC6/MC6 counters (baseline, mid-test, post-test), GPSB state at each phase, UFS_STATUS.CURRENT_RATIO pre/during/post Active Idle, PLR_DIE_LEVEL for both CBBs, PICLET delivery confirmation log. - [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html) -- Active Idle Q-channel deassert sequence, wake abort flow</p>
+<br/><p style="margin:10px 0;">Save: <code>ring_distress_status</code>, <code>ufs_status.current_ratio</code>, <code>ccf_wp_status</code> register dumps per CBB before and after wake event injection.</p>
 
 <br/>
 
@@ -231,17 +192,19 @@
 
 
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html">CBB CCF Power Management HAS</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#switching-between-fast-gv-drainless-gv">CBB CCF Power Management HAS</a></li>
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCP%20HAS/cbb_cpp_has.html">CBB CCP PM Integration HAS</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv">CBB CCF Power Management HAS (CCF GV)</a></li>
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details">CBB Telemetry Aggregator</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/Features/PEGA/PEGA.html">CBB Power Event Generation Architecture (PEGA)</a></li>
 
-<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html">CBB Power Management HAS Index</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_TPMI/cbb_tpmi.html">DMR CBB TPMI Support</a></li>
 
-<li><a href="https://wiki.ith.intel.com/display/ServerPcode/PEGA">PEGA Architecture</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html">CBB CCF Power Management HAS index</a></li>
 
-<li><a href="https://docs.intel.com/documents/arch_datacenter/DMR/Overview/DMR_Overview_HAS.html#figure-hub-and-spoke">DMR SoC HAS</a></li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html">CBB Telemetry Aggregator</a></li>
+
+<li><a href="https://wiki.ith.intel.com/display/ServerPcode/Server+Pcode+Home">pCode Home</a></li>
 
 
 </ul>

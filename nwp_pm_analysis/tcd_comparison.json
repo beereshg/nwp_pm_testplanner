@@ -1,0 +1,907 @@
+{
+  "gnr": {
+    "15019477771": [
+      {
+        "id": "16021022481",
+        "title": "PECI PM services with PCS Index 19",
+        "from": "DRAM RAPL"
+      },
+      {
+        "id": "14012844926",
+        "title": "Fast RAPL Basic checkout with Traffic and Pstates",
+        "from": "Fast RAPL"
+      },
+      {
+        "id": "14012844929",
+        "title": "Fast RAPL duty cycle quality",
+        "from": "Fast RAPL"
+      },
+      {
+        "id": "14012844938",
+        "title": "PL2_SAFETY_NET Budget released",
+        "from": "Fast RAPL"
+      },
+      {
+        "id": "14012844935",
+        "title": "PL2_SAFETY_NET Budget reduction",
+        "from": "Fast RAPL"
+      }
+    ],
+    "15019477838": [],
+    "15019478558": [],
+    "16030686481": [
+      {
+        "id": "14018447180",
+        "title": "HWP flow SRF B0 PSS",
+        "from": "HWP"
+      },
+      {
+        "id": "16021022237",
+        "title": "PECI PM services with PCS Index-49",
+        "from": "Core Pstate RWC"
+      },
+      {
+        "id": "16021022276",
+        "title": "PECI PM services with PCS Index- 50",
+        "from": "Core Pstate RWC"
+      }
+    ],
+    "16030762839": [],
+    "16030763137": [
+      {
+        "id": "22013671913",
+        "title": "CPUID",
+        "from": "CPU Thermals"
+      },
+      {
+        "id": "22013671916",
+        "title": "Out of Spec",
+        "from": "CPU Thermals"
+      },
+      {
+        "id": "14012845050",
+        "title": "DTS Tap Connectivity/Activity",
+        "from": "Temp Sensors"
+      },
+      {
+        "id": "14012845057",
+        "title": "Verify Core/Uncore DTS reporting accuracy (Medusa)",
+        "from": "Temp Sensors"
+      },
+      {
+        "id": "14012845062",
+        "title": "Verify DTS 2.0 Functionality",
+        "from": "Temp Sensors"
+      },
+      {
+        "id": "14012845065",
+        "title": "Verify Uncore DTS Connectivity/Functionality",
+        "from": "Temp Sensors"
+      },
+      {
+        "id": "14012845104",
+        "title": "Disable CPU Thermal Sensor",
+        "from": "Temp Sensors"
+      },
+      {
+        "id": "22013671915",
+        "title": "Disabled DTS",
+        "from": "Temp Sensors"
+      },
+      {
+        "id": "14012845072",
+        "title": "Therm Throttling-Verify TM1 functionality",
+        "from": "Thermal Throttle"
+      },
+      {
+        "id": "14012845075",
+        "title": "Therm Throttling-Verify TM2 functionality",
+        "from": "Thermal Throttle"
+      },
+      {
+        "id": "14012845079",
+        "title": "Verify Thermal Nstrike Algorithm",
+        "from": "Thermal Throttle"
+      },
+      {
+        "id": "14012845106",
+        "title": "Disable EMTTM",
+        "from": "Thermal Throttle"
+      },
+      {
+        "id": "22015629054",
+        "title": "Thermal Throttling BIOS knobs check",
+        "from": "Thermal Throttle"
+      },
+      {
+        "id": "22019171382",
+        "title": "Advanced Thermal Management (ATM)",
+        "from": "Thermal Throttle"
+      },
+      {
+        "id": "14012845088",
+        "title": "Verify Thermtrip functionality with Medusa and DTS override",
+        "from": "Thermtrip"
+      },
+      {
+        "id": "14012845091",
+        "title": "Verify functionality of thermtrip pin from various sources",
+        "from": "Thermtrip"
+      },
+      {
+        "id": "14012845097",
+        "title": "Verify Thermtrip shuts down all FIVRs and MBVRs",
+        "from": "Thermtrip"
+      },
+      {
+        "id": "14012845127",
+        "title": "Disable THERMTRIP",
+        "from": "Thermtrip"
+      },
+      {
+        "id": "14012845151",
+        "title": "Verify Core ITD Activity",
+        "from": "ITD"
+      },
+      {
+        "id": "14012845154",
+        "title": "Verify Dual Slope ITD",
+        "from": "ITD"
+      },
+      {
+        "id": "14012845160",
+        "title": "Verify ITD during Reset",
+        "from": "ITD"
+      },
+      {
+        "id": "14012845166",
+        "title": "Verify Uncore ITD Activity",
+        "from": "ITD"
+      },
+      {
+        "id": "14012845116",
+        "title": "Disable Prochot",
+        "from": "Prochot"
+      },
+      {
+        "id": "14012845212",
+        "title": "Fast Prochot",
+        "from": "Prochot"
+      },
+      {
+        "id": "14012845226",
+        "title": "Verify ability to set Prochot response ratio with PECI and PCS",
+        "from": "Prochot"
+      },
+      {
+        "id": "14012845222",
+        "title": "Prochot Sources",
+        "from": "Prochot"
+      },
+      {
+        "id": "14012845221",
+        "title": "MCP Prochot Event",
+        "from": "Prochot"
+      },
+      {
+        "id": "14012845242",
+        "title": "Verify Internal Prochot Assertion/Activities",
+        "from": "Prochot"
+      },
+      {
+        "id": "14012845232",
+        "title": "Verify External Prochot Assertion/Activities",
+        "from": "Prochot"
+      },
+      {
+        "id": "14012845245",
+        "title": "Verify Prochot before CPL4 will be cleared at CPL4",
+        "from": "Prochot"
+      },
+      {
+        "id": "14012845251",
+        "title": "Verify Prochot during early boot",
+        "from": "Prochot"
+      },
+      {
+        "id": "14012845256",
+        "title": "Verify Prochot register configuration",
+        "from": "Prochot"
+      },
+      {
+        "id": "22013124552",
+        "title": "Verify operation of PROCHOT_RESPONSE_POWER",
+        "from": "Prochot"
+      },
+      {
+        "id": "22015630560",
+        "title": "Prochot BIOS knobs check",
+        "from": "Prochot"
+      }
+    ],
+    "16030763243": [
+      {
+        "id": "22014423132",
+        "title": "Efficiency Latency Control Mode",
+        "from": "UFS"
+      },
+      {
+        "id": "14019787661",
+        "title": "Dynamic Frequency Capping",
+        "from": "UFS"
+      }
+    ],
+    "16030765561": [
+      {
+        "id": "16015716222",
+        "title": "TPMI EndPoint Verification through PECI ",
+        "from": "PECI"
+      }
+    ],
+    "16030765631": [
+      {
+        "id": "14012843915",
+        "title": "[Solar] Solar Test Line Anchor",
+        "from": "PM Cross Product"
+      }
+    ],
+    "16030767511": []
+  },
+  "nwp": {
+    "15019477771": [
+      {
+        "id": "22022420798",
+        "title": "Socket RAPL Algorithm & Functionality Verification",
+        "tc_count": 12
+      },
+      {
+        "id": "22022420806",
+        "title": "Socket RAPL Cross-products",
+        "tc_count": 6
+      },
+      {
+        "id": "22022420813",
+        "title": "Socket RAPL Fuse and Bios knobs",
+        "tc_count": 2
+      },
+      {
+        "id": "22022420817",
+        "title": "Socket RAPL HPM Verification",
+        "tc_count": 1
+      },
+      {
+        "id": "22022420821",
+        "title": "Socket RAPL Registers Verification - CSR and TPMI",
+        "tc_count": 7
+      },
+      {
+        "id": "22022420826",
+        "title": "Socket RAPL SVID Reporting Verification",
+        "tc_count": 1
+      },
+      {
+        "id": "22022420639",
+        "title": "DRAM RAPL Algorithm Scenarios",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420649",
+        "title": "DRAM RAPL Bios Knob Verification",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420652",
+        "title": "DRAM RAPL Cross Products",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420658",
+        "title": "DRAM RAPL Fuse Verification",
+        "tc_count": 1
+      },
+      {
+        "id": "22022420668",
+        "title": "DRAM RAPL HPM Message Verification",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420673",
+        "title": "DRAM RAPL Registers Verification",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420680",
+        "title": "DRAM RAPL SVID Reporting",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420684",
+        "title": "DRAM RAPL Telemetry",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420714",
+        "title": "Psys RAPL Algorithm & Functionality",
+        "tc_count": 1
+      },
+      {
+        "id": "22022420718",
+        "title": "Psys RAPL Cross-products",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420723",
+        "title": "Psys RAPL Fuse and Bios knobs",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420727",
+        "title": "Psys RAPL HPM",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420730",
+        "title": "Psys SVID Reporting Verification",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420734",
+        "title": "Psys RAPL Registers & Reporting: CSR & TPMI",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420794",
+        "title": "Fast RAPL",
+        "tc_count": 5
+      },
+      {
+        "id": "22022420737",
+        "title": "RACL Counters Verification",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420741",
+        "title": "RACL Cross Product",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420746",
+        "title": "RACL Fuses Verification",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420749",
+        "title": "RACL HPM Verification",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420753",
+        "title": "RACL Security",
+        "tc_count": 0
+      }
+    ],
+    "15019477838": [
+      {
+        "id": "22022421039",
+        "title": "Clock Actions",
+        "tc_count": 0
+      },
+      {
+        "id": "22022421044",
+        "title": "Link/Fabric/Mem State",
+        "tc_count": 0
+      },
+      {
+        "id": "22022421048",
+        "title": "Voltage Actions",
+        "tc_count": 0
+      },
+      {
+        "id": "22022421151",
+        "title": "Clock Actions",
+        "tc_count": 0
+      },
+      {
+        "id": "22022421154",
+        "title": "Link/Fabric/Mem State",
+        "tc_count": 0
+      },
+      {
+        "id": "22022421159",
+        "title": "Voltage Actions",
+        "tc_count": 0
+      },
+      {
+        "id": "22022421145",
+        "title": "Primecode Initialization",
+        "tc_count": 0
+      },
+      {
+        "id": "22022421147",
+        "title": "Primecode actions in idle entry flow",
+        "tc_count": 0
+      },
+      {
+        "id": "22022421157",
+        "title": "Other actions",
+        "tc_count": 0
+      },
+      {
+        "id": "22022421051",
+        "title": "Bios Programming",
+        "tc_count": 0
+      },
+      {
+        "id": "22022421058",
+        "title": "HW/ SW configs",
+        "tc_count": 1
+      },
+      {
+        "id": "22022421054",
+        "title": "Fuse Checkout",
+        "tc_count": 0
+      },
+      {
+        "id": "22022421163",
+        "title": "Wake Events",
+        "tc_count": 0
+      },
+      {
+        "id": "22022421143",
+        "title": "PkgC debug requirements",
+        "tc_count": 0
+      },
+      {
+        "id": "22022421066",
+        "title": "PMX",
+        "tc_count": 0
+      },
+      {
+        "id": "22022421137",
+        "title": "Solar",
+        "tc_count": 0
+      },
+      {
+        "id": "22022561858",
+        "title": "PKGC Cross Products",
+        "tc_count": 0
+      }
+    ],
+    "15019478558": [
+      {
+        "id": "22022421247",
+        "title": "CState C6 basic functionality",
+        "tc_count": 14
+      },
+      {
+        "id": "22022421250",
+        "title": "CState Entry Actions",
+        "tc_count": 7
+      },
+      {
+        "id": "22022421253",
+        "title": "CState Exit Actions",
+        "tc_count": 4
+      },
+      {
+        "id": "22022421257",
+        "title": "CStates C1 residency counter",
+        "tc_count": 2
+      },
+      {
+        "id": "22022421276",
+        "title": "CState Fast C1E: C1E autopromotion",
+        "tc_count": 1
+      },
+      {
+        "id": "22022421282",
+        "title": "CState Fast C1E: C1E basic functionaity",
+        "tc_count": 0
+      },
+      {
+        "id": "22022421287",
+        "title": "CState Fast C1E: C1E start/end flow",
+        "tc_count": 4
+      },
+      {
+        "id": "22022421266",
+        "title": "CStates: C6/C1 Demotion/Undemotion Configuration",
+        "tc_count": 6
+      },
+      {
+        "id": "22022421260",
+        "title": "CStates MC6 residency counter",
+        "tc_count": 4
+      },
+      {
+        "id": "22022421269",
+        "title": "BEAT learnings",
+        "tc_count": 0
+      },
+      {
+        "id": "22022421289",
+        "title": "AshTree PRT",
+        "tc_count": 4
+      },
+      {
+        "id": "22022421293",
+        "title": "PMX",
+        "tc_count": 2
+      },
+      {
+        "id": "22022421307",
+        "title": "Solar",
+        "tc_count": 4
+      }
+    ],
+    "16030686481": [
+      {
+        "id": "22022420993",
+        "title": "Flex ratio configuration and functionality",
+        "tc_count": 2
+      },
+      {
+        "id": "22022421001",
+        "title": "Guaranteed Ratio resolving",
+        "tc_count": 2
+      },
+      {
+        "id": "22022421019",
+        "title": "1CPM - Pstate Turbo Mode ",
+        "tc_count": 1
+      },
+      {
+        "id": "22022421022",
+        "title": "Turbo functionality - Pstate Turbo Mode",
+        "tc_count": 7
+      },
+      {
+        "id": "22022421024",
+        "title": "Near TDP",
+        "tc_count": 1
+      },
+      {
+        "id": "22022421029",
+        "title": "VF curve fuses",
+        "tc_count": 1
+      },
+      {
+        "id": "22022420938",
+        "title": "Legacy Pstate Bios cofigurations",
+        "tc_count": 1
+      },
+      {
+        "id": "22022420943",
+        "title": "Legacy Pstate Fast GV configuration",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420947",
+        "title": "Legacy Pstate Interfaces",
+        "tc_count": 3
+      },
+      {
+        "id": "22022420959",
+        "title": "Legacy Pstate Scenarios",
+        "tc_count": 3
+      },
+      {
+        "id": "22022420961",
+        "title": "Legacy Pstate Solar",
+        "tc_count": 1
+      },
+      {
+        "id": "22022420968",
+        "title": "Legacy Pstate TSC accuracy, PCNT, ACNT, MCNT",
+        "tc_count": 1
+      },
+      {
+        "id": "22022420976",
+        "title": "ICCP: License request and grant flow",
+        "tc_count": 5
+      },
+      {
+        "id": "22022420979",
+        "title": "DCM FIT",
+        "tc_count": 1
+      },
+      {
+        "id": "16030733964",
+        "title": "Pstate - EET",
+        "tc_count": 1
+      },
+      {
+        "id": "22022420986",
+        "title": "EPB and SAPM - DLL",
+        "tc_count": 2
+      },
+      {
+        "id": "22022421004",
+        "title": "HWP Native mode",
+        "tc_count": 8
+      },
+      {
+        "id": "22022421006",
+        "title": "HWP OOB Mode",
+        "tc_count": 5
+      }
+    ],
+    "16030762839": [
+      {
+        "id": "22022420868",
+        "title": "SST-BF - Enabling & Discovery",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420876",
+        "title": "SST-BF - Functionality",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420880",
+        "title": "SST-BF - Fusing",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420886",
+        "title": "SST-CP Enabling & Discovery",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420891",
+        "title": "SST-CP Functionality",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420894",
+        "title": "SST-CP Fusing",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420897",
+        "title": "SST-PP Dynamic - Functionality without HGS",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420903",
+        "title": "SST-PP Dynamic Boot flow",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420905",
+        "title": "SST-PP Dynamic Fusing",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420908",
+        "title": "SST-PP Dynamic control and discovery interface",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420917",
+        "title": "HGS Enabling and Discovery",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420920",
+        "title": "HGS Functionality",
+        "tc_count": 2
+      },
+      {
+        "id": "22022420925",
+        "title": "SST-TF Enabling & discovery",
+        "tc_count": 5
+      },
+      {
+        "id": "22022420928",
+        "title": "SST-TF Functionality",
+        "tc_count": 5
+      },
+      {
+        "id": "22022420932",
+        "title": "SST-TF Fusing",
+        "tc_count": 1
+      },
+      {
+        "id": "22022420855",
+        "title": "PCT - Enabling & Discovery",
+        "tc_count": 1
+      },
+      {
+        "id": "22022420858",
+        "title": "PCT - Functionality",
+        "tc_count": 16
+      },
+      {
+        "id": "22022420862",
+        "title": "PCT - Fuse",
+        "tc_count": 1
+      },
+      {
+        "id": "22022420914",
+        "title": "SST-PP Static Boot flow",
+        "tc_count": 2
+      }
+    ],
+    "16030763137": [
+      {
+        "id": "22022420579",
+        "title": "[SoC Thermal Management] ACP (Autonomous Core Perimeter)",
+        "tc_count": 6
+      },
+      {
+        "id": "22022420585",
+        "title": "[SoC Thermal Management] CBB Thermal Management",
+        "tc_count": 7
+      },
+      {
+        "id": "22022420589",
+        "title": "[SoC Thermal Management] GPIO Interface",
+        "tc_count": 6
+      },
+      {
+        "id": "22022420596",
+        "title": "[SoC Thermal Management] IMH Thermal Management",
+        "tc_count": 3
+      },
+      {
+        "id": "22022420603",
+        "title": "[SoC Thermal Management] ITD",
+        "tc_count": 15
+      },
+      {
+        "id": "22022420606",
+        "title": "[SoC Thermal Management] MCAs",
+        "tc_count": 1
+      },
+      {
+        "id": "22022420609",
+        "title": "[SoC Thermal Management] Prochot Flow",
+        "tc_count": 5
+      },
+      {
+        "id": "22022420616",
+        "title": "[SoC Thermal Management] Thermal Interrupts",
+        "tc_count": 9
+      },
+      {
+        "id": "22022420625",
+        "title": "[SoC Thermal Management] Thermtrip",
+        "tc_count": 3
+      },
+      {
+        "id": "22022420628",
+        "title": "[SoC Thermal Management] VR Hot",
+        "tc_count": 5
+      },
+      {
+        "id": "22022420548",
+        "title": "[Memory Thermal Management] CLTT MR4 based",
+        "tc_count": 8
+      },
+      {
+        "id": "22022420554",
+        "title": "[Memory Thermal Management] CLTT PECI based",
+        "tc_count": 4
+      },
+      {
+        "id": "22022420563",
+        "title": "[Memory Thermal Management] CLTT TSOD based",
+        "tc_count": 3
+      },
+      {
+        "id": "22022420567",
+        "title": "[Memory Thermal Management] DDRIO Temperature Compensation",
+        "tc_count": 1
+      },
+      {
+        "id": "22022420570",
+        "title": "[Memory Thermal Management] Memhot",
+        "tc_count": 6
+      },
+      {
+        "id": "22022420575",
+        "title": "[Memory Thermal Management] Memtrip",
+        "tc_count": 6
+      },
+      {
+        "id": "22022420582",
+        "title": "[SoC Thermal Management] CBB DTS & Telemetry",
+        "tc_count": 7
+      },
+      {
+        "id": "22022420593",
+        "title": "[SoC Thermal Management] IMH DTS & Telemetry",
+        "tc_count": 8
+      },
+      {
+        "id": "22022420619",
+        "title": "[SoC Thermal Management] Thermal Reporting",
+        "tc_count": 11
+      }
+    ],
+    "16030763243": [
+      {
+        "id": "22022420830",
+        "title": "Fabric DVFS RAPL/RACL Limits and ELC Mode",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420838",
+        "title": "Fabric DVFS cross products",
+        "tc_count": 2
+      },
+      {
+        "id": "22022420853",
+        "title": "Solar DVFS",
+        "tc_count": 1
+      },
+      {
+        "id": "22022420849",
+        "title": "Memory Fabric DVFS",
+        "tc_count": 0
+      },
+      {
+        "id": "22022420842",
+        "title": "IO Fabric DVFS",
+        "tc_count": 5
+      }
+    ],
+    "16030765561": [
+      {
+        "id": "16030768338",
+        "title": "[NWP PM] OS2P Mailbox Validation",
+        "tc_count": 1
+      },
+      {
+        "id": "22022420612",
+        "title": "[SoC Thermal Management] TPMI/PMT",
+        "tc_count": 6
+      }
+    ],
+    "16030765631": [
+      {
+        "id": "22022420631",
+        "title": "pmx cross products",
+        "tc_count": 6
+      },
+      {
+        "id": "22022420633",
+        "title": "Solar Cross Products",
+        "tc_count": 12
+      },
+      {
+        "id": "22022421309",
+        "title": "Cross Products",
+        "tc_count": 7
+      },
+      {
+        "id": "22022421311",
+        "title": "EndPoint Sweep",
+        "tc_count": 5
+      }
+    ],
+    "16030767511": [
+      {
+        "id": "22022421010",
+        "title": "Consistent Throttling",
+        "tc_count": 4
+      },
+      {
+        "id": "22022421012",
+        "title": "Corelating timings",
+        "tc_count": 4
+      },
+      {
+        "id": "22022421014",
+        "title": "Inconsistent Throttling",
+        "tc_count": 4
+      },
+      {
+        "id": "22022421017",
+        "title": "Performance Limit Reason",
+        "tc_count": 1
+      }
+    ]
+  }
+}

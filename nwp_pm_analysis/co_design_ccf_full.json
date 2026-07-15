@@ -1,0 +1,1338 @@
+{
+  "tpf_list": [
+    "1.1"
+  ],
+  "tcd_list": [
+    "1.1.1",
+    "1.1.2",
+    "1.1.3",
+    "1.1.4",
+    "1.1.5"
+  ],
+  "tc_map": {
+    "1.1.1": [
+      "1.1.1.1",
+      "1.1.1.2",
+      "1.1.1.3"
+    ],
+    "1.1.2": [
+      "1.1.2.1",
+      "1.1.2.2",
+      "1.1.2.3"
+    ],
+    "1.1.3": [
+      "1.1.3.1",
+      "1.1.3.2",
+      "1.1.3.3"
+    ],
+    "1.1.4": [
+      "1.1.4.1",
+      "1.1.4.2",
+      "1.1.4.3"
+    ],
+    "1.1.5": [
+      "1.1.5.1",
+      "1.1.5.2",
+      "1.1.5.3"
+    ]
+  },
+  "records": {
+    "1": {
+      "title": "CCF Power Management Flows: Top-Level Validation",
+      "hier": "TP",
+      "id": "1",
+      "subsections": {
+        "Overview *": [
+          "This test plan targets the top-level validation of CCF (Central Control Fabric) power management (PM) flows within the SOC. It covers coordinated power state transitions, resource arbitration, stress detection and response, license handshake and arbitration, policy-driven flow control, and system-level observability and debug. CCF integrates with PMA, Punit, and core modules to orchestrate power state changes (C-states, frequency/voltage scaling), manage exclusive access to shared resources (MLC flush, IOSF channels), and enforce system policies. Key interactions include cross-module synchronization, telemetry-driven stress handling, license negotiation, and debug visibility, ensuring robust and safe PM flow operation under normal and stress conditions.",
+          "This test plan targets the top-level validation of CCF (Central Control Fabric) power management (PM) flows within the SOC. It covers coordinated power state transitions, resource arbitration, stress detection and response, license handshake and arbitration, policy-driven flow control, and system-level observability and debug. CCF integrates with PMA, Punit, and core modules to orchestrate power state changes (C-states, frequency/voltage scaling), manage exclusive access to shared resources (MLC flush, IOSF channels), and enforce system policies. Key interactions include cross-module synchronization, telemetry-driven stress handling, license negotiation, and debug visibility, ensuring robust and safe PM flow operation under normal and stress conditions.",
+          "This test plan targets the top-level validation of CCF (Central Control Fabric) power management (PM) flows within the SOC. It covers coordinated power state transitions, resource arbitration, stress detection and response, license handshake and arbitration, policy-driven flow control, and system-level observability and debug. CCF integrates with PMA, Punit, and core modules to orchestrate power state changes (C-states, frequency/voltage scaling), manage exclusive access to shared resources (MLC flush, IOSF channels), and enforce system policies. Key interactions include cross-module synchronization, telemetry-driven stress handling, license negotiation, and debug visibility, ensuring robust and safe PM flow operation under normal and stress conditions.",
+          "This test plan targets the top-level validation of CCF (Central Control Fabric) power management (PM) flows within the SOC. It covers coordinated power state transitions, resource arbitration, stress detection and response, license handshake and arbitration, policy-driven flow control, and system-level observability and debug. CCF integrates with PMA, Punit, and core modules to orchestrate power state changes (C-states, frequency/voltage scaling), manage exclusive access to shared resources (MLC flush, IOSF channels), and enforce system policies. Key interactions include cross-module synchronization, telemetry-driven stress handling, license negotiation, and debug visibility, ensuring robust and safe PM flow operation under normal and stress conditions.",
+          "This test plan targets the top-level validation of CCF (Central Control Fabric) power management (PM) flows within the SOC. It covers coordinated power state transitions, resource arbitration, stress detection and response, license handshake and arbitration, policy-driven flow control, and system-level observability and debug. CCF integrates with PMA, Punit, and core modules to orchestrate power state changes (C-states, frequency/voltage scaling), manage exclusive access to shared resources (MLC flush, IOSF channels), and enforce system policies. Key interactions include cross-module synchronization, telemetry-driven stress handling, license negotiation, and debug visibility, ensuring robust and safe PM flow operation under normal and stress conditions."
+        ],
+        "Scope *": [
+          "This test plan encompasses validation of: (1) coordinated state transitions and resource arbitration across cores/modules, including exclusive access scenarios; (2) telemetry and AI-based stress detection and response mechanisms for electrical, thermal, and power virus events; (3) license handshake and arbitration flows between PMA, Punit, and cores; (4) policy-driven flow control and ownership prioritization; (5) system-level observability and debug mechanisms for PM flows, stress events, and arbitration outcomes. The plan addresses normal operation, stress scenarios, contention, race conditions, and system recovery. It does not cover lower-level signal integrity or individual IP-specific PM flows outside CCF orchestration.",
+          "This test plan encompasses validation of: (1) coordinated state transitions and resource arbitration across cores/modules, including exclusive access scenarios; (2) telemetry and AI-based stress detection and response mechanisms for electrical, thermal, and power virus events; (3) license handshake and arbitration flows between PMA, Punit, and cores; (4) policy-driven flow control and ownership prioritization; (5) system-level observability and debug mechanisms for PM flows, stress events, and arbitration outcomes. The plan addresses normal operation, stress scenarios, contention, race conditions, and system recovery. It does not cover lower-level signal integrity or individual IP-specific PM flows outside CCF orchestration.",
+          "This test plan encompasses validation of: (1) coordinated state transitions and resource arbitration across cores/modules, including exclusive access scenarios; (2) telemetry and AI-based stress detection and response mechanisms for electrical, thermal, and power virus events; (3) license handshake and arbitration flows between PMA, Punit, and cores; (4) policy-driven flow control and ownership prioritization; (5) system-level observability and debug mechanisms for PM flows, stress events, and arbitration outcomes. The plan addresses normal operation, stress scenarios, contention, race conditions, and system recovery. It does not cover lower-level signal integrity or individual IP-specific PM flows outside CCF orchestration.",
+          "This test plan encompasses validation of: (1) coordinated state transitions and resource arbitration across cores/modules, including exclusive access scenarios; (2) telemetry and AI-based stress detection and response mechanisms for electrical, thermal, and power virus events; (3) license handshake and arbitration flows between PMA, Punit, and cores; (4) policy-driven flow control and ownership prioritization; (5) system-level observability and debug mechanisms for PM flows, stress events, and arbitration outcomes. The plan addresses normal operation, stress scenarios, contention, race conditions, and system recovery. It does not cover lower-level signal integrity or individual IP-specific PM flows outside CCF orchestration.",
+          "This test plan encompasses validation of: (1) coordinated state transitions and resource arbitration across cores/modules, including exclusive access scenarios; (2) telemetry and AI-based stress detection and response mechanisms for electrical, thermal, and power virus events; (3) license handshake and arbitration flows between PMA, Punit, and cores; (4) policy-driven flow control and ownership prioritization; (5) system-level observability and debug mechanisms for PM flows, stress events, and arbitration outcomes. The plan addresses normal operation, stress scenarios, contention, race conditions, and system recovery. It does not cover lower-level signal integrity or individual IP-specific PM flows outside CCF orchestration."
+        ],
+        "Common_requirements *": [
+          "All features require access to SOC-level debug and telemetry infrastructure, programmable stress injection capabilities, and synchronized PMA/Punit/core interfaces. Test environment must support controlled stress event generation, license arbitration triggers, and policy configuration. Observability tools must be available for real-time status monitoring and debug.",
+          "All features require access to SOC-level debug and telemetry infrastructure, programmable stress injection capabilities, and synchronized PMA/Punit/core interfaces. Test environment must support controlled stress event generation, license arbitration triggers, and policy configuration. Observability tools must be available for real-time status monitoring and debug.",
+          "All features require access to SOC-level debug and telemetry infrastructure, programmable stress injection capabilities, and synchronized PMA/Punit/core interfaces. Test environment must support controlled stress event generation, license arbitration triggers, and policy configuration. Observability tools must be available for real-time status monitoring and debug.",
+          "All features require access to SOC-level debug and telemetry infrastructure, programmable stress injection capabilities, and synchronized PMA/Punit/core interfaces. Test environment must support controlled stress event generation, license arbitration triggers, and policy configuration. Observability tools must be available for real-time status monitoring and debug.",
+          "All features require access to SOC-level debug and telemetry infrastructure, programmable stress injection capabilities, and synchronized PMA/Punit/core interfaces. Test environment must support controlled stress event generation, license arbitration triggers, and policy configuration. Observability tools must be available for real-time status monitoring and debug."
+        ],
+        "Security_threat_models *": [
+          "Potential security implications include unauthorized PM flow initiation, license spoofing, and denial-of-service via resource contention. Mitigations involve policy gating, license arbitration, and observability mechanisms to detect and prevent malicious or unintended transitions. Validation will ensure that security/performance policies are enforced and that flow ownership is correctly prioritized under stress and error conditions.",
+          "Potential security implications include unauthorized PM flow initiation, license spoofing, and denial-of-service via resource contention. Mitigations involve policy gating, license arbitration, and observability mechanisms to detect and prevent malicious or unintended transitions. Validation will ensure that security/performance policies are enforced and that flow ownership is correctly prioritized under stress and error conditions.",
+          "Potential security implications include unauthorized PM flow initiation, license spoofing, and denial-of-service via resource contention. Mitigations involve policy gating, license arbitration, and observability mechanisms to detect and prevent malicious or unintended transitions. Validation will ensure that security/performance policies are enforced and that flow ownership is correctly prioritized under stress and error conditions.",
+          "Potential security implications include unauthorized PM flow initiation, license spoofing, and denial-of-service via resource contention. Mitigations involve policy gating, license arbitration, and observability mechanisms to detect and prevent malicious or unintended transitions. Validation will ensure that security/performance policies are enforced and that flow ownership is correctly prioritized under stress and error conditions.",
+          "Potential security implications include unauthorized PM flow initiation, license spoofing, and denial-of-service via resource contention. Mitigations involve policy gating, license arbitration, and observability mechanisms to detect and prevent malicious or unintended transitions. Validation will ensure that security/performance policies are enforced and that flow ownership is correctly prioritized under stress and error conditions."
+        ],
+        "Risks_and_contingencies *": [
+          "Risks include incomplete coverage of simultaneous stress events, false positives in stress detection, and loss of debug visibility under high contention. Contingencies involve fallback flows, enhanced observability, and additional stress scenario coverage to ensure robustness and survivability.",
+          "Risks include incomplete coverage of simultaneous stress events, false positives in stress detection, and loss of debug visibility under high contention. Contingencies involve fallback flows, enhanced observability, and additional stress scenario coverage to ensure robustness and survivability.",
+          "Risks include incomplete coverage of simultaneous stress events, false positives in stress detection, and loss of debug visibility under high contention. Contingencies involve fallback flows, enhanced observability, and additional stress scenario coverage to ensure robustness and survivability.",
+          "Risks include incomplete coverage of simultaneous stress events, false positives in stress detection, and loss of debug visibility under high contention. Contingencies involve fallback flows, enhanced observability, and additional stress scenario coverage to ensure robustness and survivability.",
+          "Risks include incomplete coverage of simultaneous stress events, false positives in stress detection, and loss of debug visibility under high contention. Contingencies involve fallback flows, enhanced observability, and additional stress scenario coverage to ensure robustness and survivability."
+        ],
+        "Prerequisites *": [
+          "Prerequisites include validated PMA/Punit/core interfaces, functional telemetry and debug infrastructure, and programmable policy and license configuration. Stress injection tools and observability mechanisms must be operational prior to test execution.",
+          "Prerequisites include validated PMA/Punit/core interfaces, functional telemetry and debug infrastructure, and programmable policy and license configuration. Stress injection tools and observability mechanisms must be operational prior to test execution.",
+          "Prerequisites include validated PMA/Punit/core interfaces, functional telemetry and debug infrastructure, and programmable policy and license configuration. Stress injection tools and observability mechanisms must be operational prior to test execution.",
+          "Prerequisites include validated PMA/Punit/core interfaces, functional telemetry and debug infrastructure, and programmable policy and license configuration. Stress injection tools and observability mechanisms must be operational prior to test execution.",
+          "Prerequisites include validated PMA/Punit/core interfaces, functional telemetry and debug infrastructure, and programmable policy and license configuration. Stress injection tools and observability mechanisms must be operational prior to test execution."
+        ]
+      }
+    },
+    "1.1": {
+      "title": "Coordinated State Transitions and Resource Arbitration",
+      "hier": "TPF",
+      "id": "1.1",
+      "subsections": {
+        "Description *": [
+          "Validate telemetry and AI-based detection of electrical, thermal, and power virus stress events. Trigger stress scenarios (simultaneous transitions, abnormal sensor readings) and verify that CCF/PMA responds with appropriate prevention actions (throttling, staggered transitions, aborts), including fallback and survivability flows. Observe system recovery and learning from false positives.",
+          "Validate ICCP/PVP license handshakes and arbitration across PMA, Punit, and cores. Trigger overlapping and conflicting license requests, ensuring only dominant licenses are granted, transitions are synchronized, and safe work-points are applied. Check for correct handling of license revocation and transition aborts under stress.",
+          "Validate that policy gating (Acode algorithms, security/performance policies) correctly enables/disables PM flows based on system state and stress/security conditions. Verify flow ownership and prioritization (thermal > throttle > normal), ensuring break events are handled according to defined hierarchy and module-level scope.",
+          "Validate that debug counters, status indications, and telemetry provide accurate, timely visibility into PM flows, stress events, and arbitration outcomes. Check for correct updates of status registers (e.g., SBFT_STATUS) and observability under simultaneous stress and error conditions, ensuring no loss of visibility or incorrect reporting.",
+          "Validate that CCF correctly staggers and synchronizes power state transitions (C6/MC6, frequency/voltage changes) across cores/modules, including exclusive access scenarios (MLC flush, IOSF channel arbitration). Check for correct handling of race conditions, contention, and out-of-sync status updates under normal and stress conditions."
+        ]
+      }
+    },
+    "1.1.1": {
+      "title": "Coordinated MC6 Entry and MLC Flush with Race/Abort Handling",
+      "hier": "TCD",
+      "id": "1.1.1",
+      "subsections": {
+        "Description *": [
+          "Validate PMA thermal event handling, sticky LOG bit behavior, and throttling response to simulated thermal excursions.",
+          "Validate that the arbitration logic correctly handles overlapping and conflicting ICCP license requests from both cores, always granting the maximum requested license and ensuring no deadlock or starvation occurs.",
+          "Validate that Acode features are gated per thread according to the policy field in CORE_PMA_CR_TELEM_UCODE_INFO_THREAD_x, with HGS controlled separately.",
+          "Validate that SBFT status register and debug signals update correctly and remain observable under stress and error conditions.",
+          "Validate correct MC6 entry and MLC flush coordination, including abort handling during wake-up races."
+        ],
+        "Algorithm of Testing *": [
+          "Simulate thermal events by toggling THERM_STATUS_UPDATE bits, observe per-core THERM_STATUS LOG bits, and verify PMA throttling actions.",
+          "Randomly generate simultaneous or closely sequenced ICCP license requests from both cores with overlapping and conflicting values, and observe arbitration and grant behavior.",
+          "Randomly configure policy field for all threads, enable/disable Acode features per thread, and monitor real-time gating behavior.",
+          "Configure SBFT@Field, inject random break events and stress, randomize test patterns and work-point parameters, and sample status/debug signals throughout execution.",
+          "Randomly trigger C6 entry on both cores, inject wake-up/abort events during MLC flush, and monitor state transitions."
+        ],
+        "Randomization *": [
+          "Randomly toggle THERM_STATUS_UPDATE bits, including simultaneous assertion of multiple bits, to cover complex stress scenarios.",
+          "Randomize ICCP[3:0] values (0-4 for clients, 1-4 for servers) and the timing of requests from both cores to create overlapping and conflicting scenarios.",
+          "Policy field values and Acode feature enable/disable states are randomized across all threads.",
+          "Randomly inject break events (thermal, throttle hammer, S1/S5 CPD), randomize test patterns and work-point parameters (voltage, frequency) within legal ranges.",
+          "Randomize C6 entry timing offsets, wake-up/abort event injection, and flush progress to create contention and race conditions."
+        ],
+        "Required Configurations and Dependencies *": [
+          "PMA telemetry enabled, THERM_STATUS_UPDATE register access, CLPMA_CR_THROTTLE_CONFIG and PMA_CR_FORCE_THROTTLE_CONTROL for throttling, per-core THERM_STATUS register observability.",
+          "Both cores must be active and out of C6; ICCP request and grant signals must be observable; GV CTRL and PMA arbitration logic must be accessible for monitoring.",
+          "Requires access to CORE_PMA_CR_TELEM_UCODE_INFO_THREAD_x CR, Acode feature controls, and HGS knob.",
+          "Requires SBFT@Field test configuration, both cores enabled, MLC cluster active, and access to ML4_CR_SBFT_AT_FIELD, CORE_PMA_CR_IO_TAF_CFG_STATUS, and PMA_DEBUG4 signals.",
+          "Both cores active, system configured for independent C6 entry, PMA/MLC signal sampling, PM/MLC abort indication handling."
+        ],
+        "Coverage *": [
+          "Sample all thermal event bits, verify sticky LOG behavior, and check recovery after event clearance.",
+          "Coverage includes all legal SBFT_STATUS transitions, all break event types, and all debug signal transitions under stress.",
+          "Monitor MC3/MC6 state transitions, flush start/abort/done signals, and check for deadlocks or out-of-sync states."
+        ],
+        "Cross-Feature Interaction *": [
+          "PMA, Punit, per-core THERM_STATUS registers, CLPMA_CR_THROTTLE_CONFIG, PMA_CR_FORCE_THROTTLE_CONTROL, and PMA telemetry interact for event handling and throttling.",
+          "Involves cores, PMA ICCP arbitration, GV CTRL, and TADREG for request handling and grant signaling.",
+          "Acode features interact with policy field; HGS interacts with OS via dedicated knob; all other features are internal to core, punit, uncore, or OOBMSM.",
+          "Involves MLC, PMA, SBFT@F, break event handling, and debug signal propagation; SBFT@F and static lockstep are mutually exclusive.",
+          "PM, MLC, and core state machines interact during C6/MC3/MC6 transitions and flush/abort flows."
+        ],
+        "DFx Requirements *": [
+          "Observability of LOG bits, ability to clear LOG bits via Ucode, and debug registers for event tracking.",
+          "Ensure no deadlock, starvation, or dropped requests except when superseded by a higher request within the hysteresis window; monitor for correct arbitration and survivability.",
+          "HW infrastructure must support real-time policy updates and feature gating; telemetry reporting required.",
+          "Debug signals must be observable, status updates only after both cores reach stage, throttle events disabled during SBFT@F, and break events update SBFT_LAST_BREAK_REASON.",
+          "Observability of PMA/MLC signals, flush abort indication, and flush-done signal; check for deadlocks and state sync."
+        ]
+      }
+    },
+    "1.1.1.1": {
+      "title": "Simultaneous C6 Entry and MLC Flush Race Handling",
+      "hier": "TC",
+      "id": "1.1.1.1",
+      "subsections": {
+        "TC Description *": [
+          "Configure the system with all cores active and PMA telemetry enabled. Write to THERM_STATUS_UPDATE register at address 0xA204 to simulate thermal events by toggling bits such as THERMAL_MONITOR_STATUS, PROCHOT_STATUS, OUT_OF_SPEC_STATUS, THRESHOLD1_STATUS, THRESHOLD2_STATUS, POWER_LIMITATION_STATUS, CURRENT_LIMIT_STATUS, and CROSS_DOMAIN_LIMIT_STATUS. Observe per-core THERM_STATUS registers for correct sticky LOG bit behavior. Ensure that LOG bits are set on event transitions and only cleared by Ucode writes.",
+          "This test configures both cores to issue ICCP license requests with randomized legal values at the same time or in close succession, creating overlapping and conflicting scenarios. The arbitration logic is observed to ensure that the maximum requested license is always granted, and only the dominant license is applied. The test also checks that no deadlock or starvation occurs and that requests are not dropped unless superseded by a higher request within the hysteresis window.",
+          "Configure CORE_PMA_CR_TELEM_UCODE_INFO_THREAD_x[23:16] policy field to random values for all threads. Enable or disable Acode features per thread based on the policy. Monitor that all Acode features except HGS are gated according to the policy, and HGS is controlled by its dedicated knob. Verify real-time updates.",
+          "Configure the module for SBFT@Field test with both cores enabled and MLC cluster active. Ensure ML4_CR_SBFT_AT_FIELD[SBFT_STATUS] is at reset value 0x0. During SBFT@F execution, inject random break events such as thermal, throttle hammer, and S1/S5 CPD. Randomize test patterns and work-point parameters (voltage, frequency) within legal ranges. Continuously sample ML4_CR_SBFT_AT_FIELD[SBFT_STATUS], CORE_PMA_CR_IO_TAF_CFG_STATUS, and all PMA_DEBUG4 debug signals throughout the test. Verify that SBFT_STATUS transitions only through legal values and that all debug signals reflect correct sequence and state transitions, even under simultaneous stress and error injection.",
+          "Configure both cores to independently request C6 entry. Randomly trigger C6 entry on both cores with timing offsets to create contention. During MC3, inject wake-up or abort requests while MLC flush is in progress. Monitor PMA/MLC signals for flush start, abort, and flush done. Check that flush is aborted and cores exit C6 promptly if a wake-up occurs."
+        ],
+        "Test Steps *": [
+          "1. Enable PMA telemetry and ensure all cores are active. 2. Write to THERM_STATUS_UPDATE register to assert each thermal event bit individually and in combinations. 3. Sample per-core THERM_STATUS registers after each event assertion. 4. Clear events by writing '0' to the corresponding bits and observe LOG bit clearing via Ucode. 5. Repeat for all event bits and combinations.",
+          "1. Ensure both cores are active and out of C6. 2. Randomly select ICCP[3:0] values for each core within the legal range (0-4 for clients, 1-4 for servers). 3. Simultaneously or with minimal offset, set C2PmICCPRequestMXnnnH.Valid=1 and C2PmICCPRequestMXnnnH.ICCP[3:0] for both cores. 4. Monitor ICCPU2CGrantLicenseMnnnH signals to each core and the selected license in GV CTRL (pma_iccp, pma_gv_ctrl). 5. Repeat with various overlapping/conflicting value combinations. 6. Log arbitration outcomes and check for deadlock or starvation.",
+          "1. Boot system in secured and normal flows. 2. For each thread, randomly set policy field in CORE_PMA_CR_TELEM_UCODE_INFO_THREAD_x. 3. Enable/disable Acode features per thread as dictated by policy. 4. Set HGS feature using its dedicated knob. 5. Observe Acode feature status and compare to policy field. 6. Repeat for multiple random policy values.",
+          "1. Configure module for SBFT@Field test with both cores enabled and MLC cluster active. 2. Set ML4_CR_SBFT_AT_FIELD[SBFT_STATUS] to reset value 0x0. 3. Start SBFT@F execution. 4. Randomly inject break events (thermal, throttle hammer, S1/S5 CPD) during test. 5. Randomize test patterns and work-point parameters (voltage, frequency) within legal ranges. 6. Continuously sample ML4_CR_SBFT_AT_FIELD[SBFT_STATUS] at 0x121, CORE_PMA_CR_IO_TAF_CFG_STATUS at 0x8198, and all PMA_DEBUG4 debug signals. 7. Log all status and debug signal transitions. 8. After test completion, analyze logs for correctness.",
+          "1. Enable both cores and configure for independent C6 entry. 2. Randomly trigger C6 entry on both cores with timing offsets. 3. Once both cores are in C6 (MC3), initiate MLC flush. 4. During flush, inject wake-up or abort requests to one or both cores. 5. Sample PMA/MLC signals for flush start, abort, and flush done. 6. Monitor MC3/MC6 state transitions. 7. Check for correct handling of abort and prompt C6 exit."
+        ],
+        "Pass/Fail Criteria &amp; HW Errors *": [
+          "Pass if LOG bits are set on event transitions and cleared only by Ucode writes. Fail if LOG bits do not behave as specified or if events are not properly reflected in THERM_STATUS registers. HW errors include incorrect LOG bit behavior or register update failures.",
+          "Pass if the maximum requested license is always granted, only the dominant license is applied, and no deadlock or starvation occurs. Fail if a lower license is granted when a higher is requested, if both licenses are granted, or if deadlock/starvation is observed. HW errors include missed grants, incorrect GV CTRL state, or dropped requests outside the hysteresis window.",
+          "Pass if all Acode features except HGS are enabled/disabled per policy field in real-time for all threads; fail if any feature does not match policy or HGS is not controlled by its knob.",
+          "Pass if SBFT_STATUS transitions only through legal values (00, 01, 10), never 11, and all transitions are observable. Debug signals must reflect correct sequence and state transitions. Fail if any missed update, illegal value, or loss of visibility is detected.",
+          "Pass if flush is aborted upon wake-up, cores exit C6 promptly, and no deadlocks or out-of-sync states occur. Fail if flush continues after wake-up, deadlock, or incorrect state transition is observed."
+        ],
+        "Intent Verify *": [
+          "Use PMA telemetry logs, per-core THERM_STATUS register dumps, and Visa/PMON to confirm correct LOG bit behavior.",
+          "Use Visa and PMON to sample ICCPU2CGrantLicenseMnnnH and GV CTRL registers. Check logs for arbitration results and absence of deadlock/starvation.",
+          "Use Visa, PMON, and logs to confirm Acode feature status matches policy field and HGS knob setting.",
+          "Use logs from register reads and debug signal captures to confirm all transitions and observability.",
+          "Use PMON, logs, and Visa to confirm flush abort, C6 exit, and state transitions."
+        ],
+        "Validation Automation Global Checkers *": [
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for thermal event handling and LOG bit stickiness.",
+          "Enable SST, Central, and Concurrency checkers. Enable PVT checkers for ICCP arbitration and grant logic.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for policy update and feature gating.",
+          "Enable SST, Central, and Concurrency checkers. Enable PVT checkers for voltage and frequency changes during stress.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for flush abort and MC6 entry."
+        ],
+        "Validation SW *": [
+          "Tool and Content Requirements: OSBV/SVOS latest version, PMON for register monitoring, PythonSV for scripting register writes and reads, Supercollider for stress patterns.",
+          "Tool and Content Requirements: Use OSBV/SVOS with latest validation stack, PMON for register sampling, Perspec for scenario generation, PythonSV for scripting, and Supercollider for stress. Map OS-level utilities for concurrency and register checks.",
+          "Tool and Content Requirements: OSBV/SVOS latest, PMON v2.3, Perspec path, PythonSV, Supercollider, register check utilities, synthetic workloads for concurrency and stress.",
+          "Tool and Content Requirements: Use OSBV/SVOS with latest supported version, PMON for register sampling, Perspec path for scenario automation, PythonSV for scripting, and Supercollider for concurrency stress. Map OS-level utilities for register checks and stress pattern injection.",
+          "Tool and Content Requirements: OSBV/SVOS latest, PMON v3.2, Perspec path, PythonSV, Supercollider, Prime95 for stress, register checks, concurrency utilities."
+        ],
+        "Ecosystem SW *": [
+          "Test Requirements: BIOS with PMA telemetry enabled, OS kernel with register access utilities, drivers for PMA and thermal monitoring.",
+          "Test Requirements: BIOS with ICCP arbitration support, correct OS kernel and scheduler settings, validated PCIe/storage/graphics drivers, and required registry keys for ICCP observability.",
+          "Test Requirements: BIOS with policy gating support, OS kernel with SGX/TDX enabled, subsystem drivers for telemetry, registry keys for policy updates.",
+          "Test Requirements: BIOS with SBFT@Field support, correct BIOS knobs for enabling both cores and MLC cluster, OS kernel with default scheduler, and required drivers for debug signal access.",
+          "Test Requirements: BIOS v2.1, C6/MC6 knobs enabled, OS kernel 6.1, scheduler default, PCIe/storage/graphics drivers latest, registry keys for power state overrides."
+        ],
+        "Test HW Requirements and HW Configuration *": [
+          "SoC with PMA enabled, all cores active, platform with DIMMs and PCIe devices, thermal solution capable of handling simulated events, debug instrumentation for register access.",
+          "Platform with two active cores, correct SoC stepping, full DIMM and PCIe population, thermal solution, debug instrumentation, and power measurement setup.",
+          "SoC stepping with policy gating support, platform with all threads enabled, DIMMs and PCIe devices as per test plan, thermal solution for normal operation, debug instrumentation for telemetry, power measurement setup.",
+          "SoC at supported stepping and TDP, dual-core configuration, MLC cluster enabled, DIMMs and PCIe devices as per platform topology, thermal solution supporting stress events, debug instrumentation for PMA_DEBUG4, and power measurement setup.",
+          "SoC stepping B0, TDP 95W, dual-socket platform, 4x DIMM DDR5, PCIe Gen4 GPU, thermal solution: active heatsink, debug instrumentation: PMA/MLC signal probes, power measurement: external meters."
+        ],
+        "PVT *": [
+          "Monitor voltage rails and thermal sensors during event simulation. Compare to design guardbands and check IP functionality under Vmin/max and temperature corners."
+        ],
+        "Performance/Bandwidth Testing *": [
+          "Measure system response time to thermal events and throttling engagement."
+        ],
+        "ISOC Validation *": [
+          "Validate data coherency during thermal event handling and device interactions."
+        ]
+      }
+    },
+    "1.1.1.2": {
+      "title": "MLC Flush Abort During MC3 with Wake-Up Injection",
+      "hier": "TC",
+      "id": "1.1.1.2",
+      "subsections": {
+        "TC Description *": [
+          "Simulate complex thermal stress events by simultaneously asserting multiple THERM_STATUS_UPDATE bits. Monitor PMA triggers for throttling actions such as clock modulation and frequency reduction via CLPMA_CR_THROTTLE_CONFIG and PMA_CR_FORCE_THROTTLE_CONTROL. Verify system recovery when events are cleared.",
+          "This test issues ICCP license requests from both cores with conflicting values, focusing on scenarios where a lower request is made shortly after a higher one, within the hysteresis window. The test verifies that the arbitration logic does not grant the lower license until the hysteresis condition is met and that only the dominant license is applied.",
+          "Update policy field in CORE_PMA_CR_TELEM_UCODE_INFO_THREAD_x for all threads during runtime. Observe that Acode features are gated/ungated in real-time as policy changes. Verify that HGS remains controlled by its knob.",
+          "With SBFT@Field test running, ensure only one core initiates SBFT@F start command. Progress both cores through the test, ensuring that SBFT_STATUS updates only after both cores reach the required stage. Monitor MLSBFTStatusXnnnH and MLSBFTStatusValidXnnnH signals from MLC to PMA. Sample status and debug signals at each core progression point to verify correct update timing and legal value transitions.",
+          "During MC3 (all cores in C6, MLC not yet flushed), initiate MLC flush and inject wake-up events to one or both cores. Observe PM sending abort indication to MLC and MLC returning flush-done signal. Verify that flush is stopped and wake-up proceeds without deadlock."
+        ],
+        "Test Steps *": [
+          "1. Enable PMA telemetry and configure all cores. 2. Simultaneously assert multiple thermal event bits in THERM_STATUS_UPDATE register. 3. Observe PMA triggers for throttling actions. 4. Monitor system performance and recovery after clearing events. 5. Repeat with different combinations of event bits.",
+          "1. Activate both cores and ensure they are out of C6. 2. Core0 issues a high ICCP license request (e.g., License=4), Core1 issues a lower request (e.g., License=2) within the hysteresis window. 3. Set Valid=1 for both requests. 4. Monitor ICCPU2CGrantLicenseMnnnH and GV CTRL for grant behavior. 5. Repeat with varying timing and value combinations to cover hysteresis logic. 6. Log arbitration and grant timing.",
+          "1. Boot system and enable all threads. 2. Set initial policy field values. 3. During runtime, change policy field values for each thread. 4. Monitor Acode feature status for each thread after each update. 5. Check HGS feature control via knob. 6. Log feature status and compare to policy.",
+          "1. Configure SBFT@Field test with both cores enabled. 2. Start SBFT@F with only one core initiating the start command. 3. Progress both cores through test stages. 4. At each stage, sample ML4_CR_SBFT_AT_FIELD[SBFT_STATUS], MLSBFTStatusXnnnH, and MLSBFTStatusValidXnnnH. 5. Log all transitions and verify that updates occur only after both cores reach the required stage.",
+          "1. Set both cores to C6, enter MC3. 2. Start MLC flush. 3. Inject wake-up event to one core during flush. 4. PM sends abort indication to MLC. 5. MLC returns flush-done signal. 6. Monitor core exit from C6 and MC3. 7. Check for absence of deadlock and correct state."
+        ],
+        "Pass/Fail Criteria &amp; HW Errors *": [
+          "Pass if throttling is engaged for each asserted event and system recovers when events are cleared. Fail if throttling does not occur or system fails to recover. HW errors include missed throttling triggers or recovery failures.",
+          "Pass if the lower license is not granted until the hysteresis window expires and only the dominant license is applied. Fail if the lower license is granted prematurely or both licenses are granted. HW errors include incorrect hysteresis handling or grant timing.",
+          "Pass if Acode features respond to policy changes in real-time for all threads; fail if any feature lags or does not match policy. HW errors if policy update is not reflected.",
+          "Pass if SBFT_STATUS updates only after both cores reach the stage and transitions through legal values. Fail if update occurs prematurely, with illegal value, or is missed.",
+          "Pass if flush is aborted, flush-done signal is returned, and cores exit C6 without deadlock. Fail if flush is not aborted, deadlock, or incorrect state occurs."
+        ],
+        "Intent Verify *": [
+          "Use PMA logs, CLPMA_CR_THROTTLE_CONFIG and PMA_CR_FORCE_THROTTLE_CONTROL register states, and PMON to verify throttling actions.",
+          "Use PMON and Visa to monitor grant signals and GV CTRL. Analyze logs for correct hysteresis behavior.",
+          "Use PMON and logs to verify real-time feature gating and policy update reflection.",
+          "Use register and signal logs to confirm update timing and correctness.",
+          "Visa, PMON, and logs to confirm abort indication, flush-done signal, and C6 exit."
+        ],
+        "Validation Automation Global Checkers *": [
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for throttling response.",
+          "Enable SST, Central, and Concurrency checkers. Enable PVT checkers for hysteresis and arbitration timing.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for real-time policy update.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for voltage/frequency stability.",
+          "SST, Central, Concurrency checkers enabled. PVT checker for abort handling."
+        ],
+        "Validation SW *": [
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec path for concurrency, PythonSV for scripting, Supercollider for stress.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec, PythonSV, Supercollider. Use concurrency and timing utilities for hysteresis coverage.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON v2.3, Perspec path, PythonSV, Supercollider, register check utilities.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec path, PythonSV, Supercollider. Register access and logging utilities.",
+          "Tool and Content Requirements: OSBV/SVOS v2.0, PMON v3.2, Perspec path, PythonSV, Supercollider, Prime95, concurrency and register check utilities."
+        ],
+        "Ecosystem SW *": [
+          "Test Requirements: BIOS with PMA and throttling features enabled, OS kernel with scheduler settings for stress, drivers for thermal and power management.",
+          "Test Requirements: BIOS with hysteresis logic enabled, OS kernel and scheduler settings, validated drivers, and registry keys for grant timing.",
+          "Test Requirements: BIOS with real-time policy update support, OS kernel with SGX/TDX, telemetry drivers.",
+          "Test Requirements: BIOS with dual-core and MLC cluster enabled, OS kernel default, required drivers.",
+          "Test Requirements: BIOS v2.1, C6/MC6 knobs, OS kernel 6.1, PCIe/storage/graphics drivers latest, registry keys for power state overrides."
+        ],
+        "Test HW Requirements and HW Configuration *": [
+          "SoC with PMA, platform with multiple cores, DIMMs, PCIe devices, robust thermal solution, debug instrumentation for monitoring throttling.",
+          "Two-core platform, correct SoC stepping, full DIMM/PCIe, thermal solution, debug and power measurement setup.",
+          "SoC with real-time policy update capability, platform with all threads, debug instrumentation, power measurement setup.",
+          "SoC with dual-core, MLC cluster, debug access to MLSBFTStatus signals, thermal and power monitoring.",
+          "SoC stepping B0, TDP 95W, dual-socket, 4x DDR5 DIMMs, PCIe Gen4 GPU, active heatsink, PMA/MLC signal probes, external power meters."
+        ],
+        "PVT *": [
+          "Stress IP under temperature corners and monitor survivability during throttling."
+        ],
+        "Performance/Bandwidth Testing *": [
+          "Measure frequency reduction and clock modulation during throttling."
+        ],
+        "ISOC Validation *": [
+          "Check device interactions and data coherency during throttling events."
+        ]
+      }
+    },
+    "1.1.1.3": {
+      "title": "MC6 Entry Only After Successful MLC Flush Completion",
+      "hier": "TC",
+      "id": "1.1.1.3",
+      "subsections": {
+        "TC Description *": [
+          "Simulate thermal events that are later determined to be false positives by toggling THERM_STATUS_UPDATE bits. Observe AI system updating its model to reduce future false triggers. Verify that LOG bits and throttling actions are correctly managed for false events.",
+          "This test rapidly issues ICCP license requests from both cores with randomized values and timing to stress the arbitration logic. It verifies that the system does not enter deadlock or starvation, and that all requests are eventually processed according to the arbitration rules.",
+          "Independently control HGS feature using its dedicated knob while other Acode features are gated by policy. Verify that HGS is not affected by policy field and only responds to its knob.",
+          "During SBFT@Field test execution, inject break events (thermal, S1/S5 CPD) and monitor SBFT_LAST_BREAK_REASON field in CORE_PMA_CR_IO_TAF_CFG_STATUS. Verify that break events are correctly reflected in the register and that all debug signals remain observable and accurate during and after the event.",
+          "Validate that MC6 is only entered after successful MLC flush completion. Randomly trigger C6 entry and monitor flush progress. Ensure MC6 entry is blocked if flush is aborted and only allowed if flush completes without abort."
+        ],
+        "Test Steps *": [
+          "1. Enable PMA telemetry and AI system. 2. Assert thermal event bits in THERM_STATUS_UPDATE register to simulate false positives. 3. Monitor LOG bits and throttling actions. 4. Observe AI system logs and model updates. 5. Repeat with different false positive scenarios.",
+          "1. Ensure both cores are active and out of C6. 2. Rapidly and repeatedly randomize ICCP[3:0] values and Valid signals for both cores. 3. Monitor ICCPU2CGrantLicenseMnnnH and GV CTRL for grant behavior and request processing. 4. Check for any unprocessed requests, deadlock, or starvation. 5. Repeat for extended cycles to ensure robustness.",
+          "1. Boot system and enable all threads. 2. Set policy field to enable/disable all Acode features except HGS. 3. Toggle HGS feature using its dedicated knob. 4. Monitor HGS status and ensure it is independent of policy field. 5. Log HGS and other feature statuses.",
+          "1. Start SBFT@Field test with both cores enabled. 2. Inject break events (thermal, S1/S5 CPD) at random points during execution. 3. Sample CORE_PMA_CR_IO_TAF_CFG_STATUS[31:24] for SBFT_LAST_BREAK_REASON after each event. 4. Monitor all PMA_DEBUG4 debug signals for correct sequence and state transitions. 5. Log all register and debug signal values.",
+          "1. Enable both cores, configure for independent C6 entry. 2. Randomly trigger C6 entry, enter MC3. 3. Start MLC flush. 4. Monitor for wake-up/abort events. 5. If flush completes, allow MC6 entry. 6. If flush is aborted, block MC6 entry and exit C6. 7. Sample PMA/MLC signals and state transitions."
+        ],
+        "Pass/Fail Criteria &amp; HW Errors *": [
+          "Pass if AI system logs false positives and updates model to reduce future false triggers. Fail if AI does not update or if LOG bits/throttling actions are incorrect. HW errors include AI model update failures or incorrect event handling.",
+          "Pass if all requests are eventually processed, no deadlock or starvation occurs, and arbitration always grants the maximum requested license. Fail if requests are lost, deadlock/starvation is observed, or incorrect grants occur. HW errors include missed grants or stuck arbitration.",
+          "Pass if HGS feature is controlled only by its knob and not by policy field; fail if HGS responds to policy field or does not respond to knob.",
+          "Pass if SBFT_LAST_BREAK_REASON updates correctly for each break event and all debug signals remain accurate and observable. Fail if any missed update, incorrect value, or loss of visibility.",
+          "Pass if MC6 entry occurs only after flush completion, and is blocked if flush is aborted. Fail if MC6 entry occurs after abort or incorrect state transition."
+        ],
+        "Intent Verify *": [
+          "Use AI system logs, PMA telemetry, and register dumps to confirm model updates and correct event handling.",
+          "Use Visa, PMON, and logs to monitor request and grant signals, arbitration state, and system liveness.",
+          "Use logs and PMON to confirm HGS feature control is independent and matches knob setting.",
+          "Analyze logs for correct break reason updates and debug signal transitions.",
+          "PMON, logs, Visa to confirm MC6 entry only after flush completion."
+        ],
+        "Validation Automation Global Checkers *": [
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for AI model update and false positive handling.",
+          "Enable SST, Central, and Concurrency checkers. Enable PVT checkers for request/grant liveness.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for HGS knob control.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for voltage/thermal events.",
+          "SST, Central, Concurrency checkers enabled. PVT checker for MC6 entry gating."
+        ],
+        "Validation SW *": [
+          "Tool and Content Requirements: OSBV/SVOS, PMON, AI system interface, PythonSV, Supercollider.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec, PythonSV, Supercollider. Use stress and concurrency tools for rapid request generation.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON v2.3, Perspec path, PythonSV, Supercollider, register check utilities.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec path, PythonSV, Supercollider. Register and debug signal monitoring tools.",
+          "Tool and Content Requirements: OSBV/SVOS v2.0, PMON v3.2, Perspec path, PythonSV, Supercollider, Prime95, concurrency and register check utilities."
+        ],
+        "Ecosystem SW *": [
+          "Test Requirements: BIOS with AI system enabled, OS kernel with AI logging utilities, drivers for PMA and AI integration.",
+          "Test Requirements: BIOS with arbitration and liveness support, OS kernel and scheduler settings, validated drivers, registry keys for stress testing.",
+          "Test Requirements: BIOS with HGS knob support, OS kernel with SGX/TDX, telemetry drivers.",
+          "Test Requirements: BIOS with break event support, OS kernel default, required drivers.",
+          "Test Requirements: BIOS v2.1, C6/MC6 knobs, OS kernel 6.1, PCIe/storage/graphics drivers latest, registry keys for power state overrides."
+        ],
+        "Test HW Requirements and HW Configuration *": [
+          "SoC with PMA and AI system, platform with multiple cores, DIMMs, PCIe devices, thermal solution, debug instrumentation for AI monitoring.",
+          "Two-core platform, correct SoC stepping, full DIMM/PCIe, thermal solution, debug and power measurement setup.",
+          "SoC with HGS knob, platform with all threads, debug instrumentation, power measurement setup.",
+          "SoC with debug access, thermal solution capable of generating thermal events, power and debug instrumentation.",
+          "SoC stepping B0, TDP 95W, dual-socket, 4x DDR5 DIMMs, PCIe Gen4 GPU, active heatsink, PMA/MLC signal probes, external power meters."
+        ],
+        "PVT *": [
+          "Monitor voltage and thermal sensors during false positive simulation."
+        ],
+        "Performance/Bandwidth Testing *": [
+          "Measure system response to false positives."
+        ],
+        "ISOC Validation *": [
+          "Validate device interactions during false positive event handling."
+        ]
+      }
+    },
+    "1.1.2": {
+      "title": "MEA Arbitration During MLC Flush",
+      "hier": "TCD",
+      "id": "1.1.2",
+      "subsections": {
+        "Description *": [
+          "Validate AI-based latchup detection, prevention actions, recovery, and model update for false positives using sensor manipulation.",
+          "Validate that ICCP license changes trigger safe and synchronized work-point transitions, with correct AGV and grant sequencing for both up and down transitions.",
+          "Validate SBFT@F flow break event prioritization and correct break reason update in CORE_PMA_CR_IO_TAF_CFG_STATUS[31:24].",
+          "Validate that telemetry and debug counters update accurately and timely during dynamic PM flows and arbitration events with randomized workload and RMID changes.",
+          "Validate MEA arbitration during MLC flush, including correct blocking, IMI handling, and race condition resolution."
+        ],
+        "Algorithm of Testing *": [
+          "Inject abnormal sensor readings, randomize operational modes and sensor values, monitor latchup controller detection, prevention, and recovery, and observe AI learning.",
+          "Randomly trigger ICCP license changes from one or both cores, ensuring correct sequencing of AGV and grant signals, and monitoring work-point application.",
+          "Inject thermal, throttle hammer, and normal exit events during SBFT@F flows and monitor break reason updates.",
+          "Run PM flows with dynamic workload, randomize RMID assignments and arbitration outcomes, and sample telemetry and debug counters at each event.",
+          "Randomly select ILP/RLP roles, trigger MEA requests with randomized timing, and monitor arbitration and flush progress."
+        ],
+        "Randomization *": [
+          "Randomize operational mode (workload, power state) and sensor values (current, temperature) to cover diverse scenarios, including simultaneous abnormal readings.",
+          "Randomize license change direction (up/down), core selection, and ICCP[3:0] values for each transition.",
+          "Random selection and timing of break event injection during SBFT@F-Entry, SBFT@F-Next, and SBFT@F-Exit flows.",
+          "Randomly change RMID assignments, workload patterns, arbitration outcomes, and PM flow triggers (AGV, C6, FGV, license grant/ack).",
+          "Randomize ILP/RLP assignment, MEA request timing, and RLP state transitions (C6, C0, transitioning)."
+        ],
+        "Required Configurations and Dependencies *": [
+          "Detection sensors (current, temperature, telemetry), AI-based latchup controller, power management system, and logging infrastructure.",
+          "Both cores active with valid work-points, GV CTRL not in GO Inc/Dec phase, Rcsm/Dispatcher ready, and Acode WP calculation available.",
+          "Requires U2A mailbox access, throttle/thermal event injection capability, and break reason monitoring.",
+          "Requires telemetry collection setup for per-RMID frequency, temperature, and Cdyn; debug counter access; and PM flow/arbitration event triggers.",
+          "Both cores enabled, CORE_PMA_CR_UCODE_COMMAND register access, IMI messaging, PMA/MLC signal sampling."
+        ],
+        "Coverage *": [
+          "Cover all operational modes, sensor types, and prevention actions. Verify recovery and AI model updates for false positives.",
+          "Coverage includes all RMID changes, arbitration events, and PM flow triggers with dynamic telemetry updates.",
+          "Monitor MEA request/acknowledge, MLC flush status, and correct arbitration. Check for deadlocks, lost MEA requests, and correct MEA release."
+        ],
+        "Cross-Feature Interaction *": [
+          "Detection sensors, latchup controller, AI learning system, power management, and operational status interact for event detection and response.",
+          "Involves cores, PMA, GV CTRL, AGV, TADREG, and Acode for work-point calculation and transition sequencing.",
+          "Acode interacts with throttle/thermal status bits, updates break reason, and triggers SBFT-Exit; HW throttle hammer triggers LFM-AGV.",
+          "Involves PM flows, arbitration logic, telemetry collection, and debug counter updates.",
+          "ILP, RLP, PMA, MLC, and intra-module command/status registers interact during MEA arbitration and flush flows."
+        ],
+        "DFx Requirements *": [
+          "Observability of sensor readings, latchup controller actions, AI logs, and ability to manipulate sensors for testing.",
+          "Ensure atomicity and synchronization of transitions, monitor for unsafe or intermediate states, and validate correct grant and AGV order.",
+          "HW infrastructure for event injection, break reason reporting, and real-time status monitoring.",
+          "Debug counters must reflect arbitration outcomes and PM flow triggers; telemetry values are snap-shut at RMID change.",
+          "Observability of MEA request/acknowledge, IMI messaging, and flush status. Check for deadlocks and lost requests."
+        ]
+      }
+    },
+    "1.1.2.1": {
+      "title": "ILP MEA Request with RLP in C6 State",
+      "hier": "TC",
+      "id": "1.1.2.1",
+      "subsections": {
+        "TC Description *": [
+          "Configure system with all detection sensors and AI-based latchup controller active. Inject abnormal sensor readings by manipulating current consumption meters and local temperature sensors to create a 'current picture' that deviates from expected profiles. Randomize operational mode and sensor values to cover a wide range of scenarios. Monitor latchup controller detection and prevention actions.",
+          "This test triggers an ICCP license up request from one core, ensuring that the AGV (voltage/frequency up) transition is completed before the license grant is sent. The test verifies that the correct work-point is applied atomically and that no unsafe or intermediate state is observed.",
+          "Inject a thermal event during SBFT@F flow and monitor that break reason in CORE_PMA_CR_IO_TAF_CFG_STATUS[31:24] is set to SBFT_BREAK_TYPE_POWER_BUDGET_THERMAL_E. Verify that SBFT@F flow aborts as per event priority.",
+          "Configure telemetry collection for per-RMID frequency, temperature, and Cdyn. During PM flow execution, randomly change RMID assignments and workload patterns. At each RMID change, sample telemetry registers and verify that values are updated accurately and timely, reflecting the snap-shut behavior at RMID change.",
+          "Randomly select ILP and RLP roles. ILP requests exclusive access (MEA) to perform MLC flush while RLP is in C6. ILP writes CORE_PMA_CR_UCODE_COMMAND[Prevent_other_core_wakeup] to block RLP wakeup. Monitor MEA grant and flush progress."
+        ],
+        "Test Steps *": [
+          "1. Enable detection sensors and AI latchup controller. 2. Manipulate current and temperature sensors to inject abnormal readings. 3. Randomize operational mode and sensor values. 4. Observe latchup controller detection and prevention actions (frequency reduction, sleep, restart). 5. Repeat for different sensor types and operational modes.",
+          "1. Ensure both cores are active with valid work-points. 2. Confirm GV CTRL is not in GO Inc/Dec phase (GoIncDecPhaseX4H==0) and Rcsm/Dispatcher is ready (AgvRCSMReadyX4H=1). 3. Randomly select a core and issue an ICCP license up request (C2PmICCPRequestMXnnnH.Valid=1, ICCP[3:0] incremented). 4. Simulate Acode WP calculation if needed. 5. Monitor AGV command issuance, WP selection, and timing of ICCPU2CGrantLicenseMnnnH grant relative to AGV. 6. Log the sequence and check for atomic application.",
+          "1. Boot module and prepare for SBFT@F test. 2. Start SBFT@F via U2A mailbox. 3. Inject thermal event during SBFT@F-Entry, Next, or Exit. 4. Monitor throttle/thermal status bits. 5. Observe break reason update in register. 6. Confirm SBFT@F flow aborts.",
+          "1. Set up telemetry collection for per-RMID frequency, temperature, and Cdyn. 2. Start PM flows with dynamic workload. 3. Randomly change RMID assignments during execution. 4. At each RMID change, sample telemetry registers. 5. Log all telemetry values and compare to expected updates.",
+          "1. Enable both cores, assign ILP/RLP roles randomly. 2. Set RLP to C6 state. 3. ILP writes Prevent_other_core_wakeup in CORE_PMA_CR_UCODE_COMMAND. 4. ILP requests MEA and initiates MLC flush. 5. Monitor MEA grant, flush progress, and RLP wakeup blocking. 6. Release MEA after flush."
+        ],
+        "Pass/Fail Criteria &amp; HW Errors *": [
+          "Pass if latchup controller detects abnormal events and triggers prevention actions. Fail if detection or prevention actions are missed. HW errors include sensor manipulation failures or latchup controller malfunction.",
+          "Pass if AGV transition completes before the grant is sent, the correct work-point is applied atomically, and no unsafe/intermediate state is observed. Fail if grant is sent before AGV or if an unsafe state occurs. HW errors include incorrect sequencing or partial WP application.",
+          "Pass if break reason is SBFT_BREAK_TYPE_POWER_BUDGET_THERMAL_E and SBFT@F flow aborts; fail if break reason is incorrect or flow does not abort.",
+          "Pass if telemetry values are updated accurately and timely at each RMID change. Fail if any missed update, stale value, or incorrect reporting.",
+          "Pass if MEA is granted only when RLP is in C6 and wakeup is blocked, flush proceeds, and MEA is released correctly. Fail if MEA is granted incorrectly, deadlock, or lost MEA request."
+        ],
+        "Intent Verify *": [
+          "Use AI system logs, latchup controller event logs, and PMON to confirm detection and prevention actions.",
+          "Use Visa and PMON to monitor AGV, grant, and WP registers. Analyze logs for correct sequencing and atomicity.",
+          "Use logs, PMON, and Visa to confirm break reason and flow behavior.",
+          "Use telemetry register logs to confirm updates at each RMID change.",
+          "PMON, logs, Visa to confirm MEA grant, flush progress, and correct MEA release."
+        ],
+        "Validation Automation Global Checkers *": [
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for sensor manipulation and latchup detection.",
+          "Enable SST, Central, and Concurrency checkers. Enable PVT checkers for AGV and grant sequencing.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for thermal event handling.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for dynamic workload.",
+          "SST, Central, Concurrency checkers enabled. PVT checker for MEA arbitration."
+        ],
+        "Validation SW *": [
+          "Tool and Content Requirements: OSBV/SVOS, PMON, PythonSV for sensor manipulation, Supercollider for stress patterns.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec, PythonSV, Supercollider. Use scenario generation and register monitoring tools.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON v2.3, Perspec path, PythonSV, Supercollider, register check utilities.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON for telemetry sampling, Perspec path for scenario automation, PythonSV for scripting, Supercollider for workload generation.",
+          "Tool and Content Requirements: OSBV/SVOS v2.0, PMON v3.2, Perspec path, PythonSV, Supercollider, Prime95, register check utilities."
+        ],
+        "Ecosystem SW *": [
+          "Test Requirements: BIOS with detection sensors enabled, OS kernel with sensor access utilities, drivers for latchup controller and AI system.",
+          "Test Requirements: BIOS with AGV and grant sequencing support, OS kernel and scheduler settings, validated drivers, registry keys for WP and AGV observability.",
+          "Test Requirements: BIOS with SBFT@F and event injection support, OS kernel with event handling, subsystem drivers for status bits.",
+          "Test Requirements: BIOS with telemetry support, OS kernel with default scheduler, required drivers for telemetry and debug counter access.",
+          "Test Requirements: BIOS v2.1, MEA arbitration knobs, OS kernel 6.1, PCIe/storage/graphics drivers latest, registry keys for arbitration overrides."
+        ],
+        "Test HW Requirements and HW Configuration *": [
+          "SoC with detection sensors and AI latchup controller, platform with DIMMs, PCIe devices, thermal solution, debug instrumentation for sensor access.",
+          "Platform with two active cores, correct SoC stepping, full DIMM/PCIe, thermal solution, debug instrumentation, and power measurement setup.",
+          "SoC with SBFT@F and event injection capability, platform with module idle, debug instrumentation, power measurement setup.",
+          "SoC with telemetry and debug counter support, platform with dynamic workload capability, debug instrumentation.",
+          "SoC stepping B0, TDP 95W, dual-core module, 2x DDR5 DIMMs, PCIe Gen4 GPU, active heatsink, PMA/MLC signal probes, external power meters."
+        ],
+        "PVT *": [
+          "Monitor voltage rails and thermal sensors during abnormal reading injection."
+        ],
+        "Performance/Bandwidth Testing *": [
+          "Measure system response time to latchup detection and prevention actions."
+        ],
+        "ISOC Validation *": [
+          "Validate device interactions during latchup event handling."
+        ]
+      }
+    },
+    "1.1.2.2": {
+      "title": "ILP MEA Request with RLP in C0 or Transitioning State",
+      "hier": "TC",
+      "id": "1.1.2.2",
+      "subsections": {
+        "TC Description *": [
+          "After latchup controller detects abnormal sensor readings, monitor prevention actions such as frequency reduction, sleep entry, or system restart. Verify restoration of normal operation after prevention action and observe AI system logging and model update for false positives.",
+          "This test triggers an ICCP license down request from one core, ensuring that the license grant is sent before the AGV (voltage/frequency down) transition. The test verifies that the correct work-point is applied atomically and that no unsafe or intermediate state is observed.",
+          "Inject throttle hammer event before or during SBFT@F flow. Monitor that break reason is set to SBFT_BREAK_TYPE_POWER_BUDGET_THERMAL_E if thermal event occurs, otherwise to THROTTLE. Verify SBFT@F flow aborts or completes as per event.",
+          "During PM flow execution, randomize arbitration outcomes and PM flow triggers such as AGV, C6, FGV, and license grant/ack. At each arbitration event, sample debug counters and verify that they reflect the correct outcome and PM flow trigger.",
+          "Randomly select ILP and RLP roles. ILP requests MEA to perform MLC flush while RLP is in C0 or transitioning. ILP sends IMI to RLP to request MEA. Monitor MEA arbitration, RLP acknowledge, and flush progress."
+        ],
+        "Test Steps *": [
+          "1. Enable detection sensors and AI latchup controller. 2. Inject abnormal sensor readings to trigger latchup detection. 3. Observe prevention actions (frequency reduction, sleep, restart). 4. Restore normal operation and monitor AI system logs. 5. Repeat for different prevention actions and recovery scenarios.",
+          "1. Ensure both cores are active with valid work-points. 2. Confirm GV CTRL is not in GO Inc/Dec phase and Rcsm/Dispatcher is ready. 3. Randomly select a core and issue an ICCP license down request (C2PmICCPRequestMXnnnH.Valid=1, ICCP[3:0] decremented). 4. Simulate Acode WP calculation if needed. 5. Monitor timing of ICCPU2CGrantLicenseMnnnH grant and AGV command issuance. 6. Log the sequence and check for atomic application.",
+          "1. Boot module and prepare for SBFT@F test. 2. Start SBFT@F via U2A mailbox. 3. Inject throttle hammer event before SBFT@F entry or during SBFT@F. 4. Monitor throttle-events-status and throttle-event-sticky bits. 5. Observe break reason update in register. 6. Confirm SBFT@F flow aborts or completes.",
+          "1. Start PM flows with dynamic workload. 2. Randomly trigger arbitration events (AGV, C6, FGV, license grant/ack). 3. At each event, sample debug counters. 4. Log all debug counter values and compare to expected outcomes.",
+          "1. Enable both cores, assign ILP/RLP roles randomly. 2. Set RLP to C0 or transitioning state. 3. ILP sends IMI to RLP for MEA request. 4. Wait for RLP to acknowledge IMI. 5. ILP initiates MLC flush after MEA is granted. 6. Monitor MEA arbitration, flush progress, and MEA release."
+        ],
+        "Pass/Fail Criteria &amp; HW Errors *": [
+          "Pass if prevention actions are taken and system recovers to normal operation. Fail if recovery fails or prevention actions are not triggered. HW errors include recovery failures or prevention action malfunction.",
+          "Pass if the grant is sent before AGV, the correct work-point is applied atomically, and no unsafe/intermediate state is observed. Fail if AGV occurs before grant or if an unsafe state occurs. HW errors include incorrect sequencing or partial WP application.",
+          "Pass if break reason is THROTTLE (unless thermal event occurs) and SBFT@F flow aborts; fail if break reason is incorrect or flow does not abort.",
+          "Pass if debug counters reflect correct arbitration outcomes and PM flow triggers. Fail if any missed update or incorrect value.",
+          "Pass if MEA is granted only after RLP acknowledges IMI, flush proceeds, and MEA is released correctly. Fail if MEA is granted prematurely, deadlock, or lost MEA request."
+        ],
+        "Intent Verify *": [
+          "Use AI system logs, latchup controller event logs, and PMON to confirm prevention actions and recovery.",
+          "Use PMON and Visa to monitor grant and AGV signals, and WP registers. Analyze logs for correct sequencing.",
+          "Use logs, PMON, and Visa to confirm break reason and flow behavior.",
+          "Use debug counter logs to confirm correct updates at each arbitration event.",
+          "PMON, logs, Visa to confirm IMI handling, MEA grant, flush progress, and correct MEA release."
+        ],
+        "Validation Automation Global Checkers *": [
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for prevention action and recovery.",
+          "Enable SST, Central, and Concurrency checkers. Enable PVT checkers for grant and AGV order.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for throttle hammer event handling.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for arbitration event stress.",
+          "SST, Central, Concurrency checkers enabled. PVT checker for IMI arbitration."
+        ],
+        "Validation SW *": [
+          "Tool and Content Requirements: OSBV/SVOS, PMON, PythonSV, Supercollider.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec, PythonSV, Supercollider. Use scenario generation and register monitoring tools.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON v2.3, Perspec path, PythonSV, Supercollider, register check utilities.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec path, PythonSV, Supercollider.",
+          "Tool and Content Requirements: OSBV/SVOS v2.0, PMON v3.2, Perspec path, PythonSV, Supercollider, Prime95, register check utilities."
+        ],
+        "Ecosystem SW *": [
+          "Test Requirements: BIOS with prevention actions enabled, OS kernel with recovery utilities, drivers for latchup controller and AI system.",
+          "Test Requirements: BIOS with grant and AGV sequencing support, OS kernel and scheduler settings, validated drivers, registry keys for WP and AGV observability.",
+          "Test Requirements: BIOS with SBFT@F and event injection support, OS kernel with event handling, subsystem drivers for status bits.",
+          "Test Requirements: BIOS with arbitration and PM flow support, OS kernel default, required drivers.",
+          "Test Requirements: BIOS v2.1, MEA arbitration knobs, OS kernel 6.1, PCIe/storage/graphics drivers latest, registry keys for arbitration overrides."
+        ],
+        "Test HW Requirements and HW Configuration *": [
+          "SoC with detection sensors and AI latchup controller, platform with DIMMs, PCIe devices, thermal solution, debug instrumentation for recovery monitoring.",
+          "Platform with two active cores, correct SoC stepping, full DIMM/PCIe, thermal solution, debug instrumentation, and power measurement setup.",
+          "SoC with SBFT@F and event injection capability, platform with module idle, debug instrumentation, power measurement setup.",
+          "SoC with debug counter support, platform with arbitration event capability, debug instrumentation.",
+          "SoC stepping B0, TDP 95W, dual-core module, 2x DDR5 DIMMs, PCIe Gen4 GPU, active heatsink, PMA/MLC signal probes, external power meters."
+        ],
+        "PVT *": [
+          "Monitor voltage and thermal sensors during prevention and recovery."
+        ],
+        "Performance/Bandwidth Testing *": [
+          "Measure system recovery time and prevention action effectiveness."
+        ],
+        "ISOC Validation *": [
+          "Validate device interactions during prevention and recovery."
+        ]
+      }
+    },
+    "1.1.2.3": {
+      "title": "Race Condition Handling During MEA Arbitration",
+      "hier": "TC",
+      "id": "1.1.2.3",
+      "subsections": {
+        "TC Description *": [
+          "Inject sensor readings that are within normal operational parameters but trigger latchup detection as false positives. Monitor AI system logging of the event and model update to reduce future false triggers. Verify that system resumes normal operation and AI learning is effective.",
+          "This test triggers ICCP license changes (up and down) from both cores in close succession, ensuring that the system correctly sequences AGV and grant signals for each transition and applies the correct work-points atomically without unsafe states.",
+          "Run SBFT@F test to normal completion without injecting break events. Monitor that break reason in CORE_PMA_CR_IO_TAF_CFG_STATUS[31:24] is set to normal. Verify SBFT@F flow completes as expected.",
+          "Run PM flows with dynamic workload and randomize both RMID assignments and arbitration outcomes. At each RMID change and arbitration event, sample both telemetry registers and debug counters. Verify that telemetry values and debug counters are updated accurately and timely for each event.",
+          "Randomize MEA request timing and RLP state transitions to create race conditions. Monitor MEA arbitration, check for deadlocks, lost MEA requests, and correct MEA release after flush. Ensure only one bit is set in CORE_PMA_CR_UCODE_COMMAND at a time."
+        ],
+        "Test Steps *": [
+          "1. Enable detection sensors and AI latchup controller. 2. Inject sensor readings that mimic false positives. 3. Observe latchup controller detection and prevention actions. 4. Monitor AI system logs and model update. 5. Verify reduction in future false triggers. 6. Repeat for different false positive scenarios.",
+          "1. Ensure both cores are active with valid work-points. 2. Confirm GV CTRL is not in GO Inc/Dec phase and Rcsm/Dispatcher is ready. 3. Randomly trigger ICCP license changes (up and down) from both cores using C2PmICCPRequestMXnnnH.Valid=1 and ICCP[3:0]. 4. Simulate Acode WP calculation as needed. 5. Monitor AGV, grant, and WP application for each core. 6. Log all transitions and check for atomicity and safety.",
+          "1. Boot module and prepare for SBFT@F test. 2. Start SBFT@F via U2A mailbox. 3. Allow SBFT@F to run to completion without event injection. 4. Monitor break reason update in register. 5. Confirm SBFT@F flow completes normally.",
+          "1. Configure telemetry and debug counter collection. 2. Start PM flows with dynamic workload. 3. Randomly change RMID assignments and trigger arbitration events during execution. 4. At each event, sample telemetry registers and debug counters. 5. Log all values and analyze for correctness.",
+          "1. Enable both cores, assign ILP/RLP roles randomly. 2. Randomize MEA request timing and RLP state transitions (C6, C0, transitioning). 3. ILP requests MEA via Prevent_other_core_wakeup or IMI as appropriate. 4. Monitor MEA arbitration, flush progress, and MEA release. 5. Check that only one bit is set in CORE_PMA_CR_UCODE_COMMAND at any time. 6. Monitor for deadlocks or lost MEA requests."
+        ],
+        "Pass/Fail Criteria &amp; HW Errors *": [
+          "Pass if AI system logs false positives and updates model to reduce future false triggers. Fail if AI does not update or if false positives persist. HW errors include AI model update failures or incorrect event handling.",
+          "Pass if all transitions are sequenced correctly (AGV before grant for up, grant before AGV for down), correct work-points are applied atomically, and no unsafe/intermediate state is observed. Fail if sequencing is incorrect or unsafe states occur. HW errors include missed transitions or partial WP application.",
+          "Pass if break reason is normal and SBFT@F flow completes; fail if break reason is incorrect or flow does not complete.",
+          "Pass if all telemetry and debug counter updates are accurate and timely for each event. Fail if any missed update, stale value, or incorrect reporting.",
+          "Pass if MEA arbitration resolves races correctly, no deadlocks or lost requests, and only one bit is set in register. Fail if deadlock, lost MEA request, or register misconfiguration occurs."
+        ],
+        "Intent Verify *": [
+          "Use AI system logs, latchup controller event logs, and PMON to confirm model updates and reduction in false triggers.",
+          "Use Visa, PMON, and logs to monitor all transitions, AGV, grant, and WP registers.",
+          "Use logs, PMON, and Visa to confirm break reason and flow behavior.",
+          "Use combined logs of telemetry and debug counters to confirm correct updates.",
+          "PMON, logs, Visa to confirm race resolution, MEA grant, flush progress, and register state."
+        ],
+        "Validation Automation Global Checkers *": [
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for AI model update and false positive handling.",
+          "Enable SST, Central, and Concurrency checkers. Enable PVT checkers for concurrent transitions.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for normal completion.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for dynamic workload and arbitration.",
+          "SST, Central, Concurrency checkers enabled. PVT checker for race handling."
+        ],
+        "Validation SW *": [
+          "Tool and Content Requirements: OSBV/SVOS, PMON, AI system interface, PythonSV, Supercollider.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec, PythonSV, Supercollider. Use concurrency and scenario generation tools.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON v2.3, Perspec path, PythonSV, Supercollider, register check utilities.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec path, PythonSV, Supercollider.",
+          "Tool and Content Requirements: OSBV/SVOS v2.0, PMON v3.2, Perspec path, PythonSV, Supercollider, Prime95, register check utilities."
+        ],
+        "Ecosystem SW *": [
+          "Test Requirements: BIOS with AI system enabled, OS kernel with AI logging utilities, drivers for latchup controller and AI integration.",
+          "Test Requirements: BIOS with concurrent transition support, OS kernel and scheduler settings, validated drivers, registry keys for WP and AGV observability.",
+          "Test Requirements: BIOS with SBFT@F support, OS kernel with event handling, subsystem drivers for status bits.",
+          "Test Requirements: BIOS with telemetry and arbitration support, OS kernel default, required drivers.",
+          "Test Requirements: BIOS v2.1, MEA arbitration knobs, OS kernel 6.1, PCIe/storage/graphics drivers latest, registry keys for arbitration overrides."
+        ],
+        "Test HW Requirements and HW Configuration *": [
+          "SoC with detection sensors and AI system, platform with DIMMs, PCIe devices, thermal solution, debug instrumentation for AI monitoring.",
+          "Platform with two active cores, correct SoC stepping, full DIMM/PCIe, thermal solution, debug instrumentation, and power measurement setup.",
+          "SoC with SBFT@F capability, platform with module idle, debug instrumentation, power measurement setup.",
+          "SoC with telemetry and debug counter support, platform with dynamic workload and arbitration capability, debug instrumentation.",
+          "SoC stepping B0, TDP 95W, dual-core module, 2x DDR5 DIMMs, PCIe Gen4 GPU, active heatsink, PMA/MLC signal probes, external power meters."
+        ],
+        "PVT *": [
+          "Monitor voltage and thermal sensors during false positive simulation."
+        ],
+        "Performance/Bandwidth Testing *": [
+          "Measure system response to false positives and AI learning effectiveness."
+        ],
+        "ISOC Validation *": [
+          "Validate device interactions during false positive event handling."
+        ]
+      }
+    },
+    "1.1.3": {
+      "title": "Staggered C6/MC6 Entry Across Multiple Modules",
+      "hier": "TCD",
+      "id": "1.1.3",
+      "subsections": {
+        "Description *": [
+          "Validate PVP mechanism by generating high core current patterns, monitoring energy cost predictor, and verifying throttling and recovery.",
+          "Validate that the system safely aborts ongoing ICCP transitions and retains the last valid work-point and license when break events occur under stress, and that only the latest license request is eventually granted.",
+          "Validate module-level ownership and prioritization of break events during SAF and SBFT flows, ensuring correct break reason update and module-level scope.",
+          "Validate that the SBFT status register rejects or corrects illegal value '11' and does not propagate it during test flow, including during reset and break events.",
+          "Validate staggered C6/MC6 entry across multiple modules to prevent simultaneous didt events and ensure correct sequencing."
+        ],
+        "Algorithm of Testing *": [
+          "Randomly generate high current consumption patterns, vary stress duration and magnitude, monitor energy cost predictor, and observe architectural throttling and recovery.",
+          "Randomly trigger rapid ICCP license requests from both cores and inject break events during transitions to observe abort and recovery behavior.",
+          "Inject S1/S5 CPD, throttle hammer, and thermal events in random order and timing during SAF/SBFT flows; monitor break reason and module-level exit behavior.",
+          "Force write illegal value '11' to SBFT_STATUS field during test flow, including during reset and break events, and monitor register and debug signals for system reaction.",
+          "Randomly trigger C6 entry on multiple cores across modules, monitor MC6 entry timing, and check for correct staggering and sequencing."
+        ],
+        "Randomization *": [
+          "Randomize core current consumption patterns, stress duration, and magnitude to cover borderline and extreme cases.",
+          "Randomize ICCP license request values, timing, and break event injection (throttle hammer, CPD, thermal) during transitions.",
+          "Random injection order and timing of break events during test execution.",
+          "Attempt illegal value injection at various points in the test flow, including during reset and break events.",
+          "Randomize C6 entry timing across cores and modules to create simultaneous or near-simultaneous transitions."
+        ],
+        "Required Configurations and Dependencies *": [
+          "PVP enabled, core energy cost predictor, architectural throttling controls, and logging infrastructure.",
+          "Both cores active with valid work-points, break event injection capability, and observability of grant, AGV, and break reason/status registers.",
+          "Requires access to SAF/SBFT flow controls, event injection capability, and break reason monitoring.",
+          "Requires SBFT@Field test configuration and access to ML4_CR_SBFT_AT_FIELD register and debug signals.",
+          "Multiple modules active, system configured for autonomous C6 entry, PMA FSMs, Punit/Pcode system-level logic."
+        ],
+        "Coverage *": [
+          "Cover both client (64 cycles) and server (1024 cycles) PVP targets, verify throttling engagement and recovery.",
+          "Coverage includes all points in the test flow where illegal value injection is attempted.",
+          "Monitor MC6 entry timing, didt event absence, and correct sequencing of power state transitions across modules."
+        ],
+        "Cross-Feature Interaction *": [
+          "Core, FIVR, DLVR, energy cost predictor, and architectural throttling interact for PVP protection.",
+          "Involves cores, PMA, AGV, TADREG, break event logic, and work-point management.",
+          "Acode and PM handle break events, update break reason, and enforce module-level scope; all active cores exit together.",
+          "Involves SBFT@F, MLC, and debug signal propagation.",
+          "PMA FSMs, Punit/Pcode, cores, and modules interact during C6/MC6 entry and power state transitions."
+        ],
+        "DFx Requirements *": [
+          "Observability of energy cost predictor, EXE port dispatch halt, and current consumption monitoring.",
+          "Ensure correct abort and recovery behavior, monitor for unsafe or partial work-point application, and validate break reason updates.",
+          "HW infrastructure for event injection, break reason reporting, and module-level control.",
+          "Illegal value '11' must not be supported or propagated; debug signals must indicate error handling if attempted.",
+          "Observability of MC6 entry timing, didt event monitoring, and sequencing checks."
+        ],
+        "Negative Testing *": [
+          "Focus on injecting illegal value and observing system response."
+        ]
+      }
+    },
+    "1.1.3.1": {
+      "title": "Staggered MC6 Entry Across Modules",
+      "hier": "TC",
+      "id": "1.1.3.1",
+      "subsections": {
+        "TC Description *": [
+          "Configure system with PVP enabled. Randomly generate high core current consumption patterns that approach or exceed the PVP threshold for the predefined cycle window (64 cycles for client/FIVR, 1024 cycles for server). Monitor core energy cost predictor and verify that architectural throttling is engaged when average energy cost exceeds the threshold.",
+          "This test triggers an ICCP license transition and injects a break event (throttle hammer, CPD, or thermal) during the transition. It verifies that the system aborts the transition, retains the last valid work-point and license, and updates the break reason accordingly. No unsafe or partial work-point should be applied.",
+          "Inject a thermal event during SAF or SBFT flow. Monitor that break reason in CORE_PMA_CR_IO_TAF_CFG_STATUS[15:8] or [31:24] is set to thermal. Verify that all active cores exit test together and break reason is updated once per module.",
+          "Configure module for SBFT@Field test and ensure ML4_CR_SBFT_AT_FIELD[SBFT_STATUS] is accessible. During SBFT@F execution, force write illegal value '11' to SBFT_STATUS field. Monitor the register and all debug signals for any reaction or error handling. Verify that the system does not accept or propagate the illegal value.",
+          "Configure multiple modules with two cores each. Randomly trigger C6 entry on multiple cores across modules with timing offsets. Monitor MC6 entry timing to ensure modules do not enter MC6 simultaneously. Check for absence of large didt events and correct sequencing."
+        ],
+        "Test Steps *": [
+          "1. Enable PVP and configure core energy cost predictor. 2. Generate high current consumption patterns for 64 cycles (client) or 1024 cycles (server). 3. Monitor energy cost predictor and EXE port dispatches. 4. Observe throttling engagement. 5. Repeat for different stress patterns and cycle windows.",
+          "1. Ensure both cores are active with valid work-points. 2. Trigger an ICCP license change (up or down) from one core. 3. During the transition, inject a break event (throttle hammer, CPD, or thermal). 4. Monitor ICCPU2CGrantLicenseMnnnH, AGV state, and break reason/status registers. 5. Log the abort behavior and check for retention of last valid work-point and license.",
+          "1. Boot module and start SAF or SBFT flow. 2. Inject thermal event during test execution. 3. Monitor status and sticky bits. 4. Observe break reason update in register. 5. Confirm all active cores exit test together. 6. Log exit behavior and break reason.",
+          "1. Configure SBFT@Field test and ensure register access. 2. Start SBFT@F execution. 3. Force write illegal value '11' to ML4_CR_SBFT_AT_FIELD[SBFT_STATUS] during execution. 4. Sample the register and all debug signals. 5. Log all observations and analyze for system response.",
+          "1. Enable multiple modules, configure for autonomous C6 entry. 2. Randomly trigger C6 entry on multiple cores across modules. 3. Monitor MC6 entry timing across all modules. 4. Check for correct staggering (no simultaneous MC6 entry). 5. Monitor for didt events and correct sequencing of power state transitions."
+        ],
+        "Pass/Fail Criteria &amp; HW Errors *": [
+          "Pass if throttling is engaged when energy cost exceeds threshold and EXE port dispatches are halted. Fail if throttling does not occur or EXE port dispatches continue. HW errors include predictor malfunction or throttling failures.",
+          "Pass if the transition is aborted, the last valid work-point and license are retained, and the break reason is updated. Fail if an unsafe or partial work-point is applied or if the break reason is not updated. HW errors include incorrect abort handling or state retention.",
+          "Pass if break reason is thermal and all active cores exit together; fail if break reason is incorrect or exit is not module-level.",
+          "Pass if illegal value is rejected or corrected and debug signals indicate error handling. Fail if illegal value is accepted or causes loss of visibility.",
+          "Pass if MC6 entry is staggered across modules, no simultaneous MC6 entry, and no large didt events. Fail if modules enter MC6 simultaneously or didt event occurs."
+        ],
+        "Intent Verify *": [
+          "Use PMON, energy cost predictor logs, and EXE port dispatch monitoring to confirm throttling engagement.",
+          "Use Visa and PMON to monitor AGV, grant, and break reason/status registers. Analyze logs for abort and recovery behavior.",
+          "Use logs, PMON, and Visa to confirm break reason and module-level exit.",
+          "Use register and debug signal logs to confirm system response to illegal value injection.",
+          "PMON, logs, Visa to confirm MC6 entry timing, didt event absence, and sequencing."
+        ],
+        "Validation Automation Global Checkers *": [
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for high current pattern and throttling.",
+          "Enable SST, Central, and Concurrency checkers. Enable PVT checkers for abort and recovery flows.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for thermal event handling.",
+          "Enable SST, Central, and Concurrency checkers.",
+          "SST, Central, Concurrency checkers enabled. PVT checker for MC6 entry timing."
+        ],
+        "Validation SW *": [
+          "Tool and Content Requirements: OSBV/SVOS, PMON, PythonSV for pattern generation, Supercollider for stress.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec, PythonSV, Supercollider. Use scenario generation and break event injection tools.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON v2.3, Perspec path, PythonSV, Supercollider, register check utilities.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON for register access, Perspec path, PythonSV.",
+          "Tool and Content Requirements: OSBV/SVOS v2.0, PMON v3.2, Perspec path, PythonSV, Supercollider, Prime95, concurrency utilities."
+        ],
+        "Ecosystem SW *": [
+          "Test Requirements: BIOS with PVP enabled, OS kernel with scheduler settings for stress, drivers for energy cost predictor.",
+          "Test Requirements: BIOS with break event handling support, OS kernel and scheduler settings, validated drivers, registry keys for break reason observability.",
+          "Test Requirements: BIOS with SAF/SBFT and event injection support, OS kernel with event handling, subsystem drivers for status bits.",
+          "Test Requirements: BIOS with SBFT@Field support, OS kernel default, required drivers.",
+          "Test Requirements: BIOS v2.1, C6/MC6 knobs, OS kernel 6.1, PCIe/storage/graphics drivers latest, registry keys for power state overrides."
+        ],
+        "Test HW Requirements and HW Configuration *": [
+          "SoC with PVP, platform with DIMMs, PCIe devices, robust power solution, debug instrumentation for current monitoring.",
+          "Platform with two active cores, correct SoC stepping, full DIMM/PCIe, thermal solution, debug instrumentation, and power measurement setup.",
+          "SoC with SAF/SBFT and event injection capability, platform with all active cores, debug instrumentation, power measurement setup.",
+          "SoC with SBFT@Field support, debug access to register and signals.",
+          "SoC stepping B0, TDP 95W, multi-socket platform, 8x DDR5 DIMMs, PCIe Gen4 GPU, active heatsink, PMA signal probes, external power meters."
+        ],
+        "PVT *": [
+          "Monitor voltage rails during high current pattern generation and throttling."
+        ],
+        "Performance/Bandwidth Testing *": [
+          "Measure core current consumption and throttling response time."
+        ],
+        "ISOC Validation *": [
+          "Validate device interactions during PVP engagement."
+        ]
+      }
+    },
+    "1.1.3.2": {
+      "title": "Ordered C6 Entry Within Module and Staggered Entry Across Modules",
+      "hier": "TC",
+      "id": "1.1.3.2",
+      "subsections": {
+        "TC Description *": [
+          "Vary the duration and magnitude of high current stress to cover both borderline (just below threshold) and extreme (well above threshold) cases. Monitor energy cost predictor and verify correct throttling and recovery behavior.",
+          "This test rapidly triggers ICCP license requests from both cores, including cases where a new request arrives before the previous transition completes. It verifies that only the latest request is eventually granted after safe completion or abort of the current transition, and that no unsafe or partial work-point is applied.",
+          "Inject throttle hammer and CPD events during SAF or SBFT flow in random order. Monitor that break reason reflects highest priority event (thermal &gt; throttle &gt; CPD/normal) and module-level scope is enforced.",
+          "During SBFT@F test flow, initiate a reset event and attempt to update SBFT_STATUS to illegal value '11' during or immediately after reset. Monitor ML4_CR_SBFT_AT_FIELD[SBFT_STATUS] and debug signals for any acceptance or propagation of the illegal value.",
+          "Validate that C6 entry within a module is ordered by PMA FSMs, while MC6 entry across modules is staggered by system-level logic. Randomly trigger C6 entry on cores within and across modules. Monitor sequencing and timing."
+        ],
+        "Test Steps *": [
+          "1. Enable PVP and configure core energy cost predictor. 2. Generate stress patterns with varying duration and magnitude. 3. Monitor energy cost predictor and EXE port dispatches. 4. Observe throttling engagement and recovery. 5. Repeat for borderline and extreme cases.",
+          "1. Ensure both cores are active with valid work-points. 2. Rapidly and repeatedly trigger ICCP license requests (up and down) from both cores with randomized timing. 3. Monitor ICCPU2CGrantLicenseMnnnH, AGV state, and work-point application. 4. Check that only the latest request is eventually granted after safe completion or abort of ongoing transitions. 5. Log all transitions and outcomes.",
+          "1. Boot module and start SAF or SBFT flow. 2. Inject throttle hammer and CPD events in random order during test execution. 3. Monitor status and sticky bits. 4. Observe break reason update in register. 5. Confirm all active cores exit test together. 6. Log exit behavior and break reason.",
+          "1. Start SBFT@F test flow. 2. Initiate a reset event. 3. During or immediately after reset, force write illegal value '11' to SBFT_STATUS. 4. Sample the register and debug signals. 5. Log and analyze system response.",
+          "1. Enable multiple modules, configure for autonomous C6 entry. 2. Randomly trigger C6 entry on cores within modules. 3. Monitor PMA FSMs for ordered C6 entry within module. 4. Randomly trigger C6 entry across modules. 5. Monitor system-level logic (Punit/Pcode) for staggered MC6 entry. 6. Check sequencing and timing."
+        ],
+        "Pass/Fail Criteria &amp; HW Errors *": [
+          "Pass if throttling is engaged for extreme cases and not for borderline cases, and system recovers after stress subsides. Fail if throttling is incorrectly triggered or recovery fails. HW errors include predictor malfunction or recovery failures.",
+          "Pass if only the latest request is granted after safe completion or abort, and no unsafe/partial work-point is applied. Fail if earlier requests are granted out of order or unsafe states occur. HW errors include missed grants or incorrect state transitions.",
+          "Pass if break reason reflects highest priority event and module-level exit occurs; fail if break reason is incorrect or exit is not module-level.",
+          "Pass if illegal value is not accepted or propagated and debug signals indicate error handling. Fail if illegal value is accepted or causes loss of visibility.",
+          "Pass if C6 entry is ordered within module and MC6 entry is staggered across modules. Fail if sequencing is incorrect or simultaneous MC6 entry occurs."
+        ],
+        "Intent Verify *": [
+          "Use PMON, energy cost predictor logs, and EXE port dispatch monitoring to confirm correct throttling and recovery.",
+          "Use PMON and Visa to monitor grant, AGV, and work-point registers. Analyze logs for correct request handling.",
+          "Use logs, PMON, and Visa to confirm break reason prioritization and module-level exit.",
+          "Use logs to confirm system response during reset event.",
+          "PMON, logs, Visa to confirm ordered and staggered entry, sequencing, and timing."
+        ],
+        "Validation Automation Global Checkers *": [
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for stress duration and recovery.",
+          "Enable SST, Central, and Concurrency checkers. Enable PVT checkers for rapid transition handling.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for event prioritization.",
+          "Enable SST, Central, and Concurrency checkers.",
+          "SST, Central, Concurrency checkers enabled. PVT checker for sequencing."
+        ],
+        "Validation SW *": [
+          "Tool and Content Requirements: OSBV/SVOS, PMON, PythonSV, Supercollider.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec, PythonSV, Supercollider. Use stress and concurrency tools for rapid request generation.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON v2.3, Perspec path, PythonSV, Supercollider, register check utilities.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec path, PythonSV.",
+          "Tool and Content Requirements: OSBV/SVOS v2.0, PMON v3.2, Perspec path, PythonSV, Supercollider, Prime95, concurrency utilities."
+        ],
+        "Ecosystem SW *": [
+          "Test Requirements: BIOS with PVP enabled, OS kernel with scheduler settings, drivers for energy cost predictor.",
+          "Test Requirements: BIOS with rapid transition support, OS kernel and scheduler settings, validated drivers, registry keys for transition observability.",
+          "Test Requirements: BIOS with SAF/SBFT and event injection support, OS kernel with event handling, subsystem drivers for status bits.",
+          "Test Requirements: BIOS with SBFT@Field support, OS kernel default, required drivers.",
+          "Test Requirements: BIOS v2.1, C6/MC6 knobs, OS kernel 6.1, PCIe/storage/graphics drivers latest, registry keys for power state overrides."
+        ],
+        "Test HW Requirements and HW Configuration *": [
+          "SoC with PVP, platform with DIMMs, PCIe devices, power solution, debug instrumentation for stress monitoring.",
+          "Platform with two active cores, correct SoC stepping, full DIMM/PCIe, thermal solution, debug instrumentation, and power measurement setup.",
+          "SoC with SAF/SBFT and event injection capability, platform with all active cores, debug instrumentation, power measurement setup.",
+          "SoC with SBFT@Field support, debug access.",
+          "SoC stepping B0, TDP 95W, multi-socket platform, 8x DDR5 DIMMs, PCIe Gen4 GPU, active heatsink, PMA signal probes, external power meters."
+        ],
+        "PVT *": [
+          "Monitor voltage rails during stress and recovery."
+        ],
+        "Performance/Bandwidth Testing *": [
+          "Measure system recovery time and throttling effectiveness."
+        ],
+        "ISOC Validation *": [
+          "Validate device interactions during stress and recovery."
+        ]
+      }
+    },
+    "1.1.3.3": {
+      "title": "Didt Event Monitoring During Staggered MC6 Entry",
+      "hier": "TC",
+      "id": "1.1.3.3",
+      "subsections": {
+        "TC Description *": [
+          "Monitor core energy cost predictor and verify that when average energy cost exceeds the threshold, architectural throttling is engaged (all EXE port dispatches are halted, core current consumption drops). Observe system recovery when average cost falls below the threshold.",
+          "This test injects break events during ICCP transitions and verifies that the break reason/status registers are updated correctly and that the last valid work-point and license are retained. It ensures that no unsafe or partial work-point is applied.",
+          "Inject multiple break events (thermal, throttle, CPD) simultaneously during SAF or SBFT flow. Monitor that only the highest priority event is reflected in break reason and module-level scope is enforced.",
+          "During SBFT@F execution, inject a break event (e.g., thermal or S1/S5 CPD) and attempt to update SBFT_STATUS to illegal value '11' during the event. Monitor ML4_CR_SBFT_AT_FIELD[SBFT_STATUS] and debug signals for any acceptance or propagation of the illegal value.",
+          "Randomly trigger C6 entry on multiple cores across modules to create near-simultaneous transitions. Monitor MC6 entry timing and check for absence of large didt events. Validate correct sequencing and power state transitions."
+        ],
+        "Test Steps *": [
+          "1. Enable PVP and configure core energy cost predictor. 2. Generate high current consumption patterns to exceed threshold. 3. Monitor EXE port dispatches and core current consumption. 4. Observe throttling engagement and system recovery. 5. Repeat for different stress patterns.",
+          "1. Ensure both cores are active with valid work-points. 2. Trigger an ICCP license transition from one core. 3. Inject a break event (throttle hammer, CPD, or thermal) during the transition. 4. Monitor break reason/status registers and work-point/license state. 5. Log updates and check for correct state retention.",
+          "1. Boot module and start SAF or SBFT flow. 2. Inject multiple break events simultaneously during test execution. 3. Monitor status and sticky bits. 4. Observe break reason update in register. 5. Confirm all active cores exit test together. 6. Log exit behavior and break reason.",
+          "1. Start SBFT@F execution. 2. Inject a break event (thermal or S1/S5 CPD). 3. During the event, force write illegal value '11' to SBFT_STATUS. 4. Sample the register and debug signals. 5. Log and analyze system response.",
+          "1. Enable multiple modules, configure for autonomous C6 entry. 2. Randomly trigger C6 entry on multiple cores across modules. 3. Monitor MC6 entry timing and didt event sensors. 4. Check for absence of large didt events and correct sequencing. 5. Validate power state transitions across modules."
+        ],
+        "Pass/Fail Criteria &amp; HW Errors *": [
+          "Pass if EXE port dispatches are halted during throttling and system recovers when energy cost falls below threshold. Fail if dispatches continue or recovery fails. HW errors include throttling engagement failures or recovery issues.",
+          "Pass if break reason/status registers are updated and last valid work-point/license are retained. Fail if registers are not updated or state is lost. HW errors include incorrect break reason or state retention.",
+          "Pass if break reason reflects highest priority event and module-level exit occurs; fail if lower priority event is reflected or exit is not module-level.",
+          "Pass if illegal value is not accepted or propagated and debug signals indicate error handling. Fail if illegal value is accepted or causes loss of visibility.",
+          "Pass if no large didt events occur and sequencing is correct. Fail if didt event is detected or sequencing is incorrect."
+        ],
+        "Intent Verify *": [
+          "Use PMON, energy cost predictor logs, and EXE port dispatch monitoring to confirm throttling and recovery.",
+          "Use Visa and PMON to monitor break reason/status and work-point/license registers. Analyze logs for correct updates.",
+          "Use logs, PMON, and Visa to confirm break reason prioritization and module-level exit.",
+          "Use logs to confirm system response during break event.",
+          "PMON, logs, Visa to confirm didt event absence and sequencing."
+        ],
+        "Validation Automation Global Checkers *": [
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for throttling engagement and recovery.",
+          "Enable SST, Central, and Concurrency checkers. Enable PVT checkers for break reason and state retention.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for negative testing.",
+          "Enable SST, Central, and Concurrency checkers.",
+          "SST, Central, Concurrency checkers enabled. PVT checker for didt event monitoring."
+        ],
+        "Validation SW *": [
+          "Tool and Content Requirements: OSBV/SVOS, PMON, PythonSV, Supercollider.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec, PythonSV, Supercollider. Use break event injection and register monitoring tools.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON v2.3, Perspec path, PythonSV, Supercollider, register check utilities.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec path, PythonSV.",
+          "Tool and Content Requirements: OSBV/SVOS v2.0, PMON v3.2, Perspec path, PythonSV, Supercollider, Prime95, concurrency utilities."
+        ],
+        "Ecosystem SW *": [
+          "Test Requirements: BIOS with PVP enabled, OS kernel with scheduler settings, drivers for energy cost predictor.",
+          "Test Requirements: BIOS with break reason/status support, OS kernel and scheduler settings, validated drivers, registry keys for break reason observability.",
+          "Test Requirements: BIOS with SAF/SBFT and event injection support, OS kernel with event handling, subsystem drivers for status bits.",
+          "Test Requirements: BIOS with SBFT@Field support, OS kernel default, required drivers.",
+          "Test Requirements: BIOS v2.1, C6/MC6 knobs, OS kernel 6.1, PCIe/storage/graphics drivers latest, registry keys for power state overrides."
+        ],
+        "Test HW Requirements and HW Configuration *": [
+          "SoC with PVP, platform with DIMMs, PCIe devices, power solution, debug instrumentation for recovery monitoring.",
+          "Platform with two active cores, correct SoC stepping, full DIMM/PCIe, thermal solution, debug instrumentation, and power measurement setup.",
+          "SoC with SAF/SBFT and event injection capability, platform with all active cores, debug instrumentation, power measurement setup.",
+          "SoC with SBFT@Field support, debug access.",
+          "SoC stepping B0, TDP 95W, multi-socket platform, 8x DDR5 DIMMs, PCIe Gen4 GPU, active heatsink, PMA signal probes, external power meters."
+        ],
+        "PVT *": [
+          "Monitor voltage rails during throttling and recovery."
+        ],
+        "Performance/Bandwidth Testing *": [
+          "Measure core current drop and recovery time."
+        ],
+        "ISOC Validation *": [
+          "Validate device interactions during throttling and recovery."
+        ]
+      }
+    },
+    "1.1.4": {
+      "title": "Frequency/Voltage (GV) Arbitration During Power State Transitions",
+      "hier": "TCD",
+      "id": "1.1.4",
+      "subsections": {
+        "Description *": [
+          "Validate prevention of simultaneous high-stress transitions across modules by triggering stress events and verifying staggered transitions and system stability.",
+          "Validate that the core/IP applies new WP4 work-points only after receiving the corresponding GO_INC or GO_DEC command, ensuring atomic and synchronized transitions with correct frequency limits per license level.",
+          "Validate policy gating and ownership in SBFT@F flows for lockstep and non-lockstep modes, ensuring mutual exclusivity and correct break reason update.",
+          "Validate that PMA_DEBUG4 debug signals reflect correct sequence and state transitions during SBFT@F Entry, Next, and Exit flows, even under randomized timing and break events.",
+          "Validate correct GV arbitration during power state transitions, including AGV/FGV requests, atomicity, and workpoint application."
+        ],
+        "Algorithm of Testing *": [
+          "Simultaneously trigger stress events on multiple cores/modules, randomize number and timing, monitor PMA FSM ordering and Punit/Pcode staggering, and verify prevention actions.",
+          "Randomly trigger WP4 writes (WP4_LOW, WP4_MEDIUM, WP4_HIGH) with GO_INC or GO_DEC commands and monitor work-point application and synchronization.",
+          "Randomly configure static lockstep (CONFIG_5) enabled/disabled, run SBFT@F tests in both modes, inject break events, and monitor module-level status and exit behavior.",
+          "Initiate SBFT@F-Entry, Next, and Exit flows, randomize sequence and timing, inject break events and resets, and sample all PMA_DEBUG4 signals at each flow transition.",
+          "Randomly trigger AGV/FGV requests on one or both cores during C6/MC3/MC6 transitions. Monitor GV_CTRL arbitration and workpoint application."
+        ],
+        "Randomization *": [
+          "Randomize number of participating cores and timing of transitions to cover diverse didt scenarios.",
+          "Randomize WP4 write values and the timing/order of GO_INC/GO_DEC commands to test synchronization and atomicity.",
+          "Random configuration of lockstep mode and break event injection during SBFT@F tests.",
+          "Randomize sequence and timing of SBFT@F flows, including break events and resets.",
+          "Randomize AGV/FGV request timing, sequence, and core selection to create contention and overlapping transitions."
+        ],
+        "Required Configurations and Dependencies *": [
+          "Multiple cores/modules, PMA and telemetry enabled, Punit/Pcode staggering support, and logging infrastructure.",
+          "ACP mode enabled, Pcode sends resolved TRL rows as WP4 writes, and GO_INC/GO_DEC command capability.",
+          "Requires access to CONFIG_5, SBFT@F flow controls, event injection capability, and break reason monitoring.",
+          "Requires SBFT@F test configuration and access to all PMA_DEBUG4 debug signals.",
+          "Both cores enabled, GV_CTRL access, PMA/MLC signal sampling, workpoint monitoring."
+        ],
+        "Coverage *": [
+          "Cover all stress event types (C6 entry/exit, AGV, FGV), verify staggered transitions and system stability.",
+          "Coverage includes all SBFT@F flows and all debug signal transitions under randomized conditions.",
+          "Monitor GV_CTRL arbitration, workpoint application, and atomicity during transitions. Check for partial or out-of-sync WP application."
+        ],
+        "Cross-Feature Interaction *": [
+          "PMA FSMs, Punit/Pcode, modules, and telemetry interact for event ordering and prevention.",
+          "Involves core/IP, Pcode, WP4 registers, GO command logic, and frequency limit management.",
+          "Lockstep and SBFT@F are mutually exclusive; only one SBFT status per module; break events prioritized and module-level scope enforced.",
+          "Involves SBFT@F flow control, PMA, and debug signal propagation.",
+          "GV_CTRL, PMA, MLC, cores, and module resolution logic interact during AGV/FGV and power state transitions."
+        ],
+        "DFx Requirements *": [
+          "Observability of stress events, transition ordering, and prevention actions.",
+          "Ensure atomic and synchronized application of work-points, monitor for correct frequency limits and absence of intermediate states.",
+          "HW infrastructure for lockstep configuration, SBFT@F flow control, event injection, and break reason reporting.",
+          "Debug signals must be observable and reflect correct sequence and transitions for each SBFT@F flow.",
+          "Observability of GV_CTRL arbitration, workpoint application, and atomicity checks."
+        ]
+      }
+    },
+    "1.1.4.1": {
+      "title": "AGV Arbitration During C6/MC3/MC6 Transitions",
+      "hier": "TC",
+      "id": "1.1.4.1",
+      "subsections": {
+        "TC Description *": [
+          "Configure system with multiple cores/modules, PMA and telemetry enabled. Simultaneously trigger stress events (C6 entry/exit, AGV, FGV) on multiple cores or modules to create a large didt event. Randomize number of participating cores and timing. Monitor PMA FSMs for ordering and Punit/Pcode for staggering of transitions.",
+          "This test writes new WP4 values (WP4_LOW, WP4_MEDIUM, WP4_HIGH) to the core/IP and issues a GO_INC command. It verifies that the core/IP does not apply the new work-point until the GO_INC command is received and that the transition is atomic and synchronized.",
+          "Enable static lockstep via CONFIG_5 and run SBFT@F test. Inject break events (thermal, throttle, CPD) during test. Monitor that both cores exit together and break reason is updated once per module. Verify mutual exclusivity of lockstep and SBFT@F.",
+          "Initiate SBFT@F-Entry flow and monitor all PMA_DEBUG4 signals (SBFT_BLOCK_INTF_SEQUENCE, SBFT_ISOLATE_CORE_SEQUENCE, SBFT_RESET_SEQUENCE, SBFT_DEISOLATE_CORE_SEQUENCE, SBFT_RESUME_CORE_SEQUENCE, IN_SBFT_MODE, SBFT_AUTO_FLOW_SEQUENCE, SBFT_AF_FSM_STATE, SBFT_ENTRY_ISO_TILL_AUTOFLOW_FALL, SBFT_EXIT_DEISO_TILL_AUTOFLOW_FALL) at each transition. Randomize timing and inject break events or resets during the flow. Verify that debug signals reflect the correct sequence and state transitions.",
+          "Randomly trigger AGV requests on one or both cores during C6/MC3/MC6 transitions. Monitor GV_CTRL arbitration, workpoint application, and atomicity. Validate that AGV is only performed when allowed by module state and transitions are atomic."
+        ],
+        "Test Steps *": [
+          "1. Enable PMA and telemetry on all cores/modules. 2. Simultaneously trigger stress events across multiple cores/modules. 3. Randomize number and timing of transitions. 4. Monitor PMA FSMs for electrical sequence ordering. 5. Observe Punit/Pcode staggering of C6 License handshakes. 6. Repeat for different event types and module configurations.",
+          "1. Enable ACP mode and ensure Pcode has sent resolved TRL rows as WP4 writes. 2. Write new values to WP4_LOW, WP4_MEDIUM, and WP4_HIGH registers. 3. Issue a GO_INC command to the core. 4. Monitor work-point application and frequency limits. 5. Log the timing and synchronization of the transition.",
+          "1. Boot module and enable static lockstep via CONFIG_5. 2. Start SBFT@F test via U2A mailbox. 3. Inject break events during test execution. 4. Monitor SBFT status and break reason update. 5. Confirm both cores exit together and only one SBFT status is updated. 6. Log exit behavior and break reason.",
+          "1. Configure module for SBFT@F test. 2. Initiate SBFT@F-Entry flow. 3. Randomize timing and inject break events or resets during the flow. 4. At each transition, sample all PMA_DEBUG4 signals. 5. Log all signal transitions and analyze for correctness.",
+          "1. Enable both cores, configure for independent AGV requests. 2. Randomly trigger AGV requests during C6/MC3/MC6 transitions. 3. Monitor GV_CTRL arbitration and workpoint application. 4. Check for atomicity and correct application of workpoints. 5. Validate that AGV is only performed when allowed by module state."
+        ],
+        "Pass/Fail Criteria &amp; HW Errors *": [
+          "Pass if transitions are staggered and system remains stable. Fail if simultaneous high-stress transitions occur or system instability is observed. HW errors include missed staggering or instability.",
+          "Pass if the new work-point is applied only after GO_INC is received, the transition is atomic, and the correct frequency limit is applied. Fail if the work-point is applied before GO_INC or if an intermediate state is observed. HW errors include incorrect synchronization or frequency limit application.",
+          "Pass if both cores exit together, break reason is updated once, and SBFT@F and lockstep are mutually exclusive; fail if any core does not exit or multiple statuses are updated.",
+          "Pass if all debug signals update as specified and reflect correct sequence and state transitions. Fail if any missed transition, incorrect sequence, or loss of visibility.",
+          "Pass if AGV is performed only when allowed, transitions are atomic, and workpoints are applied correctly. Fail if partial or out-of-sync WP application occurs."
+        ],
+        "Intent Verify *": [
+          "Use PMA telemetry logs, transition ordering logs, and PMON to confirm staggered transitions and stability.",
+          "Use Visa and PMON to monitor WP4 registers, GO_INC command, and frequency limits. Analyze logs for synchronization and atomicity.",
+          "Use logs, PMON, and Visa to confirm module-level exit and break reason update.",
+          "Use debug signal logs to confirm correct sequence and transitions during SBFT@F-Entry.",
+          "PMON, logs, Visa to confirm AGV arbitration, atomicity, and workpoint application."
+        ],
+        "Validation Automation Global Checkers *": [
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for didt risk mitigation.",
+          "Enable SST, Central, and Concurrency checkers. Enable PVT checkers for WP4 and GO command synchronization.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for lockstep mode.",
+          "Enable SST, Central, and Concurrency checkers.",
+          "SST, Central, Concurrency checkers enabled. PVT checker for AGV arbitration."
+        ],
+        "Validation SW *": [
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec path for concurrency, PythonSV for scripting, Supercollider for stress.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec, PythonSV, Supercollider. Use register monitoring and scenario generation tools.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON v2.3, Perspec path, PythonSV, Supercollider, register check utilities.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON for debug signal sampling, Perspec path, PythonSV.",
+          "Tool and Content Requirements: OSBV/SVOS v2.0, PMON v3.2, Perspec path, PythonSV, Supercollider, Prime95, register check utilities."
+        ],
+        "Ecosystem SW *": [
+          "Test Requirements: BIOS with PMA and telemetry enabled, OS kernel with scheduler settings for stress, drivers for PMA and Punit/Pcode.",
+          "Test Requirements: BIOS with WP4 and GO command support, OS kernel and scheduler settings, validated drivers, registry keys for WP4 observability.",
+          "Test Requirements: BIOS with lockstep and SBFT@F support, OS kernel with event handling, subsystem drivers for status bits.",
+          "Test Requirements: BIOS with SBFT@F support, OS kernel default, required drivers.",
+          "Test Requirements: BIOS v2.1, GV arbitration knobs, OS kernel 6.1, PCIe/storage/graphics drivers latest, registry keys for GV overrides."
+        ],
+        "Test HW Requirements and HW Configuration *": [
+          "SoC with multiple cores/modules, platform with DIMMs, PCIe devices, robust power solution, debug instrumentation for transition monitoring.",
+          "Platform with ACP mode enabled, correct SoC stepping, full DIMM/PCIe, thermal solution, debug instrumentation, and power measurement setup.",
+          "SoC with lockstep and SBFT@F capability, platform with both cores enabled, debug instrumentation, power measurement setup.",
+          "SoC with PMA_DEBUG4 access, debug instrumentation.",
+          "SoC stepping B0, TDP 95W, dual-core module, 2x DDR5 DIMMs, PCIe Gen4 GPU, active heatsink, GV_CTRL signal probes, external power meters."
+        ],
+        "PVT *": [
+          "Monitor voltage rails during simultaneous stress event triggering."
+        ],
+        "Performance/Bandwidth Testing *": [
+          "Measure system stability and transition ordering."
+        ],
+        "ISOC Validation *": [
+          "Validate device interactions during staggered transitions."
+        ]
+      }
+    },
+    "1.1.4.2": {
+      "title": "FGV Arbitration and Workpoint Application During MC6 Entry",
+      "hier": "TC",
+      "id": "1.1.4.2",
+      "subsections": {
+        "TC Description *": [
+          "After simultaneous stress events are triggered, monitor PMA FSMs and Punit/Pcode for staggered transition flow. Verify that prevention actions such as throttling and staggered transitions are taken to mitigate didt risk and maintain system stability.",
+          "This test writes new WP4 values to the core/IP and issues a GO_DEC command. It verifies that the core/IP does not apply the new work-point until the GO_DEC command is received and that the transition is atomic and synchronized.",
+          "Disable static lockstep via CONFIG_5 and run SBFT@F test. Inject break events (thermal, throttle, CPD) during test. Monitor that only enabled core(s) participate and break reason is updated once per module.",
+          "Initiate SBFT@F-Next flow and monitor all PMA_DEBUG4 signals at each transition. Randomize timing and inject break events or resets during the flow. Verify that debug signals reflect the correct sequence and state transitions for the Next flow.",
+          "Randomly trigger FGV requests during MC6 entry. Monitor GV_CTRL arbitration and ensure MC6 always uses zero WP (0 freq, 0 volt, 7 Ps). Validate atomicity and correct workpoint application."
+        ],
+        "Test Steps *": [
+          "1. Enable PMA and telemetry on all cores/modules. 2. Trigger stress events across modules. 3. Monitor PMA FSMs for transition ordering. 4. Observe Punit/Pcode staggering and prevention actions. 5. Verify system stability. 6. Repeat for different module and event configurations.",
+          "1. Enable ACP mode and ensure Pcode has sent resolved TRL rows as WP4 writes. 2. Write new values to WP4_LOW, WP4_MEDIUM, and WP4_HIGH registers. 3. Issue a GO_DEC command to the core. 4. Monitor work-point application and frequency limits. 5. Log the timing and synchronization of the transition.",
+          "1. Boot module and disable static lockstep via CONFIG_5. 2. Start SBFT@F test via U2A mailbox. 3. Inject break events during test execution. 4. Monitor SBFT status and break reason update. 5. Confirm only enabled core(s) participate and only one SBFT status is updated. 6. Log exit behavior and break reason.",
+          "1. Configure module for SBFT@F test. 2. Initiate SBFT@F-Next flow. 3. Randomize timing and inject break events or resets during the flow. 4. At each transition, sample all PMA_DEBUG4 signals. 5. Log all signal transitions and analyze for correctness.",
+          "1. Enable both cores, configure for FGV requests. 2. Randomly trigger FGV requests during MC6 entry. 3. Monitor GV_CTRL arbitration and workpoint application. 4. Check that MC6 uses zero WP. 5. Validate atomicity and correct application."
+        ],
+        "Pass/Fail Criteria &amp; HW Errors *": [
+          "Pass if prevention actions are taken and system remains stable. Fail if prevention actions are missed or instability occurs. HW errors include missed prevention actions or instability.",
+          "Pass if the new work-point is applied only after GO_DEC is received, the transition is atomic, and the correct frequency limit is applied. Fail if the work-point is applied before GO_DEC or if an intermediate state is observed. HW errors include incorrect synchronization or frequency limit application.",
+          "Pass if only enabled core(s) participate, break reason is updated once, and module-level scope is enforced; fail if multiple statuses are updated or disabled core participates.",
+          "Pass if all debug signals update as specified and reflect correct sequence and state transitions. Fail if any missed transition, incorrect sequence, or loss of visibility.",
+          "Pass if MC6 uses zero WP, FGV is applied atomically, and workpoints are correct. Fail if partial or incorrect WP application occurs."
+        ],
+        "Intent Verify *": [
+          "Use PMA telemetry logs, transition ordering logs, and PMON to confirm prevention actions and stability.",
+          "Use PMON and Visa to monitor WP4 registers, GO_DEC command, and frequency limits. Analyze logs for synchronization and atomicity.",
+          "Use logs, PMON, and Visa to confirm module-level exit and break reason update.",
+          "Use debug signal logs to confirm correct sequence and transitions during SBFT@F-Next.",
+          "PMON, logs, Visa to confirm FGV arbitration, MC6 zero WP, and atomicity."
+        ],
+        "Validation Automation Global Checkers *": [
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for prevention action and stability.",
+          "Enable SST, Central, and Concurrency checkers. Enable PVT checkers for WP4 and GO command synchronization.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for non-lockstep mode.",
+          "Enable SST, Central, and Concurrency checkers.",
+          "SST, Central, Concurrency checkers enabled. PVT checker for FGV arbitration."
+        ],
+        "Validation SW *": [
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec path, PythonSV, Supercollider.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec, PythonSV, Supercollider. Use register monitoring and scenario generation tools.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON v2.3, Perspec path, PythonSV, Supercollider, register check utilities.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec path, PythonSV.",
+          "Tool and Content Requirements: OSBV/SVOS v2.0, PMON v3.2, Perspec path, PythonSV, Supercollider, Prime95, register check utilities."
+        ],
+        "Ecosystem SW *": [
+          "Test Requirements: BIOS with PMA and prevention features enabled, OS kernel with scheduler settings, drivers for PMA and Punit/Pcode.",
+          "Test Requirements: BIOS with WP4 and GO command support, OS kernel and scheduler settings, validated drivers, registry keys for WP4 observability.",
+          "Test Requirements: BIOS with SBFT@F support, OS kernel with event handling, subsystem drivers for status bits.",
+          "Test Requirements: BIOS with SBFT@F support, OS kernel default, required drivers.",
+          "Test Requirements: BIOS v2.1, GV arbitration knobs, OS kernel 6.1, PCIe/storage/graphics drivers latest, registry keys for GV overrides."
+        ],
+        "Test HW Requirements and HW Configuration *": [
+          "SoC with multiple cores/modules, platform with DIMMs, PCIe devices, power solution, debug instrumentation for prevention monitoring.",
+          "Platform with ACP mode enabled, correct SoC stepping, full DIMM/PCIe, thermal solution, debug instrumentation, and power measurement setup.",
+          "SoC with SBFT@F capability, platform with core(s) enabled/disabled as per test, debug instrumentation, power measurement setup.",
+          "SoC with PMA_DEBUG4 access, debug instrumentation.",
+          "SoC stepping B0, TDP 95W, dual-core module, 2x DDR5 DIMMs, PCIe Gen4 GPU, active heatsink, GV_CTRL signal probes, external power meters."
+        ],
+        "PVT *": [
+          "Monitor voltage rails during prevention actions."
+        ],
+        "Performance/Bandwidth Testing *": [
+          "Measure effectiveness of staggered transitions and prevention actions."
+        ],
+        "ISOC Validation *": [
+          "Validate device interactions during prevention actions."
+        ]
+      }
+    },
+    "1.1.4.3": {
+      "title": "AGV/FGV Request Contention and Atomicity Validation",
+      "hier": "TC",
+      "id": "1.1.4.3",
+      "subsections": {
+        "TC Description *": [
+          "Randomize number of participating cores and timing of stress event transitions to cover diverse didt scenarios. Monitor system stability and verify that no simultaneous high-stress transitions occur across modules.",
+          "This test verifies that after applying new WP4 values with GO_INC or GO_DEC commands, the core/IP applies the correct frequency limits per license level as resolved by Pcode. It ensures that the applied frequency matches the expected TRL for the granted license.",
+          "Attempt to start SBFT@F test while static lockstep is already active. Verify that SBFT@F cannot be started and ownership is enforced as specified.",
+          "Initiate SBFT@F-Exit flow and monitor all PMA_DEBUG4 signals at each transition. Randomize timing and inject break events or resets during the flow. Verify that debug signals reflect the correct sequence and state transitions for the Exit flow.",
+          "Randomly trigger AGV/FGV requests on one or both cores, including during atomic flows (C6/FGV). Monitor GV_CTRL arbitration, workpoint application, and atomicity. Validate that transitions are atomic and no partial or out-of-sync WP application occurs."
+        ],
+        "Test Steps *": [
+          "1. Enable PMA and telemetry on all cores/modules. 2. Randomize number and timing of stress event transitions. 3. Monitor system stability and transition ordering. 4. Verify no simultaneous high-stress transitions across modules. 5. Repeat for different randomization scenarios.",
+          "1. Enable ACP mode and ensure Pcode has sent resolved TRL rows as WP4 writes. 2. Write new WP4 values and issue GO_INC or GO_DEC commands. 3. Monitor the applied frequency and compare it to the expected TRL for the granted license. 4. Log the results and check for mismatches.",
+          "1. Boot module and enable static lockstep via CONFIG_5. 2. Attempt to start SBFT@F test via U2A mailbox. 3. Monitor SBFT status and break reason update. 4. Confirm SBFT@F does not start and ownership is enforced. 5. Log attempt and outcome.",
+          "1. Configure module for SBFT@F test. 2. Initiate SBFT@F-Exit flow. 3. Randomize timing and inject break events or resets during the flow. 4. At each transition, sample all PMA_DEBUG4 signals. 5. Log all signal transitions and analyze for correctness.",
+          "1. Enable both cores, configure for AGV/FGV requests. 2. Randomly trigger AGV/FGV requests during atomic flows (C6/FGV). 3. Monitor GV_CTRL arbitration and workpoint application. 4. Check for atomicity and correct application. 5. Validate that no partial or out-of-sync WP application occurs."
+        ],
+        "Pass/Fail Criteria &amp; HW Errors *": [
+          "Pass if system remains stable and transitions are staggered. Fail if instability or simultaneous transitions occur. HW errors include instability or missed staggering.",
+          "Pass if the applied frequency matches the resolved TRL for the granted license after WP4 application. Fail if there is a mismatch or incorrect frequency limit. HW errors include incorrect frequency application or TRL mismatch.",
+          "Pass if SBFT@F cannot be started when lockstep is active; fail if SBFT@F starts or ownership is not enforced.",
+          "Pass if all debug signals update as specified and reflect correct sequence and state transitions. Fail if any missed transition, incorrect sequence, or loss of visibility.",
+          "Pass if transitions are atomic, workpoints are applied correctly, and no partial or out-of-sync application occurs. Fail if atomicity is violated or incorrect WP application occurs."
+        ],
+        "Intent Verify *": [
+          "Use PMA telemetry logs, transition ordering logs, and PMON to confirm stability and staggered transitions.",
+          "Use Visa and PMON to monitor applied frequency, WP4 registers, and TRL values. Analyze logs for correct frequency limit application.",
+          "Use logs, PMON, and Visa to confirm mutual exclusivity and ownership enforcement.",
+          "Use debug signal logs to confirm correct sequence and transitions during SBFT@F-Exit.",
+          "PMON, logs, Visa to confirm AGV/FGV arbitration, atomicity, and workpoint application."
+        ],
+        "Validation Automation Global Checkers *": [
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for stability under randomization.",
+          "Enable SST, Central, and Concurrency checkers. Enable PVT checkers for frequency limit verification.",
+          "Enable SST, Central, and Concurrency checkers. PVT checkers for exclusivity enforcement.",
+          "Enable SST, Central, and Concurrency checkers.",
+          "SST, Central, Concurrency checkers enabled. PVT checker for atomicity."
+        ],
+        "Validation SW *": [
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec path, PythonSV, Supercollider.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec, PythonSV, Supercollider. Use frequency monitoring and scenario generation tools.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON v2.3, Perspec path, PythonSV, Supercollider, register check utilities.",
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec path, PythonSV.",
+          "Tool and Content Requirements: OSBV/SVOS v2.0, PMON v3.2, Perspec path, PythonSV, Supercollider, Prime95, register check utilities."
+        ],
+        "Ecosystem SW *": [
+          "Test Requirements: BIOS with PMA and telemetry enabled, OS kernel with scheduler settings, drivers for PMA and Punit/Pcode.",
+          "Test Requirements: BIOS with TRL and WP4 support, OS kernel and scheduler settings, validated drivers, registry keys for frequency observability.",
+          "Test Requirements: BIOS with lockstep and SBFT@F support, OS kernel with event handling, subsystem drivers for status bits.",
+          "Test Requirements: BIOS with SBFT@F support, OS kernel default, required drivers.",
+          "Test Requirements: BIOS v2.1, GV arbitration knobs, OS kernel 6.1, PCIe/storage/graphics drivers latest, registry keys for GV overrides."
+        ],
+        "Test HW Requirements and HW Configuration *": [
+          "SoC with multiple cores/modules, platform with DIMMs, PCIe devices, power solution, debug instrumentation for stability monitoring.",
+          "Platform with ACP mode enabled, correct SoC stepping, full DIMM/PCIe, thermal solution, debug instrumentation, and power measurement setup.",
+          "SoC with lockstep and SBFT@F capability, platform with both cores enabled, debug instrumentation, power measurement setup.",
+          "SoC with PMA_DEBUG4 access, debug instrumentation.",
+          "SoC stepping B0, TDP 95W, dual-core module, 2x DDR5 DIMMs, PCIe Gen4 GPU, active heatsink, GV_CTRL signal probes, external power meters."
+        ],
+        "PVT *": [
+          "Monitor voltage rails during randomized stress scenarios."
+        ],
+        "Performance/Bandwidth Testing *": [
+          "Measure system stability and transition effectiveness."
+        ],
+        "ISOC Validation *": [
+          "Validate device interactions during randomized stress scenarios."
+        ]
+      }
+    },
+    "1.1.5": {
+      "title": "SBFT@Field Diagnostic Sleep Coordination and Arbitration",
+      "hier": "TCD",
+      "id": "1.1.5",
+      "subsections": {
+        "Description *": [
+          "Validate that ICCP license grants correctly propagate PVP threshold values, and that grant and threshold signals are updated and observable at both core and PMA interfaces with no mismatches or stale values.",
+          "Validate SBFT@F diagnostic sleep coordination and arbitration, including abort handling, PM event injection, and correct entry/release."
+        ],
+        "Algorithm of Testing *": [
+          "Randomly trigger ICCP license requests and monitor the propagation and update of ICCPU2CGrantLicenseMnnnH, PVP1024Thold[7:0], and PvpThold[7:0] signals at all relevant interfaces.",
+          "Randomly trigger SBFT@F entry on one or both cores, inject PM events during entry, and monitor coordination and arbitration."
+        ],
+        "Randomization *": [
+          "Randomize ICCP license request values and timing to cover all grant and threshold update scenarios.",
+          "Randomize SBFT@F entry timing, PM event injection, and core selection to create contention and race conditions."
+        ],
+        "Required Configurations and Dependencies *": [
+          "Both cores active with valid work-points, observability of grant and threshold signals at core and PMA interfaces.",
+          "Both cores enabled, SBFT@F test requested, ucode_command[i].enter_wf_diag_sleep, Piclet activation, PMA_TRAP event monitoring."
+        ],
+        "Cross-Feature Interaction *": [
+          "Involves cores, PMA, TADREG, PVP threshold logic, and grant signaling.",
+          "Cores, PMA, Piclet, MLC, and module-level actions interact during SBFT@F coordination and arbitration."
+        ],
+        "DFx Requirements *": [
+          "Ensure valid and updated propagation of grant and threshold signals, monitor for mismatches or stale values.",
+          "Observability of WF_DIAG_SLEEP flag, PMA_TRAP events, SBFT status, and abort handling."
+        ],
+        "Coverage *": [
+          "Monitor SBFT@F entry, abort handling, PM event injection, and correct coordination/release. Check for deadlocks, lost events, and mutual exclusion with static lockstep."
+        ]
+      }
+    },
+    "1.1.5.1": {
+      "title": "SBFT@F Entry Coordination with PM Event Injection",
+      "hier": "TC",
+      "id": "1.1.5.1",
+      "subsections": {
+        "TC Description *": [
+          "This test triggers ICCP license requests from both cores and verifies that for each grant, the ICCPU2CGrantLicenseMnnnH, PVP1024Thold[7:0], and PvpThold[7:0] signals are updated and match the expected values for the granted license. It ensures that no mismatches or stale values are observed.",
+          "Randomly trigger SBFT@F entry on one or both cores. Inject PM events (interrupts, CPD) during entry to test arbitration and abort handling. Monitor WF_DIAG_SLEEP flag, PMA_TRAP events, and SBFT status. Validate that only one core initiates SBFT@F start and entry is aborted if PM event occurs before both cores are ready."
+        ],
+        "Test Steps *": [
+          "1. Ensure both cores are active with valid work-points. 2. Randomly trigger ICCP license requests from both cores. 3. For each grant, monitor ICCPU2CGrantLicenseMnnnH, PVP1024Thold[7:0], and PvpThold[7:0] at core and PMA interfaces. 4. Compare observed values to expected values for the granted license. 5. Log all updates and check for mismatches or stale values.",
+          "1. Enable both cores, request SBFT@F test. 2. Randomly trigger SBFT@F entry on one or both cores. 3. Set ucode_command[i].enter_wf_diag_sleep before activating Piclet. 4. Inject PM event during entry. 5. Monitor WF_DIAG_SLEEP flag, PMA_TRAP events, and SBFT status. 6. Check that entry is aborted if PM event occurs before both cores are ready. 7. Validate that only one core initiates SBFT@F start."
+        ],
+        "Pass/Fail Criteria &amp; HW Errors *": [
+          "Pass if all signals are updated and match expected values for each grant, with no mismatches or stale values. Fail if any signal is incorrect or not updated. HW errors include mismatched or stale grant/threshold signals.",
+          "Pass if SBFT@F entry is aborted upon PM event, only one core initiates start, and no deadlocks or lost events occur. Fail if entry proceeds after PM event, deadlock, or lost event."
+        ],
+        "Intent Verify *": [
+          "Use Visa and PMON to monitor grant and threshold signals at all interfaces. Analyze logs for correct propagation and updates.",
+          "PMON, logs, Visa to confirm abort handling, SBFT@F coordination, and PMA_TRAP events."
+        ],
+        "Validation Automation Global Checkers *": [
+          "Enable SST, Central, and Concurrency checkers. Enable PVT checkers for grant and threshold propagation.",
+          "SST, Central, Concurrency checkers enabled. PVT checker for abort handling."
+        ],
+        "Validation SW *": [
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec, PythonSV, Supercollider. Use register monitoring and scenario generation tools.",
+          "Tool and Content Requirements: OSBV/SVOS v2.0, PMON v3.2, Perspec path, PythonSV, Supercollider, Prime95, register check utilities."
+        ],
+        "Ecosystem SW *": [
+          "Test Requirements: BIOS with grant and threshold propagation support, OS kernel and scheduler settings, validated drivers, registry keys for signal observability.",
+          "Test Requirements: BIOS v2.1, SBFT@F knobs, OS kernel 6.1, PCIe/storage/graphics drivers latest, registry keys for diagnostic sleep overrides."
+        ],
+        "Test HW Requirements and HW Configuration *": [
+          "Platform with two active cores, correct SoC stepping, full DIMM/PCIe, thermal solution, debug instrumentation, and power measurement setup.",
+          "SoC stepping B0, TDP 95W, dual-core module, 2x DDR5 DIMMs, PCIe Gen4 GPU, active heatsink, PMA signal probes, external power meters."
+        ]
+      }
+    },
+    "1.1.5.2": {
+      "title": "SBFT@F Diagnostic Sleep Coordination and Release",
+      "hier": "TC",
+      "id": "1.1.5.2",
+      "subsections": {
+        "TC Description *": [
+          "This test triggers ICCP license requests and monitors for stale values on ICCPU2CGrantLicenseMnnnH, PVP1024Thold[7:0], and PvpThold[7:0] signals. It verifies that all signals are updated promptly with each grant and that no old or incorrect values persist.",
+          "Validate correct coordination and release of SBFT@F diagnostic sleep. Both cores independently enter 'ready for SBFT@F' state. The last core to enter triggers module-level actions. Monitor WF_DIAG_SLEEP flag, SBFT status, and module-level actions. Ensure diagnostic sleep is correctly released."
+        ],
+        "Test Steps *": [
+          "1. Ensure both cores are active with valid work-points. 2. Trigger ICCP license requests with varying values and timing. 3. Monitor grant and threshold signals at core and PMA interfaces. 4. Check for any stale or outdated values after each grant. 5. Log all observations and analyze for prompt updates.",
+          "1. Enable both cores, request SBFT@F test. 2. Both cores independently enter 'ready for SBFT@F' state. 3. Set ucode_command[i].enter_wf_diag_sleep before activating Piclet. 4. The last core to enter triggers module-level actions (C6-Save, MLC flush, SBFT@F program loading, MISR/uBp configs, U2A mailbox). 5. Monitor WF_DIAG_SLEEP flag, SBFT status, and module-level actions. 6. Validate correct release of diagnostic sleep."
+        ],
+        "Pass/Fail Criteria &amp; HW Errors *": [
+          "Pass if all signals are updated promptly with each grant and no stale values are observed. Fail if any signal retains an old value after a new grant. HW errors include stale or delayed signal updates.",
+          "Pass if diagnostic sleep is coordinated and released correctly, module-level actions proceed, and no deadlocks or lost events occur. Fail if coordination or release is incorrect, deadlock, or lost event."
+        ],
+        "Intent Verify *": [
+          "Use PMON and Visa to monitor signal updates and logs for stale value detection.",
+          "PMON, logs, Visa to confirm diagnostic sleep coordination, release, and module-level actions."
+        ],
+        "Validation Automation Global Checkers *": [
+          "Enable SST, Central, and Concurrency checkers. Enable PVT checkers for signal update timing.",
+          "SST, Central, Concurrency checkers enabled. PVT checker for coordination and release."
+        ],
+        "Validation SW *": [
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec, PythonSV, Supercollider. Use register monitoring and scenario generation tools.",
+          "Tool and Content Requirements: OSBV/SVOS v2.0, PMON v3.2, Perspec path, PythonSV, Supercollider, Prime95, register check utilities."
+        ],
+        "Ecosystem SW *": [
+          "Test Requirements: BIOS with signal update support, OS kernel and scheduler settings, validated drivers, registry keys for signal observability.",
+          "Test Requirements: BIOS v2.1, SBFT@F knobs, OS kernel 6.1, PCIe/storage/graphics drivers latest, registry keys for diagnostic sleep overrides."
+        ],
+        "Test HW Requirements and HW Configuration *": [
+          "Platform with two active cores, correct SoC stepping, full DIMM/PCIe, thermal solution, debug instrumentation, and power measurement setup.",
+          "SoC stepping B0, TDP 95W, dual-core module, 2x DDR5 DIMMs, PCIe Gen4 GPU, active heatsink, PMA signal probes, external power meters."
+        ]
+      }
+    },
+    "1.1.5.3": {
+      "title": "Mutual Exclusion of SBFT@F and Static Lockstep",
+      "hier": "TC",
+      "id": "1.1.5.3",
+      "subsections": {
+        "TC Description *": [
+          "This test verifies that ICCPU2CGrantLicenseMnnnH, PVP1024Thold[7:0], and PvpThold[7:0] signals are consistent and match at both the core and PMA interfaces for each ICCP license grant. It ensures that no mismatches occur between interfaces.",
+          "Validate that SBFT@F and static lockstep are mutually exclusive. Attempt to activate SBFT@F while module is configured in static lockstep. Monitor SBFT status and module configuration. Ensure SBFT@F is not entered if static lockstep is active."
+        ],
+        "Test Steps *": [
+          "1. Ensure both cores are active with valid work-points. 2. Trigger ICCP license requests and monitor grant and threshold signals at both core and PMA interfaces. 3. Compare values at both interfaces for each grant. 4. Log all comparisons and check for mismatches.",
+          "1. Enable both cores, configure module in static lockstep. 2. Attempt to activate SBFT@F. 3. Monitor SBFT status and module configuration. 4. Check that SBFT@F is not entered if static lockstep is active."
+        ],
+        "Pass/Fail Criteria &amp; HW Errors *": [
+          "Pass if all signals are consistent and match at both interfaces for each grant. Fail if any mismatch is observed. HW errors include inconsistent signal values between interfaces.",
+          "Pass if SBFT@F is not entered when static lockstep is active. Fail if SBFT@F entry occurs during static lockstep."
+        ],
+        "Intent Verify *": [
+          "Use Visa and PMON to monitor and compare signals at both interfaces. Analyze logs for consistency.",
+          "PMON, logs, Visa to confirm mutual exclusion and SBFT status."
+        ],
+        "Validation Automation Global Checkers *": [
+          "Enable SST, Central, and Concurrency checkers. Enable PVT checkers for signal consistency.",
+          "SST, Central, Concurrency checkers enabled. PVT checker for mutual exclusion."
+        ],
+        "Validation SW *": [
+          "Tool and Content Requirements: OSBV/SVOS, PMON, Perspec, PythonSV, Supercollider. Use register monitoring and scenario generation tools.",
+          "Tool and Content Requirements: OSBV/SVOS v2.0, PMON v3.2, Perspec path, PythonSV, Supercollider, Prime95, register check utilities."
+        ],
+        "Ecosystem SW *": [
+          "Test Requirements: BIOS with signal consistency support, OS kernel and scheduler settings, validated drivers, registry keys for signal observability.",
+          "Test Requirements: BIOS v2.1, SBFT@F and lockstep knobs, OS kernel 6.1, PCIe/storage/graphics drivers latest, registry keys for diagnostic sleep overrides."
+        ],
+        "Test HW Requirements and HW Configuration *": [
+          "Platform with two active cores, correct SoC stepping, full DIMM/PCIe, thermal solution, debug instrumentation, and power measurement setup.",
+          "SoC stepping B0, TDP 95W, dual-core module, 2x DDR5 DIMMs, PCIe Gen4 GPU, active heatsink, PMA signal probes, external power meters."
+        ]
+      }
+    }
+  }
+}

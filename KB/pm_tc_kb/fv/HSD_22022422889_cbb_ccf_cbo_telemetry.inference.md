@@ -1,91 +1,87 @@
-# Deep Analysis: CBB CCF CBO Telemetry
+# CBB CCF CBO Telemetry
 
 | Field | Value |
 |-------|-------|
 | **HSD ID** | [22022422889](https://hsdes.intel.com/appstore/article-one/#/22022422889) |
 | **Title** | CBB CCF CBO Telemetry |
 | **Status** | open |
+| **Owner** | bg3 |
 | **Val Environment** | silicon, virtual_platform |
-| **Feature** | CBB CCF -- CBO traffic counters as CCF DVFS BW heuristics input |
-| **Parent TCD** | [22022421194](https://hsdes.intel.com/appstore/article-one/#/22022421194) |
-| **KB last updated** | 2026-06-25 |
+| **Feature** | Ring Scalability / CBO Telemetry / SBO Telemetry |
+| **Parent TCD** | [22022421189](https://hsdes.intel.com/appstore/article-one/#/22022421189) |
+| **KB last updated** | 2026-07-08 |
 
 ---
 
 ## Test Case Intent
 
-**Objective:** Validate CBB CBO (Cache Box) telemetry used as input to the CCF DVFS bandwidth heuristics. CBO traffic counts (CMS/CRS read/write BW) drive the CCF ring frequency selection via the BW threshold LUT walk in the PCode slow loop (~1 ms period). Tests verify CBO counters increment under mesh-bound workload, the slow-loop correctly reads CBO telemetry, and the CCF frequency responds to high CBO traffic.
+Verify post-silicon extraction of CBB CCF ring scalability telemetry from CBO lookup counters and SBO snoop counters. Ring Scalability telemetry is the mechanism by which PCode measures IA traffic to decide CCF frequency (GV) changes per RSE (Ring Scalability Event, ~2k uclk cycles). Verify all CBO and SBO telemetry counters are accessible, can be enabled/disabled, and are non-zero during CCF activity.
 
-**NWP topology:** 2 CBBs (cbb0/cbb1) x 48 cores = 96 cores total. CCF ring managed autonomously by CBB PCode GVFSM. CCF target = 2.2 GHz (ratio 0x16) for full bandwidth (460 GB/s). MC6 is the deepest idle state (PkgC6 fused off).
+**CBO telemetries (per cluster `i_ccf_env{N}`, per ingress `ingress_{NN}`):**
+- Lookup counter — `cbb.base.i_ccf_env{N}.ingress_{NN}.cbo_lookup_counter.lookup_counter` (non-addressless transactions)
+- Enable bit — `cbb.base.i_ccf_env{N}.ingress_{NN}.cbo_lookup_counter.lookup_counter_enable`
+- Ingress-all register — enables/disables all counters within a cluster
 
-### Pre-Conditions
+**SBO telemetries (per cluster):**
+- Snoop counter — `cbb.base.i_ccf_env{N}.sbo_misc_regs.sbo_snoop_counter.snoop_counter`
+- Enable bit — `cbb.base.i_ccf_env{N}.sbo_misc_regs.sbo_snoop_counter.snoop_counter_enable`
 
-| Pre-Condition | Expected State | Failure Indication |
-|---------------|---------------|-------------------|
-| System booted to XOS/SVOS | BIOS CPL4 complete; PCode running | System not booted |
-| TPMI accessible per CBB | `sv.socket0.cbbN.base.tpmi.*` readable | TPMI path invalid |
-| PythonSV namednodes loaded | `import namednodes; sv = namednodes.sv` succeeds | PythonSV not connected |
-| Workload available | CPU stress or coherency workload can be launched | No workload -- cannot stimulate counters |
+**Flow:**
 
-### Test Steps
+- Verify CBO and SBO telemetry counters are accessible per CBB per cluster
+- Test enable/disable toggle via `lookup_counter_enable` and `snoop_counter_enable`
+- Verify counters are non-zero when enabled under CCF activity (IA load or PEGA P-state injection)
+- Verify disabled counters remain stable (freeze mechanism)
+
+**Test scripts:** Two scripts map to this TC:
+- `pmx_ccf_cbo.py --test_ccf_cbo_telemetry` → `ccf_cbo_telemetry_lookup_cntr_disable_test()` + `ccf_cbo_telemetry_lookup_cntr_enable_disable_all_test()`
+- `pmx_ccf_cbo.py --test_ccf_sbo_telemetry` → `ccf_sbo_telemetry_snoop_cntr_disable_test()`
+
+**Script vs TC note:** Both scripts test disable/freeze functionality (counters stay zero when disabled = PASS). The TC also requires verifying counters are NON-ZERO during activity — not covered by the existing scripts; needs workload + enable + verify non-zero.
+
+---
+
+## Pre-Conditions
+
+| Pre-Condition | Requirement |
+|---|---|
+| System booted to OS | BIOS CPL4 complete; PCode running Ring Scalability |
+| CBO counters accessible | `cbb.base.i_ccf_env0.ingress_00.cbo_lookup_counter` readable/writable |
+| SBO counters accessible | `cbb.base.i_ccf_env0.sbo_misc_regs.sbo_snoop_counter` readable/writable |
+| IA activity available | System running workload (idle OS or Supercollider) to drive CBO lookups |
+
+---
+
+## Test Steps
 
 | # | Action | Expected Result (PASS) | Failure Indication |
 |---|--------|------------------------|--------------------|
-| 1 | Read baseline CBO telemetry counters via HPM 0x35 (`MEM_BOUND_CYCLES`) or TPMI telemetry | Non-zero baseline; counters accessible | Zero or inaccessible -- CBO telemetry not initialized |
-| 2 | Apply memory-bandwidth workload (memcpy / stream benchmark); read CBO traffic counters after 100ms | CBO BW counters increment significantly; MEM_BOUND_CYCLES increase | Counters static -- workload not driving CBO traffic |
-| 3 | Verify CCF ring frequency increases in response to high CBO BW: read `UFS_STATUS.CURRENT_RATIO` | CCF ratio increases toward P0 (2.2 GHz) under high CBO traffic | Ratio unchanged -- CBO telemetry not feeding BW heuristic |
-| 4 | Reduce load to idle; verify CBO counters stop incrementing and CCF frequency returns to low-power | Counters plateau; CCF ratio drops toward ELC Low floor (~800 MHz) | Counters still incrementing at idle -- CBO not quiescing |
-| 5 | Verify per-CBB independence: apply load to cbb0 only; verify cbb0 CBO counters > cbb1 | cbb0 telemetry shows activity; cbb1 near-zero | Identical values -- CBB not isolated in telemetry |
-| 6 | Verify PLR_DIE_LEVEL = 0x0 during all CBO telemetry read operations | PLR = 0x0; no spurious throttle from telemetry overhead | PLR non-zero -- CBO telemetry reads causing interference |
-
-### Pass / Fail Criteria
-
-**PASS:** CBO counters increment under workload; CCF frequency responds to BW demand; per-CBB independence; counters quiesce at idle; PLR = 0x0.
-
-**FAIL:** Counters static; CCF doesn't respond to CBO traffic; CBBs not independent; PLR non-zero.
-
-### Post-Process
-
-Save: counter snapshots (baseline and under load), UFS_STATUS.CURRENT_RATIO trace, PLR_DIE_LEVEL for both CBBs.
-
-### Reference Documents
-
-- [CBB Telemetry Aggregator](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details) -- CBO BW counters, HPM 0x35
-- [Fabric DVFS KB](../../../pm_features/fabric_dvfs/fabric_dvfs_main.md) -- BW heuristics, CBO slow-loop
-- [CBB Power Management HAS Index](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html) -- CBB PM feature index
-- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) -- NWP CCF ring scope
+| 1 | Enable all CBO lookup counters per CBB: set `lookup_counter_enable=1` for all `i_ccf_env{0-3}.ingress_{NN}`. Let run 15s. Read `lookup_counter` | At least one `lookup_counter > 0` per CBB under idle OS activity | All counters zero — CBO lookup counting not functional |
+| 2 | Test CBO counter disable: `ccf_cbo_telemetry_lookup_cntr_disable_test(skt, 'cbbs', 'i_ccf_envs', 'ingresss', rtime=100)` | PASS (diff==0) — disabled counters stable; freeze mechanism works | FAIL — disabled counters changed; disable mechanism broken |
+| 3 | Test CBO ingress-all enable/disable toggle: `ccf_cbo_telemetry_lookup_cntr_enable_disable_all_test(skt, 'cbbs', 'i_ccf_envs', iter_num=10)` | All toggles accepted; `lookup_counter_enable` reflects written value | Any toggle fails — ingress-all register not controlling all ingresss |
+| 4 | Enable all SBO snoop counters: set `snoop_counter_enable=1` for all `i_ccf_env{0-3}`. Let run 15s. Read `snoop_counter` | At least one `snoop_counter > 0` per CBB (snoop traffic present) | All zero — SBO snoop counting not functional |
+| 5 | Test SBO counter disable: `ccf_sbo_telemetry_snoop_cntr_disable_test(skt, 'cbbs', 'i_ccf_envs', rtime=100)` | PASS (diff==0) — disabled snoop counters stable | FAIL — disabled snoop counters changed |
 
 ---
 
-## Section A: NWP Disposition & Justification
+## Pass / Fail Criteria
 
-**Disposition: Runnable -- CBB CCF CBO Telemetry present on NWP**
+**PASS:** All CBO lookup and SBO snoop counters accessible per CBB; enable/disable toggle works for both; at least one counter > 0 per CBB when enabled under system activity; disabled counters remain stable.
 
-CBB CCF telemetry and DVFS algorithm are inherited from DMR CBB shared source. NWP: 2 CBBs; iterate both cbb0 and cbb1. CCF P0 = 2.2 GHz; test under full 96-core coherency load for maximum signal.
-
-Tags: `CBB CCF`, `plc.feature.p1`.
+**FAIL:** Any counter inaccessible; enable/disable toggle fails; all counters remain zero when enabled; disabled counters change.
 
 ---
 
-## Section B: NWP-Specific Test Procedure
+## Post-Process
 
-### Key Namednodes Paths (NWP)
+Save: CBO `lookup_counter` values for all `i_ccf_env{N}.ingress_{NN}` per CBB (enabled state); SBO `snoop_counter` values; enable/disable toggle pass/fail counts.
 
-| Register | NWP Path | Purpose |
-|----------|----------|---------|
-| UFS_STATUS | `sv.socket0.cbbN.base.tpmi.ufs_status` | CURRENT_RATIO |
-| PLR_DIE_LEVEL | `sv.socket0.cbbN.base.tpmi.plr_die_level` | Perf Limit Reason |
-| UFS_ADV_CONTROL_1 | `sv.socket0.cbbN.base.tpmi.ufs_adv_control_1` | RAPL/distress slopes |
+---
 
-### Adapted Steps
+## References
 
-| Step | Action | NWP Details |
-|------|--------|-------------|
-| 1 | Iterate both CBBs | `for cbb in sv.sockets.cbbs:` |
-| 2 | Read telemetry | Per-CBB TPMI or GPSB path |
-| 3 | Apply workload | `pega_mailbox.pega_pstate()` or OS-level stress tool |
-| 4 | Verify response | `cbb.base.tpmi.ufs_status.current_ratio.read()` |
-
-### Pass Criteria
-
-CBO counters increment under workload; CCF frequency responds to BW demand; per-CBB independence; counters quiesce at idle; PLR = 0x0.
+- [CBB Ring frequency scalability](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#cbb-ring-frequency-scalability)
+- [CBB Telemetry Aggregator](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details)
+- [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv)
+- [CBB CCF Power Management HAS index](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html)
+- [pCode Home](https://wiki.ith.intel.com/display/ServerPcode/Server+Pcode+Home)

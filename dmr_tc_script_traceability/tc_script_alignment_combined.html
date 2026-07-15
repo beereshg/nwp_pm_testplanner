@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>NWP PM — TC-to-Script Alignment (PCT + CBB CCF PM + RAPL)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",Arial,sans-serif;background:#f0f4f9;font-size:12px;color:#1f2937}
+.hdr{background:#0f4c81;color:#fff;padding:14px 24px}
+.hdr h1{font-size:19px;font-weight:700;margin-bottom:4px}
+.hdr a{color:#90caf9;font-weight:400;font-size:13px}
+.hdr .sub{font-size:10px;opacity:.8}
+.tbar{display:flex;gap:0;background:#1565c0;padding:0 24px;overflow-x:auto}
+.tab-btn{color:rgba(255,255,255,.72);padding:10px 18px;font-size:12px;font-weight:500;
+  cursor:pointer;border:none;background:none;border-bottom:3px solid transparent;white-space:nowrap}
+.tab-btn.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.1)}
+.tab-btn:hover{color:#fff;background:rgba(255,255,255,.08)}
+.stats{display:flex;gap:14px;background:#1a5fa8;padding:7px 24px;flex-wrap:wrap}
+.stat{background:rgba(255,255,255,.18);border-radius:6px;padding:5px 14px;text-align:center;color:#fff}
+.stat .n{font-size:19px;font-weight:700;display:block}
+.stat .l{font-size:9px;opacity:.8}
+.tp-cards{display:flex;gap:0;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);margin:14px auto;max-width:1600px;overflow:hidden;border-radius:8px}
+.tp-card{flex:1;padding:14px 18px;border-right:1px solid #e8eef7}
+.tp-card:last-child{border-right:none}
+.tp-card h2{font-size:12px;font-weight:700;color:#0f4c81;margin-bottom:6px}
+.tp-card a{color:#0f4c81;text-decoration:none}
+.tp-card .kscripts{font-size:10px;color:#555;margin-top:6px;line-height:1.6}
+.tp-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px}
+.ss{background:#d4edda;color:#155724;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:700;text-align:center}
+.sw{background:#fff3cd;color:#856404;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:700;text-align:center}
+.sn{background:#f8d7da;color:#721c24;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:700;text-align:center;font-family:inherit}
+.sg{background:#e3f2fd;color:#0d47a1;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:700;text-align:center}
+.panel{display:none;max-width:1600px;margin:0 auto;padding:0 14px 40px}
+.panel.active{display:block}
+.excl{background:#fff8e1;border:1px solid #f9a825;border-radius:6px;padding:7px 14px;margin-bottom:8px;font-size:11px;color:#5d4037}
+.legend{font-size:11px;background:#e8f0fe;border-radius:6px;padding:7px 14px;margin-bottom:10px;line-height:1.8}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:14px}
+th{background:#0f4c81;color:#fff;padding:8px 10px;text-align:left;font-size:10px;
+  font-weight:600;position:sticky;top:0;z-index:10}
+td{padding:6px 9px;vertical-align:top;border-bottom:1px solid #e8eef7;font-size:11px}
+.stp-hdr td{background:#0d47a1;color:#fff;font-size:12px;font-weight:700;padding:8px 14px}
+.stp-hdr a{color:#90caf9;text-decoration:none}
+.tcd-hdr td{background:#e3f2fd;color:#0f4c81;font-size:11px;padding:5px 14px;font-weight:600}
+.tcd-hdr a{color:#0f4c81;text-decoration:none}
+.rs{background:#f1fff4}.rw{background:#fffbf0}.rn{background:#fff5f5}
+.pss-row{border-left:3px solid #7986cb}
+tr:hover td{background:#e8f0ff!important}
+.ti{font-weight:700;color:#0f4c81;text-decoration:none}
+.pss-tag{background:#7986cb;color:#fff;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:600}
+.bs{color:#155724;font-size:11px}.bw{color:#856404;font-size:11px}.bn{color:#721c24;font-size:11px}
+code,.sn{font-family:Consolas,monospace;font-size:10px;background:#f3f6fb;padding:1px 4px;border-radius:3px}
+.nt{font-size:9px;color:#666}
+.sc{font-size:10px;color:#444;line-height:1.4;margin-bottom:2px;max-width:340px}
+.e{font-size:10px;color:#5d4037;background:#fff8e1;border-left:3px solid #fb8c00;
+  padding:2px 6px;margin-top:2px;border-radius:0 4px 4px 0}
+.cnt{float:right;background:rgba(255,255,255,.25);border-radius:10px;padding:2px 8px;font-size:10px;font-weight:400}
+</style>
+</head><body>
+<div class="hdr">
+  <h1>NWP PM — TC-to-Script Alignment Report
+    <span style="font-size:12px;opacity:.7">3 TPs · 125 TCs · 110 ✅ STRONG · 15 ⚠️ WEAK · 0 ❌ No Match</span>
+  </h1>
+  <div class="sub">Script root: <code>C:\github\frameworks.validation.pythonsv.projects.diamondrapids\pm</code> &nbsp;|&nbsp; Generated 2026-07-03</div>
+</div>
+<div class="tbar">
+  <button class="tab-btn active" data-tab="overview">📊 Overview</button>
+  <button class="tab-btn" data-tab="pct">PCT &nbsp;<span style="background:rgba(255,255,255,.25);border-radius:10px;padding:1px 7px;font-size:10px">17✅ 7⚠️</span></button>
+  <button class="tab-btn" data-tab="ccf">CBB CCF PM &nbsp;<span style="background:rgba(255,255,255,.25);border-radius:10px;padding:1px 7px;font-size:10px">15✅ 0⚠️</span></button>
+  <button class="tab-btn" data-tab="rapl">RAPL &nbsp;<span style="background:rgba(255,255,255,.25);border-radius:10px;padding:1px 7px;font-size:10px">78✅ 8⚠️</span></button>
+</div>
+<div class="stats">
+  <div class="stat"><span class="n">125</span><span class="l">Total TCs</span></div>
+  <div class="stat"><span class="n">110</span><span class="l">✅ STRONG</span></div>
+  <div class="stat"><span class="n">15</span><span class="l">⚠️ WEAK</span></div>
+  <div class="stat"><span class="n">0</span><span class="l">❌ No Match</span></div>
+  <div class="stat"><span class="n">3</span><span class="l">TPs Covered</span></div>
+</div>
+
+<!-- OVERVIEW PANEL -->
+<div id="overview" class="panel active" style="padding:14px 14px 40px;max-width:1600px;margin:0 auto">
+<div class="tp-cards">
+  <div class="tp-card">
+    <h2><a href="https://hsdes.intel.com/appstore/article-one/#/16030762939">TP 16030762939</a> — PCT (Priority Core Turbo)</h2>
+    <div style="font-size:10px;color:#555">5 TCDs direct · 28 TCs total · 24 in-scope (4 [PV] excl.)</div>
+    <div class="tp-stats">
+      <div class="ss"><span class="n">17</span>STRONG</div>
+      <div class="sw"><span class="n">7</span>WEAK</div>
+      <div class="sn" style="font-family:inherit"><span class="n">0</span>NO MATCH</div>
+    </div>
+    <div class="kscripts">Scripts: <code>pct_pmx.py</code> · <code>pct_focus.py</code> · <code>pss/pct/tc_*.py</code></div>
+  </div>
+  <div class="tp-card">
+    <h2><a href="https://hsdes.intel.com/appstore/article-one/#/22022420505">TP 22022420505</a> — CBB CCF PM</h2>
+    <div style="font-size:10px;color:#555">5 sub-TPs · 12 TCDs · 15 TCs (+ 7 empty TCDs in UFS)</div>
+    <div class="tp-stats">
+      <div class="ss"><span class="n">15</span>STRONG</div>
+      <div class="sw"><span class="n">0</span>WEAK</div>
+      <div class="sg"><span class="n">7</span>EMPTY TCDs</div>
+    </div>
+    <div class="kscripts">Scripts: <code>pmx_ccf_cbo.py</code> (<code>--test_ccf_*</code>) · <code>vf_curves_check.py</code></div>
+  </div>
+  <div class="tp-card">
+    <h2><a href="https://hsdes.intel.com/appstore/article-one/#/15019477771">TP 15019477771</a> — RAPL</h2>
+    <div style="font-size:10px;color:#555">5 sub-TPs (Socket·DRAM·Psys·Fast·RACL) · 88 TCs · 86 in-scope (2 [BEAT] excl.)</div>
+    <div class="tp-stats">
+      <div class="ss"><span class="n">78</span>STRONG</div>
+      <div class="sw"><span class="n">8</span>WEAK</div>
+      <div class="sg"><span class="n">3</span>FAST RAPL GAPS</div>
+    </div>
+    <div class="kscripts">Scripts: <code>socket_rapl_pmx.py</code> · <code>socket_rapl_pmx_MS.py</code> · <code>dram_rapl.py</code> · <code>platform_rapl_*.py</code> · <code>socket_racl_pmx.py</code> · <code>racl_registers.py</code></div>
+  </div>
+</div>
+<div style="background:#fff;border-radius:8px;padding:16px 20px;box-shadow:0 2px 8px rgba(0,0,0,.08)">
+  <h3 style="color:#0f4c81;font-size:13px;margin-bottom:10px">Key Gaps Requiring Action</h3>
+  <table style="box-shadow:none;margin:0">
+    <tr style="background:#e8eef7"><th>TC</th><th>Gap</th><th>Action</th></tr>
+    <tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421939">22022421939</a></td><td>Fast RAPL PEM — 500 µs loop not tested</td><td>Create <code>fast_rapl_pmx.py</code></td></tr>
+    <tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421949">22022421949</a></td><td>Fast RAPL with traffic — no combined script</td><td>Create <code>fast_rapl_traffic_pmx.py</code></td></tr>
+    <tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421955">22022421955</a></td><td>Fast RAPL HPM message (RAPL_PERF_LIMIT 500 µs)</td><td>Add HPM fast-loop check in Fast RAPL script</td></tr>
+    <tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422110">22022422110</a></td><td>PCT SST-PP × PCT — SST-PP ZBB on NWP</td><td>Mark TC as not-applicable on NWP</td></tr>
+    <tr><td><a href="https://hsdes.intel.com/appstore/article-one/#/16030982833">16030982833</a></td><td>DLCP SST_TF_INFO_10 — no PCT DLCP script</td><td>Create <code>tc_16030982833_dlcp_sst_tf_info10.py</code></td></tr>
+    <tr><td colspan="3" style="color:#888;font-size:10px">PSS RAPL: 3 PSS TCs (PEM PL1, PEM PL2, Perf Status) missing individual <code>tc_*.py</code> modules in <code>pss/rapl/</code></td></tr>
+    <tr><td colspan="3" style="color:#888;font-size:10px">CBB CCF PM UFS: 7 TCDs (UNIFORM_CBB_FABRIC_MODE) with zero TCs — TC creation needed</td></tr>
+  </table>
+</div>
+</div>
+
+<!-- PCT PANEL -->
+<div id="pct" class="panel">
+<div class="excl">⚠️ <strong>Excluded:</strong> 4 [PV] TCs (content in PV repo) — 24 in-scope</div>
+<table><thead><tr>
+  <th style="width:90px">TC ID</th><th style="width:210px">Title</th>
+  <th style="width:80px">Match</th><th style="width:170px">Script</th>
+  <th>Scope / Enhancement</th>
+</tr></thead><tbody><tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/?">?</a> — PCT - Enabling &amp; Discovery <span class="cnt">2 TCs · 2 strong</span></td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422100" class="ti">22022422100</a></td>
+  <td>PCT - BIOS Menu</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pct_focus.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422103" class="ti">22022422103</a></td>
+  <td>PCT - TPMI register check</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pct_focus.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/?">?</a> — PCT - Functionality <span class="cnt">17 TCs · 13 strong</span></td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422104" class="ti">22022422104</a></td>
+  <td>PCT - All HP cores in C6</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">tc_16030715676_all_hp_in_c6.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422105" class="ti">22022422105</a></td>
+  <td>PCT - Default HP core selection</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pct_focus.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422110" class="ti">22022422110</a></td>
+  <td>PCT - SST-PP x PCT Basic Checks</td>
+  <td><span class="bw">⚠️</span></td>
+  <td><code class="sn">run_pct_pss_suite.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422116" class="ti">22022422116</a></td>
+  <td>PCT - Turbo frequency check</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pct_pmx.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422117" class="ti">22022422117</a></td>
+  <td>PCT - Verify TDP convergence</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pct_pmx.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715676" class="ti">16030715676</a></td>
+  <td>[PSS]PCT - All HP cores in C6</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">tc_16030715676_all_hp_in_c6.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715678" class="ti">16030715678</a></td>
+  <td>[PSS]PCT - BIOS Menu</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pct_focus.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715680" class="ti">16030715680</a></td>
+  <td>[PSS]PCT - BIOS Negative Validation</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">tc_16030715680_bios_negative.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715682" class="ti">16030715682</a></td>
+  <td>[PSS]PCT - DQ Rules (FlexconPM)</td>
+  <td><span class="bw">⚠️</span></td>
+  <td><code class="sn">tc_16030715690_tpmi_register_check.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715684" class="ti">16030715684</a></td>
+  <td>[PSS]PCT - Default Disabled</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pct_focus.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715686" class="ti">16030715686</a></td>
+  <td>[PSS]PCT - Default HP core selection</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pct_focus.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715690" class="ti">16030715690</a></td>
+  <td>[PSS]PCT - TPMI register check (FlexconPM)</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">tc_16030715690_tpmi_register_check.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715692" class="ti">16030715692</a></td>
+  <td>[PSS]PCT - Turbo frequency check</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pct_pmx.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715694" class="ti">16030715694</a></td>
+  <td>[PSS]PCT - enable/disable</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">tc_16030715694_enable_disable.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030768619" class="ti">16030768619</a></td>
+  <td>PCT - Default Enabled</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pct_focus.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030768620" class="ti">16030768620</a></td>
+  <td>PCT - TPMI runtime enable/disable</td>
+  <td><span class="bw">⚠️</span></td>
+  <td><code class="sn">tc_16030715690_tpmi_register_check.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030768621" class="ti">16030768621</a></td>
+  <td>PCT - TPMI runtime negative validation</td>
+  <td><span class="bw">⚠️</span></td>
+  <td><code class="sn">tc_16030715680_bios_negative.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/?">?</a> — PCT - Fuse <span class="cnt">1 TCs · 1 strong</span></td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422118" class="ti">22022422118</a></td>
+  <td>PCT - DQ Rules (FlexconPM)</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pct_focus.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/?">?</a> — PCT - DLCP (Die Level Cherry Picking) <span class="cnt">4 TCs · 1 strong</span></td></tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030982833" class="ti">16030982833</a></td>
+  <td>PCT - DLCP SST_TF_INFO_10 Fuse-to-Register Verification</td>
+  <td><span class="bw">⚠️</span></td>
+  <td><code class="sn">tc_16030715690_tpmi_register_check.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030982837" class="ti">16030982837</a></td>
+  <td>PCT - DLCP HP Core Position and HWP Capabilities Verification</td>
+  <td><span class="bw">⚠️</span></td>
+  <td><code class="sn">tc_16030715682_dq_rules.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030982844" class="ti">16030982844</a></td>
+  <td>PCT - Per-SST-Instance Programming Completeness (NWP 2-CBB)</td>
+  <td><span class="bw">⚠️</span></td>
+  <td><code class="sn">pct_focus.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030982850" class="ti">16030982850</a></td>
+  <td>PCT - NWP MADT Partition Algorithm Validation</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pct_pmx.py</code><br><small class="nt"></small></td>
+  <td><div class="sc"></div></td>
+</tr>
+</tbody></table>
+</div>
+
+<!-- CCF PANEL -->
+<div id="ccf" class="panel">
+<div class="legend">All 15 TCs → <code>pmx_ccf_cbo.py</code> via <code>--test_ccf_*</code> flags · VF Curves → <code>vf_curves_check.py</code></div>
+<table><thead><tr>
+  <th style="width:90px">TC ID</th><th style="width:210px">Title</th>
+  <th style="width:80px">Match</th><th style="width:170px">Script / Flag</th>
+  <th>Scope / Enhancement</th>
+</tr></thead><tbody><tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420507">22022420507</a> — CBB CCF Active States <span class="cnt">4 TCs · 4 strong</span></td></tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421165">22022421165</a>: CBB CCF GV BIOS Configuration</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422850" class="ti">22022422850</a></td>
+  <td>CBB CCF GV BIOS Configuration</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pmx_ccf_cbo.py</code><br><small class="nt">--test_ccf_tpmi_gv</small></td>
+  <td><div class="sc">&gt; Validation Scope Objective: Verify that BIOS correctly programs the CBB CCF (Converged Coherent Fabric) GV (working-point transition) TPMI control registers for each CBB die. Val</div><div class="e">⚠️ GV BIOS config: &lt;code&gt;--test_ccf_tpmi_gv&lt;/code&gt; covers TPMI GV requests but does not explicitly validate BIOS knob-to-register propagation chain; add NVRAM/BIOS knob read step</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421168">22022421168</a>: CBB CCF GV PEGA</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422851" class="ti">22022422851</a></td>
+  <td>CBB CCF GV PEGA Injection</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pmx_ccf_cbo.py</code><br><small class="nt">--test_ccf_pega_pstate</small></td>
+  <td><div class="sc">Objective: Verify that CBB CCF ring frequency responds correctly to synthetic PEGA (Power Engine Generic Agent) mailbox injections. PEGA injects P-state requests for fabric domains</div><div class="e">⚠️ PEGA injection: &lt;code&gt;--test_ccf_pega_pstate&lt;/code&gt; option is present but function body is incomplete in template state — verify actual PEGA injection logic is implemented in &lt;code&gt;ccf_gv.py&lt;/code&gt;</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421171">22022421171</a>: CBB CCF GV TPMI Interface</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422859" class="ti">22022422859</a></td>
+  <td>CBB CCF GV TPMI Request</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pmx_ccf_cbo.py</code><br><small class="nt">--test_ccf_tpmi_gv</small></td>
+  <td><div class="sc">&gt; Validation Scope Objective: Verify that CBB CCF ring frequency (GV) can be controlled via direct TPMI UFS_CONTROL register writes. By programming MAX_RATIO = MIN_RATIO = target ,</div><div class="e">⚠️ Same flag as BIOS Config TC (&lt;code&gt;--test_ccf_tpmi_gv&lt;/code&gt;) — may need a separate flag to distinguish TPMI ring freq request from BIOS config checkout</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421174">22022421174</a>: CBB CCF VF Curves</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422863" class="ti">22022422863</a></td>
+  <td>CBB CCF VF Curves</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">vf_curves_check.py</code><br><small class="nt">standalone</small></td>
+  <td><div class="sc">&gt; Validation Scope Objective: Validate CBB CCF ring Voltage-Frequency (VF) curve programming and enforcement. The VF curve defines the minimum supply voltage required at each CCF f</div><div class="e">⚠️ &lt;code&gt;vf_curves_check.py&lt;/code&gt; is in &lt;code&gt;Active_PM/Pstate_Stack/&lt;/code&gt; not CCF_GV — confirm this script handles CCF ring VF curves not just core VF; add ring-specific assertions</div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420512">22022420512</a> — CBB CCF Idle States <span class="cnt">3 TCs · 3 strong</span></td></tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421179">22022421179</a>: CBB CCF Idle states</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422865" class="ti">22022422865</a></td>
+  <td>CBB CCF Fast Ring C3</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pmx_ccf_cbo.py</code><br><small class="nt">--test_ccf_fast_ring_c3</small></td>
+  <td><div class="sc">&gt; Validation Scope Objective: Validate CBB CCF Fast Ring C3, an autonomous low-power state entered when all cores in a DCM module reach MC6 (Module C6). Fast Ring C3 closes the Glo</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422868" class="ti">22022422868</a></td>
+  <td>CBB CCF PM Cstate wake events across Activeidle</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pmx_ccf_cbo.py</code><br><small class="nt">--test_ccf_cstate_x_wake_event</small></td>
+  <td><div class="sc">&gt; Validation Scope Objective: Validate that the CBB CCF ring correctly handles wake events that arrive during Active Idle — the transient window where all cores have issued a MWAIT</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422873" class="ti">22022422873</a></td>
+  <td>CBB CCF Ring C3</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pmx_ccf_cbo.py</code><br><small class="nt">--test_ccf_ring_c3</small></td>
+  <td><div class="sc">&gt;PKGC ZBB&#x27;ed Validation Scope Objective: Validate CBB CCF Ring C3 entry and exit — the deep CCF power-off state that shuts down the Ring PLLs, drains the CCF ring fabric, gates VCC</div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420513">22022420513</a> — CBB CCF NonAutoGV <span class="cnt">1 TCs · 1 strong</span></td></tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421183">22022421183</a>: CBB CCF NonAutoGV Mode - Drainless / Fast GV</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422878" class="ti">22022422878</a></td>
+  <td>CBB CCF NonAutoGV Mode -  Fast GV</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pmx_ccf_cbo.py</code><br><small class="nt">--test_ccf_fast_gv</small></td>
+  <td><div class="sc">&gt; Validation Scope Objective: Validate CBB CCF Non-Autonomous GV (NonAutoGV) mode and Fast GV (drainless frequency transition). In NonAutoGV mode, the TPMI UFS_CONTROL is programme</div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/22022420514">22022420514</a> — CBB CCF Ring Frequency Scalability <span class="cnt">7 TCs · 7 strong</span></td></tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421190">22022421190</a>: CBB  CCF PMON</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422886" class="ti">22022422886</a></td>
+  <td>CBB CCF PMON</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pmx_ccf_cbo.py</code><br><small class="nt">--test_ccf_pmon</small></td>
+  <td><div class="sc">&gt; Validation Scope Objective: Validate CBB CCF Performance Monitor (PMON) counters that measure CCF ring activity: bandwidth utilization, stall cycles, snoop traffic, and frequency</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421194">22022421194</a>: CBB CCF CBO Telemetry</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422889" class="ti">22022422889</a></td>
+  <td>CBB CCF CBO Telemetry</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pmx_ccf_cbo.py</code><br><small class="nt">--test_ccf_cbo_telemetry</small></td>
+  <td><div class="sc">&gt; Validation Scope Objective: Validate CBB CBO (Cache Box) telemetry used as input to the CCF DVFS bandwidth heuristics. CBO traffic counts (CMS/CRS read/write BW) drive the CCF ri</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421197">22022421197</a>: CBB CCF Distress Signal</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422894" class="ti">22022422894</a></td>
+  <td>CBB CCF Distress signal</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pmx_ccf_cbo.py</code><br><small class="nt">--test_ccf_distress_to_punit</small></td>
+  <td><div class="sc">&gt; Validation Scope Objective: Validate CBB CCF distress signal generation and handling. When the CCF ring is congested (snoop back-pressure, high CBO occupancy), CBB PCode asserts</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422895" class="ti">22022422895</a></td>
+  <td>CBB CCF Snoop Scalability/Distress</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pmx_ccf_cbo.py</code><br><small class="nt">--test_ccf_pmon</small></td>
+  <td><div class="sc">&gt; Validation Scope Objective: Validate CBB CCF ring scalability under high snoop rates and the snoop back-pressure / distress mechanism. With 96 cores (2 CBBs x 48 cores), high-coh</div><div class="e">⚠️ Snoop scalability uses same flag as basic distress (&lt;code&gt;--test_ccf_pmon&lt;/code&gt;) — needs a dedicated &lt;code&gt;--test_ccf_snoop_scalability&lt;/code&gt; flag or combined distress+snoop test function</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421199">22022421199</a>: CBB CCF Message To Punit</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422896" class="ti">22022422896</a></td>
+  <td>CBB CCF Message to Punit</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pmx_ccf_cbo.py</code><br><small class="nt">--test_ccf_distress_to_punit</small></td>
+  <td><div class="sc">&gt; Validation Scope Objective: Validate CBB CCF HPM (Hierarchical Power Management) messages sent from CBB PCode to IMH/NIO Primecode: HPM 0x1b (CBB_CCF_FREQUENCY: UPSTREAM_CCF_DESI</div><div class="e">⚠️ &#x27;Message to PUnit&#x27; overlaps with distress flag — needs explicit HPM/PCM mailbox message verification; consider &lt;code&gt;--test_ccf_message_to_punit&lt;/code&gt; as separate option</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421202">22022421202</a>: CBB CCF SBO Telemetry</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422900" class="ti">22022422900</a></td>
+  <td>CBB CCF SBO Telemetry</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pmx_ccf_cbo.py</code><br><small class="nt">--test_ccf_sbo_telemetry</small></td>
+  <td><div class="sc">&gt; Validation Scope Objective: Validate CBB SBO (Snoop Back-pressure Oracle) telemetry used as input to CCF DVFS. SBO measures snoop occupancy and back-pressure in the CBO mesh; hig</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022421205">22022421205</a>: CCB CCF PCODE algorithm for distress input</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422905" class="ti">22022422905</a></td>
+  <td>CBB CCF PCODE algorithm for distress input</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">pmx_ccf_cbo.py</code><br><small class="nt">--test_ccf_pcode_to_distress_input</small></td>
+  <td><div class="sc">&gt; Validation Scope Objective: Validate the CBB PCode algorithm that processes distress inputs (SBO back-pressure, CBO occupancy) and converts them into CCF frequency up-decisions.</div></td>
+</tr>
+</tbody></table>
+</div>
+
+<!-- RAPL PANEL -->
+<div id="rapl" class="panel">
+<div class="excl">⚠️ <strong>[BEAT] excluded:</strong> 22022421931 ([BEAT] RAPL=0 OS Boot) · 22022421852 ([BEAT] Sweep MAX PPL1/PPL2)</div>
+<div class="legend">
+  <code>socket_rapl_pmx.py</code> (slow RAPL, PEM, HPM) &nbsp;·&nbsp;
+  <code>socket_rapl_pmx_MS.py</code> (cross-products) &nbsp;·&nbsp;
+  <code>socket_rapl_cold_tdp_pmx.py</code> (cold TDP) &nbsp;·&nbsp;
+  <code>cpu_rapl.py</code> (registers/fuses) &nbsp;·&nbsp;
+  <code>dram_rapl.py</code> / <code>dram_rapl_focus.py</code> &nbsp;·&nbsp;
+  <code>platform_rapl_sweep_pmx.py</code> / <code>platform_rapl_ppl_check_pmx.py</code> &nbsp;·&nbsp;
+  <code>socket_racl_pmx.py</code> / <code>racl_registers.py</code> &nbsp;·&nbsp;
+  <code>fine_level_PLR.py</code> / <code>plr_mailbox.py</code> &nbsp;·&nbsp;
+  <code>svid_pmx.py</code> / <code>svid_telemetry_tests.py</code> &nbsp;·&nbsp;
+  <code>tpmi_oob_automation.py</code>
+</div>
+<table><thead><tr>
+  <th style="width:90px">TC ID</th><th style="width:210px">Title</th>
+  <th style="width:80px">Match</th><th style="width:185px">Script</th>
+  <th>Scope / Enhancement</th>
+</tr></thead><tbody><tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477653">15019477653</a> — Socket RAPL <span class="cnt">31 TCs · 26 strong</span></td></tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420798">22022420798</a>: Socket RAPL Algorithm &amp; Functionality Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421962" class="ti">22022421962</a></td>
+  <td>RAPL Cold TDP checkout</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_rapl_cold_tdp_pmx.py</code><br><small class="nt">cold TDP checkout</small></td>
+  <td><div class="sc">Verify PCode applies the Cold TDP power limit offset when DTS temperature drops below the cold threshold. HAS (NWP PM MAS — Cold TDP): &quot;effective_PL1 = base_PL1 + cold_long_power_l</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421965" class="ti">22022421965</a></td>
+  <td>RAPL Response time and quality</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_rapl_pmx.py</code><br><small class="nt">response time &amp; quality loop</small></td>
+  <td><div class="sc">Validation Scope Verify that the NWP PrimeCode RAPL PID loop responds to a PL1 limit write within the HAS-specified convergence time ( 5 × configured time window τ ), that measured</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421976" class="ti">22022421976</a></td>
+  <td>Sweep CPU RAPL limits</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_rapl_pmx.py</code><br><small class="nt">sweep CPU RAPL limits</small></td>
+  <td><div class="sc">Verify RAPL enforcement across a sweep of PL1 values: TDP → 75% → 50% → 25% → Pm+10W. At each step PrimeCode PID must converge power to within ±5% of PL1 within 5×tau. Below Pm, PL</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421978" class="ti">22022421978</a></td>
+  <td>Throttling below Pm</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_rapl_pmx.py</code><br><small class="nt">throttling below Pm</small></td>
+  <td><div class="sc">Verify PCode correctly enforces the Pm (Minimum Power) floor — RAPL PL1 cannot throttle cores below their guaranteed minimum operating frequency. HAS (NWP PM Features — Socket RAPL</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421989" class="ti">22022421989</a></td>
+  <td>Verify capability to change rapl limits to custom-defined ones</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_rapl_pmx.py</code><br><small class="nt">custom RAPL limits via TPMI</small></td>
+  <td><div class="sc">Verify RAPL PL1/PL2 limits can be modified at runtime via TPMI, CSR, and OOB paths, and that each change takes effect immediately. HAS (NWP PM MAS): TPMI path: socket_rapl_pl1_cont</div></td>
+</tr>
+<tr class="rw pss-row">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715720" class="ti">16030715720</a></td>
+  <td><span class='pss-tag'>[PSS]</span> [PSS]PEM - Socket RAPL PL1</td>
+  <td><span class="bw">⚠️</span></td>
+  <td><code class="sn">run_rapl_zbb_suite.py</code><br><small class="nt">[PSS] PEM PL1 — no direct tc_*.py; use suite runner</small></td>
+  <td><div class="sc">Verify on PSS that PEM correctly reports PL1 throttle (PKG_PL1_INBAND, PLR bit[10]) after setting a restrictive PL1. PSS Environment: VP (Simics) or HSLE. Validates PrimeCode RAPL</div><div class="e">⚠️ PSS PEM PL1 — no individual tc_16030715720_*.py module; RAPL PSS suite only covers ZBB negatives; create &lt;code&gt;tc_16030715720_pem_pl1.py&lt;/code&gt;</div><div class="e">⚠️ [PSS] TC — no individual tc_*.py module in pss/rapl/</div></td>
+</tr>
+<tr class="rw pss-row">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715722" class="ti">16030715722</a></td>
+  <td><span class='pss-tag'>[PSS]</span> [PSS]PEM - Socket RAPL PL2</td>
+  <td><span class="bw">⚠️</span></td>
+  <td><code class="sn">run_rapl_zbb_suite.py</code><br><small class="nt">[PSS] PEM PL2 — no direct tc_*.py</small></td>
+  <td><div class="sc">Verify on PSS that PEM correctly reports PL2 throttle (PKG_PL2_INBAND, PLR bit[13]) after setting a restrictive PL2. PSS Environment: VP (Simics) or HSLE. Validates PrimeCode RAPL</div><div class="e">⚠️ PSS PEM PL2 — same gap as PL1 PSS; create &lt;code&gt;tc_16030715722_pem_pl2.py&lt;/code&gt;</div><div class="e">⚠️ [PSS] TC — no individual tc_*.py module in pss/rapl/</div></td>
+</tr>
+<tr class="rw pss-row">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715724" class="ti">16030715724</a></td>
+  <td><span class='pss-tag'>[PSS]</span> [PSS]Perf Status - Socket RAPL</td>
+  <td><span class="bw">⚠️</span></td>
+  <td><code class="sn">run_rapl_zbb_suite.py</code><br><small class="nt">[PSS] Perf Status — no direct tc_*.py</small></td>
+  <td><div class="sc">Verify RAPL performance status (IA32_PERF_STATUS) correctly reflects RAPL-induced throttle on PSS — core running ratio decreases when RAPL throttle is active. PSS Environment: VP (</div><div class="e">⚠️ PSS Perf Status — no tc_*.py; create &lt;code&gt;tc_16030715724_perf_status.py&lt;/code&gt;</div><div class="e">⚠️ [PSS] TC — no individual tc_*.py module in pss/rapl/</div></td>
+</tr>
+<tr class="rs pss-row">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715726" class="ti">16030715726</a></td>
+  <td><span class='pss-tag'>[PSS]</span> [PSS]PLR - Socket RAPL PL2</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">plr_mailbox.py</code><br><small class="nt">[PSS] PLR PL2 — plr_mailbox covers PLR</small></td>
+  <td><div class="sc">Verify PLR bit[13] (PKG_PL2_INBAND) correctly reflects PL2 throttle source on PSS model. PSS Environment: VP (Simics) or HSLE. Validates PrimeCode RAPL behavior on pre-silicon mode</div><div class="e">⚠️ [PSS] TC — no individual tc_*.py module in pss/rapl/</div></td>
+</tr>
+<tr class="rs pss-row">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715728" class="ti">16030715728</a></td>
+  <td><span class='pss-tag'>[PSS]</span> [PSS]PLR- Socket RAPL PL1</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">plr_mailbox.py</code><br><small class="nt">[PSS] PLR PL1 — plr_mailbox covers PLR</small></td>
+  <td><div class="sc">Verify PLR bit[10] (PKG_PL1_INBAND) correctly reflects PL1 throttle source on PSS model. PSS Environment: VP (Simics) or HSLE. Validates PrimeCode RAPL behavior on pre-silicon mode</div><div class="e">⚠️ [PSS] TC — no individual tc_*.py module in pss/rapl/</div></td>
+</tr>
+<tr class="rw pss-row">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715734" class="ti">16030715734</a></td>
+  <td><span class='pss-tag'>[PSS]</span> [PSS]Verify Mistletoe PRT</td>
+  <td><span class="bw">⚠️</span></td>
+  <td><code class="sn">socket_rapl_pmx.py</code><br><small class="nt">[PSS] Mistletoe PRT — RAPL x Security; no dedicated script</small></td>
+  <td><div class="sc">Verify Mistletoe PRT (Platform Runtime Table) security energy fuzzing does not by</div><div class="e">⚠️ PSS Mistletoe PRT — security-specific; no PSS security test module for RAPL; create &lt;code&gt;tc_16030715734_mistletoe_prt.py&lt;/code&gt;</div><div class="e">⚠️ [PSS] TC — no individual tc_*.py module in pss/rapl/</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420806">22022420806</a>: Socket RAPL Cross-products</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421992" class="ti">22022421992</a></td>
+  <td>RAPL X Pkgc</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_rapl_pmx_MS.py</code><br><small class="nt">RAPL x PkgC; multi-stress PMX</small></td>
+  <td><div class="sc">Verify RAPL PL1 enforcement is stable across MC6 (Module C-State) entry/exit cycles. NWP-specific note: PkgC6 is ZBB on NWP (FUSE_PKG_C_STATE=0). Deepest idle = MC6. HAS (NWP PM Fe</div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421995" class="ti">22022421995</a></td>
+  <td>RAPL X Security (Mistletoe PRT) - Verification of Energy Fuzzing</td>
+  <td><span class="bw">⚠️</span></td>
+  <td><code class="sn">socket_rapl_pmx_MS.py</code><br><small class="nt">RAPL x Security (Mistletoe PRT)</small></td>
+  <td><div class="sc">Verify Mistletoe PRT security energy fuzzing does not corrupt RAPL energy counters or allow RAPL limit by</div><div class="e">⚠️ Mistletoe PRT security test — no dedicated security-validation script; &lt;code&gt;socket_rapl_pmx_MS.py&lt;/code&gt; covers multi-stress but not security envelope validation</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421998" class="ti">22022421998</a></td>
+  <td>Socket Rapl x Core Traffic x IO Traffic</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_rapl_pmx_MS.py</code><br><small class="nt">RAPL x Core+IO traffic</small></td>
+  <td><div class="sc">Verify RAPL PL1 enforcement is stable with concurrent CPU core traffic and IO/PCIe traffic. IO traffic contributes to package power measured by RAPL. HAS: Package RAPL measures tot</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422001" class="ti">22022422001</a></td>
+  <td>Socket Rapl x RACL x Psys</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_rapl_pmx_MS.py</code><br><small class="nt">RAPL x RACL x Psys</small></td>
+  <td><div class="sc">Verify RAPL, RACL, and Platform RAPL (Psys) cross-product interaction. On NWP, RACL and Psys are ZBB (fused off) — only Socket RAPL is active. NWP-specific: RACL = ZBB (single NIO</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422003" class="ti">22022422003</a></td>
+  <td>Socket Rapl x Reset</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_rapl_pmx.py</code><br><small class="nt">RAPL x Reset</small></td>
+  <td><div class="sc">Verify RAPL PL1 value is correctly reset across warm and cold reset — TPMI PL1 is cleared on reset; CSR (BIOS) provides the post-reset default. HAS: At warm reset, BIOS re-programs</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422008" class="ti">22022422008</a></td>
+  <td>Socket Rapl x UFS</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_rapl_pmx_MS.py</code><br><small class="nt">RAPL x UFS</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422010" class="ti">22022422010</a></td>
+  <td>Socket rapl x Pmax</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_rapl_pmx_MS.py</code><br><small class="nt">RAPL x Pmax</small></td>
+  <td><div class="sc">Verify RAPL and PMAX (PL4) interact correctly — PMAX is a hardware-enforced instantaneous current limit that fires faster than RAPL PL2. HAS (NWP PM Features): PLR bit[8] = MTPMAX.</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422013" class="ti">22022422013</a></td>
+  <td>Socket rapl x Prochot</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_rapl_pmx_MS.py</code><br><small class="nt">RAPL x Prochot</small></td>
+  <td><div class="sc">Verify RAPL and PROCHOT cross-product — when PROCHOT asserts, RAPL PLR shows PROCHOT bit[25] and both RAPL and PROCHOT throttle co-exist without MCA. HAS (NWP PM Features): PLR bit</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422015" class="ti">22022422015</a></td>
+  <td>Socket rapl x SST TF</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_rapl_pmx_MS.py</code><br><small class="nt">RAPL x SST-TF</small></td>
+  <td><div class="sc">Verify RAPL and SST-TF (PCT) cross-product — RAPL enforcement respects SST-TF HP/LP core TRL differentiation when PCT is active. HAS (NWP PM Features — SST-TF PCT): HP cores mainta</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420813">22022420813</a>: Socket RAPL Fuse and Bios knobs</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422017" class="ti">22022422017</a></td>
+  <td>RAPL - Checkout fuses related to RAPL</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">cpu_rapl.py</code><br><small class="nt">fuse checkout (CAPID/CSR read)</small></td>
+  <td><div class="sc">Verify all RAPL-related fuses (TDP, max/min power, tau, lock) match the NWP SKU specification. HAS (NWP PM MAS — package_power_sku): pkg_tdp (U15.3 fixed-point), pkg_min_pwr (Pm fl</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422018" class="ti">22022422018</a></td>
+  <td>RAPL BIOS Knobs Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">cpu_rapl.py</code><br><small class="nt">BIOS knob propagation to TPMI</small></td>
+  <td><div class="sc">Verify BIOS RAPL knobs (PackagePowerLimit/PL1, ShortDurationPowerLimit/PL2, tau, TdpLock) take effect at boot and are reflected in TPMI registers. HAS (NWP PM MAS): BIOS programs C</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420817">22022420817</a>: Socket RAPL HPM Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422019" class="ti">22022422019</a></td>
+  <td>RAPL HPM verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_rapl_pmx.py</code><br><small class="nt">HPM RAPL_PERF_LIMIT message</small></td>
+  <td><div class="sc">Verify HPM message 0x14 (RAPL_PERF_LIMIT) is correctly sent from NIO PrimeCode to CBBs and CBBs respond by capping core turbo ratio. HAS (NWP PM MAS — HPM): HPM 0x14 = RAPL_PERF_LI</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420821">22022420821</a>: Socket RAPL Registers Verification - CSR and TPMI</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422023" class="ti">22022422023</a></td>
+  <td>RAPL Energy status reporting</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">cpu_rapl.py</code><br><small class="nt">energy status register</small></td>
+  <td><div class="sc">Verify socket_rapl_energy_status counter increments monotonically and accurately computes average power. HAS formula: avg_power_W = (E2 − E1) / (2^energy_unit) / delta_time_s Count</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422029" class="ti">22022422029</a></td>
+  <td>RAPL MSR checks - Negative test case</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">cpu_rapl.py</code><br><small class="nt">MSR negative test; read-only/lock</small></td>
+  <td><div class="sc">Negative test — verify RAPL handles invalid/boundary TPMI values gracefully: out-of-range PL1, PL2 &gt; max_power, zero values, lock bit override attempts. No MCA expected. HAS: Inval</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422032" class="ti">22022422032</a></td>
+  <td>RAPL PEM (PnP Excursion Monitor)</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_rapl_pmx.py</code><br><small class="nt">PEM (PnP Excursion Monitor)</small></td>
+  <td><div class="sc">Verify PEM (PnP Excursion Monitor) correctly detects transient power excursions above PL2 and asserts PLR bit[9] (FAST_RAPL). HAS (NWP PM Features — Fast RAPL): &quot;PEM monitors power</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422034" class="ti">22022422034</a></td>
+  <td>RAPL PL1/PL2 limits and Tau Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_rapl_pmx.py</code><br><small class="nt">PL1/PL2 limits &amp; Tau</small></td>
+  <td><div class="sc">Verify PL1/PL2 limit and tau (time window) registers can be set and read correctly via both TPMI and CSR paths, and that tau decoding matches the HAS formula. HAS (NWP PM MAS — soc</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422036" class="ti">22022422036</a></td>
+  <td>RAPL Perf limit reasons - Fine &amp; Coarse</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">fine_level_PLR.py</code><br><small class="nt">perf limit reasons (fine &amp; coarse)</small></td>
+  <td><div class="sc">Verify RAPL PLR registers correctly show the active throttle source: bit[10]=PKG_PL1_INBAND (TPMI), bit[11]=PKG_PL1_CSR, bit[12]=PKG_PL1_OOB, bit[13]=PKG_PL2_INBAND. HAS (NWP PM Fe</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422038" class="ti">22022422038</a></td>
+  <td>RAPL Perf status</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">cpu_rapl.py</code><br><small class="nt">perf status register</small></td>
+  <td><div class="sc">Verify pkg_computed_pl1_power_budget_0 accurately reflects the active PL1 budget after PCode processing — including Cold TDP adjustments and Pm clamping. HAS (NWP PM MAS): pkg_comp</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422040" class="ti">22022422040</a></td>
+  <td>Socket Rapl verification - OOB</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">tpmi_oob_automation.py</code><br><small class="nt">RAPL OOB via TPMI</small></td>
+  <td><div class="sc">Verify Socket RAPL OOB (Out-of-Band) power limit write via Redfish/PECI from BMC. PLR source: OOB write sets PLR bit[12] = PKG_PL1_OOB. HAS (NWP PM MAS — OOB path): OOB path: BMC →</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420826">22022420826</a>: Socket RAPL SVID Reporting Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022422042" class="ti">22022422042</a></td>
+  <td>RAPL IMON Addressing and Telemetry</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">svid_telemetry_tests.py</code><br><small class="nt">IMON addressing &amp; telemetry</small></td>
+  <td><div class="sc">Verify SVID IMON (Current Monitor) addressing and telemetry — RAPL uses IMON for fast power measurement via VR telemetry. HAS (NWP PM MAS — SVID): IMON provides sub-ms current samp</div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477654">15019477654</a> — DRAM RAPL <span class="cnt">19 TCs · 19 strong</span></td></tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420639">22022420639</a>: DRAM RAPL Algorithm Scenarios</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421720" class="ti">22022421720</a></td>
+  <td>DRAM RAPL - Power Limits Sweep verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">dram_rapl.py</code><br><small class="nt">DRAM PL sweep silicon</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421721" class="ti">22022421721</a></td>
+  <td>DRAM RAPL - Power Limits Sweep verification_Simics</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">dram_rapl_focus.py</code><br><small class="nt">DRAM PL sweep Simics/VP</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420649">22022420649</a>: DRAM RAPL Bios Knob Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421722" class="ti">22022421722</a></td>
+  <td>DRAM RAPL Lock Bit Bios Knob Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">dram_rapl.py</code><br><small class="nt">DRAM lock bit BIOS knob</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420652">22022420652</a>: DRAM RAPL Cross Products</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421726" class="ti">22022421726</a></td>
+  <td>DRAM RAPL Cross DRAM Thermals</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">dram_rapl.py</code><br><small class="nt">DRAM x Thermal throttle</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421730" class="ti">22022421730</a></td>
+  <td>DRAM RAPL Cross LPM Modes</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">dram_rapl.py</code><br><small class="nt">DRAM x LPM modes</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421734" class="ti">22022421734</a></td>
+  <td>DRAM RAPL Cross Memory Traffic</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">dram_rapl.py</code><br><small class="nt">DRAM x Memory traffic</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421736" class="ti">22022421736</a></td>
+  <td>DRAM RAPL Cross Shallow Self Refresh</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">dram_rapl.py</code><br><small class="nt">DRAM x Shallow Self Refresh</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421746" class="ti">22022421746</a></td>
+  <td>DRAM RAPL Cross Socket RAPL</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">dram_rapl.py</code><br><small class="nt">DRAM x Socket RAPL</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420658">22022420658</a>: DRAM RAPL Fuse Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421750" class="ti">22022421750</a></td>
+  <td>DRAM RAPL Disable Fuse Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">dram_rapl_focus.py</code><br><small class="nt">DRAM disable fuse</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs pss-row">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715645" class="ti">16030715645</a></td>
+  <td><span class='pss-tag'>[PSS]</span> [PSS]DRAM RAPL ZBB Negative Checks</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">tc_22022060651_dram_rapl_zbb.py</code><br><small class="nt">[PSS] DRAM RAPL ZBB negative — tc_*.py exists</small></td>
+  <td><div class="sc">for spec / bug references.</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420668">22022420668</a>: DRAM RAPL HPM Message Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421751" class="ti">22022421751</a></td>
+  <td>DRAM RAPL HPM Message - DRAM RAPL LIMIT Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">dram_rapl.py</code><br><small class="nt">DRAM HPM RAPL_LIMIT msg</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421752" class="ti">22022421752</a></td>
+  <td>DRAM RAPL HPM Message - TELE_MC_THROTTLE_COUNT Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">dram_rapl.py</code><br><small class="nt">DRAM HPM TELE_MC_THROTTLE_COUNT</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420673">22022420673</a>: DRAM RAPL Registers Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421753" class="ti">22022421753</a></td>
+  <td>DRAM RAPL ENERGY STATUS Register Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">dram_rapl_focus.py</code><br><small class="nt">DRAM energy status register</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421754" class="ti">22022421754</a></td>
+  <td>DRAM RAPL PERF STATUS Register Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">dram_rapl_focus.py</code><br><small class="nt">DRAM perf status register</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421755" class="ti">22022421755</a></td>
+  <td>DRAM RAPL POWER INFO Register Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">dram_rapl_focus.py</code><br><small class="nt">DRAM power info register</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421756" class="ti">22022421756</a></td>
+  <td>DRAM RAPL POWER LIMIT Register Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">dram_rapl_focus.py</code><br><small class="nt">DRAM power limit register</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420680">22022420680</a>: DRAM RAPL SVID Reporting</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421758" class="ti">22022421758</a></td>
+  <td>DRAM RAPL PMON Reporting Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">svid_pmx.py</code><br><small class="nt">DRAM PMON reporting</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421759" class="ti">22022421759</a></td>
+  <td>DRAM RAPL PMON addressing Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">svid_pmx.py</code><br><small class="nt">DRAM PMON addressing</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420684">22022420684</a>: DRAM RAPL Telemetry</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421761" class="ti">22022421761</a></td>
+  <td>DRAM RAPL Telemetry Reporting Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">dram_rapl_focus.py</code><br><small class="nt">DRAM telemetry reporting</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477655">15019477655</a> — Platform/Psys RAPL <span class="cnt">17 TCs · 17 strong</span></td></tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420714">22022420714</a>: Psys RAPL Algorithm &amp; Functionality</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421805" class="ti">22022421805</a></td>
+  <td>Bios Configuration for root/leaf socket</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">platform_rapl_ppl_check_pmx.py</code><br><small class="nt">BIOS config root/leaf socket</small></td>
+  <td><div class="sc">Aim of this TC is to make sure bios correctly configures root/leaf socket for Psys via B2P mailbox. B2P mailbox command as defined in the Psys Pcode FAS PSYS_CONFIG Data Register:</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421807" class="ti">22022421807</a></td>
+  <td>Multi Socket case - Verification of HPM message root/leaf</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">platform_rapl_ppl_check_pmx.py</code><br><small class="nt">multi-socket HPM root/leaf</small></td>
+  <td><div class="sc">Flow * 1. In the root Die across all sockets, Enable platform RAPL using punit registers. 2. Read Platform and Socket pid output. Across all the imh dies in the sockets 3. In the r</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421808" class="ti">22022421808</a></td>
+  <td>Sweep Platform rapl limits</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">platform_rapl_sweep_pmx.py</code><br><small class="nt">sweep platform RAPL limits</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421811" class="ti">22022421811</a></td>
+  <td>Verify capability to change rapl limits to custom-defined ones</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">platform_rapl_sweep_pmx.py</code><br><small class="nt">custom Psys limits via TPMI</small></td>
+  <td><div class="sc">Flow * Case 1 ( Decrease PPL1/PPL2 limits from the programmed one to lesser than default expected limits ) 1. Using punit register, enable platform RAPL for PPL1 register 2. Calcul</div></td>
+</tr>
+<tr class="rs pss-row">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715660" class="ti">16030715660</a></td>
+  <td><span class='pss-tag'>[PSS]</span> [PSS]Platform RAPL / PSYS ZBB Negative Checks</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">tc_22022060649_psys_rapl_zbb.py</code><br><small class="nt">[PSS] Psys ZBB negative — tc_*.py exists</small></td>
+  <td><div class="sc">for spec / bug references.</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420718">22022420718</a>: Psys RAPL Cross-products</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421814" class="ti">22022421814</a></td>
+  <td>Psys x Core Traffic x IO Traffic</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">platform_rapl_sweep_pmx.py</code><br><small class="nt">Psys x Core+IO traffic</small></td>
+  <td><div class="sc">Flow * 1. Using punit register, enable platform RAPL both PPL1 and PPL2 tpmi register 2. Calculate platform power by running Core x IO Traffic 3. Using punit register program PPL1</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420723">22022420723</a>: Psys RAPL Fuse and Bios knobs</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421818" class="ti">22022421818</a></td>
+  <td>CSR (bios) interface</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">platform_rapl_ppl_check_pmx.py</code><br><small class="nt">CSR BIOS interface programming</small></td>
+  <td><div class="sc">Flow * Goal is to verify platform rapl related bios knobs in DMR and make sure that: The default values match as expected We are able to override the bios knobs and the correspondi</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421821" class="ti">22022421821</a></td>
+  <td>Platform RAPL Fuse checkout</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">platform_rapl_ppl_check_pmx.py</code><br><small class="nt">Platform RAPL fuse checkout</small></td>
+  <td><div class="sc">Verify Platform RAPL related Fuses and its mapped registers. Verify Psys Enable Fuse - punit_PCODE_PSYS_ENABLE Fuse Name Description Command Mapped Register punit_PCODE_PSYS_ENABLE</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420727">22022420727</a>: Psys RAPL HPM</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421822" class="ti">22022421822</a></td>
+  <td>HPM message verification for psys</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">platform_rapl_ppl_check_pmx.py</code><br><small class="nt">HPM Psys RAPL message</small></td>
+  <td><div class="sc">Flow * 1. In the root Die across all sockets, Enable platform RAPL using punit registers. 2. Read Platform and Socket pid output. Across all the dies in the sockets 3. In the root</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420730">22022420730</a>: Psys SVID Reporting Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421824" class="ti">22022421824</a></td>
+  <td>Psys IMON Addressing and Telemetry</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">svid_telemetry_tests.py</code><br><small class="nt">Psys IMON addressing &amp; telemetry</small></td>
+  <td><div class="sc">SVID FAS: https://sdg74-web.sc.intel.com/pcode/w4/master/dmr_svid_ip.html Verify the SVID address for VCCIN VR Use below registers to verify the SVID telemetry and addressing are p</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421827" class="ti">22022421827</a></td>
+  <td>VR14 based VRs/SVID measurements &amp; reporting</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">svid_pmx.py</code><br><small class="nt">VR14 SVID measurements</small></td>
+  <td><div class="sc">Flow * In order to provide better accuracy VR14 supports telemetry data which are 16 bit wide instead of 8 bits on VR13. Psys will be using Register 1Bh of the primary Socket CPU0</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420734">22022420734</a>: Psys RAPL Registers &amp; Reporting: CSR &amp; TPMI</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421829" class="ti">22022421829</a></td>
+  <td>Energy status reporting</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">platform_rapl_ppl_check_pmx.py</code><br><small class="nt">platform energy status</small></td>
+  <td><div class="sc">The aim of the TC is to validate the platform energy status reporting. Link to related HAS from wave3 common Psys HAS: https://docs.intel.com/documents/pm_doc/src/server/Wave3_comm</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421837" class="ti">22022421837</a></td>
+  <td>PLR and PEM Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">fine_level_PLR.py</code><br><small class="nt">PLR &amp; PEM Psys</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421839" class="ti">22022421839</a></td>
+  <td>PPL1/PPL2 limits</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">platform_rapl_ppl_check_pmx.py</code><br><small class="nt">PPL1/PPL2 limits</small></td>
+  <td><div class="sc">FLOW* The aim of the TC is to validate platform rapl limits register. Link to related wave3 common Psys HAS: https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Psys/10</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421841" class="ti">22022421841</a></td>
+  <td>Perf status</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">platform_rapl_ppl_check_pmx.py</code><br><small class="nt">Psys perf status</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421844" class="ti">22022421844</a></td>
+  <td>Platform Power Info</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">platform_rapl_ppl_check_pmx.py</code><br><small class="nt">platform power info</small></td>
+  <td><div class="sc">The aim of the TC is to validate the platform power info register. Link to related HAS from wave3 common Psys HAS: https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/P</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421849" class="ti">22022421849</a></td>
+  <td>Psys cross oobmsm</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">tpmi_oob_automation.py</code><br><small class="nt">Psys x OOBMSM cross-product</small></td>
+  <td><div class="sc">Flow * Refer to the OOB/TPMI team&#x27;s scripts/functions to access each register. The following are the TPMI Rapl registers of interest: PLATFORM_RAPL_DOMAIN_HEADER PLATFORM_RAPL_POWE</div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477656">15019477656</a> — Fast RAPL <span class="cnt">5 TCs · 2 strong</span></td></tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420794">22022420794</a>: Fast RAPL</td></tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421939" class="ti">22022421939</a></td>
+  <td>Fast RAPL - PEM Verification</td>
+  <td><span class="bw">⚠️</span></td>
+  <td><code class="sn">socket_rapl_pmx.py</code><br><small class="nt">Fast RAPL PEM — no dedicated script; socket_rapl_pmx partially covers</small></td>
+  <td><div class="sc">Validate Fast RAPL - PEM Verification on NWP silicon/emulation. Feature tag: Socket RAPL . HAS Ref — Fast RAPL: Fast RAPL updates power limits in a sub-interval cycle (&lt;1 ms). Key</div><div class="e">❌ Gap: No dedicated Fast RAPL script — &lt;code&gt;socket_rapl_pmx.py&lt;/code&gt; covers slow-RAPL PEM but Fast RAPL 500 µs loop is not tested; create &lt;code&gt;fast_rapl_pmx.py&lt;/code&gt;</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421944" class="ti">22022421944</a></td>
+  <td>Fast RAPL - PLR Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">fine_level_PLR.py</code><br><small class="nt">Fast RAPL PLR verification</small></td>
+  <td><div class="sc">Validate Fast RAPL - PLR Verification on NWP silicon/emulation. Feature tag: Socket RAPL . HAS Ref — Fast RAPL: Fast RAPL updates power limits in a sub-interval cycle (&lt;1 ms). Key</div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421949" class="ti">22022421949</a></td>
+  <td>Fast RAPL with traffic</td>
+  <td><span class="bw">⚠️</span></td>
+  <td><code class="sn">socket_rapl_pmx_MS.py</code><br><small class="nt">Fast RAPL with traffic</small></td>
+  <td><div class="sc">purpose of this test is to ensure the fast rapl algorithm works as expected with traffic. Feature tag: Socket RAPL . HAS Ref — Fast RAPL: Fast RAPL updates power limits in a sub-in</div><div class="e">❌ Gap: Fast RAPL with traffic — needs combined fast_rapl + traffic workload; no script exists; create &lt;code&gt;fast_rapl_traffic_pmx.py&lt;/code&gt;</div></td>
+</tr>
+<tr class="rw">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421955" class="ti">22022421955</a></td>
+  <td>Fast rapl - hpm message verification</td>
+  <td><span class="bw">⚠️</span></td>
+  <td><code class="sn">socket_rapl_pmx.py</code><br><small class="nt">Fast RAPL HPM message</small></td>
+  <td><div class="sc">Verify FAST RAPL bit in RAPL HPM Message Run wokrload to exercise FAST RAPL. Feature tag: Socket RAPL . HAS Ref — Fast RAPL: Fast RAPL updates power limits in a sub-interval cycle</div><div class="e">❌ Gap: Fast RAPL HPM message (RAPL_PERF_LIMIT sent every 500 µs) — not validated in any script; create dedicated HPM fast-loop verification</div></td>
+</tr>
+<tr class="rs pss-row">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/16030715621" class="ti">16030715621</a></td>
+  <td><span class='pss-tag'>[PSS]</span> [PSS]PLR - Fast RAPL</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">plr_mailbox.py</code><br><small class="nt">[PSS] Fast RAPL PLR mailbox</small></td>
+  <td><div class="sc">Verify relevant PLR (perf limit reasons) bit get set correctly when Fast RAPL is asserted Arch/Block Diagram: https://docs. HAS Ref — Fast RAPL: Fast RAPL updates power limits in a</div><div class="e">⚠️ [PSS] TC — no individual tc_*.py module in pss/rapl/</div></td>
+</tr>
+<tr class="stp-hdr"><td colspan="5"><a href="https://hsdes.intel.com/appstore/article-one/#/15019477657">15019477657</a> — RACL <span class="cnt">14 TCs · 14 strong</span></td></tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420737">22022420737</a>: RACL Counters Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421853" class="ti">22022421853</a></td>
+  <td>RACL - CHARGE_STATUS PMT counter Verification per each IMH</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">racl_registers.py</code><br><small class="nt">RACL CHARGE_STATUS per IMH</small></td>
+  <td><div class="sc">The charge status register reports the accumulated consumed charge of VCCIN_0 and VCCIN_1 domains. This register is updated by prime code and is read-only by all other SW. We need</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421855" class="ti">22022421855</a></td>
+  <td>RACL - PEM Verification per IMH</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">racl_registers.py</code><br><small class="nt">RACL PEM per IMH</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421857" class="ti">22022421857</a></td>
+  <td>RACL - PERF_STATUS Verification per each IMH</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">racl_registers.py</code><br><small class="nt">RACL PERF_STATUS per IMH</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421859" class="ti">22022421859</a></td>
+  <td>RACL - Perf Limit Reason (Fine &amp; Coarse Grain Reporting)  Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">racl_registers.py</code><br><small class="nt">RACL PLR fine &amp; coarse grain</small></td>
+  <td><div class="sc">Verify RACL PLR bit by triggering RACL event or run a workload.</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421860" class="ti">22022421860</a></td>
+  <td>RACL - RACL_CURRENT_LIMIT_CONTROL  Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">racl_registers.py</code><br><small class="nt">RACL CURRENT_LIMIT_CONTROL</small></td>
+  <td><div class="sc">Verify RACL_CURRENT_LIMIT_CONTROL PMT is getting updated according to RACL fuses import pm.pmutils.racl as racl racl.racl_current_limit() Register: sv.sockets.imhs.punit.pmuarray.p</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420741">22022420741</a>: RACL Cross Product</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421861" class="ti">22022421861</a></td>
+  <td>RACL Cross Cold Reset</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_racl_pmx.py</code><br><small class="nt">RACL x Cold Reset</small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421863" class="ti">22022421863</a></td>
+  <td>RACL Cross Mesh Frequency Verification</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_racl_pmx.py</code><br><small class="nt">RACL x Mesh Freq</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421866" class="ti">22022421866</a></td>
+  <td>RACL Cross Socket RAPL Cross Psys</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_racl_pmx.py</code><br><small class="nt">RACL x Socket RAPL x Psys</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421868" class="ti">22022421868</a></td>
+  <td>RACL Cross Traffic - Asymmetrical Workload</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_racl_pmx.py</code><br><small class="nt">RACL x Traffic asymm.</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421869" class="ti">22022421869</a></td>
+  <td>RACL Cross Traffic - Symmertical Workload</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_racl_pmx.py</code><br><small class="nt">RACL x Traffic symm.</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421870" class="ti">22022421870</a></td>
+  <td>RACL Cross Warm Reset</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_racl_pmx.py</code><br><small class="nt">RACL x Warm Reset</small></td>
+  <td><div class="sc"></div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420746">22022420746</a>: RACL Fuses Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421873" class="ti">22022421873</a></td>
+  <td>RACL Fuse Verification per each IMH</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">racl_registers.py</code><br><small class="nt">RACL fuse per IMH</small></td>
+  <td><div class="sc">Flow * Verify that Feature is enabled by reading the fuse &quot; TDC_CURRENT_LIMIT &quot; and Registers &quot; pcudata . pcudata.io_racl_enabled&quot; and &quot; IO_PCODE_SYSTEM_MODES_CONTROL2.RACL_DISABLE</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420749">22022420749</a>: RACL HPM Verification</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421880" class="ti">22022421880</a></td>
+  <td>RACL HPM Verification_silicon</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_racl_pmx.py</code><br><small class="nt">RACL HPM silicon</small></td>
+  <td><div class="sc">Link: https://docs.intel.com/documents/primecode/has/DMR/Hierarchical%20PM/HPM_Message_Specification.html#RAPL_PERF_LIMIT Verify the correct bits are set in below HPM messages thro</div></td>
+</tr>
+<tr class="tcd-hdr"><td colspan="5">&nbsp;&nbsp;TCD <a href="https://hsdes.intel.com/appstore/article-one/#/22022420753">22022420753</a>: RACL Security</td></tr>
+<tr class="rs">
+  <td><a href="https://hsdes.intel.com/appstore/article-one/#/22022421888" class="ti">22022421888</a></td>
+  <td>RACL CHARGE STATUS Verification with Security Keys enabled</td>
+  <td><span class="bs">✅</span></td>
+  <td><code class="sn">socket_racl_pmx.py</code><br><small class="nt">RACL x security keys</small></td>
+  <td><div class="sc">(Sections with * are mandatory. You must fill them in, or say &quot;Not Applicable&quot; or &quot;N/A&quot; if you have seriously considered it and determined there&#x27;s nothing to say. Remove these inst</div></td>
+</tr>
+</tbody></table>
+</div>
+
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body></html>

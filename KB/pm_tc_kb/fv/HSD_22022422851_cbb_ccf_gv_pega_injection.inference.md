@@ -1,4 +1,4 @@
-# Deep Analysis: CBB CCF GV PEGA Injection
+# CBB CCF GV PEGA Injection
 
 | Field | Value |
 |-------|-------|
@@ -7,110 +7,73 @@
 | **Status** | open |
 | **Owner** | bg3 |
 | **Val Environment** | silicon, virtual_platform |
-| **Feature** | Fabric DVFS / CBB CCF GV -- PEGA-driven transitions |
+| **Feature** | Fabric DVFS / CBB CCF GV / PEGA |
 | **Parent TCD** | [22022421168](https://hsdes.intel.com/appstore/article-one/#/22022421168) |
-| **KB last updated** | 2026-06-25 |
+| **KB last updated** | 2026-07-08 |
 
 ---
 
 ## Test Case Intent
 
-**Objective:** Verify that CBB CCF ring frequency responds correctly to synthetic PEGA (Power Engine Generic Agent) mailbox injections. PEGA injects P-state requests for fabric domains (meshgv, iagv, memgv, iogv) directly into PCode via the B2P mailbox, bypassing the normal bandwidth-heuristic slow loop. This validates the GVFSM (GV Finite State Machine) end-to-end path: mailbox reception, GVFSM state transition, PLL settling, and status reporting via TPMI UFS_STATUS.CURRENT_RATIO.
+Induce CBB CCF ring frequency changes via PEGA P-state injection and verify frequency tracks via TPMI `UFS_STATUS.CURRENT_RATIO`. Covers uncore p-state randomization and p-state hold (single-shot) across the full fused [Pm, P0] CCF frequency range.
 
-**PEGA API:** `pega_mailbox.pega_pstate(iagv, meshgv, memgv, iogv, rearm, act2)` where `meshgv=0` requests P0 (max CCF, ~2.2 GHz) and `meshgv="rand"` injects a stress/random GV request. Implemented in `pm/pss/pega/pega_fabric_gv.py`.
+**CBB CCF PEGA support:** YES — `pega.py:issuePegaReq_CBB()` sets `CMD1.ring_ratio = clrgv` and writes to CBB PEGA mailbox (`cbb.pcode.vars.pega`). Verification reads `cbb.base.tpmi.ufs_status.current_ratio` and `cbb.base.punit_regs.punit_pmsb.pmsb_pcu.ccf_wp_status.ratio`.
 
-### Pre-Conditions
+**Flow:**
 
-| Pre-Condition | Expected State | Failure Indication |
-|---------------|---------------|-------------------|
-| System booted to XOS/SVOS | BIOS CPL4 complete; PCode running CCF GVFSM | System not booted or hangs |
-| BIOS: ProcessorHWPMEnable = 1 | HWP initialized (required for PEGA mailbox) | PEGA injection fails at B2P |
-| TPMI accessible per CBB | `sv.socket0.cbbN.base.tpmi.ufs_status.current_ratio` readable | TPMI path not valid |
-| PEGA mailbox available | `pega_mailbox.pega_pstate()` reachable | Module import error |
-| CBB CCF GV enabled | `UFS_HEADER.AUTONOMOUS_UFS_DISABLED = 0` on each CBB | CCF GV disabled -- BIOS config issue |
-| System at idle CCF baseline | Initial CURRENT_RATIO readable and non-zero | CCF not running |
+- Uncore p-state randomization with PEGA — inject random CCF ring ratios via `pega.uncoreRatioSingleShot()` or `clrgv='rand'`; verify `UFS_STATUS.CURRENT_RATIO` tracks
+- Uncore p-state hold with PEGA — inject fixed CCF ring ratio via `pega.allCoreUncoreRatioSingleShot()` or `ccf_pegaPstate_test()`; verify ratio held across full [Pm, P0] range
+- Verify via TPMI — use `cbb.base.tpmi.ufs_status.current_ratio` as primary check; corroborate with `ccf_wp_status.ratio` and `ccf_pma.ccf_pmc_regs.ccf_wp[0].target_max_ratio`
 
-### Test Steps
+**Test script:** `pmx_ccf_cbo.py --test_ccf_pega_pstate` → `ccf_utils.ccf_pegaPstate_test(sktNum, 'cbbs', clrgv=<ratio>)`. Manual use: `pega.allCoreUncoreRatioSingleShot(0, 'all', coreFreq, meshFreq)` or `pega.ping_pong_pstates(duration, low, high, imesh0=<low>, imesh1=<high>)`.
+
+---
+
+## Pre-Conditions
+
+| Pre-Condition | Requirement |
+|---|---|
+| System booted to OS | BIOS CPL4 complete; PCode initialized; CCF GV enabled (`UFS_HEADER.AUTONOMOUS_UFS_DISABLED=0`) |
+| PEGA available | `import diamondrapids.pm.pmutils.pega as pega` succeeds |
+| TPMI accessible per CBB | `sv.sockets.cbbs.base.tpmi.ufs_status` readable |
+| BIOS knobs | Default; `UncoreFreqCtrlCbb=1` (Clamp), `UncoreFreqRatioCbb=0` (dynamic) |
+
+---
+
+## Test Steps
 
 | # | Action | Expected Result (PASS) | Failure Indication |
 |---|--------|------------------------|--------------------|
-| 1 | Read baseline `UFS_STATUS.CURRENT_RATIO` on cbb0 and cbb1 | Non-zero ratios on both CBBs; note values as baseline | Zero ratio -- GVFSM not running |
-| 2 | Inject PEGA stress request: `pega_pstate(meshgv="rand", iagv="rand", memgv="rand", iogv="rand")` | Command accepted (no B2P error); wait 30M cycles | B2P NAK or mailbox error |
-| 3 | Read `UFS_STATUS.CURRENT_RATIO` on all CBBs after PEGA stress injection | At least one CBB shows ratio change from baseline | No ratio change -- GVFSM not responding to PEGA |
-| 4 | Inject PEGA low request: `pega_pstate(meshgv=0, iagv=0, memgv=0, iogv=0)` (requests P0/max) | Command accepted; wait 30M cycles | B2P error or mailbox unresponsive |
-| 5 | Read `UFS_STATUS.CURRENT_RATIO` on all CBBs after P0 injection | Ratios increase toward max (NWP CCF P0 = 22, 2.2 GHz); each CBB reflects the P0 request | Ratio unchanged or wrong direction -- GVFSM not honoring mailbox |
-| 6 | Release PEGA: `pega_pstate(rearm=0)` and wait 2s for autonomous recovery | Ratios return to bandwidth-heuristic-driven value; no stuck GVFSM | Ratios stuck at injected value -- GVFSM hung after release |
-| 7 | Verify `PLR_DIE_LEVEL` on each CBB = 0x0 | No spurious Performance Limit Reason from PEGA transition | PLR non-zero -- unexpected throttle event during GV transition |
-| 8 | Verify `UFS_STATUS` GVFSM busy/done flags clear (not stuck) | GVFSM `busy` bit = 0 after transition settled | Busy bit stuck -- GVFSM hung state |
-
-### Pass / Fail Criteria
-
-**PASS:** PEGA mailbox accepted without error; at least one CBB shows ratio change after stress injection; P0 injection drives ratio toward 2.2 GHz; autonomous CCF ratio recovery after PEGA release; PLR_DIE_LEVEL = 0x0; GVFSM not stuck.
-
-**FAIL:** B2P mailbox rejects PEGA command; no ratio change after injection; GVFSM stuck (busy bit set); ratio does not recover after release; PLR non-zero indicating throttle during GV transition.
-
-### Post-Process
-
-Save: UFS_STATUS.CURRENT_RATIO snapshots (baseline, after stress, after P0, after release), B2P mailbox status, PLR_DIE_LEVEL values, GVFSM busy/done register state for both CBBs.
-
-### Reference Documents
-
-- [CBB PEGA HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/Features/PEGA/PEGA.html) -- CBB Power Event Generation Architecture, B2P mailbox injection flow
-- [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#switching-between-fast-gv-drainless-gv) -- GVFSM states, V-first/F-first transitions
-- [DMR CBB TPMI Support](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_TPMI/cbb_tpmi.html) -- UFS_STATUS.CURRENT_RATIO, GVFSM busy/done fields
-- [PEGA Architecture Rev 0.75](https://wiki.ith.intel.com/display/ServerPcode/PEGA) -- PEGA mailbox command format, rearm behavior
-- [Uncore Frequency Scaling HAS](https://docs.intel.com/documents/pm_doc/src/server/GNR/Features/Hierarchical%20UFS/HPM_UFS.html#bios-control) -- UFS BIOS control, AUTONOMOUS_UFS_DISABLED
-- [Fabric DVFS KB](../../../pm_features/fabric_dvfs/fabric_dvfs_main.md) -- CBB CCF ring DVFS context, GVFSM description
-- Test script: `pm/pss/pega/pega_fabric_gv.py` (implements this TC flow)
+| 1 | Read fused CCF [Pm, P0] range per CBB: `cbb.base.tpmi.sst_pp_info_11.pm_fabric_ratio` and `.p0_fabric_ratio` | Non-zero Pm and P0; P0 > Pm | Zero or inverted range — fuse read failure |
+| 2 | Inject fixed ring ratio at P0 via PEGA: `pega.uncoreRatioSingleShot(skt, 'cbb0', p0_ratio)`. Sleep 1s. Read `ufs_status.current_ratio` and `ccf_wp_status.ratio` | Both match injected ratio | Ratio not updated — PEGA injection not reaching CCF |
+| 3 | Sweep full CCF range [Pm..P0] using `ccf_pegaPstate_test(sktNum, 'cbbs', clrgv=i)` for each ratio | Each ratio reflected in `ufs_status.current_ratio`; no error logged | Any ratio mismatch — GVFSM not following PEGA request |
+| 4 | Inject random ring ratio (`clrgv='rand'`): `pega.pegaPstate(sktNum=0, dieName='cbb0', clrgv=-1, rearmTimems=100)`. Let run 10s. Sample `ufs_status.current_ratio` multiple times | Ratio varies across samples; stays within [Pm, P0] bounds | Fixed ratio despite random injection; ratio out of fused range |
+| 5 | Ping-pong between low (Pm) and high (P0) ratios: `pega.ping_pong_pstates(duration=60, low=1, high=1, imesh0=pm_ratio, imesh1=p0_ratio)`. Sample `ufs_status.current_ratio` during each phase | Ratio alternates between Pm and P0 with each interval | No alternation; ratio stuck at one value |
 
 ---
 
-## Section A: NWP Disposition & Justification
+## Pass / Fail Criteria
 
-**Disposition: Runnable -- CBB CCF GV and PEGA both present on NWP**
+**PASS:** CCF ring frequency can be set across the full fused [Pm, P0] range via PEGA on all CBBs. `UFS_STATUS.CURRENT_RATIO` reflects injected values within 1 tick. Random injection keeps ratio within fused bounds. Ping-pong alternation observed.
 
-CBB PCode GVFSM and PEGA mailbox are inherited from DMR CBB shared source. NWP has 2 CBBs (cbb0, cbb1); both must be validated. NWP CCF P0 = 2.2 GHz (ratio = 22). PEGA `meshgv=0` requests P0 for CCF ring.
-
-The existing test script `pm/pss/pega/pega_fabric_gv.py` implements this TC flow and follows the verified emulation pattern (PM_INFO:: prefix, cli stabilization).
-
-Tags: `CBB CCF`, `plc.feature.p1`.
+**FAIL:** Any injected ratio not reflected in `UFS_STATUS.CURRENT_RATIO` or `CCF_WP_STATUS.ratio`; ratio outside [Pm, P0] fused range; no variation during random injection.
 
 ---
 
-## Section B: NWP-Specific Test Procedure
+## Post-Process
 
-### Key Namednodes Paths (NWP)
+Save: per-CBB ratio traces during sweep and ping-pong, fused P0/Pm from `sst_pp_info_11`, PEGA mailbox register dumps (`pcode.vars.pega`).
 
-| Register | NWP Path | Purpose |
-|----------|----------|---------|
-| UFS_STATUS.CURRENT_RATIO | `sv.socket0.cbbN.base.tpmi.ufs_status.current_ratio` | Observed CCF ring ratio after GVFSM settles |
-| PLR_DIE_LEVEL | `sv.socket0.cbbN.base.tpmi.plr_die_level` | Perf Limit Reason per CBB |
-| ACP_PERF_LIMIT | `sv.socket0.cbbN.base.punit_regs.punit_pmsb.pmsb_pcu.acp_perf_limit` | ACP power limit post-GV |
-| UFS_ADV_CONTROL_1 | `sv.socket0.cbbN.base.tpmi.ufs_adv_control_1` | CCF RAPL line slope (should be unchanged) |
+---
 
-### PEGA Injection API
+## References
 
-```python
-from diamondrapids.pm.pss.mailbox import pega_mailbox
-# Stress injection (provoke random GV change)
-pega_mailbox.pega_pstate(iagv="rand", meshgv="rand", memgv="rand", iogv="rand")
-# P0 request (drive CCF to max, ~2.2 GHz)
-pega_mailbox.pega_pstate(iagv=0, meshgv=0, memgv=0, iogv=0)
-# Release
-pega_mailbox.pega_pstate(rearm=0)
-```
-
-### Adapted Steps
-
-| Step | Action | NWP Details |
-|------|--------|-------------|
-| 1 | Run existing script | `python pm/pss/pega/pega_fabric_gv.py` |
-| 2 | Iterate both CBBs | `for cbb in sv.sockets.cbbs:` |
-| 3 | Check baseline ratio | `cbb.base.tpmi.ufs_status.current_ratio.read()` |
-| 4 | Inject PEGA | `pega_mailbox.pega_pstate(meshgv="rand")` |
-| 5 | Wait (emulation) | `cli.run_command("emu.engine.wait-for-cycle -relative 10000000")` x3 |
-| 6 | Verify ratio changed | Assert at least one CBB ratio != baseline |
-
-### Pass Criteria
-
-PEGA injection accepted; ratio changes per injection; PLR = 0x0; autonomous recovery after release; GVFSM not stuck.
+- [CBB Power Event Generation Architecture (PEGA)](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/Features/PEGA/PEGA.html)
+- [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv)
+- [Architectural UFS TPMI Interface](https://docs.intel.com/documents/pm_doc/src/server/arch_common/TPMI/TPMI.html#dmr-family)
+- [DMR CBB TPMI Support](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_TPMI/cbb_tpmi.html)
+- [Uncore Frequency Scaling in a Hierarchical SoC](https://docs.intel.com/documents/pm_doc/src/server/GNR/Features/Hierarchical%20UFS/HPM_UFS.html#bios-control)
+- [pCode Home](https://wiki.ith.intel.com/display/ServerPcode/Server+Pcode+Home)
+- [Power Event Generation Architecture (PEGA) wiki](https://wiki.ith.intel.com/display/ServerPcode/PEGA)
+- [CBB CCF Power Management HAS index](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html)
+- [CBB Telemetry Aggregator](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html)

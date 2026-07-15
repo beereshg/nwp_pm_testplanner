@@ -1,91 +1,93 @@
-# Deep Analysis: CBB CCF Message to Punit
+# CBB CCF Message to Punit
 
 | Field | Value |
 |-------|-------|
 | **HSD ID** | [22022422896](https://hsdes.intel.com/appstore/article-one/#/22022422896) |
 | **Title** | CBB CCF Message to Punit |
 | **Status** | open |
+| **Owner** | bg3 |
 | **Val Environment** | silicon, virtual_platform |
-| **Feature** | CBB CCF -- HPM messages from CBB PCode to IMH/NIO Primecode |
-| **Parent TCD** | [22022421199](https://hsdes.intel.com/appstore/article-one/#/22022421199) |
-| **KB last updated** | 2026-06-25 |
+| **Feature** | Ring Scalability / Distress Message / PUnit Grade Indication |
+| **Parent TCD** | [22022421199 -- CBB CCF Message To Punit](https://hsdes.intel.com/appstore/article-one/#/22022421199) |
+| **KB last updated** | 2026-07-10 |
 
 ---
 
 ## Test Case Intent
 
-**Objective:** Validate CBB CCF HPM (Hierarchical Power Management) messages sent from CBB PCode to IMH/NIO Primecode: HPM 0x1b (CBB_CCF_FREQUENCY: UPSTREAM_CCF_DESIRED_RATIO), HPM 0x35 (ACTIVE_CYCLES_TELEMETRY: MEM_BOUND_CYCLES), HPM 0x36 (MOST_ACTIVE_CORE_C0_TELEMETRY). Tests verify messages are sent with correct content, Primecode correctly decodes and acts on them, and the CBB-IMH HPM coordination works end-to-end.
+Verify the CCF PMA distress message delivery mechanism to PUnit — specifically that the message carries a **4-bit grade** (0-15) via CR_WR opcode to PUNIT_CR_RING_DISTRESS_STATUS (address 0x1C8), rather than the legacy 3-state {No, Low, High} distress. The scaling block converts logistic regression output to a 4-bit grade using 7 configurable thresholds (th0..th6 → Grade0..7[3:0]). This TC verifies the full-resolution grade message is received and readable by PCode.
 
-**NWP topology:** 2 CBBs (cbb0/cbb1) x 48 cores = 96 cores total. CCF ring managed autonomously by CBB PCode GVFSM. CCF target = 2.2 GHz (ratio 0x16) for full bandwidth (460 GB/s). MC6 is the deepest idle state (PkgC6 fused off).
+**⚠️ NOTE — Differentiation from related TCs:**
+- **TC 22022422851** (CBB CCF GV PEGA Injection, TCD 22022421168, Active States TPF): Validates PEGA-driven **CCF GV state machine** output. Completely different sideband path — unrelated to ring_distress_status.
+- **TC 22022422905** (PCODE Algorithm, TCD 22022421197): Validates PCode **algorithm PROCESSING** of the distress grade (`ia_ring_factor`, `ia_promote_ring` workpoint). THIS TC validates the **DELIVERY** of the grade to PUNIT *before* any algorithm runs.
+- **TC 22022422894/22022422895**: Validate the upstream telemetry inputs (CBO/SBO counters → grade computation), not the delivery mechanism.
 
-### Pre-Conditions
+**Differentiator from sibling TCs:**
+- TC 22022422894 — IA distress *inputs* (CBO counters → grade computation)
+- TC 22022422895 — Snoop distress *inputs* (SBO counters → snoop grade)
+- **This TC** — the *message delivery* mechanism (CCF PMA → PMSB CR_WR → PUnit register)
 
-| Pre-Condition | Expected State | Failure Indication |
-|---------------|---------------|-------------------|
-| System booted to XOS/SVOS | BIOS CPL4 complete; PCode running | System not booted |
-| TPMI accessible per CBB | `sv.socket0.cbbN.base.tpmi.*` readable | TPMI path invalid |
-| PythonSV namednodes loaded | `import namednodes; sv = namednodes.sv` succeeds | PythonSV not connected |
-| Workload available | CPU stress or coherency workload can be launched | No workload -- cannot stimulate counters |
+**Message format (PMSB CR_WR to 0x1C8):**
+- Data[3:0] = Main Grade[3:0] (4-bit, 0-15 IA stress level)
+- Data[4] = Always 0 (PCode first-access detection)
+- Data[11:8] = Snoop Grade[3:0] (4-bit, 0-15 snoop stress level)
+- Data[12] = Always 0
+- Data[31] = Group (0=Main, 1=Snoop)
 
-### Test Steps
+**Verification path:** `cbb.base.punit_regs.punit_pmsb.pmsb_pcu.ring_distress_status` — this register holds the last received grade message.
+
+**Flow:**
+
+- Verify 4-bit grade is being received (not legacy 3-state): `ia_distress[3:0]` covers full 0-15 range under varying load
+- Verify message delivery: `ring_distress_status` updates periodically as CCF PMA sends new grade messages
+- Verify both Main (Group=0) and Snoop (Group=1) messages reach PUnit
+- Verify validity flags are clear (`ia_distress_invalid=0`, `snoop_level_invalid=0`)
+
+---
+
+## Pre-Conditions
+
+| Pre-Condition | Requirement |
+|---|---|
+| System booted to OS | BIOS CPL4 complete; ring scalability running |
+| Ring scalability enabled | MSR 0x1FC bit[25] `disable_ring_ee=0` |
+| `ring_distress_status` accessible | `cbb.base.punit_regs.punit_pmsb.pmsb_pcu.ring_distress_status` readable |
+| System under varying load | Idle + light workload to generate non-trivial grade values |
+
+---
+
+## Test Steps
 
 | # | Action | Expected Result (PASS) | Failure Indication |
 |---|--------|------------------------|--------------------|
-| 1 | Verify HPM 0x1b is sent after CCF GV decision: pin CCF at 0x12 (NonAutoGV) and check UPSTREAM_CCF_DESIRED_RATIO in HPM 0x1b | HPM 0x1b sent with UPSTREAM_CCF_DESIRED_RATIO = 0x12 within one slow-loop period (~1ms) | HPM message not sent or wrong ratio -- CBB-to-IMH CCF freq coordination broken |
-| 2 | Apply memory-bound workload; verify HPM 0x35 MEM_BOUND_CYCLES increments and is delivered to Primecode | MEM_BOUND_CYCLES increases under workload; Primecode slow-loop receives updated value | HPM 0x35 not updating -- CBB not sending memory-bound telemetry |
-| 3 | Apply high CPU utilization; verify HPM 0x36 CORE_C0_TIME increases in proportion to cores active | MOST_ACTIVE_CORE_C0_TELEMETRY reflects fraction of total_time; value correlates with load | HPM 0x36 stale or wrong -- ELC C0 utilization input broken |
-| 4 | Verify Primecode ELC decision uses HPM 0x36: set CPU to 100% load; verify ELC High mode activated via UFS_CONTROL | ELC High threshold crossed; UFS_CONTROL.ELC_HIGH_RATIO applied to fabric freq | ELC does not activate -- HPM 0x36 not reaching Primecode ELC handler |
-| 5 | Verify HPM 0x1b Uniform mode: enable UNIFORM_CBB_FABRIC_FREQ_MODE; check both CBBs send coordinated desired ratios | Both CBBs send same desired ratio; Primecode resolves min and distributes | CBBs disagree in Uniform mode -- HPM aggregation not working |
-| 6 | Verify PLR_DIE_LEVEL = 0x0 during all HPM message tests | PLR = 0x0; no spurious throttle from HPM coordination | PLR non-zero -- HPM message caused unintended state |
-
-### Pass / Fail Criteria
-
-**PASS:** HPM 0x1b/0x35/0x36 all sent with correct content; Primecode ELC responds to HPM 0x36; Uniform mode coordination works; PLR = 0x0.
-
-**FAIL:** HPM message not sent or stale; Primecode ELC doesn't respond; Uniform mode CBBs disagree; PLR non-zero.
-
-### Post-Process
-
-Save: counter snapshots (baseline and under load), UFS_STATUS.CURRENT_RATIO trace, PLR_DIE_LEVEL for both CBBs.
-
-### Reference Documents
-
-- [HPM Message Specification](https://docs.intel.com/documents/primecode/has/DMR/Hierarchical%20PM/HPM_Message_Specification.html) -- HPM 0x1b, 0x35, 0x36 message formats
-- [Fabric DVFS KB](../../../pm_features/fabric_dvfs/fabric_dvfs_main.md) -- HPM 0x1b CCF freq, 0x35/0x36 ELC inputs
-- [CBB Power Management HAS Index](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html) -- CBB PM feature index
-- [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) -- NWP CCF ring scope
+| 1 | Verify ring scalability enabled: `cbb_ccf_distress_to_punit_test(skt, 'cbbs')` — checks MSR 0x1FC bit[25] per core | `disable_ring_ee=0` on all cores — message pathway active | Any core shows bit=1 — messages not being generated |
+| 2 | Read `ring_distress_status` repeatedly (10 samples, 1s apart): check `ia_distress_invalid=0` and `snoop_level_invalid=0` | Both validity flags = 0 consistently — message format correct | Any invalid flag set — CCF PMA not initializing message correctly |
+| 3 | Sample `ia_distress[3:0]` across idle and light workload. Verify at least 2 distinct values observed | `ia_distress` takes multiple values across samples — full 4-bit grade functional (not stuck at one level) | Always same value — grade not updating or stuck at zero |
+| 4 | Sample `snoop_level[11:8]` across same window | `snoop_level` accessible and non-constant | Always 0 or invalid — snoop message not reaching PUnit |
+| 5 | Read `ring_distress_status.group` field across multiple samples | Group field toggles between 0 (Main) and 1 (Snoop) — both message types sent periodically | Only one group value — one message type not being sent |
 
 ---
 
-## Section A: NWP Disposition & Justification
+## Pass / Fail Criteria
 
-**Disposition: Runnable -- CBB CCF Message to Punit present on NWP**
+**PASS:** `ring_distress_status` receives valid 4-bit grade messages (0-15 range, not stuck); both `ia_distress_invalid=0` and `snoop_level_invalid=0`; grade value varies across samples under varying load; both Group=0 and Group=1 messages observed; MSR 0x1FC `disable_ring_ee=0`.
 
-CBB CCF telemetry and DVFS algorithm are inherited from DMR CBB shared source. NWP: 2 CBBs; iterate both cbb0 and cbb1. CCF P0 = 2.2 GHz; test under full 96-core coherency load for maximum signal.
-
-Tags: `CBB CCF`, `plc.feature.p1`.
+**FAIL:** `ring_distress_status` always reads 0 or shows invalid flags; `ia_distress` stuck at single value regardless of load; only one group type observed; ring scalability disabled.
 
 ---
 
-## Section B: NWP-Specific Test Procedure
+## Post-Process
 
-### Key Namednodes Paths (NWP)
+Save: 10+ samples of `ring_distress_status` (ia_distress, snoop_level, both invalid flags, group) per CBB across idle and workload, MSR 0x1FC value per core.
 
-| Register | NWP Path | Purpose |
-|----------|----------|---------|
-| UFS_STATUS | `sv.socket0.cbbN.base.tpmi.ufs_status` | CURRENT_RATIO |
-| PLR_DIE_LEVEL | `sv.socket0.cbbN.base.tpmi.plr_die_level` | Perf Limit Reason |
-| UFS_ADV_CONTROL_1 | `sv.socket0.cbbN.base.tpmi.ufs_adv_control_1` | RAPL/distress slopes |
+---
 
-### Adapted Steps
+## References
 
-| Step | Action | NWP Details |
-|------|--------|-------------|
-| 1 | Iterate both CBBs | `for cbb in sv.sockets.cbbs:` |
-| 2 | Read telemetry | Per-CBB TPMI or GPSB path |
-| 3 | Apply workload | `pega_mailbox.pega_pstate()` or OS-level stress tool |
-| 4 | Verify response | `cbb.base.tpmi.ufs_status.current_ratio.read()` |
-
-### Pass Criteria
-
-HPM 0x1b/0x35/0x36 all sent with correct content; Primecode ELC responds to HPM 0x36; Uniform mode coordination works; PLR = 0x0.
+- [CBB CCF Power Management HAS (Ring Scalability)](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#cbb-ring-frequency-scalability)
+- [CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv)
+- [CBB Telemetry Aggregator](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details)
+- [CBB CCF Power Management HAS index](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html)
+- [pCode Home](https://wiki.ith.intel.com/display/ServerPcode/Server+Pcode+Home)
+- [Related TC 22022422894 - IA Distress](https://hsdes.intel.com/appstore/article-one/#/22022422894)
+- [Related TC 22022422895 - Snoop Distress](https://hsdes.intel.com/appstore/article-one/#/22022422895)

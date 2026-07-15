@@ -1,0 +1,1333 @@
+<!DOCTYPE html><html lang=en><head><meta charset=UTF-8><title>[NWP PM] PM Integration TC Descriptions</title><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Segoe UI,Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px}.hdr{background:linear-gradient(135deg,#0f4c81,#1a73e8);color:#fff;padding:18px 28px}.hdr h1{font-size:20px;font-weight:700;margin-bottom:4px}.hdr .sub{font-size:11px;opacity:.85}.stats{display:flex;gap:12px;padding:10px 18px;background:#fff;border-bottom:1px solid #d9e2ec;flex-wrap:wrap}.stat{text-align:center;padding:6px 14px;border-radius:8px;font-weight:700;font-size:11px}.wrap{max-width:1300px;margin:14px auto;padding:0 16px 50px}details.grp{background:#fff;border:1px solid #d1d5db;border-radius:8px;margin-bottom:16px;overflow:hidden}.grp-hdr{background:#f8faff;padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;list-style:none}.grp-hdr::-webkit-details-marker{display:none}.grp-hdr::before{content:"u25b6";font-size:10px;transition:transform .2s}details[open].grp>.grp-hdr::before{transform:rotate(90deg)}.cat-tag{color:#fff;padding:2px 10px;border-radius:8px;font-size:10px;font-weight:700}.tc-card{margin:8px 12px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;background:#fff}.tc-hdr{background:#f0f4f9;padding:8px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #e2e8f0;flex-wrap:wrap}.tc-meta{padding:5px 14px;background:#fafafa;border-bottom:1px solid #e2e8f0;font-size:11px}.tc-desc{padding:12px 14px;font-size:12px}.tc-lnk{color:#1a56db;text-decoration:none;font-family:Consolas,monospace;font-size:11px}.tc-lnk:hover{text-decoration:underline}.cnt{margin-left:auto;font-size:11px;color:#6b7280;font-weight:400}.new-fmt{background:#dcfce7;color:#166534;padding:1px 7px;border-radius:8px;font-size:9px;font-weight:600}.old-fmt{background:#fee2e2;color:#991b1b;padding:1px 7px;border-radius:8px;font-size:9px;font-weight:600}.no-desc{background:#f9fafb;border:1px dashed #d1d5db;padding:12px;color:#9ca3af;font-style:italic;border-radius:4px}.old-desc{background:#fffbeb;border-left:3px solid #f59e0b;padding:12px;font-size:12px;line-height:1.6}</style></head><body><div class=hdr><h1>[NWP PM] PM Integration (TP 22022562325) &mdash; TC Descriptions</h1><div class=sub>27 TCs &bull; Generated 2026-07-03</div></div><div class=stats><div class=stat style=background:#dbeafe;color:#1e40af><div style=font-size:24px>27</div>Total TCs</div><div class=stat style=background:#dcfce7;color:#166534><div style=font-size:24px>27</div>New Format</div><div class=stat style=background:#fee2e2;color:#991b1b><div style=font-size:24px>0</div>Old/No Format</div></div><div class=wrap><details class=grp open><summary class=grp-hdr style="border-left:4px solid #0f4c81"><span class=cat-tag style="background:#0f4c81">PM PMX</span> <span class=cnt>3 TCs</span></summary><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022421680 target=_blank class=tc-lnk>22022421680</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>PM PMX Cross Product</span></div><div class=tc-meta>env: silicon</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">Intent Verification Strategy * PMX HW Requirements N/A SW Requirements &nbsp;AcodeFW, Pcode, Pstate driver, Cstate Driver, DMR SVOS, DMR python SV repository,PAtch23 and pythonSV installed.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — PMX CPU/Core Power &times; Traffic Interaction:</strong> PMX cross-product with active CPU traffic validates that PM state transitions (C-states, P-states, DVFS) occur correctly under load. Key: core power draw with PMX-sourced traffic must not exceed per-core power limits; frequency and voltage transitions complete without glitch; traffic throughput degrades gracefully under PM throttling.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">PM PMX Cross Product</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Configure PM features for cross-product interaction. Verify baseline state of each feature.</td><td style="text-align:left;vertical-align:top;padding:8px;">All features enabled; baseline register state matches expected defaults.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Run the cross-product scenario: exercise both features concurrently under workload. Run the automation script.</td><td style="text-align:left;vertical-align:top;padding:8px;">Both features operate correctly under combined load; no unexpected interaction, MCA, or hang.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Collect PM registers, RAPL counters, and NLOG after test.</td><td style="text-align:left;vertical-align:top;padding:8px;">All values within spec; system stable; NLOG error-free.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li>PMX feature state registers consistent before and after PM transitions.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022421695 target=_blank class=tc-lnk>22022421695</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>pmx Security x PC6</span></div><div class=tc-meta>env: silicon</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">Validate <em>pmx Security x PC6</em> on NWP silicon/emulation.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — PMX Security &times; PC6 Interaction:</strong> Security flows (TDX, SGX, TME, MKTME) must not interfere with PC6 entry/exit. Key check: PC6 entry with active security workload — PCode must ensure security context save/restore is complete before PC6 collapse and after PC6 exit. MCA on premature PC6 entry during security flow is a validation failure. Registers: <code>PC6_RESIDENCY_MSR</code>, <code>SECURITY_STATE_REG</code>, <code>PKG_C_STATE_LIMIT</code>.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">pmx Security x PC6</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Start a security workload (TDX/SGX/MKTME) and confirm it is active.</td><td style="text-align:left;vertical-align:top;padding:8px;">Security workload running; security state registers non-zero.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Initiate system entry into PC6 while security workload is active.</td><td style="text-align:left;vertical-align:top;padding:8px;">PC6 entry deferred until security context is saved; no MCA on entry.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Verify PC6 exit restores security context correctly.</td><td style="text-align:left;vertical-align:top;padding:8px;">Security state restored after PC6 exit; workload resumes without error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run the automation script.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; PMX Security &times; PC6 interaction verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li>PMX feature state registers consistent before and after PM transitions.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li><a href="cid:6b8b6248-dc82-45db-8077-9e92cadc5e27">cid:6b8b6248-dc82-45db-8077-9e92cadc5e27</a></li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022421698 target=_blank class=tc-lnk>22022421698</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>pmx Security x RACL</span></div><div class=tc-meta>env: silicon</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">Verify SGX and TDX are enabled: msr -r -o 1401&nbsp; &nbsp; &nbsp;--&gt; in that we need to verify bit 10 and 11 are set (TDX) cpuid 0x12&nbsp; --&gt;check for out_eax --&gt; check bit 0 and 1 should be set (SGX) PMX command to run RACL: runPmx. Feature tag: <em>RACL</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — PMX Security &times; RACL Interaction:</strong> RACL (Resource Access Control Layer) enforces access policies during PM state transitions. Cross-product validation: RACL access checks must not block or delay C-state entry/exit; RACL violations during PM transitions must be correctly signalled without causing system hang or silent data corruption. Registers: <code>RACL_POLICY_REG</code>, <code>RACL_STATUS</code>, PM state MSRs.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">pmx Security x RACL</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Start a security workload (TDX/SGX/MKTME) and confirm it is active.</td><td style="text-align:left;vertical-align:top;padding:8px;">Security workload running; security state registers non-zero.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Initiate system entry into PC6 while security workload is active.</td><td style="text-align:left;vertical-align:top;padding:8px;">PC6 entry deferred until security context is saved; no MCA on entry.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Verify PC6 exit restores security context correctly.</td><td style="text-align:left;vertical-align:top;padding:8px;">Security state restored after PC6 exit; workload resumes without error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run the automation script.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; PMX Security &times; PC6 interaction verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li>PMX feature state registers consistent before and after PM transitions.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div></details><details class=grp open><summary class=grp-hdr style="border-left:4px solid #166534"><span class=cat-tag style="background:#166534">Solar Cross-Products</span> <span class=cnt>14 TCs</span></summary><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022421701 target=_blank class=tc-lnk>22022421701</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>[Solar Cross-Product] Cross_Products-Allcross-cstate_hwp_p0_pn_dvfs_random</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">This test's purpose is to use stress several PM IPs such as: -Cstates -HWP -DVFS Steps&nbsp; 1 -&nbsp; Boot the system to S0. Feature tag: <em>Solar cross products</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Solar Cross-Product: C-state &times; DVFS:</strong> Solar (IMH subsystem) cross-product tests exercise C-state transitions concurrently with DVFS (Dynamic Voltage and Frequency Scaling). Covered: C0→C6 entry/exit while frequency steps are in progress; voltage droop on C-state exit combined with frequency ramp; DVFS completion before deep C-state collapse. Validation: no MCA, hang, or frequency overshoot; DVFS ack received before C-state entry; exit latency within HAS-specified bound.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">[Solar Cross-Product] Cross_Products-Allcross-cstate_hwp_p0_pn_dvfs_random</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/pm/Solar/Cross Products/cstate_hwp_p0_pn_dvfs_random.xml /logpath .</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Apply a workload inducing platform DVFS transitions. Monitor frequency and voltage.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions trigger; frequency and voltage change as expected; no overshoot or undershoot beyond HAS tolerance.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Start Sideband Harasser (if cross-product) or secondary PM load concurrently.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions continue correctly under combined load; no sideband timeout or PM error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Verify DVFS ack/completion signalling. Check <code>PERF_STATUS</code> reflects correct operating point.</td><td style="text-align:left;vertical-align:top;padding:8px;">PERF_STATUS matches requested operating point within one DVFS cycle.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/pm/Solar/Cross Products/cstate_hwp_p0_pn_dvfs_random.xml /logpath .</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; platform DVFS cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li><code>PERF_STATUS</code> matches requested operating point after DVFS; no stuck frequency.</li>
+  <li>Solar PM state telemetry consistent; no out-of-order state transition.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022421702 target=_blank class=tc-lnk>22022421702</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>[Solar Cross-Product] Cross_Products-Allcross-cstate_hwp_p0_pn_dvfs_random_exercise</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">This test's purpose is to use stress several PM IPs such as: -Cstates -HWP -DVFS Steps&nbsp; 1 -&nbsp; Boot the system to S0. Feature tag: <em>Solar cross products</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Solar Cross-Product: C-state &times; DVFS:</strong> Solar (IMH subsystem) cross-product tests exercise C-state transitions concurrently with DVFS (Dynamic Voltage and Frequency Scaling). Covered: C0→C6 entry/exit while frequency steps are in progress; voltage droop on C-state exit combined with frequency ramp; DVFS completion before deep C-state collapse. Validation: no MCA, hang, or frequency overshoot; DVFS ack received before C-state entry; exit latency within HAS-specified bound.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">[Solar Cross-Product] Cross_Products-Allcross-cstate_hwp_p0_pn_dvfs_random_exercise</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/pm/Solar/Cross Products/cstate_hwp_p0_pn_dvfs_random_exercise.xml /logpath .</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Apply a workload inducing platform DVFS transitions. Monitor frequency and voltage.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions trigger; frequency and voltage change as expected; no overshoot or undershoot beyond HAS tolerance.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Start Sideband Harasser (if cross-product) or secondary PM load concurrently.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions continue correctly under combined load; no sideband timeout or PM error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Verify DVFS ack/completion signalling. Check <code>PERF_STATUS</code> reflects correct operating point.</td><td style="text-align:left;vertical-align:top;padding:8px;">PERF_STATUS matches requested operating point within one DVFS cycle.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/pm/Solar/Cross Products/cstate_hwp_p0_pn_dvfs_random_exercise.xml /logpath .</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; platform DVFS cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li><code>PERF_STATUS</code> matches requested operating point after DVFS; no stuck frequency.</li>
+  <li>Solar PM state telemetry consistent; no out-of-order state transition.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022421705 target=_blank class=tc-lnk>22022421705</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>[Solar Cross-Product] Cross_Products-Allcross-cstate_hwp_p1_pn_dvfs_random</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">This test's purpose is to use stress several PM IPs such as: -Cstates -HWP -DVFS Steps&nbsp; 1 -&nbsp; Boot the system to S0. Feature tag: <em>Solar cross products</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Solar Cross-Product: C-state &times; DVFS:</strong> Solar (IMH subsystem) cross-product tests exercise C-state transitions concurrently with DVFS (Dynamic Voltage and Frequency Scaling). Covered: C0→C6 entry/exit while frequency steps are in progress; voltage droop on C-state exit combined with frequency ramp; DVFS completion before deep C-state collapse. Validation: no MCA, hang, or frequency overshoot; DVFS ack received before C-state entry; exit latency within HAS-specified bound.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">[Solar Cross-Product] Cross_Products-Allcross-cstate_hwp_p1_pn_dvfs_random</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/pm/Solar/Cross Products/cstate_hwp_p1_pn_dvfs_random.xml /logpath .</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Apply a workload inducing platform DVFS transitions. Monitor frequency and voltage.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions trigger; frequency and voltage change as expected; no overshoot or undershoot beyond HAS tolerance.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Start Sideband Harasser (if cross-product) or secondary PM load concurrently.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions continue correctly under combined load; no sideband timeout or PM error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Verify DVFS ack/completion signalling. Check <code>PERF_STATUS</code> reflects correct operating point.</td><td style="text-align:left;vertical-align:top;padding:8px;">PERF_STATUS matches requested operating point within one DVFS cycle.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/pm/Solar/Cross Products/cstate_hwp_p1_pn_dvfs_random.xml /logpath .</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; platform DVFS cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li><code>PERF_STATUS</code> matches requested operating point after DVFS; no stuck frequency.</li>
+  <li>Solar PM state telemetry consistent; no out-of-order state transition.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022421706 target=_blank class=tc-lnk>22022421706</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>[Solar Cross-Product] Cross_Products-Allcross-cstate_hwp_p1_pn_dvfs_random_exercise</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">This test's purpose is to use stress several PM IPs such as: -Cstates -HWP -DVFS Steps&nbsp; 1 -&nbsp; Boot the system to S0. Feature tag: <em>Solar cross products</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Solar Cross-Product: C-state &times; DVFS:</strong> Solar (IMH subsystem) cross-product tests exercise C-state transitions concurrently with DVFS (Dynamic Voltage and Frequency Scaling). Covered: C0→C6 entry/exit while frequency steps are in progress; voltage droop on C-state exit combined with frequency ramp; DVFS completion before deep C-state collapse. Validation: no MCA, hang, or frequency overshoot; DVFS ack received before C-state entry; exit latency within HAS-specified bound.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">[Solar Cross-Product] Cross_Products-Allcross-cstate_hwp_p1_pn_dvfs_random_exercise</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/pm/Solar/Cross_Products/cstate_hwp_p1_pn_dvfs_random_exercise.xml /logpath .</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Apply a workload inducing platform DVFS transitions. Monitor frequency and voltage.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions trigger; frequency and voltage change as expected; no overshoot or undershoot beyond HAS tolerance.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Start Sideband Harasser (if cross-product) or secondary PM load concurrently.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions continue correctly under combined load; no sideband timeout or PM error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Verify DVFS ack/completion signalling. Check <code>PERF_STATUS</code> reflects correct operating point.</td><td style="text-align:left;vertical-align:top;padding:8px;">PERF_STATUS matches requested operating point within one DVFS cycle.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/pm/Solar/Cross_Products/cstate_hwp_p1_pn_dvfs_random_exercise.xml /logpath .</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; platform DVFS cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li><code>PERF_STATUS</code> matches requested operating point after DVFS; no stuck frequency.</li>
+  <li>Solar PM state telemetry consistent; no out-of-order state transition.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022421709 target=_blank class=tc-lnk>22022421709</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>[Solar Cross-Product] Cross_Products-Allcross-cstate_legacy_pstate_p0_pn_pstate_dvfs_random</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">This test's purpose is to use stress several PM IPs such as: - Cstates - P-States - DVFS Steps&nbsp; 1 -&nbsp; Boot the system to S0. Feature tag: <em>Solar cross products</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Solar Cross-Product: P-state &times; DVFS:</strong> Solar P-state transitions tested concurrently with DVFS. Covered: OS-requested P-state change (via CPPC/HWP) during active DVFS sequence; simultaneous P-state requests from multiple cores; P-state and voltage convergence under combined traffic. Validation: P-state request honoured within HAS latency; voltage and frequency settle to correct operating point; no spurious PROCHOT or power violation during transition.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">[Solar Cross-Product] Cross_Products-Allcross-cstate_legacy_pstate_p0_pn_pstate_dvfs_random</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/Cross_Products/Allcross/cstate_legacy_pstate_p0_pn_pstate_dvfs_random.xml /logpath .</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Apply a workload inducing platform DVFS transitions. Monitor frequency and voltage.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions trigger; frequency and voltage change as expected; no overshoot or undershoot beyond HAS tolerance.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Start Sideband Harasser (if cross-product) or secondary PM load concurrently.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions continue correctly under combined load; no sideband timeout or PM error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Verify DVFS ack/completion signalling. Check <code>PERF_STATUS</code> reflects correct operating point.</td><td style="text-align:left;vertical-align:top;padding:8px;">PERF_STATUS matches requested operating point within one DVFS cycle.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/Cross_Products/Allcross/cstate_legacy_pstate_p0_pn_pstate_dvfs_random.xml /logpath .</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; platform DVFS cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li><code>PERF_STATUS</code> matches requested operating point after DVFS; no stuck frequency.</li>
+  <li>Solar PM state telemetry consistent; no out-of-order state transition.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022421710 target=_blank class=tc-lnk>22022421710</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>[Solar Cross-Product] Cross_Products-Allcross-cstate_legacy_pstate_p0_pn_pstate_dvfs_random_exercise</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">This test's purpose is to use stress several PM IPs such as: - Cstates - P-States - DVFS Steps&nbsp; 1 -&nbsp; Boot the system to S0. Feature tag: <em>Solar cross products</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Solar Cross-Product: P-state &times; DVFS:</strong> Solar P-state transitions tested concurrently with DVFS. Covered: OS-requested P-state change (via CPPC/HWP) during active DVFS sequence; simultaneous P-state requests from multiple cores; P-state and voltage convergence under combined traffic. Validation: P-state request honoured within HAS latency; voltage and frequency settle to correct operating point; no spurious PROCHOT or power violation during transition.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">[Solar Cross-Product] Cross_Products-Allcross-cstate_legacy_pstate_p0_pn_pstate_dvfs_random_exercise</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/Cross_Products/Allcross/cstate_legacy_pstate_p0_pn_pstate_dvfs_random_exercise.xml /logpath .</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Apply a workload inducing platform DVFS transitions. Monitor frequency and voltage.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions trigger; frequency and voltage change as expected; no overshoot or undershoot beyond HAS tolerance.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Start Sideband Harasser (if cross-product) or secondary PM load concurrently.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions continue correctly under combined load; no sideband timeout or PM error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Verify DVFS ack/completion signalling. Check <code>PERF_STATUS</code> reflects correct operating point.</td><td style="text-align:left;vertical-align:top;padding:8px;">PERF_STATUS matches requested operating point within one DVFS cycle.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/Cross_Products/Allcross/cstate_legacy_pstate_p0_pn_pstate_dvfs_random_exercise.xml /logpath .</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; platform DVFS cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li><code>PERF_STATUS</code> matches requested operating point after DVFS; no stuck frequency.</li>
+  <li>Solar PM state telemetry consistent; no out-of-order state transition.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022421712 target=_blank class=tc-lnk>22022421712</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>[Solar Cross-Product] Cross_Products-Allcross-cstate_legacy_pstate_p1_pn_pstate_dvfs_random</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">This test's purpose is to use stress several PM IPs such as: - Cstates - P-States - DVFS Steps&nbsp; 1 -&nbsp; Boot the system to S0. Feature tag: <em>Solar cross products</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Solar Cross-Product: P-state &times; DVFS:</strong> Solar P-state transitions tested concurrently with DVFS. Covered: OS-requested P-state change (via CPPC/HWP) during active DVFS sequence; simultaneous P-state requests from multiple cores; P-state and voltage convergence under combined traffic. Validation: P-state request honoured within HAS latency; voltage and frequency settle to correct operating point; no spurious PROCHOT or power violation during transition.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">[Solar Cross-Product] Cross_Products-Allcross-cstate_legacy_pstate_p1_pn_pstate_dvfs_random</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/Cross_Products/Allcross/cstate_legacy_pstate_p1_pn_pstate_dvfs_random.xml /logpath .</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Apply a workload inducing platform DVFS transitions. Monitor frequency and voltage.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions trigger; frequency and voltage change as expected; no overshoot or undershoot beyond HAS tolerance.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Start Sideband Harasser (if cross-product) or secondary PM load concurrently.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions continue correctly under combined load; no sideband timeout or PM error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Verify DVFS ack/completion signalling. Check <code>PERF_STATUS</code> reflects correct operating point.</td><td style="text-align:left;vertical-align:top;padding:8px;">PERF_STATUS matches requested operating point within one DVFS cycle.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/Cross_Products/Allcross/cstate_legacy_pstate_p1_pn_pstate_dvfs_random.xml /logpath .</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; platform DVFS cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li><code>PERF_STATUS</code> matches requested operating point after DVFS; no stuck frequency.</li>
+  <li>Solar PM state telemetry consistent; no out-of-order state transition.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022421714 target=_blank class=tc-lnk>22022421714</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>[Solar Cross-Product] Cross_Products-Allcross-cstate_legacy_pstate_p1_pn_pstate_dvfs_random_exercise</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">This test's purpose is to use stress several PM IPs such as: - Cstates - P-States - DVFS Steps&nbsp; 1 -&nbsp; Boot the system to S0. Feature tag: <em>Solar cross products</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Solar Cross-Product: P-state &times; DVFS:</strong> Solar P-state transitions tested concurrently with DVFS. Covered: OS-requested P-state change (via CPPC/HWP) during active DVFS sequence; simultaneous P-state requests from multiple cores; P-state and voltage convergence under combined traffic. Validation: P-state request honoured within HAS latency; voltage and frequency settle to correct operating point; no spurious PROCHOT or power violation during transition.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">[Solar Cross-Product] Cross_Products-Allcross-cstate_legacy_pstate_p1_pn_pstate_dvfs_random_exercise</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/Cross_Products/Allcross/cstate_legacy_pstate_p1_pn_pstate_dvfs_random_exercise.xml /logpath .</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Apply a workload inducing platform DVFS transitions. Monitor frequency and voltage.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions trigger; frequency and voltage change as expected; no overshoot or undershoot beyond HAS tolerance.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Start Sideband Harasser (if cross-product) or secondary PM load concurrently.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions continue correctly under combined load; no sideband timeout or PM error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Verify DVFS ack/completion signalling. Check <code>PERF_STATUS</code> reflects correct operating point.</td><td style="text-align:left;vertical-align:top;padding:8px;">PERF_STATUS matches requested operating point within one DVFS cycle.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/Cross_Products/Allcross/cstate_legacy_pstate_p1_pn_pstate_dvfs_random_exercise.xml /logpath .</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; platform DVFS cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li><code>PERF_STATUS</code> matches requested operating point after DVFS; no stuck frequency.</li>
+  <li>Solar PM state telemetry consistent; no out-of-order state transition.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022421715 target=_blank class=tc-lnk>22022421715</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>[Solar Cross-Product] Cross_Products-Cstate_DVFS-cstate_dvfs_random</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">This test's purpose is to use stress several PM Features at the same time such as: - DVFS -C - States . Feature tag: <em>Solar cross products</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Solar Cross-Product: C-state &times; DVFS:</strong> Solar (IMH subsystem) cross-product tests exercise C-state transitions concurrently with DVFS (Dynamic Voltage and Frequency Scaling). Covered: C0→C6 entry/exit while frequency steps are in progress; voltage droop on C-state exit combined with frequency ramp; DVFS completion before deep C-state collapse. Validation: no MCA, hang, or frequency overshoot; DVFS ack received before C-state entry; exit latency within HAS-specified bound.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">[Solar Cross-Product] Cross_Products-Cstate_DVFS-cstate_dvfs_random</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/Cstate_DVFS/Cross_Products/cstate_dvfs_random.xml /logpath .</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Apply a workload inducing platform DVFS transitions. Monitor frequency and voltage.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions trigger; frequency and voltage change as expected; no overshoot or undershoot beyond HAS tolerance.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Start Sideband Harasser (if cross-product) or secondary PM load concurrently.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions continue correctly under combined load; no sideband timeout or PM error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Verify DVFS ack/completion signalling. Check <code>PERF_STATUS</code> reflects correct operating point.</td><td style="text-align:left;vertical-align:top;padding:8px;">PERF_STATUS matches requested operating point within one DVFS cycle.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/Cstate_DVFS/Cross_Products/cstate_dvfs_random.xml /logpath .</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; platform DVFS cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li><code>PERF_STATUS</code> matches requested operating point after DVFS; no stuck frequency.</li>
+  <li>Solar PM state telemetry consistent; no out-of-order state transition.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022421717 target=_blank class=tc-lnk>22022421717</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>[Solar Cross-Product] Cross_Products-Cstate_DVFS-cstate_dvfs_random_exercise</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">This test's purpose is to use stress several PM Features at the same time such as: - DVFS -C - States . Feature tag: <em>Solar cross products</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Solar Cross-Product: C-state &times; DVFS:</strong> Solar (IMH subsystem) cross-product tests exercise C-state transitions concurrently with DVFS (Dynamic Voltage and Frequency Scaling). Covered: C0→C6 entry/exit while frequency steps are in progress; voltage droop on C-state exit combined with frequency ramp; DVFS completion before deep C-state collapse. Validation: no MCA, hang, or frequency overshoot; DVFS ack received before C-state entry; exit latency within HAS-specified bound.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">[Solar Cross-Product] Cross_Products-Cstate_DVFS-cstate_dvfs_random_exercise</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/Cstate_DVFS/Cross_Products/cstate_dvfs_random_exercise.xml /logpath .</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Apply a workload inducing platform DVFS transitions. Monitor frequency and voltage.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions trigger; frequency and voltage change as expected; no overshoot or undershoot beyond HAS tolerance.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Start Sideband Harasser (if cross-product) or secondary PM load concurrently.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions continue correctly under combined load; no sideband timeout or PM error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Verify DVFS ack/completion signalling. Check <code>PERF_STATUS</code> reflects correct operating point.</td><td style="text-align:left;vertical-align:top;padding:8px;">PERF_STATUS matches requested operating point within one DVFS cycle.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/Cstate_DVFS/Cross_Products/cstate_dvfs_random_exercise.xml /logpath .</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; platform DVFS cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li><code>PERF_STATUS</code> matches requested operating point after DVFS; no stuck frequency.</li>
+  <li>Solar PM state telemetry consistent; no out-of-order state transition.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022421718 target=_blank class=tc-lnk>22022421718</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>[Solar Cross-Product] Cross_Products-Pstate_DVFS-pstate_dvfs_random</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">This test's purpose is to use stress several PM IPs such as: - P-States -DVFS Steps&nbsp; 1 -&nbsp; Boot the system to S0. Feature tag: <em>Solar cross products</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Solar Cross-Product: P-state &times; DVFS:</strong> Solar P-state transitions tested concurrently with DVFS. Covered: OS-requested P-state change (via CPPC/HWP) during active DVFS sequence; simultaneous P-state requests from multiple cores; P-state and voltage convergence under combined traffic. Validation: P-state request honoured within HAS latency; voltage and frequency settle to correct operating point; no spurious PROCHOT or power violation during transition.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">[Solar Cross-Product] Cross_Products-Pstate_DVFS-pstate_dvfs_random</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/Cross_Products/Pstate_DVFS/pstate_dvfs_random.xml /logpath .</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Apply a workload inducing platform DVFS transitions. Monitor frequency and voltage.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions trigger; frequency and voltage change as expected; no overshoot or undershoot beyond HAS tolerance.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Start Sideband Harasser (if cross-product) or secondary PM load concurrently.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions continue correctly under combined load; no sideband timeout or PM error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Verify DVFS ack/completion signalling. Check <code>PERF_STATUS</code> reflects correct operating point.</td><td style="text-align:left;vertical-align:top;padding:8px;">PERF_STATUS matches requested operating point within one DVFS cycle.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/Cross_Products/Pstate_DVFS/pstate_dvfs_random.xml /logpath .</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; platform DVFS cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li><code>PERF_STATUS</code> matches requested operating point after DVFS; no stuck frequency.</li>
+  <li>Solar PM state telemetry consistent; no out-of-order state transition.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022421719 target=_blank class=tc-lnk>22022421719</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>[Solar Cross-Product] Cross_Products-Pstate_DVFS-pstate_dvfs_random_exercise</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">This test's purpose is to use stress several PM IPs such as: - P-States -DVFS Steps&nbsp; 1 -&nbsp; Boot the system to S0. Feature tag: <em>Solar cross products</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Solar Cross-Product: P-state &times; DVFS:</strong> Solar P-state transitions tested concurrently with DVFS. Covered: OS-requested P-state change (via CPPC/HWP) during active DVFS sequence; simultaneous P-state requests from multiple cores; P-state and voltage convergence under combined traffic. Validation: P-state request honoured within HAS latency; voltage and frequency settle to correct operating point; no spurious PROCHOT or power violation during transition.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">[Solar Cross-Product] Cross_Products-Pstate_DVFS-pstate_dvfs_random_exercise</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/Cross_Products/Pstate_DVFS/pstate_dvfs_random_exercise.xml /logpath .</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Apply a workload inducing platform DVFS transitions. Monitor frequency and voltage.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions trigger; frequency and voltage change as expected; no overshoot or undershoot beyond HAS tolerance.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Start Sideband Harasser (if cross-product) or secondary PM load concurrently.</td><td style="text-align:left;vertical-align:top;padding:8px;">DVFS transitions continue correctly under combined load; no sideband timeout or PM error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Verify DVFS ack/completion signalling. Check <code>PERF_STATUS</code> reflects correct operating point.</td><td style="text-align:left;vertical-align:top;padding:8px;">PERF_STATUS matches requested operating point within one DVFS cycle.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>/usr/bin/solar/solar.sh /cfg /usr/local/python/diamondrapids/pm/Solar/Cross_Products/Pstate_DVFS/pstate_dvfs_random_exercise.xml /logpath .</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; platform DVFS cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li><code>PERF_STATUS</code> matches requested operating point after DVFS; no stuck frequency.</li>
+  <li>Solar PM state telemetry consistent; no out-of-order state transition.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022423117 target=_blank class=tc-lnk>22022423117</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>Solar C States x SB Harasser traffic</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">Intent Verification Strategy * How will TC logic be checked out prior to testing on silicon (e. Feature tag: <em>SB Harasser</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Sideband Harasser Traffic:</strong> The Sideband (SB) Harasser generates continuous GPSB/PMSB traffic to stress the PM sideband fabric while other PM features run concurrently. Covered cross-products: CBB DVFS &times; SB harasser, DRAM RAPL &times; SB harasser, PEGA/Solar C-states &times; SB harasser, Solar/iMH P-states &times; SB harasser. Validation: no sideband timeout, no PM register access failure, no MCA from fabric contention; NLOG error-free.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">Solar C States x SB Harasser traffic</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>echo manual_execution</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Start the Sideband Harasser to generate continuous GPSB/PMSB traffic.</td><td style="text-align:left;vertical-align:top;padding:8px;">Harasser running; sideband traffic visible; no initial error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Simultaneously exercise the PM features feature under normal workload.</td><td style="text-align:left;vertical-align:top;padding:8px;">PM features transitions proceed normally; no PM register access failure.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Monitor for sideband timeouts, PM register access errors, and NLOG errors throughout the concurrent run (minimum 60 s).</td><td style="text-align:left;vertical-align:top;padding:8px;">Zero sideband timeouts; zero PM access errors; NLOG error-free for duration.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Stop harasser. Verify system PM state is consistent and feature still functional.</td><td style="text-align:left;vertical-align:top;padding:8px;">PM state stable after harasser stop; no latent error; PM features feature operates correctly.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">5</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>echo manual_execution</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; PM features &times; SB Harasser cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li>Zero sideband (GPSB/PMSB) timeouts for the duration of harasser run.</li>
+  <li>All PM register accesses succeed; no NAK or unreachable endpoint.</li>
+  <li>Solar PM state telemetry consistent; no out-of-order state transition.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022423119 target=_blank class=tc-lnk>22022423119</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>Solar P States x SB Harasser traffic</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">Intent Verification Strategy * How will TC logic be checked out prior to testing on silicon (e. Feature tag: <em>SB Harasser</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Sideband Harasser Traffic:</strong> The Sideband (SB) Harasser generates continuous GPSB/PMSB traffic to stress the PM sideband fabric while other PM features run concurrently. Covered cross-products: CBB DVFS &times; SB harasser, DRAM RAPL &times; SB harasser, PEGA/Solar C-states &times; SB harasser, Solar/iMH P-states &times; SB harasser. Validation: no sideband timeout, no PM register access failure, no MCA from fabric contention; NLOG error-free.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">Solar P States x SB Harasser traffic</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>echo manual_execution</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Start the Sideband Harasser to generate continuous GPSB/PMSB traffic.</td><td style="text-align:left;vertical-align:top;padding:8px;">Harasser running; sideband traffic visible; no initial error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Simultaneously exercise the PM features feature under normal workload.</td><td style="text-align:left;vertical-align:top;padding:8px;">PM features transitions proceed normally; no PM register access failure.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Monitor for sideband timeouts, PM register access errors, and NLOG errors throughout the concurrent run (minimum 60 s).</td><td style="text-align:left;vertical-align:top;padding:8px;">Zero sideband timeouts; zero PM access errors; NLOG error-free for duration.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Stop harasser. Verify system PM state is consistent and feature still functional.</td><td style="text-align:left;vertical-align:top;padding:8px;">PM state stable after harasser stop; no latent error; PM features feature operates correctly.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">5</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>echo manual_execution</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; PM features &times; SB Harasser cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li>Zero sideband (GPSB/PMSB) timeouts for the duration of harasser run.</li>
+  <li>All PM register accesses succeed; no NAK or unreachable endpoint.</li>
+  <li>Solar PM state telemetry consistent; no out-of-order state transition.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div></details><details class=grp open><summary class=grp-hdr style="border-left:4px solid #7c2d12"><span class=cat-tag style="background:#7c2d12">SB Harasser</span> <span class=cnt>4 TCs</span></summary><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022423114 target=_blank class=tc-lnk>22022423114</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>CBB DVFS x SB Harasser traffic</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">Intent Verification Strategy * How will TC logic be checked out prior to testing on silicon (e. Feature tag: <em>SB Harasser</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Sideband Harasser Traffic:</strong> The Sideband (SB) Harasser generates continuous GPSB/PMSB traffic to stress the PM sideband fabric while other PM features run concurrently. Covered cross-products: CBB DVFS &times; SB harasser, DRAM RAPL &times; SB harasser, PEGA/Solar C-states &times; SB harasser, Solar/iMH P-states &times; SB harasser. Validation: no sideband timeout, no PM register access failure, no MCA from fabric contention; NLOG error-free.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">CBB DVFS x SB Harasser traffic</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>echo manual_execution</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Start the Sideband Harasser to generate continuous GPSB/PMSB traffic.</td><td style="text-align:left;vertical-align:top;padding:8px;">Harasser running; sideband traffic visible; no initial error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Simultaneously exercise the CBB DVFS feature under normal workload.</td><td style="text-align:left;vertical-align:top;padding:8px;">CBB DVFS transitions proceed normally; no PM register access failure.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Monitor for sideband timeouts, PM register access errors, and NLOG errors throughout the concurrent run (minimum 60 s).</td><td style="text-align:left;vertical-align:top;padding:8px;">Zero sideband timeouts; zero PM access errors; NLOG error-free for duration.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Stop harasser. Verify system PM state is consistent and feature still functional.</td><td style="text-align:left;vertical-align:top;padding:8px;">PM state stable after harasser stop; no latent error; CBB DVFS feature operates correctly.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">5</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>echo manual_execution</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; CBB DVFS &times; SB Harasser cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li>Zero sideband (GPSB/PMSB) timeouts for the duration of harasser run.</li>
+  <li>All PM register accesses succeed; no NAK or unreachable endpoint.</li>
+  <li><code>PERF_STATUS</code> matches requested operating point after DVFS; no stuck frequency.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022423115 target=_blank class=tc-lnk>22022423115</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>DRAM RAPL x SB Harasser Traffic</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">Intent Verification Strategy * How will TC logic be checked out prior to testing on silicon (e. Feature tag: <em>SB Harasser</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Sideband Harasser Traffic:</strong> The Sideband (SB) Harasser generates continuous GPSB/PMSB traffic to stress the PM sideband fabric while other PM features run concurrently. Covered cross-products: CBB DVFS &times; SB harasser, DRAM RAPL &times; SB harasser, PEGA/Solar C-states &times; SB harasser, Solar/iMH P-states &times; SB harasser. Validation: no sideband timeout, no PM register access failure, no MCA from fabric contention; NLOG error-free.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">DRAM RAPL x SB Harasser Traffic</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>echo manual_execution</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Start the Sideband Harasser to generate continuous GPSB/PMSB traffic.</td><td style="text-align:left;vertical-align:top;padding:8px;">Harasser running; sideband traffic visible; no initial error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Simultaneously exercise the DRAM RAPL feature under normal workload.</td><td style="text-align:left;vertical-align:top;padding:8px;">DRAM RAPL transitions proceed normally; no PM register access failure.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Monitor for sideband timeouts, PM register access errors, and NLOG errors throughout the concurrent run (minimum 60 s).</td><td style="text-align:left;vertical-align:top;padding:8px;">Zero sideband timeouts; zero PM access errors; NLOG error-free for duration.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Stop harasser. Verify system PM state is consistent and feature still functional.</td><td style="text-align:left;vertical-align:top;padding:8px;">PM state stable after harasser stop; no latent error; DRAM RAPL feature operates correctly.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">5</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>echo manual_execution</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; DRAM RAPL &times; SB Harasser cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li>Zero sideband (GPSB/PMSB) timeouts for the duration of harasser run.</li>
+  <li>All PM register accesses succeed; no NAK or unreachable endpoint.</li>
+  <li>Package power within PL1 &plusmn; 5% across cross-product run duration.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022423116 target=_blank class=tc-lnk>22022423116</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>PEGA C states x SB Harasser traffic</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">Intent Verification Strategy * How will TC logic be checked out prior to testing on silicon (e. Feature tag: <em>SB Harasser</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Sideband Harasser Traffic:</strong> The Sideband (SB) Harasser generates continuous GPSB/PMSB traffic to stress the PM sideband fabric while other PM features run concurrently. Covered cross-products: CBB DVFS &times; SB harasser, DRAM RAPL &times; SB harasser, PEGA/Solar C-states &times; SB harasser, Solar/iMH P-states &times; SB harasser. Validation: no sideband timeout, no PM register access failure, no MCA from fabric contention; NLOG error-free.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">PEGA C states x SB Harasser traffic</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>echo manual_execution</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Start the Sideband Harasser to generate continuous GPSB/PMSB traffic.</td><td style="text-align:left;vertical-align:top;padding:8px;">Harasser running; sideband traffic visible; no initial error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Simultaneously exercise the PEGA C-states feature under normal workload.</td><td style="text-align:left;vertical-align:top;padding:8px;">PEGA C-states transitions proceed normally; no PM register access failure.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Monitor for sideband timeouts, PM register access errors, and NLOG errors throughout the concurrent run (minimum 60 s).</td><td style="text-align:left;vertical-align:top;padding:8px;">Zero sideband timeouts; zero PM access errors; NLOG error-free for duration.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Stop harasser. Verify system PM state is consistent and feature still functional.</td><td style="text-align:left;vertical-align:top;padding:8px;">PM state stable after harasser stop; no latent error; PEGA C-states feature operates correctly.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">5</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>echo manual_execution</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; PEGA C-states &times; SB Harasser cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li>Zero sideband (GPSB/PMSB) timeouts for the duration of harasser run.</li>
+  <li>All PM register accesses succeed; no NAK or unreachable endpoint.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022423120 target=_blank class=tc-lnk>22022423120</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>iMH DVFS x SB Harasser traffic</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">Intent Verification Strategy * How will TC logic be checked out prior to testing on silicon (e. Feature tag: <em>SB Harasser</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Sideband Harasser Traffic:</strong> The Sideband (SB) Harasser generates continuous GPSB/PMSB traffic to stress the PM sideband fabric while other PM features run concurrently. Covered cross-products: CBB DVFS &times; SB harasser, DRAM RAPL &times; SB harasser, PEGA/Solar C-states &times; SB harasser, Solar/iMH P-states &times; SB harasser. Validation: no sideband timeout, no PM register access failure, no MCA from fabric contention; NLOG error-free.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">iMH DVFS x SB Harasser traffic</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>echo manual_execution</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Start the Sideband Harasser to generate continuous GPSB/PMSB traffic.</td><td style="text-align:left;vertical-align:top;padding:8px;">Harasser running; sideband traffic visible; no initial error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Simultaneously exercise the iMH DVFS feature under normal workload.</td><td style="text-align:left;vertical-align:top;padding:8px;">iMH DVFS transitions proceed normally; no PM register access failure.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Monitor for sideband timeouts, PM register access errors, and NLOG errors throughout the concurrent run (minimum 60 s).</td><td style="text-align:left;vertical-align:top;padding:8px;">Zero sideband timeouts; zero PM access errors; NLOG error-free for duration.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Stop harasser. Verify system PM state is consistent and feature still functional.</td><td style="text-align:left;vertical-align:top;padding:8px;">PM state stable after harasser stop; no latent error; iMH DVFS feature operates correctly.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">5</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>echo manual_execution</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; iMH DVFS &times; SB Harasser cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li>Zero sideband (GPSB/PMSB) timeouts for the duration of harasser run.</li>
+  <li>All PM register accesses succeed; no NAK or unreachable endpoint.</li>
+  <li><code>PERF_STATUS</code> matches requested operating point after DVFS; no stuck frequency.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div></details><details class=grp open><summary class=grp-hdr style="border-left:4px solid #4338ca"><span class=cat-tag style="background:#4338ca">Endpoint Sweep</span> <span class=cnt>4 TCs</span></summary><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022423121 target=_blank class=tc-lnk>22022423121</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>CBB GPSB end point sweep</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">Intent Verification Strategy * How will TC logic be checked out prior to testing on silicon (e. Feature tag: <em>SB Harasser</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — GPSB/PMSB Endpoint Sweep:</strong> Systematic access to all registered GPSB (General Purpose Sideband) and PMSB (Power Management Sideband) endpoints on CBB and iMH. Validation: each endpoint responds to read/write transactions; no timeout, no unreachable endpoint; register values within defined range. Sweep covers all IP instances: PUnit, FIVR controllers, thermal sensors, RAPL counters, PM configuration registers.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">CBB GPSB end point sweep</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>echo manual_execution</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Enumerate all CBB GPSB endpoints from the topology. Record expected count and address range.</td><td style="text-align:left;vertical-align:top;padding:8px;">All expected GPSB endpoints discoverable; count matches topology spec.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Issue read transactions to each GPSB endpoint in sequence. Record response and data.</td><td style="text-align:left;vertical-align:top;padding:8px;">Each endpoint responds without timeout; returned data within defined register range.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Issue write-then-read-back to writable GPSB registers. Verify data integrity.</td><td style="text-align:left;vertical-align:top;padding:8px;">Write accepted; read-back matches written value; no silent corruption.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>echo manual_execution</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; CBB GPSB endpoint sweep complete.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li>Zero sideband (GPSB/PMSB) timeouts for the duration of harasser run.</li>
+  <li>All PM register accesses succeed; no NAK or unreachable endpoint.</li>
+  <li>All enumerated endpoints respond; no timeout or missing endpoint.</li>
+  <li>Read-back of written registers matches; no silent data corruption.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022423122 target=_blank class=tc-lnk>22022423122</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>CBB PMSB end point sweep</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">Intent Verification Strategy * How will TC logic be checked out prior to testing on silicon (e. Feature tag: <em>SB Harasser</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — GPSB/PMSB Endpoint Sweep:</strong> Systematic access to all registered GPSB (General Purpose Sideband) and PMSB (Power Management Sideband) endpoints on CBB and iMH. Validation: each endpoint responds to read/write transactions; no timeout, no unreachable endpoint; register values within defined range. Sweep covers all IP instances: PUnit, FIVR controllers, thermal sensors, RAPL counters, PM configuration registers.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">CBB PMSB end point sweep</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>echo manual_execution</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Enumerate all CBB PMSB endpoints. Record expected count.</td><td style="text-align:left;vertical-align:top;padding:8px;">All expected PMSB endpoints discoverable; no missing entry.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Issue PM read command to each PMSB endpoint. Record response.</td><td style="text-align:left;vertical-align:top;padding:8px;">Each endpoint responds within timeout; data within spec; no NAK or error response.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Issue write to configurable PMSB registers; read back and verify.</td><td style="text-align:left;vertical-align:top;padding:8px;">Read-back matches write; no bus error or timeout.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>echo manual_execution</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; CBB PMSB endpoint sweep complete.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li>Zero sideband (GPSB/PMSB) timeouts for the duration of harasser run.</li>
+  <li>All PM register accesses succeed; no NAK or unreachable endpoint.</li>
+  <li>All enumerated endpoints respond; no timeout or missing endpoint.</li>
+  <li>Read-back of written registers matches; no silent data corruption.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022423123 target=_blank class=tc-lnk>22022423123</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>iMH GPSB end point sweep</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">Intent Verification Strategy * How will TC logic be checked out prior to testing on silicon (e. Feature tag: <em>SB Harasser</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — GPSB/PMSB Endpoint Sweep:</strong> Systematic access to all registered GPSB (General Purpose Sideband) and PMSB (Power Management Sideband) endpoints on CBB and iMH. Validation: each endpoint responds to read/write transactions; no timeout, no unreachable endpoint; register values within defined range. Sweep covers all IP instances: PUnit, FIVR controllers, thermal sensors, RAPL counters, PM configuration registers.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">iMH GPSB end point sweep</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>echo manual_execution</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Enumerate all iMH GPSB endpoints from the topology. Record expected count and address range.</td><td style="text-align:left;vertical-align:top;padding:8px;">All expected GPSB endpoints discoverable; count matches topology spec.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Issue read transactions to each GPSB endpoint in sequence. Record response and data.</td><td style="text-align:left;vertical-align:top;padding:8px;">Each endpoint responds without timeout; returned data within defined register range.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Issue write-then-read-back to writable GPSB registers. Verify data integrity.</td><td style="text-align:left;vertical-align:top;padding:8px;">Write accepted; read-back matches written value; no silent corruption.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>echo manual_execution</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; iMH GPSB endpoint sweep complete.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li>Zero sideband (GPSB/PMSB) timeouts for the duration of harasser run.</li>
+  <li>All PM register accesses succeed; no NAK or unreachable endpoint.</li>
+  <li>All enumerated endpoints respond; no timeout or missing endpoint.</li>
+  <li>Read-back of written registers matches; no silent data corruption.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/22022423125 target=_blank class=tc-lnk>22022423125</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>iMH PMSB end point sweep</span></div><div class=tc-meta>env: silicon,virtual_platform</div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">Intent Verification Strategy * How will TC logic be checked out prior to testing on silicon (e. Feature tag: <em>SB Harasser</em>.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — GPSB/PMSB Endpoint Sweep:</strong> Systematic access to all registered GPSB (General Purpose Sideband) and PMSB (Power Management Sideband) endpoints on CBB and iMH. Validation: each endpoint responds to read/write transactions; no timeout, no unreachable endpoint; register values within defined range. Sweep covers all IP instances: PUnit, FIVR controllers, thermal sensors, RAPL counters, PM configuration registers.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">iMH PMSB end point sweep</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Automation command</td><td style="text-align:left;vertical-align:top;padding:8px;"><code>echo manual_execution</code></td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Category / note</td><td style="text-align:left;vertical-align:top;padding:8px;">Active PM</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Enumerate all iMH PMSB endpoints. Record expected count.</td><td style="text-align:left;vertical-align:top;padding:8px;">All expected PMSB endpoints discoverable; no missing entry.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Issue PM read command to each PMSB endpoint. Record response.</td><td style="text-align:left;vertical-align:top;padding:8px;">Each endpoint responds within timeout; data within spec; no NAK or error response.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Issue write to configurable PMSB registers; read back and verify.</td><td style="text-align:left;vertical-align:top;padding:8px;">Read-back matches write; no bus error or timeout.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run <code>echo manual_execution</code>.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; iMH PMSB endpoint sweep complete.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li>Zero sideband (GPSB/PMSB) timeouts for the duration of harasser run.</li>
+  <li>All PM register accesses succeed; no NAK or unreachable endpoint.</li>
+  <li>All enumerated endpoints respond; no timeout or missing endpoint.</li>
+  <li>Read-back of written registers matches; no silent data corruption.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div></details><details class=grp open><summary class=grp-hdr style="border-left:4px solid #374151"><span class=cat-tag style="background:#374151">PSS</span> <span class=cnt>2 TCs</span></summary><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/16030715653 target=_blank class=tc-lnk>16030715653</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>[PSS]Memory PM ZBB Negative Checks</span></div><div class=tc-meta>env: </div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">This TC verifies that TSOD-driven CLTT is disabled in NWP.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — ZBB Negative Checks (Zero-Bug-Bounce):</strong> ZBB negative validation exercises error paths to confirm PCode gracefully handles out-of-spec inputs without MCA or hang. Covered domains: DRAM RAPL negative (invalid PL values), Memory PM negative (bad DIMM state requests), PKGC negative (forced entry with blocking conditions), Platform RAPL/PSYS negative (out-of-range power limits), SST-PP/CP/BF negative (invalid profile or bucket selects). Expected: PCode clamps or rejects invalid values; NLOG records the event; no fatal MCA or system hang.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">[PSS]Memory PM ZBB Negative Checks</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Configure Memory PM feature with an out-of-spec / invalid parameter (e.g., power limit below minimum, invalid profile index).</td><td style="text-align:left;vertical-align:top;padding:8px;">System accepts input; PCode clamps or rejects value gracefully; no immediate MCA or hang.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Verify PCode NLOG records the invalid-parameter event with appropriate error code or warning.</td><td style="text-align:left;vertical-align:top;padding:8px;">NLOG entry present; error code matches expected Memory PM rejection path.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Verify system continues normal operation after invalid parameter attempt: PM state transitions, C-states, and power limiting still functional.</td><td style="text-align:left;vertical-align:top;padding:8px;">System stable; normal PM operations unaffected after negative-test stimulus.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Run the automation script.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; Memory PM ZBB negative checks verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li>Key registers readable with expected values: <code>sv.socket0.imh0.memss.mcs.mcscheds_common.dimm_temp_ev_ctrl</code>, <code>sv.socket0.imh0.memss.mc1.mcscheds_common.dimm_tsod_temp</code></li>
+  <li>NLOG records invalid-parameter event with expected error code.</li>
+  <li>System remains stable and PM-functional after each negative test.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/has/overview/nwp_has.html#nwp-memory-feature-list-delta">https://docs.intel.com/documents/custom-xeon/newport-docs/has/overview/nwp_has.html#nwp-memory-feature-list-delta</a></li>
+  <li><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/platform/pas/NwpPAS.html#on-dram-thermal-sensor">https://docs.intel.com/documents/custom-xeon/newport-docs/platform/pas/NwpPAS.html#on-dram-thermal-sensor</a></li>
+  <li><a href="https://docs.intel.com/documents/iparch/mc/HAS/Gen6/Releases/LPDDR6/lpddr6.html#Features_Top">https://docs.intel.com/documents/iparch/mc/HAS/Gen6/Releases/LPDDR6/lpddr6.html#Features_Top</a></li>
+</ul>
+
+</div></div></div><div class=tc-card><div class=tc-hdr><a href=https://hsdes.intel.com/appstore/article-one/#/16030715718 target=_blank class=tc-lnk>16030715718</a> <span class=new-fmt>NEW</span> <span style=font-weight:600>[PSS]Sideband Harasser</span></div><div class=tc-meta>env: </div><div class=tc-desc><div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Validation Scope</div>
+<br />
+<p style="margin:10px 0 16px 0;">Validate <em>[PSS]Sideband Harasser</em> on NWP silicon/emulation.</p>
+<div style="background:#fff8e1;border-left:4px solid #f0a500;padding:10px 16px;margin:12px 0;border-radius:0 4px 4px 0;font-size:0.9em;color:#5d4037;"><strong>HAS Ref — Sideband Harasser Traffic:</strong> The Sideband (SB) Harasser generates continuous GPSB/PMSB traffic to stress the PM sideband fabric while other PM features run concurrently. Covered cross-products: CBB DVFS &times; SB harasser, DRAM RAPL &times; SB harasser, PEGA/Solar C-states &times; SB harasser, Solar/iMH P-states &times; SB harasser. Validation: no sideband timeout, no PM register access failure, no MCA from fabric contention; NLOG error-free.</div>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Preconditions</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Feature</td><td style="text-align:left;vertical-align:top;padding:8px;">[PSS]Sideband Harasser</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;vertical-align:top;padding:8px;">NWP validation target (silicon or emulation) with PM integration features enabled.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Test Steps</div>
+<br />
+<table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tbody>
+  <tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">#</th><th style="text-align:left;padding:8px;">Action</th><th style="text-align:left;padding:8px;">Expected Result (PASS)</th></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;vertical-align:top;padding:8px;">Start the Sideband Harasser to generate continuous GPSB/PMSB traffic.</td><td style="text-align:left;vertical-align:top;padding:8px;">Harasser running; sideband traffic visible; no initial error.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;vertical-align:top;padding:8px;">Simultaneously exercise the PM features feature under normal workload.</td><td style="text-align:left;vertical-align:top;padding:8px;">PM features transitions proceed normally; no PM register access failure.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;vertical-align:top;padding:8px;">Monitor for sideband timeouts, PM register access errors, and NLOG errors throughout the concurrent run (minimum 60 s).</td><td style="text-align:left;vertical-align:top;padding:8px;">Zero sideband timeouts; zero PM access errors; NLOG error-free for duration.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;vertical-align:top;padding:8px;">Stop harasser. Verify system PM state is consistent and feature still functional.</td><td style="text-align:left;vertical-align:top;padding:8px;">PM state stable after harasser stop; no latent error; PM features feature operates correctly.</td></tr>
+  <tr><td style="text-align:left;vertical-align:top;padding:8px;">5</td><td style="text-align:left;vertical-align:top;padding:8px;">Run the automation script.</td><td style="text-align:left;vertical-align:top;padding:8px;">Automation PASS; PM features &times; SB Harasser cross-product verified.</td></tr>
+</tbody>
+</table>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Health Check - Registers and Logs</div>
+<br />
+<ul>
+  <li>No BIOS hang, MCA, or soft hang during or after test execution.</li>
+  <li>No error-level events in NLOG / fw trace.</li>
+  <li>Zero sideband (GPSB/PMSB) timeouts for the duration of harasser run.</li>
+  <li>All PM register accesses succeed; no NAK or unreachable endpoint.</li>
+</ul>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">Post-Process</div>
+<br />
+<p style="margin:10px 0 16px 0;">Mark <strong>PASS</strong> when the feature flow completes without instability, all register and telemetry checks pass, and no MCA, hang, or unexpected PM event is observed. Mark <strong>FAIL</strong> on any MCA, soft hang, register mismatch, unexpected throttle state, or NLOG error-level event.</p>
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 0;">HAS Reference</div>
+<br />
+<ul>
+  <li>See Validation Scope for spec / bug references.</li>
+</ul>
+
+</div></div></div></details></div></body></html>
