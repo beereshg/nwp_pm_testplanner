@@ -17,39 +17,132 @@
 **SST-TF Functionality** covers the runtime behavior of HP (high priority) and LP (low priority) core frequency enforcement once SST-TF is enabled. With TF enabled, HP cores (CLOS[0]) operate at an elevated TRL (~P0max), while LP cores (CLOS[3]) are clipped to LP_CLIP_RATIO. PCode enforces these limits via the TrlManager and 4 TRL tables (legacy, sst_pp, hp_clos, lp_clos).
 
 <!-- raw-html -->
-<div style="margin:16px 0;border:1px solid #bfcfe8;border-radius:8px;overflow:hidden;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;">
-  <div style="background:#0f4c81;color:#fff;padding:8px 16px;font-weight:700;font-size:12px;">SST-TF Runtime Frequency Enforcement</div>
-  <div style="padding:16px 20px;background:#f8fafc;">
-    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;">
-      <div style="flex:1;min-width:200px;background:#e8f5e9;border:2px solid #2e7d32;border-radius:6px;padding:10px 12px;">
-        <div style="font-weight:700;color:#2e7d32;font-size:11px;margin-bottom:5px;">HP Cores (CLOS[0])</div>
-        <div style="font-size:10px;color:#333;line-height:1.8;">
-          &#8226; Freq = HP TRL ratio (P0max ~4.4 GHz)<br>
-          &#8226; TRL from SST_TF_INFO_2..7 (3 buckets)<br>
-          &#8226; Bucket selected by active HP core count<br>
-          &#8226; Must be in C0 to benefit from HP TRL<br>
-          &#8226; When in C6: LP cores still clipped &#10003;
+<div style="margin:16px 0;border:1px solid #bfcfe8;border-radius:8px;overflow:hidden;font-family:'Segoe UI',Arial,sans-serif;font-size:11.5px;max-width:900px;">
+  <div style="background:#1e3a5f;color:#fff;padding:10px 18px;font-weight:700;font-size:12px;letter-spacing:.5px;text-align:center;">
+    NWP SST-TF / PCT Architecture &mdash; Full Stack
+  </div>
+
+  <!-- Layer 1: SW/Policy -->
+  <div style="background:#f1f5f9;border-bottom:1px solid #cbd5e1;padding:10px 16px;">
+    <div style="font-weight:700;color:#374151;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Software / Policy Layer</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:10.5px;color:#374151;">
+      <div style="background:#fff;border:1px solid #cbd5e1;border-radius:4px;padding:5px 10px;">BIOS / OS / VMM / Validation SW</div>
+      <div style="background:#fff;border:1px solid #cbd5e1;border-radius:4px;padding:5px 10px;">Enables feature / profile</div>
+      <div style="background:#fff;border:1px solid #cbd5e1;border-radius:4px;padding:5px 10px;">Programs SST-PP / PCT policy</div>
+      <div style="background:#fff;border:1px solid #cbd5e1;border-radius:4px;padding:5px 10px;">Reads TPMI discovery / status</div>
+      <div style="background:#fff;border:1px solid #cbd5e1;border-radius:4px;padding:5px 10px;">Programs CLOS_ASSOC / HP selection</div>
+    </div>
+  </div>
+  <div style="text-align:center;background:#f8fafc;padding:3px 0;font-size:10px;color:#64748b;">&#11015; TPMI / control programming</div>
+
+  <!-- Layer 2: TPMI -->
+  <div style="background:#e0f2fe;border-bottom:1px solid #7dd3fc;padding:10px 16px;">
+    <div style="font-weight:700;color:#0369a1;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">TPMI / Arch Discovery &amp; Control View</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10.5px;">
+      <div style="background:#fff;border:1px solid #bae6fd;border-radius:4px;padding:5px 9px;"><strong>SST_PP_CONTROL.feature_state[TF]</strong> &mdash; enable bit</div>
+      <div style="background:#fff;border:1px solid #bae6fd;border-radius:4px;padding:5px 9px;"><strong>SST_CLOS_ASSOC_0..N</strong> &mdash; per-core HP/LP assignment</div>
+      <div style="background:#fff;border:1px solid #bae6fd;border-radius:4px;padding:5px 9px;"><strong>SST_TF_INFO_0</strong> &mdash; LP clip ratios per CDYN (6 levels)</div>
+      <div style="background:#fff;border:1px solid #bae6fd;border-radius:4px;padding:5px 9px;"><strong>SST_TF_INFO_2/4/6</strong> &mdash; HP TRL bucket0/1/2 x CDYN</div>
+      <div style="background:#fff;border:1px solid #bae6fd;border-radius:4px;padding:5px 9px;"><strong>SST_TF_INFO_8</strong> &mdash; bucket boundaries / HP core-count thresholds</div>
+      <div style="background:#fff;border:1px solid #bae6fd;border-radius:4px;padding:5px 9px;"><strong>SST_TF_INFO_101</strong> &mdash; QUALIFIED_MODULE_MASK (NWP DLCP/PCT)</div>
+    </div>
+  </div>
+  <div style="text-align:center;background:#f8fafc;padding:3px 0;font-size:10px;color:#64748b;">&#11015; configuration / visibility</div>
+
+  <!-- Layer 3: FW Policy -->
+  <div style="background:#ede9fe;border-bottom:1px solid #c4b5fd;padding:10px 16px;">
+    <div style="font-weight:700;color:#5b21b6;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">FW Policy / Resolution Layer &mdash; PCode / Punit</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:10px;font-weight:700;color:#5b21b6;margin-bottom:4px;">Inputs:</div>
+        <div style="font-size:10px;color:#374151;line-height:1.8;background:#fff;border:1px solid #c4b5fd;border-radius:4px;padding:6px 10px;">
+          Active SST-PP level &bull; SST-TF enable state<br>
+          CLOS / HP-LP grouping &bull; Qualified module mask<br>
+          TRL/TF tables / FACT / ISS / fuses<br>
+          Active core count (C0/C1)<br>
+          CDYN / license (SSE, AVX2, AVX3, AMX&hellip;)
         </div>
       </div>
-      <div style="flex:1;min-width:200px;background:#fff3e0;border:2px solid #e65100;border-radius:6px;padding:10px 12px;">
-        <div style="font-weight:700;color:#e65100;font-size:11px;margin-bottom:5px;">LP Cores (CLOS[3])</div>
-        <div style="font-size:10px;color:#333;line-height:1.8;">
-          &#8226; Freq = LP_CLIP_RATIO (per CDYN, from SST_TF_INFO_0)<br>
-          &#8226; Always clipped regardless of HP core state<br>
-          &#8226; LP clip &ge; P1 (never goes below min turbo)<br>
-          &#8226; 6 LP clip values (one per CDYN level)<br>
-          &#8226; Enforced even when all HP cores in C6
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:10px;font-weight:700;color:#5b21b6;margin-bottom:4px;">Responsibilities:</div>
+        <div style="font-size:10px;color:#374151;line-height:1.8;background:#fff;border:1px solid #c4b5fd;border-radius:4px;padding:6px 10px;">
+          Own global TRL/FACT/ISS/SST-TF policy tables<br>
+          Determine active HP bucket from HP core count<br>
+          Resolve HP target row per CDYN/license<br>
+          Resolve LP clipped row per CDYN/license<br>
+          Update TPMI-visible state &bull; Program WP4
         </div>
       </div>
     </div>
-    <div style="background:#e8eaf6;border:1px solid #3949ab;border-radius:5px;padding:8px 12px;font-size:11px;margin-bottom:10px;">
-      <strong>3 TF Buckets:</strong> bucket = f(active HP core count). Higher bucket index = fewer HP cores active = higher per-core TRL.
-      &nbsp; SST_TF_INFO_2 (bucket 0) &rarr; SST_TF_INFO_4 (bucket 1) &rarr; SST_TF_INFO_6 (bucket 2).
+  </div>
+  <div style="text-align:center;background:#f8fafc;padding:3px 0;font-size:10px;color:#64748b;">&#11015; resolved per-priority workpoints</div>
+
+  <!-- Layer 4: WP4 -->
+  <div style="background:#fdf4ff;border-bottom:1px solid #e879f9;padding:10px 16px;">
+    <div style="font-weight:700;color:#86198f;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">WP4 Generation / PUNIT Delivery Mechanism</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:10.5px;">
+      <div style="background:#fff;border:1px solid #f0abfc;border-radius:4px;padding:6px 10px;"><strong>MASK_HIGH / MASK_LOW</strong><br><span style="font-size:10px;color:#555;">Identifies HP vs LP cores/modules</span></div>
+      <div style="background:#fff;border:1px solid #f0abfc;border-radius:4px;padding:6px 10px;"><strong>WP4_HIGH_HP / WP4_LOW_HP</strong><br><span style="font-size:10px;color:#555;">Resolved HP freqs per CDYN/license</span></div>
+      <div style="background:#fff;border:1px solid #f0abfc;border-radius:4px;padding:6px 10px;"><strong>WP4_HIGH_LP / WP4_LOW_LP</strong><br><span style="font-size:10px;color:#555;">Resolved LP clipped freqs per CDYN</span></div>
     </div>
-    <div style="background:#fff8e1;border:1px solid #f9a825;border-radius:5px;padding:8px 12px;font-size:11px;">
-      <strong>Key functional invariant:</strong> LP clip is enforced by PCode regardless of HP core state.
-      Even when all HP cores are in C6, LP cores must not exceed LP_CLIP_RATIO.
-      This is validated by TC 22022422212.
+    <div style="margin-top:6px;font-size:10px;color:#86198f;background:#fff;border:1px solid #f0abfc;border-radius:4px;padding:5px 10px;"><strong>GO command:</strong> ACP must not apply WP4 until corresponding GO_* arrives</div>
+  </div>
+  <div style="text-align:center;background:#f8fafc;padding:3px 0;font-size:10px;color:#64748b;">&#11015; masked WP4 writes + GO</div>
+
+  <!-- Layer 5: ACP/Acode -->
+  <div style="background:#fff7ed;border-bottom:1px solid #fed7aa;padding:10px 16px;">
+    <div style="font-weight:700;color:#c2410c;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">ACP / Acode-Side Core PM Enforcement</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:160px;background:#fff;border:1px solid #fed7aa;border-radius:4px;padding:6px 10px;font-size:10.5px;">
+        <strong>Receives:</strong><br>WP4 row for this core/group<br>GO command
+      </div>
+      <div style="flex:2;min-width:200px;background:#fff;border:1px solid #fed7aa;border-radius:4px;padding:6px 10px;font-size:10.5px;">
+        <strong>Applies per CDYN/license:</strong><br>
+        HP cores &rarr; resolved HP turbo ceiling<br>
+        LP cores &rarr; resolved LP clip ceiling<br>
+        <span style="font-size:10px;color:#92400e;">This is where policy becomes an enforceable per-core runtime limit.</span>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center;background:#f8fafc;padding:3px 0;font-size:10px;color:#64748b;">&#11015; runtime frequency limitation / turbo ceiling</div>
+
+  <!-- Layer 6: Core Runtime -->
+  <div style="background:#f0fdf4;border-bottom:1px solid #86efac;padding:10px 16px;">
+    <div style="font-weight:700;color:#15803d;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Core / Module Runtime Behavior</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;background:#dcfce7;border:2px solid #16a34a;border-radius:5px;padding:8px 10px;font-size:10.5px;">
+        <strong style="color:#15803d;">HP Cores (CLOS[0])</strong><br>
+        Use HP TRL row &bull; Bucket by active HP count<br>
+        Fewer HP active &rarr; higher bucket &rarr; higher ceiling
+      </div>
+      <div style="flex:1;min-width:200px;background:#fff7ed;border:2px solid #ea580c;border-radius:5px;padding:8px 10px;font-size:10.5px;">
+        <strong style="color:#c2410c;">LP Cores (CLOS[3])</strong><br>
+        Use LP clipped row &bull; Capped at LP_CLIP_RATIO per CDYN<br>
+        Remain clipped even when HP cores in C6
+      </div>
+      <div style="flex:1;min-width:160px;background:#f0f9ff;border:1px solid #7dd3fc;border-radius:5px;padding:8px 10px;font-size:10px;color:#0369a1;">
+        <strong>Observability:</strong><br>
+        IA32_HWP_CAPABILITIES<br>MSR 0x1AD / TRL views<br>Perf counters
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom: Customer View -->
+  <div style="background:#1e3a5f;padding:10px 16px;">
+    <div style="font-weight:700;color:#e2e8f0;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">NWP Customer View: PCT vs SST-TF</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;background:#0f4c81;border:1px solid #3b82f6;border-radius:5px;padding:8px 10px;font-size:10.5px;color:#e0f2fe;">
+        <strong style="color:#93c5fd;">PCT (customer-facing policy)</strong><br>
+        Selects / designates HP modules<br>Uses qualified-module mask<br>Defines who gets preferred turbo
+      </div>
+      <div style="flex:1;min-width:200px;background:#312e81;border:1px solid #818cf8;border-radius:5px;padding:8px 10px;font-size:10.5px;color:#e0e7ff;">
+        <strong style="color:#a5b4fc;">SST-TF (enforcement mechanism)</strong><br>
+        Provides HP turbo ratios<br>Provides LP clip ratios<br>Delivers differentiated ceilings via WP4/ACP
+      </div>
+      <div style="flex:1;min-width:180px;background:#1e3a5f;border:1px solid #60a5fa;border-radius:5px;padding:8px 10px;font-size:10px;color:#93c5fd;">
+        <strong>FW-driven:</strong> profile, bucket, HP/LP rows, TPMI updates, WP4<br>
+        <strong>Acode-driven:</strong> per-core ceiling enforcement at runtime
+      </div>
     </div>
   </div>
 </div>
