@@ -191,7 +191,7 @@ Commit KB updates together with the enrichment output so the repo always reflect
 3. **Mandatory section policy**: fill all required TC/TCD sections or explicitly mark `N/A`/`Not Applicable`.
 4. **No-email write policy**: all automation is silent (no watcher notification).
 5. **Payload compatibility**: attempt write with `{"send_mail": "false"}` in `fieldValues`; if HTTP 400, retry without `send_mail`, then read-back verify.
-6. **Rendering boundary**: generate/update `cache/*.inference.md` first; render HTML only via official scripts — never hand-write HTML.
+6. **Rendering boundary**: generate/update `cache/*.inference.md` first; render HTML only via official scripts — never hand-write HTML. To push a TC description to HSD, always use `push_tc_description.py` (see Part 4).
 7. **TC content discipline**: remove instructional/template boilerplate from final TC output; mandatory sections must be filled.
 8. **Toolkit-first execution**: prefer `hsd_utils` reusable modules for fetch/traverse/compare/update operations; do not create new one-off root scripts for repeat jobs.
 9. **ID validation before write**: treat TP/TPF/TCD/TC IDs in this file as examples; always read-back and confirm parent chain before any mutation.
@@ -751,48 +751,51 @@ Use templates with strict separation of scope:
 
 Before rendering either template, ensure all required data fields are present in `KB/**/*.md` sources (especially `KB/pm_tc_kb/**/*.inference.md`).
 
-### ⚠️ CRITICAL: Pushing TC Descriptions to HSD
+### Pushing TC Descriptions to HSD — use `push_tc_description.py`
 
-`generate_tc_description.py` generates a **full HTML page** that wraps the TC description inside a tabbed UI with NWP grading tabs (A: NWP Delta, B: Interactions, C: Coverage, D: Spec Refs, E: Risks, F: Recommendations). **Do NOT push the full HTML file to HSD** — HSD will render all the tabs including the grading navigation, producing a broken/confusing description.
+**Always use the dedicated push script.** It reads the KB inference.md directly, renders via
+`KB/templates/tc_hsd_description.html.j2` (inline-styled, HSDES-safe), backs up the existing
+description as a comment, and PUTs the new description + command in one operation.
+
+```bash
+# Dry-run (default) — preview what will change, no writes:
+python tools/html/push_tc_description.py --hsd 22022423032
+
+# Push one TC after a per-TC confirmation prompt:
+python tools/html/push_tc_description.py --hsd 22022423032 --push
+
+# Push one or more TCs without prompts:
+python tools/html/push_tc_description.py --hsd 22022423032 22022423036 --push --yes
+
+# Push all TCs with a KB inference.md (FV segment only):
+python tools/html/push_tc_description.py --all --segment fv --push --yes
+```
+
+The script:
+1. Finds `KB/pm_tc_kb/{fv|pss}/HSD_{id}_*.inference.md`
+2. Extracts scope, preconditions, steps, pass/fail, health checks, notes, refs via the same
+   extractor functions used by `generate_tc_description.py`
+3. Renders via `tc_hsd_description.html.j2` — inline styles only, no `<style>` blocks (HSDES strips those)
+4. Backs up the existing HSD description as a `[val_agent YYYY-MM-DD] pre-push description backup` comment
+5. PUTs `description` field; also updates `test_case.test_commands` if the `**Automation**` metadata
+   row in the inference.md has a command that differs from the current HSD value
 
 **Rule: Main scope text MUST come first in `## Test Case Intent`.**
-The generator uses the first paragraph of `## Test Case Intent` as the `tc.scope` for the Validation Scope section. If you put a NOTE or warning (`**⚠️ NOTE**`) before the main description text, HSD will show an empty or note-only Validation Scope. Always write the actual validation intent first, then add NOTE/differentiation blocks below it.
+The extractor uses the first paragraph as `tc.scope` for Validation Scope. Place the actual
+validation intent first; put NOTE/warning blocks below it.
 
 ```markdown
 ## Test Case Intent
 
-Verify that [main description here]...          ← FIRST: this becomes tc.scope
+Verify that [main description here]...          ← FIRST: becomes tc.scope
 
 **⚠️ NOTE — Differentiation from related TCs:**  ← SECOND: goes below scope
 - TC XXXXX ...
 ```
 
-**Always extract the inner TC panel** before pushing:
-
-```python
-import re, requests, urllib3
-from requests_kerberos import HTTPKerberosAuth, OPTIONAL
-urllib3.disable_warnings()
-s = requests.Session()
-s.auth = HTTPKerberosAuth(mutual_authentication=OPTIONAL)
-s.verify = False
-s.headers.update({'Content-Type': 'application/json', 'Accept': 'application/json'})
-
-html = open('tc_description_output/HSD_{id}_{slug}_tc_desc.html', encoding='utf-8').read()
-# Extract ONLY the inner TC description panel — strip the full-page wrapper + grading tabs
-m = re.search(r'<div id="tc" class="panel active tc-content">\s*(.*?)\s*</div>\s*\n\s*<div id="sec-a"', html, re.DOTALL)
-if not m:
-    m = re.search(r'<div id="tc"[^>]*>(.*?)</div>\s*\n\s*<div id="sec', html, re.DOTALL)
-content = m.group(1).strip()
-
-r = s.put(f'https://hsdes-api.intel.com/rest/article/{tc_id}', json={
-    'tenant': 'server', 'subject': 'test_case',
-    'fieldValues': [{'description': content}, {'send_mail': 'false'}]
-}, timeout=60)
-print(r.status_code, 'OK' if r.status_code == 200 else r.text[:200])
-```
-
-This extracts the `<div id="tc">` panel content which contains the Jinja2-rendered `tc_hsd_description.html.j2` output (Validation Scope → Preconditions → Test Steps → Pass/Fail Criteria → Post-Process) — matching the same format as other FV TCs in HSD.
+> **Do NOT use `generate_tc_description.py` output for HSD pushes** — that script generates
+> a full tabbed HTML page (with NWP grading tabs). Only `push_tc_description.py` produces
+> the correct HSDES-compatible fragment.
 
 Required data completeness checks for KB markdown:
 

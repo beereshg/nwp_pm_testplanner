@@ -1,4 +1,5 @@
-"""Push TC2 PLL crawling description to HSD 16031123820."""
+"""Push TCD/TC descriptions to HSD. Supports --tcd and --tc2 modes."""
+import sys
 import requests
 from requests_kerberos import HTTPKerberosAuth, OPTIONAL
 
@@ -7,6 +8,26 @@ sess = requests.Session()
 sess.auth = HTTPKerberosAuth(mutual_authentication=OPTIONAL)
 sess.verify = False
 sess.headers.update({'Content-Type': 'application/json'})
+
+# Determine mode
+mode = sys.argv[1] if len(sys.argv) > 1 else '--tc2'
+
+if mode == '--tcd':
+    # Push TCD 22022421183 full description
+    import pathlib
+    html_path = pathlib.Path('tcd_description_output/TCD_22022421183_cbb_ccf_nonautogv_mode_preview.html')
+    if not html_path.exists():
+        print('ERROR: HTML not found. Run: python tools/html/generate_tcd_preview.py --tcd 22022421183 --force')
+        sys.exit(1)
+    html = html_path.read_text(encoding='utf-8')
+    r = sess.put(
+        f'{BASE}/22022421183',
+        json=dict(subject='test_case_definition', tenant='server',
+                  fieldValues=[dict(description=html), dict(send_mail='false')]),
+        timeout=30
+    )
+    print(f'TCD 22022421183 push: {r.status_code} ({len(html)} chars)')
+    sys.exit(0)
 
 NEW_ID = '16031123820'
 
