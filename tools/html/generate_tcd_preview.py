@@ -117,7 +117,10 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
         return s
 
     def text_para(block):
-        parts = [l.strip() for l in block if l.strip() and not l.strip().startswith(("#", "|", "- ", "* ", "```")) and not re.match(r'^\d+[.)\s]', l.strip())]
+        parts = [l.strip() for l in block
+                 if l.strip()
+                 and not l.strip().startswith(("#", "|", "- ", "* ", "```", "<!--", "<"))
+                 and not re.match(r'^\d+[.)\s]', l.strip())]
         if not parts:
             return ""
         # Convert markdown per-line (before joining) to avoid cross-line bold matching issues
@@ -129,7 +132,9 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
     what_block = (parse_block(kb_text, "What is PCT")
                   or parse_block(kb_text, "Architecture")
                   or parse_block(kb_text, "Feature Overview"))
-    intro_para = text_para(what_block[:8])
+    # Cap intro_para at the first raw-html block or code fence — don't include markers as text
+    intro_limit = next((i for i, l in enumerate(what_block) if l.strip() in ("<!-- raw-html -->", "```")), 8)
+    intro_para = text_para(what_block[:intro_limit])
 
     # For richer Architecture blocks, render the full block as markdown
     if what_block and len(what_block) > 10:
