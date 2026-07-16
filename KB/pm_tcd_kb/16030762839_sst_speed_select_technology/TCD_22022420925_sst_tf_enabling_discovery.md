@@ -71,6 +71,27 @@
 | **TrlManager** | PCode component: maintains 4 TRL tables (legacy, sst_pp, hp_clos, lp_clos). Reloads from TPMI on enable/disable. |
 | **ZBB (deprecated)** | SST-PP, SST-CP, SST-BF are deprecated on NWP. TPMI feature bits for these must remain 0. |
 
+### NWP-Specific Deltas
+
+- NWP uses **DLCP (Die-Level Cherry Picking)** for HP core selection — HP cores are **fuse-pinned**, not OS-configurable. CLOS_ASSOC is written by BIOS from fuse mask, not by OS.
+- NWP has **2 CBBs** (cbb0 + cbb1) — TRL distribution loops iterate `range(2)` not `range(4)`.
+- SST-PP, SST-CP, SST-BF are **deprecated on NWP** — TPMI feature bits must remain 0. ZBB negative TC validates this.
+- Legacy MSR 0x1AD is still used by OS to read TRL, but **PCode reconciles TPMI TRL on each slow loop** — MSR writes do not persist.
+- SST_TF_INFO_8 (HP bucket core-counts) requires **`feature_revision >= 2`** — TCs must check before reading.
+- NWP root die is **NIO** (not IMH-P) — TPMI path is `sv.socket0.nio0.tpmi.sst_*`, not `sv.socket0.imh0`.
+- `feature_state[1]` toggle takes **1+ slow-loop cycles** (~1 ms) to propagate — tests must poll, not use fixed sleep.
+
+### TC Coverage Map
+
+| TC | Scope | Mechanism |
+|----|-------|-----------|
+| [22022422200 — SST-TF TPMI register check](https://hsdes.intel.com/appstore/article-one/#/22022422200) | Fuse-to-TPMI propagation | Validate SST_TF_INFO_0..8 populated correctly; LP clip ratios, HP TRL buckets, HP core counts per PP level |
+| [22022422201 — SST-TF dynamic enable/disable via TPMI](https://hsdes.intel.com/appstore/article-one/#/22022422201) | Runtime enable/disable | Toggle `feature_state[1]` via TPMI; verify TRL transition within 1 slow-loop; bucket + status consistency |
+| ~~[22022422202 — SST-TF CLOS IDs coverage](https://hsdes.intel.com/appstore/article-one/#/22022422202)~~ | ~~CLOS ID coverage (REJECTED)~~ | ~~NWP uses DLCP-pinned HP cores; arbitrary CLOS reassignment conflicts with DLCP mode~~ |
+| [16030715662 — [PSS] ZBB Negative Checks](https://hsdes.intel.com/appstore/article-one/#/16030715662) | Deprecated feature disable | SST-PP/CP/BF disabled on NWP; no MCA or unexpected behavior when probed |
+| [16030715714 — [PSS] Fuse Values Propagation](https://hsdes.intel.com/appstore/article-one/#/16030715714) | Fuse propagation per PP level | SST-TF fuses → TPMI space for current SST-PP level; LP_CLIP_RATIO + HP TRL match fuse expectations |
+| [16030715716 — [PSS] Fuse Values Sanity](https://hsdes.intel.com/appstore/article-one/#/16030715716) | Fuse value sanity | SST-TF fuse values per design spec; monotonic LP clip ordering; HP TRL ≥ LP clip; bucket consistency |
+
 ---
 
 ## Section 2: Interfaces and Protocols
@@ -102,51 +123,90 @@
 
 ## Section 4: Programming Model
 
-### Step 1: Verify TPMI registers populated from fuses (TC 22022422200, PSS 16030715714/16)
+SST-TF enabling follows a multi-stage programming sequence spanning firmware reset, BIOS CPL3, and OS runtime. Each stage has specific responsibilities and constraints.
 
-```python
-# Check SST_TF_INFO_0 -- LP clip ratios
-skt = sv.socket0
-nio = skt.nio0  # NWP single NIO
-assert nio.tpmi.sst_tf_info_0.feature_supported == 1, "SST-TF not enabled in fuses"
-lp_clip = nio.tpmi.sst_tf_info_0.lp_clip_ratio_0
-assert lp_clip > 0, "LP clip ratio not populated"
-# Check monotonically non-increasing across CDYN levels (higher CDYN = lower ratio)
-ratios = [nio.tpmi.sst_tf_info_0.read_field(f"lp_clip_ratio_{i}") for i in range(6)]
-for i in range(len(ratios)-1):
-    assert ratios[i] >= ratios[i+1], f"LP ratios not monotonic at CDYN[{i}]"
+### Stage 1: Firmware Reset (PH5) — TPMI Population
 
-# Check SST_TF_INFO_2 -- HP TRL bucket 0 (SSE)
-hp_trl = nio.tpmi.sst_tf_info_2.hp_trl_ratio_0
-assert hp_trl > lp_clip, "HP TRL must exceed LP clip ratio"
+PrimeCode populates SST-TF TPMI registers from fuses **before BIOS handoff**:
+
+| Register | Populated From | Content |
+|----------|----------------|---------|
+| SST_TF_INFO_0 | SST_TF_CONFIG fuse array | LP_CLIP_RATIO_0..5 (6 CDYN levels) + FEATURE_SUPPORTED bit |
+| SST_TF_INFO_2 | SST_TF_CONFIG fuse array | HP TRL bucket 0: 6 ratios (SSE through AVX512 CDYN) |
+| SST_TF_INFO_4 | SST_TF_CONFIG fuse array | HP TRL bucket 1: 6 ratios |
+| SST_TF_INFO_6 | SST_TF_CONFIG fuse array | HP TRL bucket 2: 6 ratios |
+| SST_TF_INFO_8 | SST_TF_CONFIG fuse array | HP bucket core-count thresholds (requires feature_revision >= 2) |
+
+**Constraints:**
+- Registers are **read-only** after PH5 — BIOS/OS cannot modify TRL values.
+- LP_CLIP_RATIO must be **monotonically non-increasing** across CDYN levels (higher CDYN = lower ratio).
+- HP TRL must **exceed** LP_CLIP_RATIO for the same CDYN level.
+
+### Stage 2: BIOS CPL3 — Feature Enable & CLOS Assignment
+
+At CPL3, BIOS enables SST-TF and assigns cores to HP/LP groups:
+
+**Step 2a — Read feature capability:**
+```
+Read SST_TF_INFO_0.FEATURE_SUPPORTED
+  If == 0: SST-TF not fused; skip remaining steps
+  If == 1: Proceed with enabling
 ```
 
-### Step 2: Dynamic enable/disable via TPMI (TC 22022422201)
-
-```python
-# Enable SST-TF
-nio.tpmi.sst_pp_control.feature_state.write(1)  # bit[1]=1
-# Wait 1 slow loop cycle (~10ms), then verify TRL reload
-import time; time.sleep(0.02)
-# Verify HP TRL now active in MSR 0x1AD
-hp_trl_msr = sv.socket0.cpu0.ia32_primary_turbo_ratio_limit  # MSR 0x1AD
-hp_trl_tpmi = nio.tpmi.sst_tf_info_2.hp_trl_ratio_0
-assert hp_trl_msr & 0xFF == hp_trl_tpmi, "MSR 0x1AD not updated from SST_TF_INFO_2"
-
-# Disable SST-TF
-nio.tpmi.sst_pp_control.feature_state.write(0)
-time.sleep(0.02)
-# Verify legacy TRL restored
+**Step 2b — Program CLOS assignments:**
+```
+For each core in HP set (from DLCP fuse mask):
+    Write SST_CLOS_ASSOC_<core> = 0   // CLOS[0] = HP
+For each core in LP set (all others):
+    Write SST_CLOS_ASSOC_<core> = 3   // CLOS[3] = LP
 ```
 
-### ZBB deprecated features (TC 16030715662)
-
-```python
-# SST-PP, SST-CP, SST-BF must be disabled on NWP
-assert nio.tpmi.sst_pp_control.pp_support == 0, "SST-PP must be disabled (ZBB)"
-# Check SST-CP: BLOS/IBT field
-assert nio.tpmi.sst_cp_control.feature_state == 0, "SST-CP must be disabled (ZBB)"
+**Step 2c — Enable SST-TF:**
 ```
+Write SST_PP_CONTROL.feature_state[1] = 1
+```
+
+**NWP constraint:** HP core selection is **DLCP fuse-pinned** — BIOS reads the HP core mask from fuses; OS cannot reassign cores between HP/LP at runtime.
+
+### Stage 3: PCode Runtime — TRL Table Loading
+
+PCode `SstManager` detects `feature_state[1]` change in the **slow loop** (~1 ms period):
+
+```
+On feature_state[1] transition 0→1:
+    TrlManager.load_hp_clos_trl()   // Load HP TRL from SST_TF_INFO_2/4/6
+    TrlManager.load_lp_clos_trl()   // Load LP clip from SST_TF_INFO_0
+    Update MSR 0x1AD with HP TRL ratios
+
+On feature_state[1] transition 1→0:
+    TrlManager.restore_legacy_trl() // Revert to non-SST-TF TRL
+```
+
+**Latency:** 1+ slow-loop cycles before TRL tables are active after enable/disable.
+
+### Stage 4: OS Runtime — Dynamic Control (Optional)
+
+OS can toggle SST-TF at runtime via TPMI:
+
+| Action | Programming Sequence | Latency |
+|--------|---------------------|---------|
+| Disable SST-TF | Write `SST_PP_CONTROL.feature_state[1] = 0` | 1+ slow-loop (~1 ms) |
+| Re-enable SST-TF | Write `SST_PP_CONTROL.feature_state[1] = 1` | 1+ slow-loop (~1 ms) |
+| Read current TRL | Read MSR 0x1AD | Immediate |
+
+**Note:** MSR 0x1AD is writable by OS ring-0, but PCode **reconciles TPMI TRL on each slow loop** — MSR writes do not persist.
+
+### Deprecated Features (ZBB)
+
+On NWP, the following SST sub-features are **deprecated and must remain disabled**:
+
+| Feature | TPMI Control | Required State |
+|---------|--------------|----------------|
+| SST-PP (Performance Profile) | SST_PP_CONTROL.pp_support | 0 |
+| SST-CP (Core Power) | SST_CP_CONTROL.feature_state | 0 |
+| SST-BF (Base Frequency) | SST_BF_CONTROL.feature_state | 0 |
+
+BIOS/OS must not enable these; firmware ignores or rejects writes to these control bits.
 
 ---
 

@@ -37,6 +37,18 @@ def find_kb_file(tcd_id: str) -> Path | None:
 
 # ── Markdown → HTML helpers ───────────────────────────────────────────────────
 
+def _convert_inline_md_global(s: str) -> str:
+    """Convert inline markdown (bold, code, links, strikethrough) in an already HTML-escaped string."""
+    s = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', s)
+    s = re.sub(r'`([^`]+)`', r'<code style="font-family:Consolas,monospace;font-size:0.9em;">\1</code>', s)
+    s = re.sub(r'~~(.+?)~~', r'<del style="color:#888">\1</del>', s)
+    def _md_link(m):
+        txt, href = m.group(1), m.group(2).replace('&amp;', '&')
+        return f'<a href="{href}" target="_blank">{txt}</a>'
+    s = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', _md_link, s)
+    return s
+
+
 def md_table(lines: list[str]) -> str:
     rows = [re.split(r"\s*\|\s*", l.strip().strip("|")) for l in lines if l.strip().startswith("|")]
     if len(rows) < 3:
@@ -45,9 +57,9 @@ def md_table(lines: list[str]) -> str:
     TD = 'style="padding:7px 10px;border-bottom:1px solid #e5e7eb;"'
     TR2 = 'style="background:rgb(248,249,250);"'
     out = '<table style="width:100%;border-collapse:collapse;font-size:0.9em;margin:10px 0;">'
-    out += "<thead><tr>" + "".join(f"<th {TH}>{_h.escape(c.strip())}</th>" for c in rows[0]) + "</tr></thead><tbody>"
+    out += "<thead><tr>" + "".join(f"<th {TH}>{_convert_inline_md_global(_h.escape(c.strip()))}</th>" for c in rows[0]) + "</tr></thead><tbody>"
     for i, row in enumerate(rows[2:]):
-        out += f'<tr {TR2 if i%2==0 else ""}>' + "".join(f"<td {TD}>{_h.escape(c.strip())}</td>" for c in row) + "</tr>"
+        out += f'<tr {TR2 if i%2==0 else ""}>' + "".join(f"<td {TD}>{_convert_inline_md_global(_h.escape(c.strip()))}</td>" for c in row) + "</tr>"
     return out + "</tbody></table>"
 
 
@@ -57,10 +69,7 @@ def md_bullets(lines: list[str]) -> str:
         return ""
     LI = 'style="margin:5px 0;line-height:1.5;"'
     def _inline(s: str) -> str:
-        s = _h.escape(s)
-        s = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', s)
-        s = re.sub(r'`([^`]+)`', r'<code style="font-family:Consolas,monospace;font-size:0.9em;">\1</code>', s)
-        return s
+        return _convert_inline_md_global(_h.escape(s))
     return '<ul style="margin:10px 0;padding-left:25px;">' + "".join(f"<li {LI}>{_inline(i)}</li>" for i in items) + "</ul>"
 
 
@@ -111,10 +120,8 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
         return [l for l in block if l.strip().startswith(("- ", "* "))]
 
     def _convert_inline_md(s: str) -> str:
-        """Convert inline markdown (bold, code) in an already HTML-escaped string."""
-        s = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', s)
-        s = re.sub(r'`([^`]+)`', r'<code style="font-family:Consolas,monospace;font-size:0.9em;">\1</code>', s)
-        return s
+        """Convert inline markdown (bold, code, links, strikethrough) in an already HTML-escaped string."""
+        return _convert_inline_md_global(s)
 
     def text_para(block):
         parts = [l.strip() for l in block
@@ -242,9 +249,7 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
 
         def _inline(s):
             s = _h.escape(s)
-            s = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', s)
-            s = re.sub(r'`([^`]+)`', r'<code style="font-family:Consolas,monospace;font-size:0.9em;">\1</code>', s)
-            return s
+            return _convert_inline_md(s)
 
         out = ""
         in_pre, pre_buf = False, []
@@ -336,6 +341,26 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
     ref_block = parse_block(kb_text, "References")
     body8 = refs_html(ref_block)
 
+    # --- Extra sections: TC Intent Summary, TC Coverage Map, NWP-Specific Deltas, etc.
+    #     Any ## Section N: heading that isn't one of the 7 standard sections or References
+    extra_sections_html = ""
+    standard_keys = {"architecture", "micro-architecture", "interfaces", "protocols",
+                     "reset", "power", "clocking", "programming", "operational",
+                     "corner", "error", "security", "safety", "policy", "references"}
+    all_headings = re.findall(r'^## (?:Section \d+:\s*)?(.*)', kb_text, re.MULTILINE)
+    for heading in all_headings:
+        h_lower = heading.strip().lower()
+        if any(k in h_lower for k in standard_keys):
+            continue
+        extra_block = parse_block(kb_text, heading.strip().split(":")[0].strip() if ":" in heading else heading.strip())
+        if not extra_block:
+            # Try with the full heading text
+            extra_block = parse_block(kb_text, heading.strip())
+        if extra_block:
+            extra_body = render_block_generic(extra_block, "")
+            if extra_body.strip():
+                extra_sections_html += sec("✦", heading.strip(), extra_body)
+
     desc_html = "".join([
         sec("1", "Architecture / Micro-architecture and Functionality", body1),
         sec("2", "Interfaces and Protocols", body2),
@@ -344,6 +369,7 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
         sec("5", "Operational Behavior", body5),
         sec("6", "Corner Cases &amp; Error Handling", body6),
         sec("7", "Security / Safety / Policy", body7),
+        extra_sections_html,
         sec("8", "References", body8),
     ])
     source_refs = [m.group(1) for l in ref_block for m in [re.match(r"-\s+\[([^\]]+)\]", l.strip())] if m]
@@ -403,25 +429,9 @@ def generate(tcd_id: str, force: bool = False, hsd_only: bool = False) -> int:
         kb_text  = kb_file.read_text(encoding="utf-8", errors="replace")
         desc_htm, source_refs = build_desc_from_kb(kb_text)
         source_badge = "KB-SOURCED"
-        notice_color = "#e8f5e9"
-        notice_border = "#a5d6a7"
-        notice_text = "#1b5e20"
-        notice_icon = "&#10003;"
-        notice_msg = (f"<b>KB-sourced preview</b> &mdash; built from "
-                      f"<code>{kb_file.relative_to(REPO_ROOT)}</code>. "
-                      f"Sources: {', '.join(source_refs[:4])}{'...' if len(source_refs) > 4 else ''}."
-                      f" Say <b>&quot;update HSD&quot;</b> to push.")
     else:
         desc_htm = tcd.get("description", "") or "<p>No description.</p>"
         source_badge = "HSD-LIVE"
-        notice_color = "#fff8e1"
-        notice_border = "#ffe082"
-        notice_text = "#7a5c00"
-        notice_icon = "&#9432;"
-        notice_msg = ("&#9432; <b>HSD-live preview</b> &mdash; showing current HSD description. "
-                      "No KB file found for this TCD. Review, then say <b>&quot;update HSD&quot;</b> to push changes.")
-
-    tc_table = build_tc_table(tcs)
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -438,10 +448,6 @@ def generate(tcd_id: str, force: bool = False, hsd_only: bool = False) -> int:
     .hdr .sub{{font-size:11px;opacity:.82;margin-top:4px;}}
     .hdr a{{color:#90caf9;}}
     .wrap{{max-width:960px;margin:18px auto;padding:0 16px 40px;}}
-    .notice{{background:{notice_color};border:1px solid {notice_border};border-radius:6px;
-             padding:10px 14px;margin-bottom:14px;font-size:12px;color:{notice_text};}}
-    .tc-box{{background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:14px 16px;margin-bottom:14px;}}
-    .tc-box h3{{color:#0f4c81;font-size:13px;margin-bottom:8px;}}
     .desc-box{{background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;}}
   </style>
 </head>
@@ -456,10 +462,6 @@ def generate(tcd_id: str, force: bool = False, hsd_only: bool = False) -> int:
   </div>
 </div>
 <div class="wrap">
-  <div class="notice">{notice_icon} {notice_msg}</div>
-  <div class="tc-box">
-    <h3>Test Cases ({len(tcs)})</h3>{tc_table}
-  </div>
   <div class="desc-box">{desc_htm}</div>
 </div>
 </body>

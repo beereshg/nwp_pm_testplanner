@@ -123,10 +123,10 @@ ASCII diagram here
 | [HSD ID — Title](url) | scenario | mechanism |
 ```
 
-### Push to HSD — Extract desc-box only (skip header + TC table)
+### Push to HSD — Extract desc-box only (skip header)
 
 When pushing TCD preview HTML to HSD, extract only the `desc-box` div to start the
-description from Section 1 (Architecture), skipping the preview header and TC summary table:
+description from Section 1 (Architecture), skipping the preview header:
 
 ```python
 import re
@@ -149,7 +149,7 @@ tool or `replace_string_in_file`.
 
 ## Step 3 — Generate Preview HTML
 
-**Simple header + description body — no sidebar.**
+**Clean header + description body — no sidebar, no notice, no TC table.**
 
 `powershell
 # From repo root
@@ -159,13 +159,12 @@ python tools/html/generate_tcd_preview.py --tcd <TCD_ID> --force
 
 **Preview HTML structure (lightweight):**
 `html
-<!-- Header bar: TCD title + metadata strip -->
-<!-- Yellow notice: "Preview only — confirm before HSD update" -->
-<!-- TC summary table (compact, single row per TC) -->
-<!-- Description body (raw HSD HTML as-is) -->
+<!-- Header bar: TCD title + KB-SOURCED/HSD-LIVE badge + metadata strip -->
+<!-- Description body (8-section structure from KB cache) -->
 `
 
-No sidebar, no grid layout. Single-column, scrollable.
+No sidebar, no grid layout, no TC table, no notice box. Single-column, scrollable.
+Output is what will be pushed to HSD (desc-box content only).
 
 ---
 

@@ -815,7 +815,7 @@ python tools/html/push_tcd_description.py --tcd 22022421183 --push --yes
 ```
 
 > **Do NOT push the full `tcd_description_output/TCD_*_preview.html` to HSD** — that file
-> contains page chrome (`<div class="hdr">`, `.wrap`, `.notice`, TC table) with CSS classes
+> contains page chrome (`<div class="hdr">`, `.wrap`) with CSS classes
 > that HSD strips, producing broken layout. `push_tcd_description.py` extracts only the
 > 8 inline-styled content sections via `build_desc_from_kb()`.
 
