@@ -2,9 +2,9 @@
 name: nwp-tc-description
 description: >
   Author, enrich, and update NWP PM Test Case (TC) descriptions in HSD.
-  Owns the HOW content: exact test steps, tool commands, BIOS register sequences,
-  pass/fail criteria, and environment setup. TCD describes WHAT to validate;
-  TC describes HOW to validate it.
+  Owns the HOW content: exact test steps, tool commands, BIOS register execution
+  sequences, and environment setup. TCD owns WHAT to validate and the pass/fail
+  bar; TC describes HOW to execute and references the TCD bar.
 ---
 
 # NWP TC Description Skill
@@ -22,14 +22,17 @@ description: >
 |-------------|----------|-----------|---------------------|
 | Test step sequence (numbered) | ✅ | ❌ | ❌ |
 | Tool command lines (`kayak`, `python`, `isst`) | ✅ | ❌ | ❌ |
-| BIOS register sequences used during test | ✅ | ❌ | ❌ |
-| Pass/fail criteria with exact values | ✅ | ❌ | ❌ |
-| OS API calls / sysfs paths used in assertions | ✅ | ❌ | ❌ |
+| BIOS register execution sequence (step-by-step procedure) | ✅ | ❌ | ❌ |
+| BIOS register theory / invariants (WHAT registers are involved) | references TCD §4 | ✅ | ❌ |
+| **Pass/fail criteria bar** | references TCD §5 only | ✅ — **owned by TCD** | ❌ |
+| OS API calls / sysfs paths used in execution | ✅ | ❌ | ❌ |
 | Environment setup (BIOS knobs, driver state) | ✅ | ❌ | ❌ |
 | Expected output snippets / register dump | ✅ | ❌ | ❌ |
-| Scenario WHAT (what is being proven) | ❌ | ✅ | ❌ |
+| Scenario WHAT (what is being proven) | references TCD §1/§5 | ✅ | ❌ |
 | Feature architecture diagrams / flows | ❌ | ❌ | ✅ |
 | NWP-specific constants (freq targets, core count) | ❌ | ✅ (brief) | ✅ (full) |
+
+> **M:N guardrail:** TC↔TCD is many-to-many. TC §1 and §5 must *link* to TCD content, never restate it. If TCD §5 criteria change, all N test cases pick up the change without TC edits.
 
 ---
 
@@ -47,23 +50,27 @@ description: >
 Phoenix TC = HOW to validate. Sections map to Phoenix TC fields:
 
 ```
-1. Validation Scope       ← WHAT this TC specifically validates (≤80 words; inherited from TCD)
+1. Validation Scope       ← Links to TCD §1 scenario + §5 row (≤80 words; never restate TCD)
 2. Preconditions          ← Platform, BIOS knobs, driver state, tool availability
 3. Automation             ← Exact command line(s) to run the test
 4. Test Steps             ← Numbered sequence: action → expected result per step
-5. Pass/Fail Criteria     ← Explicit measurable criteria — REQUIRED, no TCs without this
+5. Pass/Fail Criteria     ← Link to TCD §5 bar + TC-specific execution assertions
 ```
+
+**Guardrails:**
+- §1 Scope: 1 sentence linking to TCD §5 row. Do NOT copy TCD scenario text — TCD is the single source.
+- §5 Criteria: open with `Per TCD [ID] §5: [paste TCD bar link].` Then add any execution-specific assertions (e.g. no dmesg errors, timeout <N s). Never write a competing bar.
 
 ### Section 1: Validation Scope
 
-One short paragraph. What specific scenario does this TC cover?
-Should align to one row in the parent TCD's Section 5 Operational Behavior table.
+One sentence linking to the parent TCD and the specific scenario row. Do NOT restate TCD content.
 
 ```markdown
-Verify [specific scenario] on NWP [platform/environment].
-Validates that [observable outcome] when [condition].
-Parent TCD: [TCD ID — Title](url) — [which scenario row].
+Validates the [scenario name] scenario defined in [TCD ID — Title](url) §5, row [scenario].
+Environment: [NWP-IMH post-silicon / PSS VP / HSLE XOS].
 ```
+
+> TC↔TCD is M:N. Linking instead of restating means a TCD edit propagates to all N TCs without TC updates.
 
 ### Section 2: Preconditions
 
@@ -113,11 +120,18 @@ Numbered sequence. Each step = **one action** + **one expected result**.
 
 ### Section 5: Pass/Fail Criteria
 
-Explicit measurable criteria. Phoenix requires this field for TC completion.
+**The pass/fail bar is owned by the parent TCD §5.** TC §5 references that bar and adds only execution-specific assertions that are TC-level (not feature-level).
 
 ```markdown
-**PASS** when ALL of the following are true:
-- HP core `cpuinfo_max_freq` ≥ `hp_trl_khz × 0.95` for all HP CPUs
+**Pass/fail bar:** Per [TCD ID — Title](url) §5 Operational Behavior — [scenario row].
+
+**Execution-specific assertions (this TC only):**
+- No SST-related errors in `dmesg` during test
+- Test completes within N minutes
+- `intel-speed-select` exits with code 0
+```
+
+> Never define a competing criteria bar. If TCD §5 criteria change, all linked TCs inherit the change automatically.
 - LP core `cpuinfo_max_freq` ≤ `lp_clip_khz × 1.05` for all LP CPUs
 - `intel-speed-select` reports correct HP module count = `partition_count × 2`
 - No dmesg errors related to SST or PCT during test

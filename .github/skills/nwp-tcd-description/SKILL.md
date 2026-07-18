@@ -97,9 +97,10 @@ The generator renders Section 1 in order, separated by `### SubHeading` markers:
 | Feature architecture diagrams / boot flows | **TPF §2** | TCD §1 |
 | Runtime control flow (numbered HOW steps) | **TC §4 Steps** | TCD §1 |
 | Tool command lines (`kayak`, `isst`, script paths) | **TC §3 Automation** | TCD |
-| BIOS register sequences used during test execution | **TC §2/§4** | TCD §4 |
-| Pass/fail criteria with exact values | **TC §5** | TCD |
-| Feature programming theory (WHAT registers are involved) | TCD §4 | TC (exec details) |
+| BIOS register execution sequence (step-by-step procedure) | **TC §2/§4** | TCD §4 |
+| BIOS register theory (WHAT registers are involved, invariants) | **TCD §4** | TC |
+| **Pass/fail criteria bar** | **TCD §5** — TC §5 *references* the TCD bar | Never define independently in TC |
+| Feature programming theory (WHAT the feature does operationally) | TCD §4 | TC (exec details) |
 
 See `nwp-tc-description` skill for the full HOW content authoring guide.
 
@@ -124,16 +125,6 @@ Intro paragraph ≤80 words. WHAT this scenario validates and why it matters. No
 ```
 
 **Removed from template:** `### Runtime Control Flow` (→ TC §4 Steps), `### Block Decomposition` (→ TPF §2 Design Details).
-
-- Delta item 1
-- Delta item 2
-
-### TC Coverage Map
-
-| TC | Scope | Mechanism |
-|----|-------|-----------|
-| [HSD ID — Title](url) | scenario | mechanism |
-```
 
 ### Push to HSD — Extract desc-box only (skip header)
 
@@ -301,7 +292,7 @@ Use the same section/box style as existing TCD descriptions:
 1. Architecture / Micro-architecture and Functionality — WHAT the scenario validates; NWP deltas; TC coverage map; pointer to TPF §2 for architecture diagrams
 2. Interfaces and Protocols — registers/sysfs/MSRs this scenario touches (≤15 rows, scenario-relevant only)
 3. Reset, Power, and Clocking — which boot phase scenario begins; relevant state transitions
-4. Programming Model — **WHAT registers/interfaces are involved conceptually**; feature operation theory; NOT test steps or command lines (those → TC)
+4. Programming Model — **WHAT registers/interfaces are involved conceptually and the feature’s operational invariants** (e.g. “PCT is configured at BIOS CPL3 via Partition Count knob; OS discovers HP/LP topology via sysfs — validation observes what the OS sees”). NOT test steps, NOT command lines, NOT register write order (those → TC).
 5. Operational Behavior — scenario × expected outcome × TC links table
 6. Corner Cases & Error Handling — 4-column coverage verdict (see Step 4a)
 7. Security / Safety / Policy
