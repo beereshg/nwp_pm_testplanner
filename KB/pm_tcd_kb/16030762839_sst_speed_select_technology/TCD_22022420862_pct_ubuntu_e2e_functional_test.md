@@ -1,21 +1,21 @@
-# TCD 22022420862 — PCT - PV BIOS Configuration and Disable
+# TCD 22022420862 — PCT - PV BIOS Configuration
 
 | Field | Value |
 |-------|-------|
 | **TCD ID** | [22022420862](https://hsdes.intel.com/appstore/article-one/#/22022420862) |
-| **Title** | PCT - PV BIOS Configuration and Disable |
+| **Title** | PCT - PV BIOS Configuration |
 | **Status** | open |
 | **Owner** | bg3 |
 | **Parent TPF** | [16030762939 — NWP PM PCT (Priority Core Turbo)](https://hsdes.intel.com/appstore/article-one/#/16030762939) |
-| **Siblings** | [22022420855 — PCT Enabling & Discovery](https://hsdes.intel.com/appstore/article-one/#/22022420855) · [22022420858 — PCT Functionality](https://hsdes.intel.com/appstore/article-one/#/22022420858) · [16031169214 — PCT - PV Discovery](https://hsdes.intel.com/appstore/article-one/#/16031169214) |
-| **Feature** | Power / SST — PCT PV: BIOS partition count knob → HP/LP CLOS programming → OS-visible configuration and disable |
+| **Siblings** | [22022420855 — PCT Enabling & Discovery](https://hsdes.intel.com/appstore/article-one/#/22022420855) · [22022420858 — PCT Functionality](https://hsdes.intel.com/appstore/article-one/#/22022420858) · [16031169214 — PCT - PV Discovery](https://hsdes.intel.com/appstore/article-one/#/16031169214) · [16031169217 — PCT - PV BIOS Disable](https://hsdes.intel.com/appstore/article-one/#/16031169217) |
+| **Feature** | Power / SST — PCT PV: BIOS partition count knob → HP/LP CLOS register programming → OS-visible configuration (custom positions, sweep) |
 | **KB last updated** | 2026-07-18 |
 
 ---
 
 ## Section 1: Architecture / Micro-architecture and Functionality
 
-**PCT - PV BIOS Configuration and Disable** validates that the PCT BIOS Partition Count knob correctly drives HP/LP CLOS register programming as observed from Ubuntu Linux via `intel-speed-select` and `cpufreq`. Scope is limited to partition count configuration (custom positions, full sweep) and the disable path (partition count = 0). Feature discovery and capability reporting are in sibling TCD [16031169214 — PCT - PV Discovery](https://hsdes.intel.com/appstore/article-one/#/16031169214).
+**PCT - PV BIOS Configuration** validates that the PCT BIOS Partition Count knob correctly drives HP/LP CLOS register programming as observed from Ubuntu Linux via `intel-speed-select` and `cpufreq`. Scope is limited to positive-path partition configuration: custom HP module positions and full partition count sweep. The disable scenario (partition count = 0) is in sibling TCD [16031169217 — PCT - PV BIOS Disable](https://hsdes.intel.com/appstore/article-one/#/16031169217).
 
 > **Architecture overview:** See [TPF 16030762939 — NWP PM PCT](https://hsdes.intel.com/appstore/article-one/#/16030762939) §2 Design Details for boot flow, CLOS mechanism, and frequency hierarchy.
 
@@ -50,8 +50,7 @@ Ubuntu OS boots
 | TC | Title | Scope |
 |----|-------|-------|
 | [16030717717](https://hsdes.intel.com/appstore/article-one/#/16030717717) | [PV] SST PCT Partition Custom Config | Custom HP module selection via BIOS knob; CLOS programming verified from OS |
-| [16030717718](https://hsdes.intel.com/appstore/article-one/#/16030717718) | [PV] SST PCT Partition Sweep | Sweep partition count 0 → max; uniform HP distribution for each count |
-| [16030717719](https://hsdes.intel.com/appstore/article-one/#/16030717719) | [PV] SST PCT Disable | Partition count = 0 → no HP/LP split; conventional turbo from OS view |
+| [16030717718](https://hsdes.intel.com/appstore/article-one/#/16030717718) | [PV] SST PCT Partition Sweep | Sweep partition count 1 → max; uniform HP distribution for each count |
 
 ### NWP-Specific Constants
 
