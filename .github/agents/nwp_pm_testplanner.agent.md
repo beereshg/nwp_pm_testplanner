@@ -59,6 +59,9 @@ Determine mode from invocation context:
 | `enrich tcd <TCD_ID>` | TCD | Enrich TCD description: fetch → KB cache → HAS/MAS → preview HTML |
 | `preview tcd <TCD_ID>` | TCD | Generate preview HTML only — no HSD update |
 | `update tcd <TCD_ID>` | TCD | Push updated description to HSD after user confirmation |
+| `codesign <feature>` | Co-Design | Generate T1 gap-audit prompt for Co-Design Chat |
+| `codesign t<N> <feature>` | Co-Design | Generate template T1–T5 prompt for Co-Design Chat |
+| `ingest codesign` | Co-Design | Parse pasted Co-Design response → Gap rows + KB actions |
 
 ---
 
