@@ -236,8 +236,6 @@ def generate(tpf_id: str, force: bool = False, hsd_only: bool = False) -> int:
     .hdr a{{color:#90caf9;}}
     .badge{{background:rgba(255,255,255,.2);border-radius:12px;padding:2px 10px;font-size:11px;margin-left:8px;}}
     .wrap{{max-width:960px;margin:18px auto;padding:0 16px 40px;}}
-    .tcd-panel{{background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:16px 20px;margin-bottom:18px;}}
-    .tcd-panel h2{{font-size:13px;font-weight:600;color:#374151;margin-bottom:10px;}}
     .desc-box{{}}
   </style>
 </head>
@@ -252,10 +250,6 @@ def generate(tpf_id: str, force: bool = False, hsd_only: bool = False) -> int:
   </div>
 </div>
 <div class="wrap">
-  <div class="tcd-panel">
-    <h2>Child TCDs ({len(tcds)})</h2>
-    {tcd_tbl}
-  </div>
   <div class="desc-box">
     {desc_html}
   </div>
