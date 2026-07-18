@@ -2,10 +2,10 @@
 name: nwp-tcd-description
 description: >
   Generate, preview, and update NWP PM Test Case Definition (TCD) descriptions.
-  Reads TCD from HSD, enriches Feature Overview from HAS/MAS/KB, caches in
-  KB/pm_tcd_kb, previews as HTML in tcd_description_output/, and updates HSD
-  only after explicit user confirmation. Use when: enriching a TCD description,
-  updating Feature Overview from specs, or generating TCD preview HTML.
+  ID-driven and idempotent: given any TCD ID the skill resolves create-vs-refresh
+  from filesystem + HSD state, always stops at the preview gate before pushing.
+  Use when: enriching a TCD description, refreshing a cached KB file, previewing,
+  or pushing an updated description to HSD.
 ---
 
 # NWP TCD Description Skill
@@ -19,52 +19,168 @@ description: >
 
 ## When to Use
 
-- User provides a TCD ID and asks to enrich, update, or preview its description
-- Feature Overview in a TCD is generic (no register paths, no HAS refs)
-- User wants to see what a TCD description looks like before pushing to HSD
-- User says `update TCD <ID>`, `preview TCD <ID>`, `enrich TCD <ID>`
+- User provides a **bare TCD ID** (e.g. `22022420855`) with no other context
+- User says `enrich <ID>`, `refresh <ID>`, `regenerate <ID>`, `create description for <ID>`,
+  `preview <ID>`, or `update <ID>`
+- User wants to see a TCD description before pushing to HSD
+- Feature Overview is generic; register paths or HAS refs are missing
+
+The skill **infers create-vs-refresh from filesystem + HSD state**. The user never
+has to specify which mode.
 
 ---
 
-## Workflow
+## Workflow — ID-Driven State Machine
 
-`
-Step 1: Fetch       HSD TCD → KB/pm_tcd_kb cache (.md)
-Step 2: Enrich      HAS/MAS/KB → improve Feature Overview in cache file
-Step 3: Preview     cache → tcd_description_output/TCD_{id}_{slug}_preview.html
-Step 4: Confirm     user reviews HTML preview
-Step 5: Update HSD  PUT new description to HSD (only after confirmation)
-`
+The **only required input** is a TCD ID. The skill runs this state machine:
 
-**Never update HSD without explicit user confirmation after preview.**
+```
+INPUT: TCD ID
+  ↓
+STEP 1 — RESOLVE STATE
+  ↓
+STEP 2 — SYNC KB (create or refresh)
+  ↓
+STEP 3 — GENERATE PREVIEW
+  ↓
+STEP 4 — ⚠️ MANDATORY REVIEW GATE (hard stop)
+  ↓ (only after explicit “yes” to THIS preview)
+STEP 5 — PUSH
+```
 
----
-
-## Step 1 — Fetch and Cache TCD
-
-`python
-from pathlib import Path
-import sys, re
-sys.path.insert(0, '.')
-from hsd_utils import get_session, get_article, get_children
-
-s = get_session()
-TCD_ID = '<tcd_id>'
-
-tcd = get_article(TCD_ID, fields='id,title,description,status,owner,parent_id', session=s)
-tcs = get_children(TCD_ID, 'test_case',
-    fields='id,title,status,test_case.val_environment,test_case.free_tag_1,test_case.free_tag_2',
-    session=s)
-`
-
-**Cache file path:**
-`KB/pm_tcd_kb/{tp_id}_{tp_slug}/TCD_{tcd_id}_{slug}.md`
-
-Example: `KB/pm_tcd_kb/16030762839_sst_speed_select_technology/TCD_22022420855_pct_enabling_discovery.md`
+**Hard rule:** HSD is never written before an explicit “yes” that follows
+a preview generated in this session. A prior approval does not carry over
+after any KB edit or regeneration.
 
 ---
 
-## Step 2 — TCD KB File Format
+## Step 1 — Resolve State
+
+Given a TCD ID:
+
+1. **Fetch live metadata from HSD** (source of truth):
+   ```python
+   from hsd_utils import get_session, get_article, get_children
+   s = get_session()
+   tcd = get_article(TCD_ID, fields='id,title,description,status,owner,parent_id', session=s)
+   tcs  = get_children(TCD_ID, 'test_case',
+       fields='id,title,status,test_case.val_environment,test_case.free_tag_1,test_case.free_tag_2',
+       session=s)
+   ```
+   Derive canonical slug from live `tcd['title']`.
+
+2. **Glob KB cache:** `KB/pm_tcd_kb/**/*{TCD_ID}*.md`
+
+   | Result | Mode |
+   |--------|------|
+   | File found with matching slug | **REFRESH** |
+   | File found with stale slug (HSD title changed) | Run *Stale KB File Handling* below, then **REFRESH** |
+   | No file found | **CREATE** |
+
+**Stale KB File Handling** (when glob finds ID but slug mismatch):
+```powershell
+# 1. Rename stale file to remove ID from glob path
+Rename-Item 'KB/pm_tcd_kb/.../TCD_{id}_old_slug.md' 'TCD_STALE_old_slug_ref.md'
+# 2. Add comment at top of stale file:
+#    <!-- STALE: HSD {id} renamed. See TCD_{id}_{new_slug}.md -->
+# 3. Proceed to CREATE mode with correct slug
+```
+
+---
+
+## Step 2 — Sync KB
+
+**CREATE mode:**
+- Generate a new KB file at `KB/pm_tcd_kb/{tp_id}_{tp_slug}/TCD_{tcd_id}_{slug}.md`
+- Use the 8-section template (see *TCD KB File Format* below)
+- Mandatory: populate **§1** (scenario intro + TC coverage map), **§5** (measurable
+  pass/fail bar), and a `> **Architecture overview:** See TPF §2` pointer
+- Run **lint gate L1–L7** (see below); fix failures before proceeding
+
+**REFRESH mode:**
+- Re-fetch live HSD description + TC list
+- Update KB sections that are HSD-derived: title, TC coverage map, parent TPF link
+- **Preserve** human-authored enrichment content in other sections
+- Run lint gate; fix failures before proceeding
+
+### Lint Gate (L1–L7)
+
+| ID | Check | Block? |
+|----|-------|--------|
+| L1 | Section 1 intro ≤80 words | Warning |
+| L2 | No architecture diagrams in §1 (moved to TPF §2) | Block |
+| L3 | No numbered test steps / tool command lines in §1–§4 (those → TC) | Block |
+| L4 | §5 contains at least one measurable threshold (quantity / register value / %) | Block |
+| L5 | §5 bar is not identical to a sibling TCD’s bar (uniqueness check) | Warning |
+| L6 | §6 corner cases use 4-column verdict table, not bullet list | Warning |
+| L7 | Parent TPF link present in §1 | Warning |
+
+On any **Block** failure: fix the KB file, re-lint, then continue to Step 3.
+
+---
+
+## Step 3 — Generate Preview
+
+```powershell
+# From repo root
+python tools/html/generate_tcd_preview.py --tcd <TCD_ID> --force
+# Output: tcd_description_output/TCD_{id}_{slug}_preview.html
+```
+
+The output must have a `<div class="desc-box">` wrapper (push contract). If it
+does not, the generator has a bug — do not proceed to Step 4.
+
+---
+
+## Step 4 — ⚠️ Mandatory Review Gate (hard stop)
+
+After generating the preview, **stop and print exactly**:
+
+```
+Preview ready at tcd_description_output/TCD_{ID}_{slug}_preview.html
+Push to HSD? (yes / no — if no, tell me what to change)
+```
+
+**Rules:**
+- Do **NOT** call `push_preview.py` or any HSD write tool before receiving an
+  explicit “yes” from the user.
+- A “yes” from **before the most recent regeneration** does not count. If the
+  user requests changes, apply them to the **KB file** (never to the HTML),
+  regenerate, and ask again.
+- If the user says “no” or requests changes: apply edits → regenerate → return
+  to this gate.
+
+---
+
+## Step 5 — Push (only after explicit yes)
+
+```powershell
+# Dry-run if content_len changed by >50% vs last known push
+python tools/hsd/push_preview.py --dry-run tcd_description_output/TCD_{TCD_ID}_{slug}_preview.html
+
+# Full push
+python tools/hsd/push_preview.py tcd_description_output/TCD_{TCD_ID}_{slug}_preview.html
+```
+
+Expected output:
+```
+  file    : tcd_description_output/TCD_{ID}_..._preview.html
+  hsd_id  : {ID}  (https://hsdes.intel.com/appstore/article-one/#/{ID})
+  subject : test_case_definition
+  content : {N} chars
+  result  : 200 OK
+```
+
+After 200 OK: read back the HSD article and confirm `len(description)` is within
+±5% of `content_len` to detect silent truncation.
+
+> **Never use temp `.py` files or inline Python in PowerShell heredocs.**
+> `push_preview.py` handles desc-box extraction, Kerberos auth, and subject routing.
+> Source: `tools/hsd/push_preview.py`
+
+---
+
+## TCD KB File Format
 
 Example path: `KB/pm_tcd_kb/15019477653_nwp_pm_socket_rapl/TCD_22022420798_socket_rapl_algorithm_functionality.md`
 
@@ -154,40 +270,6 @@ tool or `replace_string_in_file`.
 
 ---
 
-## Step 3 — Generate Preview HTML
-
-**Clean header + description body — no sidebar, no notice, no TC table.**
-
-`powershell
-# From repo root
-python tools/html/generate_tcd_preview.py --tcd <TCD_ID> --force
-# Output: tcd_description_output/TCD_{id}_{slug}_preview.html
-`
-
-**Preview HTML structure (lightweight):**
-`html
-<!-- Header bar: TCD title + KB-SOURCED/HSD-LIVE badge + metadata strip -->
-<!-- Description body (8-section structure from KB cache) -->
-`
-
-No sidebar, no grid layout, no TC table, no notice box. Single-column, scrollable.
-Output is what will be pushed to HSD (desc-box content only).
-
----
-
-## Step 4 — User Reviews
-
-User opens `tcd_description_output/TCD_{id}_{slug}_preview.html` and:
-- Checks Feature Overview quality
-- Checks register tables are accurate
-- Checks NWP delta table
-- Reviews Section 6 coverage verdict (see below)
-- Approves or requests changes
-
-**Do not proceed to Step 5 without explicit approval.**
-
----
-
 ## Step 4a — Section 6 Corner Cases Coverage Review
 
 When the user asks "does this grade today" or "will existing TCs cover this?", perform a
@@ -219,35 +301,6 @@ Replace bullet-list corner cases with a structured 4-column table:
 - **Post-transition stale state**: TC that starts from a disabled state cannot verify clean removal of prior-enabled state → must start from prior-enabled baseline
 - **Cross-register alignment** (sysfs vs MSR vs TPMI): not a standalone TC; add as dual-read pass criterion
 - **Infrastructure prerequisites** (driver loaded, tool present): precondition guard, not a TC
-
----
-
-## Step 5 — Update HSD Description
-
-Only after user confirms.
-
-```powershell
-# Auto-detects HSD ID and subject (test_case_definition) from filename
-python tools/hsd/push_preview.py tcd_description_output/TCD_{TCD_ID}_{slug}_preview.html
-
-# Dry-run first if unsure
-python tools/hsd/push_preview.py --dry-run tcd_description_output/TCD_{TCD_ID}_{slug}_preview.html
-```
-
-Expected output:
-```
-  file    : tcd_description_output/TCD_{ID}_..._preview.html
-  hsd_id  : {ID}  (https://hsdes.intel.com/appstore/article-one/#/{ID})
-  subject : test_case_definition
-  content : {N} chars
-  result  : 200 OK
-```
-
-> **Never use temp `.py` files or inline Python in PowerShell heredocs.**
-> `push_preview.py` handles desc-box extraction, Kerberos auth, and subject routing internally.
-> Source: `tools/hsd/push_preview.py`
-
-**After update:** regenerate preview to confirm HSD shows new content.
 
 ---
 
