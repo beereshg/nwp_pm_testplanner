@@ -231,6 +231,60 @@ planning test cases for behaviors that are POR on NWP.
 [PASTE OUTPUT CONTRACT]
 ```
 
+### T6: Feature lineage / generational history
+
+> Use when: authoring a new TCD/TC and the feature's cross-generation history
+> would sharpen the NWP-delta and disposition analysis (interface migrations,
+> renamed features, scope changes across SOC generations).
+
+**T6 overrides Step 1b.** Do NOT include the standard silicon routing
+context (it narrows to NWP/DMR — exactly wrong for history). Replace it
+with this scope directive:
+
+```
+SCOPE DIRECTIVE (lineage query — search wide):
+- Do not restrict to NWP- or DMR-tagged sources. Search ALL collections
+  available in this session — EMR, GNR, SPR, CWF, DMR, or earlier —
+  because this feature may predate current project naming, and generic
+  features may live in cross-project or untagged resources.
+- Before searching: list known aliases and predecessor names for this
+  feature (features are frequently renamed at interface migrations,
+  e.g. MSR-era name vs TPMI-era name). Then search each alias per
+  generation.
+- Provenance is mandatory per row: name the collection/document each
+  claim came from. If you have no direct source for a generation,
+  write `no spec access` for that row — do not infer or interpolate
+  from adjacent generations.
+```
+
+Prompt body:
+
+```
+I am a validation engineer working on NWP (Newport) PM test planning.
+I am tracing the generational history of [FEATURE] to sharpen NWP-delta
+and disposition analysis.
+
+[PASTE SCOPE DIRECTIVE ABOVE — NOT Step 1b]
+
+For feature [FEATURE] (and the aliases you identified): trace its
+lineage across SOC generations up to NWP.
+1. First generation where the feature (under any name) appeared.
+2. Per-generation change table — interface changes (e.g. MSR→TPMI),
+   register/field additions or removals, behavioral changes, scope
+   changes (core counts, partition limits, per-module vs per-core).
+3. Deprecations or replacements along the way, naming the replacing
+   feature.
+4. For each change: the validation impact — does it invalidate,
+   modify, or leave intact a test written against the previous
+   generation's interface?
+
+Answer as a markdown table:
+| Generation | Change (interface/behavior/scope) | Interface impact | Spec ref (doc + clause, verbatim) | Source collection | Validation impact (invalidates / adapt / unchanged) |
+One row per change, oldest first. Generations with no direct source:
+single row with `no spec access`. ≤3-line summary of the NWP-relevant
+tail (last generation → NWP deltas) after the table. No other prose.
+```
+
 ---
 
 ## Step 3 — Append the output contract (always, verbatim)
@@ -272,6 +326,21 @@ When the user pastes a Co-Design table into this session:
 | `bar change [TCD X §5]` | Update TCD X §5 bar text + regenerate preview; bar-sync lint flags child TCs |
 | `move TC [from X to Y]` | Parent link update via HSD (verify M:N handling); update both TCD KB coverage maps |
 | `accepted gap [reason]` | Add to TPF §5 Accepted Coverage Limitations table with spec ref as rationale |
+
+**T6 lineage ingest rules:**
+- The full lineage table lands in the **KB feature article** (its
+  canonical home) — never dumped into a TCD.
+- Only the NWP-relevant tail flows into HSD artifacts: 1–2 sentences of
+  "introduced in {gen}; NWP-relevant deltas: {list}" into **TCD §1**,
+  and interface-migration facts into **TC Section A** (NWP Delta).
+- The Validation-impact column feeds the disposition tree mechanically:
+  `invalidates` → Needs_Adaptation (or Skip if ZBB'd), `adapt` →
+  Needs_Adaptation, `unchanged` → candidate Runnable_As-Is /
+  Runnable_On_N-1.
+- Rows marked `no spec access` are recorded as-is in the KB article —
+  they are honest gaps, not findings to fill by inference.
+- Same push gate as all templates: nothing lineage-derived writes to
+  HSD without confirmation.
 
 **Hard rules on ingest:**
 1. **Never auto-push from a Co-Design finding.** Findings enter as Gap/TBD rows first. Human confirms before any HSD write (same confirmation gate as all pushes).
@@ -352,3 +421,6 @@ to existing artifacts — do not paraphrase them.
 | Re-running T1 without noting what was already found | Add "NOTE: previously identified gaps G1–G5 are already tracked" to Step 1a context block |
 | Snapshot without bars | Every TCD entry must include its pass/fail bar — bars enable T3-style bar validation inside a T1 gap audit for free |
 | Editing the silicon context per-feature | Step 1b is platform truth, not feature truth — write once, reuse verbatim; feature-specific notes go in Step 1a |
+| Running T6 with the standard silicon routing block | T6 replaces Step 1b with the wide-scope directive — routing context suppresses the history you're asking for |
+| Accepting lineage rows without a Source-collection value | Provenance column is mandatory; a claim without a named doc may be cross-platform bleed-through |
+| Pasting the full lineage table into TCD §1 | Table → KB article; TCD gets the ≤2-sentence NWP tail only |
