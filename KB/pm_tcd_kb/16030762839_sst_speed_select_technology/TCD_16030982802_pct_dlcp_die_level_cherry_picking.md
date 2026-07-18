@@ -212,6 +212,12 @@ for core in pctd.LP_CORES:
 ## Section 8: References
 
 - [PCT HAS](https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html) — `PCT_Module_Mask`; `SST_TF_INFO_10`; DLCP HP core discovery
-- [SST HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html) — `SST_CLOS_CONFIG` / `SST_CLOS_ASSOC` / `SST_CP_CONTROL`; Ordered Throttling
+- [SST HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html) — `SST_CLOS_CONFIG` / `SST_CLOS_ASSOC` / `SST_CP_CONTROL`; Ordered Throttling; **`SST_TF_INFO_101.QUALIFIED_MODULE_MASK`** (NWP-specific DLCP register; confirms DLCP has NWP-specific architected behavior beyond standard PCT)
 - [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP PCT scope; DLCP confirmation pending
 - CCB HSD 14026595435 — NWP PCT 8 HP cores, 4.4 GHz target
+
+> **Structural finding (Co-Design T1, 2026-07-18):** `SST_TF_INFO_101.QUALIFIED_MODULE_MASK` is NWP-specific and architecturally distinct from standard PCT/SST-TF. This TCD **should be promoted to a dedicated DLCP TPF** under TP 16030762839; its current parent TPF 16030762939 (standard PCT) should not own DLCP.
+> **Pending HSD action (human confirmation required):**
+> 1. Create new TPF article under TP 16030762839 with title "NWP PM DLCP (Die Level Cherry Picking)"
+> 2. Move TCD 16030982802 to the new TPF (PUT parent_id)
+> 3. Update this KB file's `Parent TPF` field once the new TPF ID is known
