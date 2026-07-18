@@ -83,20 +83,17 @@
 
 ### TC Coverage Map
 
+> **Structural note (Co-Design T2 audits 2026-07-18):** TCs moved out per WHAT-boundary rule.
+> Moved to TCD 22022420813: TC 22022421962 (fuse defaults → fuse/BIOS scope).
+> Moved to TCD 22022420821: TC 22022421931 (counter reset → register scope).
+> Moved to TCD 16031169418 (Below-Pm / Fast Throttle): TC 22022421978.
+> Moved to TCD 16031169448 (Reporting / Observability): TC 16030715720 (PEM PL1), TC 16030715722 (PEM PL2), TC 16030715724 (Perf Status), TC 16030715726 (PLR PL2), TC 16030715728 (PLR PL1), TC 16030715734 (Mistletoe PRT).
+
 | TC | Scope | Mechanism |
 |----|-------|-----------|
-| [22022421962 — RAPL Cold TDP checkout](https://hsdes.intel.com/appstore/article-one/#/22022421962) | Cold boot defaults | PL_INFO / default fuse initialization |
 | [22022421965 — RAPL Response time and quality](https://hsdes.intel.com/appstore/article-one/#/22022421965) | Response time / quality | NN-PID convergence; freq oscillation ≤ ±1 bin |
-| [22022421976 — Sweep CPU RAPL limits](https://hsdes.intel.com/appstore/article-one/#/22022421976) | Sweep limits | Runtime TPMI PL1 writes; ENERGY_STATUS validation |
-| [22022421978 — Throttling below Pm](https://hsdes.intel.com/appstore/article-one/#/22022421978) | Below-Pm throttle | fast_throttle assertion; clock div + arch throttle |
-| [22022421989 — Verify capability to change limits](https://hsdes.intel.com/appstore/article-one/#/22022421989) | Runtime changes | Re-convergence after TPMI update |
-| [22022421931 — Validate RAPL=0 during OS Boot](https://hsdes.intel.com/appstore/article-one/#/22022421931) | Counter initialization | ENERGY_STATUS / PERF_STATUS reset at boot |
-| [[PSS] PEM — Socket RAPL PL1](https://hsdes.intel.com/appstore/article-one/#/16030715720) | Socket RAPL PL1 | PL1 enforcement via NN-PID |
-| [[PSS] PEM — Socket RAPL PL2](https://hsdes.intel.com/appstore/article-one/#/16030715722) | Socket RAPL PL2 | PL2 enforcement via NN-PID |
-| [[PSS] Perf Status — Socket RAPL](https://hsdes.intel.com/appstore/article-one/#/16030715724) | PERF_STATUS | Throttle accounting accuracy |
-| [[PSS] PLR — Socket RAPL PL2](https://hsdes.intel.com/appstore/article-one/#/16030715726) | PL2 response | PL2 step response; settling time |
-| [[PSS] PLR — Socket RAPL PL1](https://hsdes.intel.com/appstore/article-one/#/16030715728) | PL1 response | PL1 step response; settling time |
-| [[PSS] Verify Mistletoe PRT](https://hsdes.intel.com/appstore/article-one/#/16030715734) | PRT validation | OOB / platform runtime path |
+| [22022421976 — Sweep CPU RAPL limits](https://hsdes.intel.com/appstore/article-one/#/22022421976) | Sweep limits + re-convergence | Runtime TPMI PL1 writes; power tracks new target; ENERGY_STATUS validation |
+| [22022421989 — Verify capability to change limits](https://hsdes.intel.com/appstore/article-one/#/22022421989) | Runtime changes + re-convergence | Re-convergence after TPMI update within spec time |
 
 ---
 
@@ -143,14 +140,27 @@ Programming rules:
 
 ## Section 5: Operational Behavior
 
-Socket RAPL shall:
+> **WHAT (tightened per Co-Design T2 audit 2026-07-18):** NN-PID control loop convergence quality and runtime enforcement for Socket RAPL PL1/PL2.
+
+Socket RAPL NN-PID enforcement shall:
 - Monitor runtime power via IMON telemetry (1 ms nominal)
 - Enforce programmed power limits through PrimeCode NN-PID control loops
-- Distribute the effective performance ceiling to all active compute dies
-- Assert fast_throttle when the resolved ceiling is below Pm
-- Expose control, status, and accounting through TPMI
+- Distribute the effective performance ceiling to all active compute dies via HPM 0x14
+- Converge to target power within spec time after initial boot and after runtime limit changes
 
-This TCD covers: default initialization, runtime programming, convergence quality, throttle accounting, below-Pm behavior, and interface correctness.
+**Pass/fail bar:**
+- PL1 response time: 3–5 × τ; PL1 settling time: 3–5 × τ
+- PL2 response time: ~8 ms; PL2 settling time: ~25 ms
+- Frequency oscillation at steady state: ≤ ±1 bin (100 MHz)
+- Steady-state power error: < 1% of target power limit
+- Runtime reprogramming: after TPMI PL1/PL2 target change, PID re-converges to new target within the same spec times above
+
+**Out of scope (moved to sibling TCDs):**
+- Cold boot fuse/default validation → TCD 22022420813
+- Counter reset at boot → TCD 22022420821
+- PERF_STATUS throttle accounting → TCD 22022420821
+- OOB/PRT platform path → TCD 22022420821
+- Below-Pm fast_throttle mechanism → proposed new TCD [spec ref: RAPL HAS — FastRAPL/anti-windup/max-clipped-integral]
 
 ---
 

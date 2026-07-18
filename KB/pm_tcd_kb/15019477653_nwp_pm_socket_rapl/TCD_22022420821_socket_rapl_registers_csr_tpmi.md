@@ -82,11 +82,13 @@ Base functional behavior is covered by **[TCD 22022420798](https://hsdes.intel.c
 |----|---------------------|-------|
 | [22022422023 -- RAPL Energy status reporting](https://hsdes.intel.com/appstore/article-one/#/22022422023) | TPMI ENERGY_STATUS | Energy counter correctness; monotonic; TIME field; fuzzing via MSR 0xBC |
 | [22022422029 -- RAPL MSR checks - Negative test case](https://hsdes.intel.com/appstore/article-one/#/22022422029) | MSR 0x610, 0x611, 0x606 | Deprecated on NWP: reads return 0, writes no-op; negative validation |
-| [22022422032 -- RAPL PEM (PnP Excursion Monitor)](https://hsdes.intel.com/appstore/article-one/#/22022422032) | TPMI / RAPL PEM registers | Excursion monitor visibility and behavior |
 | [22022422034 -- RAPL PL1/PL2 limits and Tau Verification](https://hsdes.intel.com/appstore/article-one/#/22022422034) | TPMI PL1_CONTROL, PL2_CONTROL | Power-limit and time-window programming / readback; U11.3 encoding |
-| [22022422036 -- RAPL Perf limit reasons - Fine and Coarse](https://hsdes.intel.com/appstore/article-one/#/22022422036) | TPMI PERF_STATUS reason fields | Fine / coarse throttle reason reporting; correct reason when PL1 vs PL2 limiting |
-| [22022422038 -- RAPL Perf status](https://hsdes.intel.com/appstore/article-one/#/22022422038) | TPMI PERF_STATUS | Throttle accounting behavior; counter increment correctness |
 | [22022422040 -- Socket RAPL verification - OOB](https://hsdes.intel.com/appstore/article-one/#/22022422040) | PECI-over-MCTP / OOBMSM | OOB access consistency with in-band TPMI reads / writes |
+
+> **Moved out (Co-Design T2 audits 2026-07-18):**
+> - TC 22022422032 (PEM), TC 22022422036 (PLR), TC 22022422038 (Perf Status), TC 16030715724 (PSS Perf Status) → [TCD 16031169448 — Reporting / Observability](https://hsdes.intel.com/appstore/article-one/#/16031169448)
+> - TC 16030715734 (Mistletoe PRT) → [TCD 16031169423 — Mistletoe PRT](https://hsdes.intel.com/appstore/article-one/#/16031169423)
+> - TC 22022421931 (RAPL=0 at boot) → [TCD 16031169466 — Boot / Reset Boundary Conditions](https://hsdes.intel.com/appstore/article-one/#/16031169466)
 
 ---
 
@@ -151,11 +153,31 @@ Base functional behavior is covered by **[TCD 22022420798](https://hsdes.intel.c
 
 ## Section 5: Operational Behavior
 
-- **ENERGY_STATUS**: monotonic energy counter; 10 ns TIME field; energy fuzzing support via MSR 0xBC
-- **PERF_STATUS**: throttle counter with fine (per-reason) and coarse fields; increments under active RAPL limiting
-- **PL1/PL2_CONTROL**: BIOS-programmed limit readback; LOCK enforcement; clipping to fused MAX
-- **Deprecated MSRs**: reads return 0; writes are no-ops -- silicon-level enforcement
-- **OOB**: TPMI register visibility via BMC/NM path is consistent with in-band access
+> **WHAT (refined per Co-Design T2 audit 2026-07-18):** Software-visible Socket RAPL register interface correctness — CSR, TPMI, deprecated MSR, and OOB access paths behave per spec. This is a pure register-interface TCD: encoding, readback, access control, and path consistency. Reporting/observability (PLR, PERF_STATUS accounting, PEM) moved to [TCD 16031169448](https://hsdes.intel.com/appstore/article-one/#/16031169448). Algorithm convergence belongs to TCD 22022420798. Fuse/BIOS-policy belongs to TCD 22022420813.
+
+**Pass/fail bar (structured by sub-interface family):**
+
+**A. Energy Counter Interface** (TC 22022422023):
+- ENERGY_STATUS counter is monotonic; 0.0625 J/LSB encoding; TIME field 10 ns units
+- Energy fuzzing via MSR 0xBC.bit0: when enabled, ENERGY_STATUS values are fuzzed; when disabled, raw values
+- *Boot-time counter init (ENERGY_STATUS=0, PERF_STATUS=0) moved to [TCD 16031169466 — Boot / Reset Boundary](https://hsdes.intel.com/appstore/article-one/#/16031169466)*
+
+**B. PL Control Encoding** (TC 22022422034):
+- PL1_CONTROL / PL2_CONTROL: programmed PWR_LIM readback matches written value (U11.3 encoding)
+- TIME_WINDOW: programmed tau encoding readback matches (exponent-mantissa)
+- LOCK: when set, subsequent writes rejected; readback unchanged
+- **Boundary with TCD 22022420813:** This TCD validates register encoding/readback correctness. TCD 22022420813 validates that BIOS-configured policy values are correct (fuse-sourced bounds, BIOS knob intent).
+
+**C. Deprecated MSR Negative Testing** (TC 22022422029):
+- MSR 0x610, 0x611, 0x606: reads return 0; writes silently dropped; no TPMI side effect
+
+**D. OOB Access Path** (TC 22022422040):
+- OOB register reads via PECI-over-MCTP/OOBMSM are consistent with inband TPMI reads for all Socket RAPL registers
+
+**Moved out:**
+- Throttle accounting / PLR reporting (TCs 22022422036, 22022422038, 16030715724) → [TCD 16031169448 — Reporting / Observability](https://hsdes.intel.com/appstore/article-one/#/16031169448)
+- PEM observability (TC 22022422032) → [TCD 16031169448 — Reporting / Observability](https://hsdes.intel.com/appstore/article-one/#/16031169448)
+- Mistletoe PRT (TC 16030715734) → [TCD 16031169423 — Mistletoe PRT](https://hsdes.intel.com/appstore/article-one/#/16031169423)
 
 ---
 
@@ -170,6 +192,10 @@ Base functional behavior is covered by **[TCD 22022420798](https://hsdes.intel.c
 | OOB and in-band read of same register | Values shall be consistent |
 | Energy fuzzing enabled + OOB read | OOB may observe fuzzed or unfiltered value per path policy |
 | PL1_CONTROL LOCK=1, OOB write attempt | Write rejected via OOB path as well |
+| Invalid tau / reduced-range TW programming (TW outside [1s,5s] for PL1 or [11.7ms,39ms] for PL2) | PrimeCode clips to valid range; TPMI reflects effective (clipped) value — *(TC TBD)* [spec ref: RAPL HAS — PL1 Tau / TW1/TW2 reduced-range] |
+| ENERGY_STATUS 32-bit rollover / wrap under sustained load | Counter wraps to 0 after 0xFFFFFFFF; software delta calculation handles wrap — *(TC TBD)* [spec ref: RAPL HAS — energy reporting] |
+| ENERGY_STATUS persistence across warm reset | ENERGY_STATUS NOT reset on warm reset; counter continues monotonically — *(TC TBD)* [spec ref: RAPL HAS — register reset semantics] |
+| OOB DOMAIN_HEADER returns all-Fs (invalid instance) | All registers in that instance are invalid even if completion=0x40; BMC must check DOMAIN_HEADER before accessing registers — *(TC TBD)* [spec ref: RAPL HAS — IB/OOB read/write-block interface-selection] |
 
 ---
 

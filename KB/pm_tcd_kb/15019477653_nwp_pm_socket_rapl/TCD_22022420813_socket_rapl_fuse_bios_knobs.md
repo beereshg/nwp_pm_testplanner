@@ -54,6 +54,7 @@ Socket RAPL fuse handling and BIOS knob programming are **fully supported on NWP
 |----|-------|----------------|
 | [22022422017 -- RAPL - Checkout fuses related to RAPL](https://hsdes.intel.com/appstore/article-one/#/22022422017) | Fuse checkout | PL_INFO.MAX_PL1 = fused TDP; MAX_PL2 = 1.2 x TDP; MIN_PL non-zero; values match silicon fuse programming |
 | [22022422018 -- RAPL BIOS Knobs Verification](https://hsdes.intel.com/appstore/article-one/#/22022422018) | BIOS knob verification | BIOS-programmed PL1_CONTROL / PL2_CONTROL values match expected policy; LOCK bit reflects BIOS lock setting; PL values within fused MAX bounds |
+| [22022421962 -- RAPL Cold TDP checkout](https://hsdes.intel.com/appstore/article-one/#/22022421962) | Cold boot defaults | PL_INFO / default fuse initialization; PL1 default = TDP, PL2 default = 1.2×TDP *(moved from TCD 22022420798 per Co-Design T2 audit — fuse scope, not PID scope)* |
 
 ---
 

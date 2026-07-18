@@ -161,6 +161,7 @@ Under normal Socket RAPL operation, PrimeCode periodically distributes RAPL_PERF
 | Only one CBB throttled | PERF_STATUS increments only on throttled CBB |
 | HPM 0x14 message loss | CBB holds last received limit; potential drift detected via PERF_STATUS stale count |
 | Warm reset during active throttle | RAPL_PERF_LIMIT reset; new ceiling sent after PH6; no residual throttle |
+| Cross-die stale-limit-after-reset (HSLE XOS scenario) | After warm reset, NIO re-sends fresh RAPL_PERF_LIMIT to both CBBs via HPM 0x14; CBBs discard any pre-reset cached limit; IMH↔CBB re-synchronization verified end-to-end — *(TC TBD)* [spec ref: RAPL HAS — root/leaf HPM flow for RAPL_PERF_LIMIT / LEAF_PERF_STATUS] |
 
 ---
 
