@@ -226,44 +226,26 @@ Replace bullet-list corner cases with a structured 4-column table:
 
 Only after user confirms.
 
-**IMPORTANT — PowerShell quote mangling**: Do NOT inline the push script in a PowerShell
-heredoc. Double quotes inside `@"..."@` blocks are mangled by PowerShell, causing
-`SyntaxError` in Python. Always write the script to a temp `.py` file first:
-
 ```powershell
-# Step A — write script to temp file
-@'
-import requests, urllib3
-from requests_kerberos import HTTPKerberosAuth, OPTIONAL
-urllib3.disable_warnings()
+# Auto-detects HSD ID and subject (test_case_definition) from filename
+python tools/hsd/push_preview.py tcd_description_output/TCD_{TCD_ID}_{slug}_preview.html
 
-html = open('tcd_description_output/TCD_{id}_{slug}_preview.html', encoding='utf-8').read()
-marker = '<div class="desc-box">'
-start  = html.index(marker) + len(marker)
-end    = html.rindex('</div>', 0, html.index('</body>'))
-content = html[start:end].strip()
-print('content_len:', len(content))
-
-s = requests.Session()
-s.auth = HTTPKerberosAuth(mutual_authentication=OPTIONAL)
-s.verify = False
-s.headers.update({'Content-Type': 'application/json', 'Accept': 'application/json'})
-
-r = s.put('https://hsdes-api.intel.com/rest/article/{TCD_ID}',
-    json={'tenant': 'server', 'subject': 'test_case_definition',
-          'fieldValues': [{'description': content}, {'send_mail': 'false'}]},
-    timeout=60)
-print(r.status_code, 'OK' if r.status_code == 200 else r.text[:400])
-'@ | Set-Content -Path '_push_tcd_{TCD_ID}.py' -Encoding utf8
-
-# Step B — run it
-python _push_tcd_{TCD_ID}.py
-
-# Step C — clean up
-Remove-Item _push_tcd_{TCD_ID}.py
+# Dry-run first if unsure
+python tools/hsd/push_preview.py --dry-run tcd_description_output/TCD_{TCD_ID}_{slug}_preview.html
 ```
 
-Expected output: `content_len: <N>` then `200 OK`.
+Expected output:
+```
+  file    : tcd_description_output/TCD_{ID}_..._preview.html
+  hsd_id  : {ID}  (https://hsdes.intel.com/appstore/article-one/#/{ID})
+  subject : test_case_definition
+  content : {N} chars
+  result  : 200 OK
+```
+
+> **Never use temp `.py` files or inline Python in PowerShell heredocs.**
+> `push_preview.py` handles desc-box extraction, Kerberos auth, and subject routing internally.
+> Source: `tools/hsd/push_preview.py`
 
 **After update:** regenerate preview to confirm HSD shows new content.
 

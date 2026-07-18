@@ -175,11 +175,38 @@ python tools/html/generate_tcd_preview.py --tcd <TCD_ID> --force
 # Output: tcd_description_output/TCD_{id}_{slug}_preview.html
 
 # Step 5: update HSD (only after user confirms preview)
-# (done via PUT — see skill for script pattern)
+python tools/hsd/push_preview.py tcd_description_output/TCD_{TCD_ID}_{slug}_preview.html
+# Dry-run first: python tools/hsd/push_preview.py --dry-run ...
+```
+
+For TPF description work, follow `.github/skills/nwp-tpf-description/SKILL.md`:
+```powershell
+# Generate TPF preview
+python tools/html/generate_tpf_preview.py --tpf <TPF_ID> --force
+# Output: tpf_description_output/TPF_{id}_{slug}_preview.html
+
+# Push to HSD
+python tools/hsd/push_preview.py tpf_description_output/TPF_{TPF_ID}_{slug}_preview.html
 ```
 
 **TCD KB cache:** `KB/pm_tcd_kb/{tp_id}_{tp_slug}/TCD_{tcd_id}_{slug}.md`  
 Read this before re-fetching — delta updates only.
+
+---
+
+## Available Tools (`tools/` directory)
+
+| Script | Purpose | Usage |
+|--------|---------|-------|
+| `tools/hsd/push_preview.py` | Push KB preview HTML to HSD article description | `python tools/hsd/push_preview.py <preview.html>` |
+| `tools/hsd/hsd_update.py` | Update any HSD field (raw content, status, reason) | `python tools/hsd/hsd_update.py <ID> --subject <s> --desc-file <f>` |
+| `tools/hsd/hsd_fetch.py` | Fetch HSD article data | See script `--help` |
+| `tools/html/generate_tcd_preview.py` | Generate TCD preview HTML from KB cache | `python tools/html/generate_tcd_preview.py --tcd <ID> --force` |
+| `tools/html/generate_tpf_preview.py` | Generate TPF preview HTML from KB cache | `python tools/html/generate_tpf_preview.py --tpf <ID> --force` |
+| `tools/html/generate_unified_html.py` | Generate FV/PSS pipeline HTML | `python tools/html/generate_unified_html.py --segment fv --hsd <ID> --force` |
+
+> **NEVER generate temp `.py` push scripts.** Always use `tools/hsd/push_preview.py`.
+> Auto-detects HSD ID and subject from filename prefix (`TPF_` → `test_plan`, `TCD_` → `test_case_definition`, `TC_` → `test_case`).
 
 ---
 

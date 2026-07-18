@@ -465,40 +465,29 @@ For each TCD whose Section 1 had diagrams extracted to TPF Section 2:
 
 ---
 
-## Step 7 — Push to HSD (TPF subject = `test_plan`)
-
-**IMPORTANT:** Write to a temp `.py` file — never inline Python in PowerShell `@"..."@`.
-
-> **Note:** The regex extraction below works correctly for TPF previews (simpler HTML structure). For TCD previews, use the index-based `html.index` / `html.rindex` pattern instead (see `nwp-tcd-description` skill).
+## Step 7 — Push to HSD
 
 ```powershell
-@'
-import re, requests, urllib3
-from requests_kerberos import HTTPKerberosAuth, OPTIONAL
-urllib3.disable_warnings()
+# Auto-detects HSD ID (16030762939) and subject (test_plan) from filename
+python tools/hsd/push_preview.py tpf_description_output/TPF_{TPF_ID}_{slug}_preview.html
 
-html = open('tpf_description_output/TPF_{ID}_{slug}_preview.html', encoding='utf-8').read()
-m = re.compile(r'<div class="desc-box">(.*?)</div>\s*</div>\s*</body>', re.DOTALL).search(html)
-content = m.group(1).strip()
-print('content_len:', len(content))
-
-s = requests.Session()
-s.auth = HTTPKerberosAuth(mutual_authentication=OPTIONAL)
-s.verify = False
-s.headers.update({'Content-Type': 'application/json', 'Accept': 'application/json'})
-
-r = s.put('https://hsdes-api.intel.com/rest/article/{TPF_ID}',
-    json={'tenant': 'server', 'subject': 'test_plan',
-          'fieldValues': [{'description': content}, {'send_mail': 'false'}]},
-    timeout=60)
-print(r.status_code, 'OK' if r.status_code == 200 else r.text[:400])
-'@ | Set-Content '_push_tpf_{TPF_ID}.py' -Encoding utf8
-
-python _push_tpf_{TPF_ID}.py
-Remove-Item _push_tpf_{TPF_ID}.py
+# Dry-run first if unsure
+python tools/hsd/push_preview.py --dry-run tpf_description_output/TPF_{TPF_ID}_{slug}_preview.html
 ```
 
-> **Key difference from TCD push:** subject = `test_plan` (not `test_case_definition`)
+Expected output:
+```
+  file    : tpf_description_output/TPF_{ID}_..._preview.html
+  hsd_id  : {ID}  (https://hsdes.intel.com/appstore/article-one/#/{ID})
+  subject : test_plan
+  content : {N} chars
+  result  : 200 OK
+```
+
+> **Never use temp `.py` files or inline Python in PowerShell heredocs.**
+> PowerShell parses `<` as an operator even inside quoted strings.
+> `push_preview.py` handles desc-box extraction, Kerberos auth, and subject routing internally.
+> See also: `tools/hsd/hsd_update.py` for raw field updates (no desc-box extraction).
 
 ---
 
