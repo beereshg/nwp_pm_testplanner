@@ -193,8 +193,26 @@ ASCII diagram here
 
 ## Section 5: Risks & Dependencies
 
+**Split §5 into two sub-sections** when coverage gaps have been analysed:
+
+### Active Risks
+
 - **{Risk 1}**: description + mitigation
 - **{Risk 2}**: ...
+
+### Accepted Coverage Limitations (by design — no new TCs required)
+
+Document inherent gaps that have no actionable TC. Required fields: current coverage, accepted rationale.
+
+| Gap ID | Description | Coverage Today | Accepted Rationale |
+|--------|-------------|----------------|-------------------|
+| **G-N** | What cannot be tested | FV only / PV only / env-only | Why this is the only correct detection path (e.g. silicon-level HW bug; driver requires booted OS; model gap by design) |
+
+**When to use the accepted limitations table:**
+- After running a formal coverage gap analysis (see Common Pitfalls below)
+- G-numbered gaps that have no lightweight pre-silicon equivalent
+- Inherent architectural limitations (e.g. Acode VP model gap, cross-die HPM HSLE XOS only)
+- NOT for gaps that have candidate TCs — those go in TCD §6 as *(TC TBD)*
 
 ---
 
@@ -210,6 +228,15 @@ ASCII diagram here
 
 | Corner Case | Affected TCDs | Expected Behavior |
 ...
+
+**Coverage gap table (use when formal gap analysis has been done):**
+
+After a gap analysis session, replace or extend the corner cases table with the full
+5-column gap table. P1 (actionable) gaps belong here; accepted/inherent gaps go in §5.
+
+| Gap ID | Gap | Current Coverage | Missing Tier | Recommended TC |
+|--------|-----|-----------------|-------------|----------------|
+| **G-N** | scenario | existing TC or `none` | FV / PV / PSS | new TC stub or `accepted` |
 
 ---
 
@@ -273,6 +300,8 @@ For each TCD whose Section 1 had diagrams extracted to TPF Section 2:
 ## Step 7 — Push to HSD (TPF subject = `test_plan`)
 
 **IMPORTANT:** Write to a temp `.py` file — never inline Python in PowerShell `@"..."@`.
+
+> **Note:** The regex extraction below works correctly for TPF previews (simpler HTML structure). For TCD previews, use the index-based `html.index` / `html.rindex` pattern instead (see `nwp-tcd-description` skill).
 
 ```powershell
 @'
@@ -341,3 +370,6 @@ Example: TPF `16030762939` lives under TP `16030762839_sst_speed_select_technolo
 | Wrong HSD subject for TPF PUT | Use `subject: test_plan` (TPF and TP share the same subject) |
 | Child TCD table in Section 8 is stale | Generator fetches live children from HSD — table is always current; Section 8 KB text is for references only |
 | No KB file → generator falls back to HSD-LIVE | Creates preview from raw HSD HTML (unstructured) — enrich KB first for structured output |
+| Using TCD regex extraction for TPF push | TPF regex `(.*?)</div>\s*</div>\s*</body>` works for TPF. TCD preview has deeper nesting — use index-based extraction for TCD (see `nwp-tcd-description` skill) |
+| §5 is a flat bullet list after gap analysis | After a formal gap analysis, split §5 into "Active Risks" + "Accepted Coverage Limitations" table. Actionable gaps (candidate TC exists) stay in TCD §6 as *(TC TBD)*, NOT in TPF §5 |
+| Coverage gap table mixes actionable + accepted gaps | Keep them separate: accepted/inherent gaps (no TC possible) → TPF §5 table; gaps with candidate TCs → TCD §6 bullets |

@@ -126,16 +126,20 @@ ASCII diagram here
 
 ### Push to HSD — Extract desc-box only (skip header)
 
-When pushing TCD preview HTML to HSD, extract only the `desc-box` div to start the
-description from Section 1 (Architecture), skipping the preview header:
+When pushing TCD preview HTML to HSD, extract only the `desc-box` div content.
+
+**WARNING — do NOT use the regex pattern here.** TCD preview HTML has many nested `</div>` tags inside the description body. The non-greedy `.*?` regex stops at the first `</div>` inside the content (an empty match). Always use the **index-based extraction** instead:
 
 ```python
-import re
 html = open('tcd_description_output/TCD_{id}_{slug}_preview.html', encoding='utf-8').read()
-m = re.search(r'<div class="desc-box">(.*?)</div>\s*</div>\s*</body>', html, re.DOTALL)
-content = m.group(1).strip() if m else html
+marker = '<div class="desc-box">'
+start  = html.index(marker) + len(marker)
+end    = html.rindex('</div>', 0, html.index('</body>'))
+content = html[start:end].strip()
 # Then PUT content to HSD
 ```
+
+The `rindex` finds the **last** `</div>` before `</body>`, which is the desc-box closing tag. This correctly captures all nested section content.
 
 ### PowerShell heredoc warning
 
@@ -227,13 +231,15 @@ heredoc. Double quotes inside `@"..."@` blocks are mangled by PowerShell, causin
 ```powershell
 # Step A — write script to temp file
 @'
-import re, requests, urllib3
+import requests, urllib3
 from requests_kerberos import HTTPKerberosAuth, OPTIONAL
 urllib3.disable_warnings()
 
 html = open('tcd_description_output/TCD_{id}_{slug}_preview.html', encoding='utf-8').read()
-m = re.compile(r'<div class="desc-box">(.*?)</div>\s*</div>\s*</body>', re.DOTALL).search(html)
-content = m.group(1).strip()
+marker = '<div class="desc-box">'
+start  = html.index(marker) + len(marker)
+end    = html.rindex('</div>', 0, html.index('</body>'))
+content = html[start:end].strip()
 print('content_len:', len(content))
 
 s = requests.Session()
