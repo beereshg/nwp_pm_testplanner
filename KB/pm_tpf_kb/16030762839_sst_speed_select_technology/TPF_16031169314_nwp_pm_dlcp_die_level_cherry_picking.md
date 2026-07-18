@@ -151,9 +151,21 @@ Key distinction from standard PCT: the `SST_TF_INFO_101.QUALIFIED_MODULE_MASK` r
 
 | SKU / Config | Distinction | TCDs Affected |
 |---|---|---|
-| `PCT_Module_Mask = 0` (DLCP absent) | TCs pivot to Scenario B — negative checks only; TC 16030982837 skipped | TCD 16030982802 (all 4 TCs) |
+| `PCT_Module_Mask ≠ 0` (DLCP Active, Scenario A) | SST_TF_INFO_10 ≠ 0; BIOS uses fuse mask for CLOS; per-core HWP_CAPABILITIES differ | TCD 16030982802 (all 4 TCs) |
+| `PCT_Module_Mask = 0` (DLCP Absent, Scenario B) | SST_TF_INFO_10 = 0; BIOS falls back to MADT order; TCs 16030982833/44/50 as negative checks | TCD 16030982802 (all 4 TCs) |
 | `CAPID4.bit29 = 0` (PCT not fuse-capable) | All DLCP TCs skip — PCT not available on this SKU | TCD 16030982802 (all 4 TCs) |
 | NWP 2-CBB topology | Each CBB has independent `PCT_Module_Mask` and `SST_TF_INFO_10` — HP masks may differ per CBB | TCD 16030982802 (TC 16030982844) |
+
+### Agent Source Ownership
+
+*Where to look when debugging a DLCP-specific anomaly.*
+
+| Layer / Agent | Key Artifact |
+|---|---|
+| DLCP Fuse Policy — PrimeCode (IMH-P, Phase 5) | `sst_tpmi_general.cpp` — reads PCT_Module_Mask fuse, writes SST_TF_INFO_10 per CBB |
+| DLCP BIOS Programming — BIOS (CPL3) | CPUPM FAS (DLCP section); SST_CLOS_ASSOC programming from fuse mask |
+| SST-TF Enforcement — PCode (CBB) | `sst_manager.cpp`, `trl_manager.cpp` (shared with standard PCT — CBB SST Manager FAS) |
+| Acode / Microcode Layer | RTL / Acode — no SW interface; debug via WP4 broadcast in PCode NLog |
 
 ---
 
