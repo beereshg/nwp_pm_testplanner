@@ -174,32 +174,87 @@ User opens `tcd_description_output/TCD_{id}_{slug}_preview.html` and:
 - Checks Feature Overview quality
 - Checks register tables are accurate
 - Checks NWP delta table
+- Reviews Section 6 coverage verdict (see below)
 - Approves or requests changes
 
 **Do not proceed to Step 5 without explicit approval.**
 
 ---
 
+## Step 4a — Section 6 Corner Cases Coverage Review
+
+When the user asks "does this grade today" or "will existing TCs cover this?", perform a
+coverage verdict for every corner case in Section 6 before generating/updating the preview.
+
+### Coverage Verdict Table Format
+
+Replace bullet-list corner cases with a structured 4-column table:
+
+```markdown
+## Section 6: Corner Cases & Error Handling
+
+| Corner Case | Description | Current Coverage | Action Required |
+|-------------|-------------|-----------------|----------------|
+| **Name** | What can go wrong | ✅ Covered by TC XXXXXXX / ⚠️ Verification criterion only / ❌ Not covered | No action / Add as pass criterion in TC X / New TC needed |
+```
+
+### Coverage Verdict Rules
+
+| Verdict | When to use | Action |
+|---------|------------|--------|
+| ✅ **Covered** | An existing TC explicitly exercises this scenario as a test step or pass criterion | No action |
+| ⚠️ **Verification criterion only** | No standalone TC needed — should be an explicit check *within* existing TCs (e.g. dual-read alignment, precondition guard) | Note which TCs to add the check to |
+| ❌ **Gap — new TC needed** | Scenario has no coverage path in any existing TC under this TCD | State recommended TC scope; note analogous TC from sibling TCD if one exists |
+
+### Typical Gap Patterns
+
+- **Negative boundary** (max+1, out-of-range knob value): positive-path sweep TCs never test this → gap
+- **Post-transition stale state**: TC that starts from a disabled state cannot verify clean removal of prior-enabled state → must start from prior-enabled baseline
+- **Cross-register alignment** (sysfs vs MSR vs TPMI): not a standalone TC; add as dual-read pass criterion
+- **Infrastructure prerequisites** (driver loaded, tool present): precondition guard, not a TC
+
+---
+
 ## Step 5 — Update HSD Description
 
-Only after user confirms:
+Only after user confirms.
 
-`python
-import requests, urllib3
+**IMPORTANT — PowerShell quote mangling**: Do NOT inline the push script in a PowerShell
+heredoc. Double quotes inside `@"..."@` blocks are mangled by PowerShell, causing
+`SyntaxError` in Python. Always write the script to a temp `.py` file first:
+
+```powershell
+# Step A — write script to temp file
+@'
+import re, requests, urllib3
 from requests_kerberos import HTTPKerberosAuth, OPTIONAL
 urllib3.disable_warnings()
+
+html = open('tcd_description_output/TCD_{id}_{slug}_preview.html', encoding='utf-8').read()
+m = re.compile(r'<div class="desc-box">(.*?)</div>\s*</div>\s*</body>', re.DOTALL).search(html)
+content = m.group(1).strip()
+print('content_len:', len(content))
+
 s = requests.Session()
 s.auth = HTTPKerberosAuth(mutual_authentication=OPTIONAL)
 s.verify = False
-s.headers.update({'Content-Type':'application/json','Accept':'application/json'})
+s.headers.update({'Content-Type': 'application/json', 'Accept': 'application/json'})
 
-r = s.put(f'https://hsdes-api.intel.com/rest/article/{TCD_ID}', json={
-    'tenant': 'server',
-    'subject': 'test_case_definition',
-    'fieldValues': [{'description': NEW_HTML}, {'send_mail': 'false'}]
-}, timeout=60)
-print(r.status_code, 'OK' if r.status_code == 200 else r.text[:200])
-`
+r = s.put('https://hsdes-api.intel.com/rest/article/{TCD_ID}',
+    json={'tenant': 'server', 'subject': 'test_case_definition',
+          'fieldValues': [{'description': content}, {'send_mail': 'false'}]},
+    timeout=60)
+print(r.status_code, 'OK' if r.status_code == 200 else r.text[:400])
+'@ | Set-Content -Path '_push_tcd_{TCD_ID}.py' -Encoding utf8
+
+# Step B — run it
+python _push_tcd_{TCD_ID}.py
+
+# Step C — clean up
+Remove-Item _push_tcd_{TCD_ID}.py
+```
+
+Expected output: `content_len: <N>` then `200 OK`.
 
 **After update:** regenerate preview to confirm HSD shows new content.
 
@@ -246,6 +301,19 @@ Use the same section/box style as existing TCD descriptions:
 
 **Slug:** title lowercased, spaces/special chars → `_`, max 50 chars.
 
+### Stale KB File Handling
+
+The preview generator finds the KB file by glob `*{TCD_ID}*.md`. If an existing KB file
+has the **correct ID but wrong title slug** (HSD article was renamed after initial caching):
+
+1. **Verify live title first** — fetch `id,title` from HSD before assuming the cached title is correct
+2. **Rename stale file** to remove the ID from its filename (prevents glob collision):
+   ```powershell
+   Rename-Item 'KB/pm_tcd_kb/.../TCD_{id}_old_slug.md' 'TCD_STALE_old_slug_ref.md'
+   ```
+3. **Create new file** with correct slug: `TCD_{id}_{correct_slug}.md`
+4. Add a comment at the top of the stale file: `<!-- STALE: HSD {id} renamed. See TCD_{id}_{new_slug}.md -->`
+
 ---
 
 ## Common Pitfalls
@@ -255,5 +323,8 @@ Use the same section/box style as existing TCD descriptions:
 | Generic Feature Overview ("Validate X on NWP") | Replace with spec-derived content using HAS/MAS |
 | Missing register paths | Read KB/pm_features article or query codesign-ask-specs-and-wikis |
 | Updating HSD before preview | Always preview first, wait for confirm |
-| HTML encoding issues | Use PowerShell heredoc (`@" ... "@`) for Python scripts |
+| PowerShell quote mangling in push script | Write script to temp `.py` file, run it, then delete — never inline double-quoted Python in `@"..."@` |
 | Wrong subject in PUT | Use `subject: test_case_definition` for TCD (not `test_case`) |
+| Section 4 contains TC test code | Section 4 = feature programming theory (register sequence, BIOS flow, OS discovery). Move test code to TC descriptions, not TCD |
+| Stale KB filename (ID present, title wrong) | Fetch live HSD title first; rename stale file to `TCD_STALE_*` (removes ID from glob); create new file with correct slug |
+| Section 6 as bullet list only | Convert to 4-column coverage table (Corner Case / Description / Current Coverage / Action Required) when assessing gaps |

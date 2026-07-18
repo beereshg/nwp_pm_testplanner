@@ -9,7 +9,7 @@
 | **Parent TPF** | [16030762939 -- NWP PM PCT (Priority Core Turbo)](https://hsdes.intel.com/appstore/article-one/#/16030762939) |
 | **Scope distinct from** | TCD 22022420855 (PCT - Enabling & Discovery) |
 | **Child TCs** | [22022422104](https://hsdes.intel.com/appstore/article-one/#/22022422104) -- All HP in C6 (VP)<br>[22022422105](https://hsdes.intel.com/appstore/article-one/#/22022422105) -- Default HP selection (VP)<br>[22022422110](https://hsdes.intel.com/appstore/article-one/#/22022422110) -- SST-PP x PCT (rejected)<br>[22022422116](https://hsdes.intel.com/appstore/article-one/#/22022422116) -- Turbo freq check (VP)<br>[22022422117](https://hsdes.intel.com/appstore/article-one/#/22022422117) -- TDP convergence (VP)<br>[16030715676](https://hsdes.intel.com/appstore/article-one/#/16030715676) -- PSS All HP in C6<br>[16030715680](https://hsdes.intel.com/appstore/article-one/#/16030715680) -- PSS BIOS Negative<br>[16030715684](https://hsdes.intel.com/appstore/article-one/#/16030715684) -- PSS Default Disabled<br>[16030715686](https://hsdes.intel.com/appstore/article-one/#/16030715686) -- PSS Default HP selection<br>[16030715692](https://hsdes.intel.com/appstore/article-one/#/16030715692) -- PSS Turbo freq check<br>[16030715694](https://hsdes.intel.com/appstore/article-one/#/16030715694) -- PSS enable/disable<br>[16030717717](https://hsdes.intel.com/appstore/article-one/#/16030717717) -- PV Custom Config<br>[16030717718](https://hsdes.intel.com/appstore/article-one/#/16030717718) -- PV Partition Sweep<br>[16030717719](https://hsdes.intel.com/appstore/article-one/#/16030717719) -- PV PCT Disable<br>[16030768619](https://hsdes.intel.com/appstore/article-one/#/16030768619) -- Default Enabled<br>[16030768620](https://hsdes.intel.com/appstore/article-one/#/16030768620) -- TPMI runtime enable/disable<br>[16030768621](https://hsdes.intel.com/appstore/article-one/#/16030768621) -- TPMI runtime negative |
-| **KB last updated** | 2026-07-15 |
+| **KB last updated** | 2026-07-18 |
 
 ---
 
@@ -108,7 +108,7 @@ PCT Functionality covers the **runtime enforcement** of HP/LP frequency ceilings
 | Concept | Description |
 |---------|-------------|
 | **LP always clipped** | CLOS_CONFIG[3].max enforces LP ceiling regardless of HP C-state. Critical invariant tested by TC 22022422104. |
-| **Ordered Throttle** | SST_CP_PRIORITY_TYPE=1: LP throttled first, HP last under RAPL PL1. |
+| **Ordered Throttle** | SST_CP_PRIORITY_TYPE=1 — three phases under RAPL PL1: (A) LP frequency drops first; (B) HP maintained at PCT TRL while LP still has headroom; (C) **HP is throttled when LP is already at its minimum floor and PL1 is still exceeded**. HP throttle is deferred — not prevented. |
 | **HP bucket** | 3 buckets; higher bucket = fewer active HP cores = higher per-core HP TRL. |
 | **Default disabled (NWP)** | PctHpModuleCount=0 at boot. No CLOS differentiation; conventional turbo only. |
 | **Default enabled (GNR fuse)** | CAPID4.bit29=1 auto-enables PCT; validated by TC 16030768619 (not NWP POR). |
@@ -151,7 +151,7 @@ PCT Functionality covers the **runtime enforcement** of HP/LP frequency ceilings
 
 - **Phase 5 (PrimeCode)**: Fuses read; SST_TF_INFO_0/2 populated. HP TRL and LP clip values fixed before BIOS.
 - **CPL3 (BIOS)**: Programs CLOS_CONFIG[0/3], CLOS_ASSOC, SST_CP_CONTROL.priority_type=1, SST_PP_CONTROL.feature_state[1]=1. All functionality tests assume this precondition complete.
-- **Runtime**: PCode slow loop (1ms RAPL PID) computes WP4_HP/LP per CDYN and broadcasts via PMSB. Ordered throttle kicks in when socket power exceeds PL1.
+- **Runtime**: PCode slow loop (1ms RAPL PID) computes WP4_HP/LP per CDYN and broadcasts via PMSB. Ordered throttle kicks in when socket power exceeds PL1: LP frequency reduces first (Phase A/B); if budget is still exceeded after LP reaches its minimum floor, HP frequency is then reduced (Phase C). HP is throttled last — not exempt.
 - **TPMI runtime toggle**: SST_PP_CONTROL.feature_state[1] can be toggled at runtime via Intel SST tool. PCode reacts within 1 slow-loop cycle; HWP_CAPABILITY.highest_perf updates per core.
 - **C-state interaction**: HP cores in C6 do NOT release LP clip. LP cores remain at CLOS_CONFIG[3].max ceiling. Power freed by HP C6 is not redistributed to LP.
 
@@ -219,6 +219,42 @@ assert min(lp_ratios) < lp_clip, "LP not throttled yet"
 assert min(hp_ratios) >= hp_trl * 0.9, "HP throttled before LP exhausted"
 ```
 
+### TC (TBD): PCT × RAPL — Phase C HP throttle under severe power limit
+
+Covers the regime where PL1 is set so aggressively that LP reaches its minimum floor and budget is still exceeded, forcing HP to throttle (Phase C). TC 22022422117 covers Phases A/B only.
+
+```python
+import time
+
+# Set PL1 aggressively to force Phase C
+nio = sv.socket0.nio0
+hp_trl = nio.tpmi.sst_tf_info_2.ratio_0
+lp_floor = nio.tpmi.sst_tf_info_0.lp_clip_ratio_0  # Pn; LP floor once LP_CLIP exhausted
+
+severe_pl1_watts = get_tdp_watts() * 0.35  # ~35% TDP — forces Phase C on NWP
+set_socket_rapl_pl1(severe_pl1_watts)       # TPMI SOCKET_RAPL_PL1_CONTROL
+time.sleep(0.5)  # allow multiple 1ms PID cycles to converge
+
+lp_ratios = [get_core_ratio(c) for c in lp_cores]
+hp_ratios = [get_core_ratio(c) for c in hp_cores]
+
+# Phase A/B invariant: LP must have reached floor before HP drops
+assert max(lp_ratios) <= lp_floor + 1, \
+    f"LP not at minimum floor (max={max(lp_ratios)}, floor={lp_floor}) before HP throttle"
+
+# Phase C invariant: HP must have throttled below HP TRL
+assert min(hp_ratios) < hp_trl, \
+    f"HP did not throttle in Phase C (min={min(hp_ratios)}, trl={hp_trl})"
+
+# Power convergence: socket power within 10% of PL1
+socket_power = get_socket_power_watts()
+assert abs(socket_power - severe_pl1_watts) / severe_pl1_watts < 0.10, \
+    f"Power did not converge: {socket_power:.1f}W vs {severe_pl1_watts:.1f}W"
+
+# Ordering check: HP drop must not precede LP reaching floor
+# (verify via IA32_PERF_STATUS snapshot sequence across the throttle ramp)
+```
+
 ### TC 16030768620: TPMI runtime enable/disable
 
 ```python
@@ -246,7 +282,8 @@ assert hp_perf > lp_perf, "HP must have higher highest_perf than LP"
 | Normal PCT active | HP at ~4.4 GHz; LP clipped at ~P1; HWP_CAP differs per core | 22022422116, 16030715692 |
 | All HP cores in C6 | LP cores still clipped at LP_CLIP -- invariant | 22022422104, 16030715676 |
 | Default HP selection | 8 HP cores in CLOS[0]; first 2 per partition per CBB | 22022422105, 16030715686 |
-| TDP convergence | LP throttled first (Ordered); HP maintained longer | 22022422117 |
+| TDP convergence (Phase A/B) | LP drops first under RAPL PL1; HP TRL maintained while LP has headroom | 22022422117 |
+| PCT × RAPL Phase C — HP throttle under severe limit | LP at minimum floor with PL1 still exceeded: HP drops below HP TRL; power converges to PL1 | *(TC TBD)* |
 | PCT disabled (default) | SST_CP_ENABLE=0; all cores at conventional TRL; no HP/LP split | 16030715684 |
 | PCT enabled automatically | feature_state[1]=1 at boot; HP/LP differentiation active | 16030768619 |
 | TPMI runtime disable/enable | SST tool toggle; HWP_CAP updates within 1 slow-loop | 16030768620 |
@@ -268,6 +305,7 @@ assert hp_perf > lp_perf, "HP must have higher highest_perf than LP"
 - **Partition count bounds**: Max HP = SST_TF_INFO_8.NUM_CORE_0 / MAX_LPIDS. BIOS must reject values above this. TC 16030715680 validates the rejection path.
 - **SST-PP x PCT (TC 22022422110 rejected)**: Dynamic SST-PP switching while PCT active tested and rejected for NWP. SST-PP switching scope belongs to a separate TCD.
 - **SST-BF conflict**: ZBB on NWP. DQ rules (TC 22022422118) verify no interference. Actual mutex not exercised.
+- **Phase C — HP throttle under severe PL1** *(gap)*: TC 22022422117 verifies Phase A/B only — LP drops before HP, HP TRL preserved while LP has headroom. It does **not** cover Phase C: when PL1 is set aggressively low (≈30–50% TDP) and LP is already at its minimum floor, HP must throttle too. This regime has no TC. Candidate: new TC in this TCD targeting PL1 ≈ 35% TDP with PTAT on all 96 cores, verifying LP is at floor before HP drops and that power converges to PL1.
 
 ---
 

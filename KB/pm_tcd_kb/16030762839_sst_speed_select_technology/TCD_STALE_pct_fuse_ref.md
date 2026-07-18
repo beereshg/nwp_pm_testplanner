@@ -1,9 +1,12 @@
 # TCD: PCT - Fuse
 
+<!-- STALE: HSD 22022420862 was renamed. This content is preserved for reference only. -->
+<!-- New KB file: TCD_22022420862_pct_ubuntu_e2e_functional_test.md -->
+
 | Field | Value |
 |-------|-------|
-| **TCD ID** | [22022420862](https://hsdes.intel.com/appstore/article-one/#/22022420862) |
-| **Title** | PCT - Fuse |
+| **TCD ID** | [22022420862 — STALE CACHE](https://hsdes.intel.com/appstore/article-one/#/22022420862) |
+| **Title** | PCT - Fuse (STALE — live title is "PCT - Ubuntu E2E Functional Test") |
 | **Status** | open |
 | **Owner** | bg3 |
 | **Parent TP** | [16030762839 — SST Speed Select Technology](https://hsdes.intel.com/appstore/article-one/#/16030762839) |
