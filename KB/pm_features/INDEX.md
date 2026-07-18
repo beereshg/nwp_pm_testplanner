@@ -23,6 +23,7 @@
 | [SoC Thermal Management](soc_thermal/soc_thermal_main.md) | `soc_thermal/` | 89 | 15 | 15/15 ✅ | ✅ |
 | [SST](sst/sst_main.md) | `sst/` | 70 | 12 | 12/12 ✅ | ✅ (PCT/SST-TF only; SST-PP/HGS ZBB) |
 | [Thermal](thermal/thermal_main.md) | `thermal/` | 10 | 4 | 4/4 ✅ | ✅ |
+| [CBB CCF PM](cbb_ccf_pm/cbb_ccf_pm_main.md) | `cbb_ccf_pm/` | — | — | T6 lineage | ✅ (no NWP delta) |
 
 > ¹ Power/RAPL folder covers multiple TP feature labels: **Power/RAPL** (60 TCs), **Socket RAPL** (30 TCs),
 > **PMAX** (14 TCs), **SIMPL/IccMax** (8 TCs), **SVID** (5 TCs) — all architecturally coupled in PCode/PrimeCode.
