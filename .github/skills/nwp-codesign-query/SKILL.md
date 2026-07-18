@@ -22,42 +22,63 @@ mechanically folded back into coverage tables.
 
 ---
 
-## Step 1 — Pack local context (always)
+## Step 1a — Pack feature context (per-feature)
 
 Build a compact hierarchy snapshot for the feature in question from the KB
 cache (not by pasting whole KB files):
 
 ```
 Feature: PCT (Priority Core Turbo) | TPF 16030762939
-TCDs and their TCs (title + one-line WHAT + bar):
+TCDs and their TCs (title · one-line WHAT · pass/fail bar):
 - [PV] TCD 22022420862 "PV BIOS Configuration": TCs 17717 (custom config),
-  17718 (partition sweep 1..max). Bar: CLOS regs reflect HP/LP split.
-- [PV] TCD 16031169217 "PV BIOS Disable": TC 17719 (count=0). Bar: no split,
-  conventional turbo behavior (cpuinfo_max_freq uniform).
-- [PV] TCD 16031169214 "PV Discovery": TC 17720 (capability reporting).
-  Bar: correct topology via intel-speed-select.
-- [FV] TCD 22022420858 "Functionality": 17 TCs. Bar: ordered throttle
-  (LP reduced first), CLOS register programming correct.
-- [PSS] TCD 22022420855 "Enabling & Discovery": 2 TCs (BIOS menu, DQ rules).
-  Bar: feature present and fuse-enabled in VP + HSLE XOS.
-  NOTE: SST-TF TCDs (22022420925, 22022420928, 16030785069) are in the same
-  TP but are SST-TF-specific, not PCT. NWP has no SST-BF (ZBB).
-  NOTE: TCD 16030982802 (DLCP Die-Level Cherry-Picking) is a separate
-  scenario under the same TP, distinct from standard PCT.
+  17718 (partition sweep 1..max).
+  Bar: CLOS regs reflect HP/LP split; cpuinfo_max_freq aligns
+       with HWP_CAP per core class (HP ≈ 4.4 GHz, LP ≈ 2.3 GHz).
+- [PV] TCD 16031169217 "PV BIOS Disable": TC 17719 (count=0).
+  Bar: cpuinfo_max_freq uniform across all cores (no HP/LP split);
+       conventional single-bucket turbo behavior restored.
+...
 ```
 
 Rules:
-- ≤40 lines of context. Titles + WHAT + bar only — no HTML, no logs.
+- ≤40 lines of context. Titles + WHAT + **bar** only — no HTML, no logs.
+- **Every TCD entry MUST include its pass/fail bar.** A snapshot without
+  bars can only get structural answers back; bars are what enable T3-style
+  bar validation to happen for free inside a T1 gap audit.
 - Include tier prefixes ([PSS]/[PV]/[FV]) so tier-mapping questions work.
 - Note known issues honestly (e.g. "3 duplicate Discovery TCDs pending
   cleanup") so Co-Design doesn't rediscover them as findings.
 - State what is explicitly NOT covered (e.g. "no negative validation TCD")
   so Co-Design focuses on genuine gaps.
-- **Always include the NWP silicon context block below** so Co-Design
-  references the right HAS/MAS (NWP-specific where available; DMR-SP CBB
-  HAS for CBB/PCode features shared with DMR).
+- Note previously identified gaps (e.g. "Phase C HP throttle is tracked
+  as TC-TBD in TCD 22022420858 §6") to avoid duplicate findings.
 
-### NWP Silicon Context (always add to every prompt)
+---
+
+## Step 1b — Silicon routing context (write-once, reuse)
+
+This block is **platform truth, not feature truth**. Write it once and
+reuse it verbatim across every feature's prompts — PCT, RAPL, C-states,
+SST-TF, Fabric DVFS, etc. It does not change per-feature.
+
+**Purpose:** Co-Design has 40+ spec resources spanning DMR, CWF, GNR, and
+NWP. Without routing rules it will happily cite the wrong platform's HAS.
+Each line below exists to prevent a specific wrong-HAS citation:
+
+| Line | Prevents |
+|------|----------|
+| `IMH2 (NWP-specific)` | Citing DMR IMH1 HAS for IMH-side features |
+| `CBB = PNC, DMR-SP CBB HAS applies` | Searching for a non-existent NWP CBB HAS |
+| `unless NWP CBB delta HAS exists` | Missing a real NWP delta when one is published |
+| `no SST-BF (ZBB)` | Flagging SST-BF gaps that don't apply to NWP |
+| `max_partitions=4` | Citing GNR/DMR partition limits |
+| `TPMI replaces MSR 0x610/0x638` | Citing deprecated MSR paths for RAPL PL1 |
+| `HSLE XOS = cross-die required` | Claiming HSLE single-die covers cross-die bugs |
+
+**Keep the delta list short and factual.** Each entry is there to prevent
+one specific wrong citation — not to teach Co-Design about NWP.
+
+### Block (paste into every prompt after the hierarchy snapshot)
 
 ```
 Silicon context:
@@ -74,6 +95,11 @@ Silicon context:
   Key NWP delta from DMR: 96 cores (2 CBBs × 48), no SST-BF (ZBB),
   max_partitions=4 for PCT, TPMI replaces deprecated MSR 0x610/0x638.
 ```
+
+**When to update this block:** Only when NWP silicon facts change (e.g. a
+NWP CBB delta HAS is published, a new PSS environment is added, or a
+previously-ZBB feature becomes POR). Feature-specific context goes in
+Step 1a, not here.
 
 ---
 
@@ -323,4 +349,6 @@ to existing artifacts — do not paraphrase them.
 | Treating Co-Design output as authoritative for OUR structure | It's authoritative for SPEC; structure decisions stay under local rules (WHAT-boundary, bar ownership) |
 | Findings pushed straight to HSD | Gap rows first, confirm, then push |
 | Losing the spec refs | Copy clause IDs into TCD §2 on ingest — do not discard |
-| Re-running T1 without noting what was already found | Add "NOTE: previously identified gaps G1–G5 are already tracked" to context block |
+| Re-running T1 without noting what was already found | Add "NOTE: previously identified gaps G1–G5 are already tracked" to Step 1a context block |
+| Snapshot without bars | Every TCD entry must include its pass/fail bar — bars enable T3-style bar validation inside a T1 gap audit for free |
+| Editing the silicon context per-feature | Step 1b is platform truth, not feature truth — write once, reuse verbatim; feature-specific notes go in Step 1a |
