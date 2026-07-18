@@ -130,6 +130,7 @@ A regenerated diagram may look "prettier" but drop panels from the original — 
 | `### Register Table` / `### MSR Table` / `### Programming Model` | `### Interface & Register Matrix` |
 | `### Observability` / `### Debug Registers` / `### Debug Knobs` | `### Observability` |
 | `### SKU` / `### Config` / `### Platform Variations` | `### SKU / Config Distinctions` |
+| `### Firmware Agent Responsibilities` (§1 intra-doc) | `### Agent Source Ownership` — extract `Key Artifact` column only; `Role` column is redundant with §2 full-stack diagram |
 | Unrecognized heading | ⚠️  Flag for manual placement — do NOT silently drop |
 
 ---
@@ -170,10 +171,18 @@ The generator (`generate_tpf_preview.py`) maps KB headings to numbered HTML sect
 [Feature overview: what the feature is, silicon-heavy vs firmware-heavy classification,
  key capability gating mechanism (fuse, BIOS knob, etc.)]
 
-### Firmware Agent Responsibilities
+> **§1 scope rule:** §1 contains ONLY: feature intro paragraph, gating mechanism (fuse name or BIOS
+> knob path), and feature-specific constants. Do NOT put firmware agent roles here — they duplicate
+> the §2 full-stack diagram. If §1 has a `### Firmware Agent Responsibilities` table:
+> - Extract the `Key Artifact` column → add a `### Agent Source Ownership` table in §2
+> - Delete the Role column (already covered by the full-stack diagram layer boxes)
+> - See Common Pitfall: *§1 restates §2 layer responsibilities*
 
-| Agent | Role |
-...
+### Feature-Specific Constants
+
+| Parameter | Value | Source |
+|---|---|---|
+| *(key feature constants: core counts, frequency targets, fuse names, max partitions, etc.)* | | |
 
 ---
 
@@ -275,6 +284,17 @@ BIOS-knob-controlled, or config-restricted behaviors that affect multiple TCDs u
 | SKU / Config | Distinction | TCDs affected |
 |---|---|---|
 | *(populate from HAS §SKU or TCD config tables)* | | |
+
+### Agent Source Ownership
+
+**Named landing zone.** Source file / FAS ownership for each layer — promoted from §1 if a
+`### Firmware Agent Responsibilities` table was present there (extract `Key Artifact` column;
+discard the `Role` column, which is redundant with the full-stack diagram layer boxes).
+Use this when a frequency / power anomaly needs to be traced to the right codebase.
+
+| Layer / Agent | Key Artifact (source file / FAS) |
+|---|---|
+| *(populate from HAS §Implementation or §1 agent table `Key Artifact` column)* | |
 
 ---
 
