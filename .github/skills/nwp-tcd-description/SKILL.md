@@ -11,7 +11,7 @@ description: >
 # NWP TCD Description Skill
 
 > Repo root: `c:/github/nwp_testplan/`
-> Depends on: `nwp-tc-deepanalysis` skill (NWP architecture constants, ZBB table, HSD API patterns)
+> Depends on: `nwp-tc-description` skill (NWP architecture constants, ZBB table, HSD API patterns)
 > Related: `nwp-tpf-description` skill — architecture diagrams and feature-wide flows belong at TPF level, not in TCD Section 1
 > Related: **`nwp-tc-description` skill** — HOW content (test steps, command lines, BIOS register execution sequences, measurement method) belongs in TC, not TCD. **The pass/fail bar (measurable thresholds, acceptance criteria) is owned by TCD §5.**
 
@@ -240,7 +240,7 @@ Intro paragraph ≤80 words. WHAT this scenario validates and why it matters. No
 | [HSD ID — Title](url) | scenario description | FV / PSS / PV |
 ```
 
-**Removed from template:** `### Runtime Control Flow` (→ TC §4 Steps), `### Block Decomposition` (→ TPF §2 Design Details).
+**Removed from template:** `### Runtime Control Flow` (→ TC §4 Steps), `### Block Decomposition` (→ TPF §2 Design Details), `### Scope Boundary` (sibling TCD enumeration tables are navigation, not WHAT content — the TPF §8 TCD Coverage table already provides this view at the right abstraction level).
 
 ### Push to HSD — Extract desc-box only (skip header)
 
