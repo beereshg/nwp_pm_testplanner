@@ -115,7 +115,82 @@ Rename-Item 'KB/pm_tcd_kb/.../TCD_{id}_old_slug.md' 'TCD_STALE_old_slug_ref.md'
 | L6 | §6 corner cases use 4-column verdict table, not bullet list | Warning |
 | L7 | Parent TPF link present in §1 | Warning |
 
-On any **Block** failure: fix the KB file, re-lint, then continue to Step 3.
+On any **Block** failure: fix the KB file, re-lint, then continue to Step 2.7.
+
+---
+
+## Step 2.7 — Environment Feasibility Gate
+
+Run after lints pass, per scenario row in §6. Produces an **Env** column
+in the §6 coverage table. This is a deterministic rubric, not a judgment
+call — apply the four questions in order; the first disqualifier decides.
+
+### The rubric (per scenario)
+
+**Q1 — Observability.** What must be observed to evaluate the §5 bar?
+- Arch-visible only (MSR/TPMI/CSR reads, OS/driver state, tool output,
+  sysfs) → Simics/VP eligible, continue to Q2.
+- RTL-internal signals, FSM states, clock/power-gating waveforms,
+  cycle-accurate event ordering → **Emulation (HSLE)** floor.
+- Analog behavior, real thermals, real power delivery, fuse burn,
+  physical-layer effects → **Silicon only**. Stop.
+
+**Q2 — Controllability.** What must be injected to drive the scenario?
+- Nothing beyond SW-reachable knobs (BIOS, MSR/TPMI writes, workload) →
+  eligible at current floor.
+- HW-side inputs the model exposes injection knobs for (temp sensor
+  values, telemetry overrides, fuse-state overrides) → eligible at
+  current floor, mark **Partial** and name the injection in Blocker
+  notes.
+- HW-side inputs with no model injection path → raise floor one level
+  (Simics→HSLE, HSLE→Silicon).
+
+**Q3 — Timing in the bar.** Does the §5 pass/fail bar reference latency,
+response windows, ordering deadlines, or cycle counts?
+- Yes → Simics/VP is **None** regardless of Q1/Q2 (functional model, no
+  timing fidelity). Floor is HSLE for relative timing, Silicon for
+  absolute/wall-clock timing.
+- No → floor stands.
+
+**Q4 — Model coverage (external truth).** Does the model at the current
+floor actually implement this behavior? The rubric cannot answer this
+locally. If any scenario's verdict depends on Q4:
+- Generate a **T7 prompt** via nwp-codesign-query (model coverage
+  check) and mark the Env cell **TBD-T7** until the answer lands.
+- Never assume implementation from the feature existing in the arch
+  spec — model coverage lags spec, and unmodeled behaviors fail
+  silently (reads return defaults, not errors).
+
+### Output — §6 Env column format
+
+Each scenario row gains: `Env: Simics=Full|Partial|None,
+HSLE=Full|Partial|None, Si=Full` (silicon is always Full unless the
+scenario is pre-Si-only by definition). Every **Partial** carries a
+one-clause blocker note naming the injected input or degraded
+observation. Every **TBD-T7** carries the pending question.
+
+Example row:
+```
+| Thermal-throttle entry | TC 17718 | Env: Simics=Partial (inject temp
+  sensor via model knob; PROCHOT analog path not modeled),
+  HSLE=Full, Si=Full |
+```
+
+### Gate rules
+
+- G1: A TCD may not leave this gate with any scenario whose Env row is
+  entirely None/TBD across all environments — that is a WHAT with no
+  execution path, which means either the bar is unmeasurable (fix §5)
+  or a silicon-only TC must be planned explicitly.
+- G2: The Env column describes **feasibility**, not assignment. The
+  environment a TC actually runs in is TC-level (HOW) content — the TC
+  carries the env tag; the TCD carries only the matrix.
+- G3: Timing-bar scenarios (Q3=yes) must state in §5 which timing class
+  the bar belongs to (relative ordering vs absolute), because that
+  single word decides HSLE vs Silicon.
+- G4: Re-run the gate when the §5 bar changes — bar edits are the most
+  common way a Simics-Full scenario silently becomes Simics-None
+  (someone adds a latency clause).
 
 ---
 

@@ -285,6 +285,50 @@ single row with `no spec access`. ≤3-line summary of the NWP-relevant
 tail (last generation → NWP deltas) after the table. No other prose.
 ```
 
+### T7: Model / environment coverage check
+
+> Use when: the TCD skill's Step 2.7 gate emits TBD-T7 cells — i.e. the
+> environment verdict depends on whether the Simics/VP model or HSLE
+> environment actually implements a behavior. Uses the **standard
+> Step 1b** silicon routing context (unlike T6): model questions are
+> NWP/DMR-scoped by nature.
+
+Context pack addition: include the scenario list with each scenario's
+Q1–Q3 verdicts and the specific behavior in question, e.g.:
+
+```
+Pending Q4 checks (feature: PCT):
+- S3 "Thermal-throttle entry": needs temp-sensor injection + PROCHOT
+  response. Q1=arch-visible, Q2=needs injection, Q3=no.
+- S5 "Ordered throttle phase B→C": needs observation of phase
+  transition ordering. Q1=arch-visible?, Q3=relative ordering.
+```
+
+Prompt body:
+
+```
+For the NWP Simics/VP model and HSLE emulation environment in your
+resources: for each scenario listed, does the environment implement the
+behavior required?
+1. Is the behavior modeled functionally (reads/writes take effect,
+   state machines transition)?
+2. What injection knobs exist for the HW-side inputs named (temp,
+   telemetry, fuses)? Name the knob or interface.
+3. For unmodeled behaviors: does the model return defaults/stubs
+   (silent) or error (loud)? This decides whether a test would
+   false-pass.
+4. Cite the model documentation or release notes per answer.
+```
+
+**T7 output contract** (replaces the standard Step 3 table):
+
+```
+Answer as a markdown table:
+| Scenario | Environment | Modeled? (Full/Partial/None) | Injection knob (name or none) | Failure mode if unmodeled (silent-default / error) | Doc ref (verbatim) |
+One row per scenario×environment asked. Unknown = `no doc access`, not
+a guess. ≤3-line summary.
+```
+
 ---
 
 ## Step 3 — Append the output contract (always, verbatim)
@@ -326,6 +370,18 @@ When the user pastes a Co-Design table into this session:
 | `bar change [TCD X §5]` | Update TCD X §5 bar text + regenerate preview; bar-sync lint flags child TCs |
 | `move TC [from X to Y]` | Parent link update via HSD (verify M:N handling); update both TCD KB coverage maps |
 | `accepted gap [reason]` | Add to TPF §5 Accepted Coverage Limitations table with spec ref as rationale |
+
+**T7 ingest rules:**
+- Each row resolves a TBD-T7 cell in the owning TCD's §6 Env column:
+  Modeled=Full → Full; Partial → Partial with the named knob in the
+  blocker note; None → None, floor rises per the Step 2.7 rubric.
+- **Silent-default rows are safety findings**, not just feasibility
+  data: a scenario that would false-pass on an unmodeled path gets a
+  ⚠ note in §6 ("do not run on Simics — silent false-pass risk") so no
+  future session schedules it there by mistake.
+- Knob names go into the TC (execution detail, HOW), not the TCD.
+- `no doc access` rows stay TBD; escalate to the model team manually —
+  do not downgrade to a guess.
 
 **T6 lineage ingest rules:**
 - The full lineage table lands in the **KB feature article** (its
@@ -424,3 +480,6 @@ to existing artifacts — do not paraphrase them.
 | Running T6 with the standard silicon routing block | T6 replaces Step 1b with the wide-scope directive — routing context suppresses the history you're asking for |
 | Accepting lineage rows without a Source-collection value | Provenance column is mandatory; a claim without a named doc may be cross-platform bleed-through |
 | Pasting the full lineage table into TCD §1 | Table → KB article; TCD gets the ≤2-sentence NWP tail only |
+| Inferring model coverage from the arch spec | Spec presence ≠ model coverage; only model docs/release notes count |
+| Treating silent-default behaviors as merely "None" | They are false-pass hazards — flag with ⚠ in §6, not just a None cell |
+| Copying injection knob names into the TCD | Knobs are execution detail → TC only; TCD keeps Full/Partial/None + blocker clause |
