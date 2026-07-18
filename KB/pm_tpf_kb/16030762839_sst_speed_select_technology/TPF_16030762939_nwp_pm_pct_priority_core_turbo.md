@@ -17,15 +17,6 @@
 
 **Feature gating:** On NWP, PCT is opt-in via BIOS Partition Count knob (CAPID4.bit29 is NOT used — all NWP parts are PCT-capable). On GNR, CAPID4.bit29=1 auto-enables PCT.
 
-### Firmware Agent Responsibilities
-
-| Agent | Role | Key Artifact |
-|-------|------|-------------|
-| PrimeCode (IMH-P) | Phase 5: reads SST_TF fuses; writes SST_TF_INFO_0/1/2/8/10 TPMI registers | `sst_tpmi_general.cpp::sstTfInfoInit()` |
-| BIOS (CPL3) | Reads partition count knob; programs CLOS_CONFIG[0/3], CLOS_ASSOC, SST_CP_CONTROL, SST_PP_CONTROL; overrides MSR 0x1AD | CPUPM FAS, BIOS PCT knob path |
-| PCode (CBB) | Enforces CLOS-based frequency limits per core; runs RAPL PID (1ms); applies ordered throttle under PL1 | `sst_manager.cpp`, `trl_manager.cpp` |
-| Acode (core microcode) | Executes at PCode-assigned CLOS ratio; HP = P0max ceiling, LP = LP_CLIP ceiling | RTL / Acode — no SW interface |
-
 ### NWP Architecture Constants
 
 | Parameter | Value | Source |
@@ -129,6 +120,17 @@
 
 > **§3 pointer:** PCT Validation Strategy §3 maps to this table — PSS + FV own Enforcement/Acode/HW layers;
 > PV owns OS/Tool + Policy layers; all three tiers share the SST-TF Enforcement layer.
+
+### Agent Source Ownership
+
+*Where to look when a frequency anomaly traces to a specific layer.*
+
+| Layer / Agent | Key Artifact |
+|---|---|
+| PCT Policy Layer — BIOS (CPL3) | CPUPM FAS; BIOS PCT knob path (`EDKII → Socket Config → Advanced PM Config → PCT Configuration`) |
+| SST-TF Enforcement — PCode (CBB) | `sst_manager.cpp`, `trl_manager.cpp` (CBB SST Manager FAS) |
+| SST-TF Init — PrimeCode (IMH-P, Phase 5) | `sst_tpmi_general.cpp::sstTfInfoInit()` |
+| Acode / Microcode Layer | RTL / Acode — no SW interface; debug via WP4 broadcast values in PCode NLog |
 
 ### PCT Reset / Boot to OS Flow
 
