@@ -1,9 +1,9 @@
-# TCD: Socket RAPL - Boot / Reset Boundary Conditions
+# TCD: Socket RAPL - Reset Register State Invariants
 
 | Field | Value |
 |-------|-------|
 | **TCD ID** | [16031169466](https://hsdes.intel.com/appstore/article-one/#/16031169466) |
-| **Title** | Socket RAPL - Boot / Reset Boundary Conditions |
+| **Title** | Socket RAPL - Reset Register State Invariants |
 | **Status** | open |
 | **Owner** | bg3 |
 | **Parent TPF** | [15019477653 -- NWP PM Socket RAPL](https://hsdes.intel.com/appstore/article-one/#/15019477653) |
@@ -11,11 +11,11 @@
 | **KB revision** | 2 |
 | **Feature** | Power / RAPL -- Socket RAPL boot-state invariants and reset boundary behavior |
 | **Created from** | Co-Design T2 audit -- boot/reset boundary split from TCD 22022420821 |
-| **REV 2 changes** | Spec-confirmed cold/warm reset behavior for all registers; fixed §4 content routing (removed test steps); §6 upgraded to 4-column coverage verdict; NWP NIO register paths confirmed |
+| **REV 2 changes** | Spec-confirmed cold/warm reset behavior for all registers; fixed §4 content routing (removed test steps); §6 upgraded to 4-column coverage verdict; NWP NIO register paths confirmed; split PL1 boundary TCs to [TCD 16031169559](https://hsdes.intel.com/appstore/article-one/#/16031169559) |
 
 ## Section 1: Architecture / Micro-architecture and Functionality
 
-This TCD verifies **Socket RAPL boot-state invariants and reset boundary conditions** on NWP. These are specific initialization and reset behaviors that define the expected state of RAPL registers and counters at well-defined system boundaries (cold boot, warm reset, lock clear). They are distinct from steady-state register interface correctness (TCD 22022420821) and from runtime algorithm behavior (TCD 22022420798).
+This TCD verifies **Socket RAPL reset register state invariants** on NWP — the expected register/counter state at cold boot and warm reset boundaries. It covers sticky vs non-sticky behavior, LOCK bit lifecycle, PL_INFO repopulation, and stale HPM handling. PL1 boundary value scenarios (PL1=0, PL1 toggle) are covered by sibling [TCD 16031169559](https://hsdes.intel.com/appstore/article-one/#/16031169559).
 
 > **Architecture overview:** See [TPF 15019477653](https://hsdes.intel.com/appstore/article-one/#/15019477653) Section 2 Design Details for boot flow.
 
@@ -31,8 +31,9 @@ This TCD verifies **Socket RAPL boot-state invariants and reset boundary conditi
 
 | TC | Scope | Key Validation |
 |----|-------|----------------|
-| [22022421931 -- [BEAT][FV PM][AR] Validate RAPL PL1=0 during OS Boot](https://hsdes.intel.com/appstore/article-one/#/22022421931) | Cold boot counter init | ENERGY_STATUS = 0, PERF_STATUS = 0 at OS boot |
-| [16031169546 -- [FV PM] Socket RAPL PL1 Toggle 0W to TDP Under Load](https://hsdes.intel.com/appstore/article-one/#/16031169546) | PL1 boundary toggle under load | PL1=0W clips to MIN_PL; PL1=TDP restores correct limit; multi-cycle stability |
+| [16031169551 -- [FV PM] Socket RAPL Warm Reset Register Persistence](https://hsdes.intel.com/appstore/article-one/#/16031169551) | Warm reset register persistence | ENERGY_STATUS, PERF_STATUS, LOCK persist across warm reset |
+| [16031169552 -- [FV PM] Socket RAPL Cold Reset Register Defaults](https://hsdes.intel.com/appstore/article-one/#/16031169552) | Cold reset defaults verification | LOCK=0 after cold reset; PL_INFO repopulated; PL1=TDP, PL2=1.2xTDP at OS handoff |
+| [16031169553 -- [FV PM] Socket RAPL Warm Reset Under Active Throttle](https://hsdes.intel.com/appstore/article-one/#/16031169553) | Warm reset during active throttle | No stale RAPL throttle after warm reset; fresh HPM; rapid reset succession clean |
 
 ### Coverage Gaps (from Co-Design T1 audit + REV 2 spec confirmation)
 
@@ -108,14 +109,14 @@ NWP uses a **single NIO die** (vs dual IMH on DMR). All RAPL PID controllers run
 
 | # | Scenario | Expected Outcome | Measurable Bar | TC Link |
 |---|----------|-----------------|----------------|---------|
-| 1 | Cold boot — counter init | ENERGY_STATUS = 0 and PERF_STATUS = 0 at OS handoff (post-CPL3) | `ENERGY_STATUS.ENERGY[31:0] == 0` AND `PERF_STATUS.PWR_LIMIT_THROTTLE_CTR[31:0] == 0` | [22022421931](https://hsdes.intel.com/appstore/article-one/#/22022421931) |
-| 2 | Warm reset — ENERGY_STATUS persistence | ENERGY_STATUS > 0 after warm reset (counter NOT cleared) | `ENERGY_STATUS.ENERGY[31:0] > pre_reset_energy_value` | *(TC TBD)* |
-| 3 | Warm reset — PERF_STATUS persistence | PERF_STATUS retains pre-reset value (sticky) | `PERF_STATUS.PWR_LIMIT_THROTTLE_CTR[31:0] >= pre_reset_throttle_ctr` | *(TC TBD)* |
-| 4 | Cold reset — LOCK bit cleared | PL1_CONTROL.LOCK = 0 and PL2_CONTROL.LOCK = 0 after cold reset, before BIOS CPL3 | `PL1_CONTROL.LOCK == 0` AND `PL2_CONTROL.LOCK == 0` (sampled before BIOS lock) | *(TC TBD)* |
-| 5 | Warm reset — LOCK bit persists | PL1_CONTROL.LOCK and PL2_CONTROL.LOCK retain pre-reset value | `PL1_CONTROL.LOCK == pre_reset_lock_value` | *(TC TBD)* |
-| 6 | Cold reset — PL1/PL2 defaults | PL1=TDP and PL2=1.2×TDP after cold reset at OS handoff | `PL1_CONTROL.PWR_LIM == PL_INFO.MAX_PL1` AND `PL2_CONTROL.PWR_LIM == PL_INFO.MAX_PL2` | [16031169546](https://hsdes.intel.com/appstore/article-one/#/16031169546) (partial — validates PL1=TDP restore) |
-| 7 | Cold reset — PL_INFO repopulation | PL_INFO matches fuse-derived TDP values after cold reset | `PL_INFO.MAX_PL1 == fuse_TDP` AND `PL_INFO.MAX_PL2 == 1.2 × fuse_TDP` | *(TC TBD)* |
-| 8 | Reset — fresh RAPL_PERF_LIMIT HPM | PrimeCode sends valid HPM 0x14 after PH6; no stale limit from previous boot | No RAPL throttling observed before workload starts post-reset | *(TC TBD)* |
+| 1 | Cold boot — counter init | ENERGY_STATUS = 0 and PERF_STATUS = 0 at OS handoff (post-CPL3) | `ENERGY_STATUS.ENERGY[31:0] == 0` AND `PERF_STATUS.PWR_LIMIT_THROTTLE_CTR[31:0] == 0` | [16031169552](https://hsdes.intel.com/appstore/article-one/#/16031169552) (step 9-10 verify defaults at OS handoff) |
+| 2 | Warm reset — ENERGY_STATUS persistence | ENERGY_STATUS > 0 after warm reset (counter NOT cleared) | `ENERGY_STATUS.ENERGY[31:0] > pre_reset_energy_value` | [16031169551](https://hsdes.intel.com/appstore/article-one/#/16031169551) |
+| 3 | Warm reset — PERF_STATUS persistence | PERF_STATUS retains pre-reset value (sticky) | `PERF_STATUS.PWR_LIMIT_THROTTLE_CTR[31:0] >= pre_reset_throttle_ctr` | [16031169551](https://hsdes.intel.com/appstore/article-one/#/16031169551) |
+| 4 | Cold reset — LOCK bit cleared | PL1_CONTROL.LOCK = 0 and PL2_CONTROL.LOCK = 0 after cold reset, before BIOS CPL3 | `PL1_CONTROL.LOCK == 0` AND `PL2_CONTROL.LOCK == 0` (sampled before BIOS lock) | [16031169552](https://hsdes.intel.com/appstore/article-one/#/16031169552) |
+| 5 | Warm reset — LOCK bit persists | PL1_CONTROL.LOCK and PL2_CONTROL.LOCK retain pre-reset value | `PL1_CONTROL.LOCK == pre_reset_lock_value` | [16031169551](https://hsdes.intel.com/appstore/article-one/#/16031169551) |
+| 6 | Cold reset — PL1/PL2 defaults | PL1=TDP and PL2=1.2×TDP after cold reset at OS handoff | `PL1_CONTROL.PWR_LIM == PL_INFO.MAX_PL1` AND `PL2_CONTROL.PWR_LIM == PL_INFO.MAX_PL2` | [16031169552](https://hsdes.intel.com/appstore/article-one/#/16031169552) |
+| 7 | Cold reset — PL_INFO repopulation | PL_INFO matches fuse-derived TDP values after cold reset | `PL_INFO.MAX_PL1 == fuse_TDP` AND `PL_INFO.MAX_PL2 == 1.2 × fuse_TDP` | [16031169552](https://hsdes.intel.com/appstore/article-one/#/16031169552) |
+| 8 | Reset — fresh RAPL_PERF_LIMIT HPM | PrimeCode sends valid HPM 0x14 after PH6; no stale limit from previous boot | No RAPL throttling observed before workload starts post-reset | [16031169553](https://hsdes.intel.com/appstore/article-one/#/16031169553) |
 
 ---
 
@@ -123,10 +124,10 @@ NWP uses a **single NIO die** (vs dual IMH on DMR). All RAPL PID controllers run
 
 | Corner Case | Description | Current Coverage | Action Required |
 |-------------|-------------|-----------------|----------------|
-| **Cold boot after power loss** | Full power cycle — all registers must be at cold-reset defaults: ENERGY=0, PERF=0, LOCK=0 | ✅ Covered by TC 22022421931 (cold boot counter init) | No action |
-| **Warm reset during active RAPL throttle** | RAPL PID is actively throttling when warm reset occurs — throttle must be removed; PID re-initialized at PH6; PERF_STATUS retains accumulated count | ❌ Not covered — no TC exercises warm reset under active throttle | New TC needed: run workload above PL1, trigger warm reset, verify PID re-init + counter persistence |
-| **Rapid warm reset succession** | Multiple warm resets within seconds — each must produce clean PH6 init without accumulated stale state in HPM or PID weights | ❌ Not covered — no TC tests sequential warm resets | New TC needed: 3× warm reset in <30s, verify PH6 init clean each time |
-| **LOCK = 1 before warm reset** | BIOS has locked PL1/PL2; LOCK must persist across warm reset (sticky bit) | ❌ Not covered — no TC verifies LOCK persistence across warm reset | New TC needed: verify LOCK=1 before and after warm reset |
+| **Cold boot after power loss** | Full power cycle — all registers must be at cold-reset defaults: ENERGY=0, PERF=0, LOCK=0 | ✅ Covered by TC 16031169552 (cold reset defaults) | No action |
+| **Warm reset during active RAPL throttle** | RAPL PID is actively throttling when warm reset occurs — throttle must be removed; PID re-initialized at PH6; PERF_STATUS retains accumulated count | ✅ Covered by TC 16031169553 (warm reset under throttle) | No action |
+| **Rapid warm reset succession** | Multiple warm resets within seconds — each must produce clean PH6 init without accumulated stale state in HPM or PID weights | ✅ Covered by TC 16031169553 (3x warm reset in <30s) | No action |
+| **LOCK = 1 before warm reset** | BIOS has locked PL1/PL2; LOCK must persist across warm reset (sticky bit) | ✅ Covered by TC 16031169551 (warm reset persistence, step 3+8) | No action |
 | **PL_INFO mismatch after cold reset** | PL_INFO should match fuse-derived TDP; mismatch indicates FW init failure | ⚠️ Verification criterion only — should be a precondition check in cold boot TCs | Add PL_INFO == fuse TDP assertion to TC 22022421931 precondition |
 | **ENERGY_STATUS rollover** | 32-bit energy counter wraps to 0 after 0xFFFFFFFF — must not be confused with cold reset clearing | ⚠️ Verification criterion only — add rollover awareness to warm reset persistence TC | Note in warm reset TC: if ENERGY post-reset < pre-reset, verify rollover (not reset) |
 | **OEM PL1/PL2 override vs defaults** | BIOS may program non-default PL1/PL2; cold reset must still restore to TDP/1.2×TDP before BIOS reprograms | ⚠️ Verification criterion only — sample PL1/PL2 after powergood_rst_b before BIOS CPL3 | Add pre-BIOS register read step to LOCK clear TC |
