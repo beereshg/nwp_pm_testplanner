@@ -414,7 +414,7 @@ def _generate_hsd_fallback(hsd_id: str, force: bool = False) -> int:
 </div>
 <div class="notice">ⓘ <b>HSD-live fallback</b> — no KB inference.md found for this TC.
   Showing current HSD description. Add an inference.md to get tabbed deep-analysis output.</div>
-<div class="content">
+<div class="desc-box">
 {desc_html}
 </div>
 </body>
@@ -560,7 +560,9 @@ def generate(hsd_id: str, force: bool = False) -> int:
 
 <div class="panels">
   <div id="tc" class="panel active tc-content">
+<div class="desc-box">
 {tc_desc_html}
+</div>
   </div>
   <div id="sec-a" class="panel">{sec_a}</div>
   <div id="sec-b" class="panel">{sec_b}</div>

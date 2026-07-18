@@ -65,6 +65,17 @@ def main():
             print(f"ERROR: File not found: {p}", file=sys.stderr)
             sys.exit(1)
         new_desc = p.read_text(encoding='utf-8')
+        # Guard: if the file is a preview page (contains desc-box), the caller
+        # should use push_preview.py instead — pushing the whole page as
+        # description would corrupt the HSD article with page chrome.
+        if 'class="desc-box"' in new_desc:
+            print(
+                f"ERROR: {p.name} looks like a preview page (contains class=\"desc-box\").\n"
+                f"  Use push_preview.py to push preview files:\n"
+                f"    python tools/hsd/push_preview.py {p}",
+                file=sys.stderr,
+            )
+            sys.exit(1)
         updates.append(('description', new_desc))
         print(f"  description: loaded from {p} ({len(new_desc)} chars)")
 
