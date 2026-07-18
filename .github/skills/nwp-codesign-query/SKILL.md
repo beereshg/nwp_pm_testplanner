@@ -53,6 +53,27 @@ Rules:
   cleanup") so Co-Design doesn't rediscover them as findings.
 - State what is explicitly NOT covered (e.g. "no negative validation TCD")
   so Co-Design focuses on genuine gaps.
+- **Always include the NWP silicon context block below** so Co-Design
+  references the right HAS/MAS (NWP-specific where available; DMR-SP CBB
+  HAS for CBB/PCode features shared with DMR).
+
+### NWP Silicon Context (always add to every prompt)
+
+```
+Silicon context:
+  Platform: NWP (Newport) — derivative of DMR (Diamond Rapids)
+  IMH:  IMH2 (NWP-specific; differs from DMR IMH1)
+          → Use NWP IMH2 HAS/MAS for any IMH-side content
+  CBB:  Same PantherCove (PNC) core as DMR-SP
+          → For CBB-level features (PCode, SST-TF, PCT, RAPL, P-state):
+            DMR-SP CBB HAS applies unless a NWP CBB delta HAS exists
+  PSS environments:
+    VP        — Simics virtual platform (full boot, firmware validation)
+    HSLE      — Single-die RTL (IMH2 alone OR CBB alone; NOT cross-die)
+    HSLE XOS  — Both IMH2+CBB RTL; mandatory for cross-die (IMH↔CBB) bugs
+  Key NWP delta from DMR: 96 cores (2 CBBs × 48), no SST-BF (ZBB),
+  max_partitions=4 for PCT, TPMI replaces deprecated MSR 0x610/0x638.
+```
 
 ---
 
@@ -130,9 +151,17 @@ For each bar:
 ```
 I am a validation engineer working on NWP PM test planning.
 Our tier mapping is:
-  PV  → OS/tool + policy layers (requires booted Ubuntu)
-  FV  → enforcement + HW layers (post-silicon, PythonSV)
-  PSS → policy + FW pre-silicon (VP Simics / HSLE / HSLE XOS)
+  PV  → OS/tool + policy layers (requires booted Ubuntu on NWP silicon)
+  FV  → enforcement + HW layers (post-silicon NWP, PythonSV/namednodes)
+  PSS → policy + FW pre-silicon:
+        VP       = Simics (firmware logic, no RTL)
+        HSLE     = single-die RTL (IMH2 alone OR CBB alone)
+        HSLE XOS = IMH2+CBB RTL together (required for cross-die behavior)
+
+NWP silicon context:
+  NWP = DMR derivative; IMH2 (differs from DMR IMH1); CBB = same PNC
+  core as DMR-SP. For CBB-level features (PCT, SST-TF, RAPL), DMR-SP
+  CBB HAS applies unless a NWP CBB delta HAS exists.
 
 [PASTE HIERARCHY SNAPSHOT WITH TIER PREFIXES]
 
@@ -142,6 +171,8 @@ For each spec behavior implied by the TCD titles:
 - Is any behavior claimed by no tier?
 - Is any behavior over-tested (same bug catchable at multiple tiers but
   only one adds unique value)?
+- For PSS: is HSLE XOS required (cross-die IMH2↔CBB protocol) or is
+  single-die HSLE sufficient?
 
 [PASTE OUTPUT CONTRACT]
 ```
@@ -154,6 +185,12 @@ For each spec behavior implied by the TCD titles:
 ```
 I am a validation engineer starting test planning for [FEATURE] on NWP.
 I have not yet created any TCDs in HSD.
+
+Silicon context:
+  Platform: NWP (Newport) — derivative of DMR (Diamond Rapids)
+  IMH: IMH2 (NWP-specific). CBB: same PantherCove (PNC) core as DMR-SP.
+  For CBB-level features, DMR-SP CBB HAS applies unless a NWP delta exists.
+  NWP key deltas from DMR: 96 cores (2×48), no SST-BF (ZBB).
 
 Please read the [FEATURE] HAS/MAS in your resources and list the
 validation-relevant behaviors, grouped by distinct WHAT. Each group
@@ -223,6 +260,16 @@ When the user pastes a Co-Design table into this session:
 I am a validation engineer working on NWP (Newport) PM test planning.
 Below is our current TCD/TC organization for PCT (Priority Core Turbo).
 Please review against the PCT HAS and MAS in your resources.
+
+Silicon context:
+  Platform: NWP (Newport) — derivative of DMR (Diamond Rapids)
+  IMH:  IMH2 (NWP-specific; use NWP IMH2 HAS for IMH-side content)
+  CBB:  same PantherCove (PNC) core as DMR-SP
+          → For PCT / SST-TF / RAPL (CBB PCode features): DMR-SP CBB HAS
+            applies unless a NWP CBB delta HAS exists
+  PSS environments: VP (Simics), HSLE (single-die), HSLE XOS (IMH2+CBB)
+  Key NWP delta: 96 cores (2×48), no SST-BF (ZBB), max_partitions=4,
+  TPMI replaces deprecated MSR 0x610/0x638 for RAPL PL1.
 
 Feature: PCT (Priority Core Turbo) | TPF 16030762939
 TCDs and their TCs (title + one-line WHAT + bar):
