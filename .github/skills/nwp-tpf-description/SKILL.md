@@ -302,10 +302,20 @@ Use this when a frequency / power anomaly needs to be traced to the right codeba
 
 [Three-tier rationale: PSS / FV / PV — what each validates and why all are needed.]
 
+> **PSS sub-environments:** PSS is not monolithic. Expand PSS columns in §4 to `PSS (VP) / PSS (HSLE) / PSS (XOS)` because each covers different IP scope:
+> - **VP (Simics):** firmware + simplified silicon model; safe for negative/destructive tests
+> - **HSLE:** single IMH or CBB RTL; can validate within-die PCode logic; cannot model cross-die protocol
+> - **HSLE XOS (both dies):** IMH+CBB RTL together; mandatory for any cross-die protocol bug class
+
 ### Tier Definitions
 
 | Tier | Environment | Interface | What it validates |
-...
+|---|---|---|---|
+| PSS — VP | Simics (virtual platform) | PythonSV → TPMI model | Firmware logic, BIOS flows, safe negative testing |
+| PSS — HSLE | Single-die RTL | PythonSV → TPMI RTL | Within-die PCode + Acode interaction |
+| PSS — XOS | Both-die RTL (IMH+CBB) | PythonSV → full RTL | Cross-die HPM protocol, full ordered throttle |
+| FV | Post-silicon NWP | PythonSV → namednodes | Real silicon behavior, real power/frequency |
+| PV | Post-silicon NWP + Ubuntu | `intel-speed-select` → sysfs | OS/driver layer, E2E user-visible capability |
 
 ---
 
@@ -313,15 +323,37 @@ Use this when a frequency / power anomaly needs to be traced to the right codeba
 
 [Bug coverage matrix (which tier catches which bug class) + scenario coverage across tiers.]
 
+**PSS sub-environment key** — split PSS columns by environment; each row only covers the PSS environments that can reach the bug:
+
+| Symbol | Meaning |
+|---|---|
+| ✅ | Catches / detects this bug class |
+| ❌ | Cannot catch — wrong environment or interface |
+| ⚠️ | Partial / limited detection (model gap, heuristic only) |
+| `indirect` | PV can observe the symptom at the OS/tool layer but cannot directly attribute it — FV is the isolation environment |
+| `✅ safe` / `❌ risky` | Environment-safety annotation: valid for BIOS negative validation where VP is safe (no silicon at risk) but FV would risk real silicon damage |
+
 ### Bug Coverage Matrix
 
-| Bug Category | PSS | FV | PV |
-...
+| Bug Category | PSS (VP) | PSS (HSLE) | PSS (XOS) | FV | PV |
+|---|---|---|---|---|---|
+| Firmware-layer bug (PCode / PrimeCode TPMI write logic) | ✅ | ⚠️ | ✅ | ✅ | indirect |
+| Cross-die protocol bug (IMH↔CBB HPM) | ❌ | ❌ | ✅ | ✅ | indirect |
+| Silicon HW bug (TPMI decoder, fuse gating) | ❌ | ❌ | ❌ | ✅ | indirect |
+| OS / driver bug (intel-speed-select, intel_pstate) | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Real-power / TDP convergence | ❌ | ❌ | ❌ | ✅ | ✅ |
+| BIOS negative validation | ✅ safe | ❌ | ❌ | ❌ risky | ❌ |
+| *(add feature-specific rows from HAS bug taxonomy)* | | | | | |
+
+> **BIOS negative validation rule:** VP (Simics) is the **only** safe environment for injecting invalid BIOS
+> values — no silicon at risk. FV is marked `❌ risky` because invalid programming can damage or lock real
+> silicon state. Do NOT run BIOS negative tests on FV without explicit hardware team sign-off.
 
 ### Scenario Coverage Across Tiers
 
 | Scenario | PSS | FV | PV | Unique value |
-...
+|---|---|---|---|---|
+| *(add feature scenarios)* | | | | |
 
 ---
 
