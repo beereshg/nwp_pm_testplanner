@@ -184,19 +184,90 @@ When a TC requires specific BIOS register programming, document it in the **Prec
 
 ## Push to HSD
 
-TCs use `subject: test_case`. Same index-based extraction as TCD:
+TCs use `subject: test_case`. **Always use `push_tc_description.py`** — it reads the
+inference.md, extracts sections via `generate_tc_description.py` extractors, renders
+through the Jinja2 template `KB/templates/tc_hsd_description.html.j2`, backs up the
+existing HSD description as a comment, then PUTs the rendered HTML.
 
-```python
-html = open('tc_description_output/TC_{id}_{slug}_preview.html', encoding='utf-8').read()
-marker = '<div class="desc-box">'
-start  = html.index(marker) + len(marker)
-end    = html.rindex('</div>', 0, html.index('</body>'))
-content = html[start:end].strip()
+```bash
+# Dry-run (preview only, no writes)
+python tools/html/push_tc_description.py --hsd 22022421978
 
-r = s.put(f'https://hsdes-api.intel.com/rest/article/{TC_ID}',
-    json={'tenant': 'server', 'subject': 'test_case',
-          'fieldValues': [{'description': content}, {'send_mail': 'false'}]},
-    timeout=60)
+# Push one TC (prompts for confirmation)
+python tools/html/push_tc_description.py --hsd 22022421978 --push
+
+# Push without per-TC prompt
+python tools/html/push_tc_description.py --hsd 22022421978 --push --yes
+
+# Push all TCs with KB inference.md
+python tools/html/push_tc_description.py --all --push --yes
+
+# Limit to FV segment
+python tools/html/push_tc_description.py --all --segment fv --push --yes
+```
+
+> **NEVER extract raw HTML from `generate_unified_html.py` output** for HSD push.
+> That script generates a multi-tab analysis page with `<style>` blocks, JavaScript,
+> and wrapper chrome that HSDES strips. The Jinja2 template produces inline-styled
+> HTML that HSDES renders correctly.
+
+### Jinja2 Pipeline Flow
+
+```
+inference.md  →  generate_tc_description.py extractors  →  Jinja2 render  →  HSD PUT
+                 (section headings → structured dict)       (tc_hsd_description.html.j2)
+```
+
+### Required Section Headings in inference.md
+
+The extractors in `generate_tc_description.py` search for these headings (first match wins):
+
+| Jinja2 Variable | Extractor Headings (priority order) |
+|-----------------|-------------------------------------|
+| `tc.scope` | `## Test Case Intent`, `### Test Case Intent`, `### Intent`, `### Refined Intent` |
+| `tc.preconditions` | `### Pre-Conditions`, `## Pre-Conditions`, `### Preconditions` |
+| `tc.steps` | `### Test Steps`, `## Test Steps`, `### Adapted Test Steps` |
+| `tc.passfail` | `### Pass / Fail Criteria`, `### Pass/Fail Criteria`, `## Pass/Fail Criteria` |
+| `tc.health_checks` | `### Health Checks`, `## Health Check` |
+| `tc.notes` | `## Section E: Risk Assessment`, `### Notes`, `## User Notes` |
+| `tc.opens` | `## Section E: Risk Assessment` (filters severity=high/medium) |
+| `tc.post_process` | `## Post-Process`, `### Post-Process`, `#### Post-Process` |
+| `config.fr_hsd` / `config.specs` | `## Section D: Spec Refs`, `## KB References`, `### Reference Documents`, `### References`, `## References` |
+
+### Inference.md Section Format for Jinja2 Compatibility
+
+The cache file **must** use these heading names for the push pipeline to extract content:
+
+```markdown
+## Test Case Intent
+<scope paragraph — links to TCD, ≤80 words>
+
+### Pre-Conditions
+| Item | Requirement |
+|------|-------------|
+| Platform | NWP post-silicon ... |
+| BIOS knobs | ... |
+
+### Test Steps
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|------------------------|-------------------|
+| 1 | ... | ... | ... |
+
+### Pass / Fail Criteria
+- **PASS**: <criteria>
+- **FAIL**: <criteria>
+
+### Health Checks
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|--------------------|
+| ... | ... | ... |
+
+### Post-Process
+N/A
+
+### References
+- [TCD 16031169418](https://hsdes.intel.com/appstore/article-one/#/16031169418)
+- [Wave 3 HAS](https://docs.intel.com/...)
 ```
 
 > **Subject**: `test_case` (not `test_case_definition` — that is TCD)
