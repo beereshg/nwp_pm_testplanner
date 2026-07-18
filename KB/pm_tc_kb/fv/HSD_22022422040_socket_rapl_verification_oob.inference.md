@@ -1,99 +1,97 @@
-# Deep Analysis: Socket RAPL Verification - OOB
+# TC Description: Socket RAPL Verification - OOB
 
 | Field | Value |
 |-------|-------|
-| **HSD ID** | 22022422040 |
+| **HSD ID** | [22022422040](https://hsdes.intel.com/appstore/article-one/#/22022422040) |
 | **Title** | Socket Rapl verification - OOB |
-| **Date** | 2025-07-24 |
+| **Date** | 2026-07-18 |
 | **Target Program** | NWP (Newport) |
 | **Source Program** | DMR (Diamond Rapids) |
 | **Feature** | Socket RAPL |
-| **Sub-Feature** | Validate all Socket RAPL TPMI registers via OOB (Out-of-Band) access |
+| **Sub-Feature** | OOB access path — PECI-over-MCTP / OOBMSM consistency with inband TPMI |
+| **Parent TCD** | [22022420821 -- Socket RAPL Registers Verification - CSR and TPMI](https://hsdes.intel.com/appstore/article-one/#/22022420821) |
+| **Owner** | mps |
+| **Status** | open / ready_for_content_review |
+| **Priority** | 2-high |
+| **Tags** | `DMR_PO`, `plc.feature.p2`, `PMSS_NWP_READINESS_CHECK` |
+| **Val Environment** | silicon, virtual_platform |
+| **Val Framework** | os-svos, python-sv |
+| **Automation** | `python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3` |
 | **NWP Disposition** | **Runnable_On_N-1** |
+| **Cache version** | 3 |
 
 ---
 
-## Section A: NWP Disposition & Justification
+## Test Case Intent
 
-**Disposition: Runnable_On_N-1**
+Validates the **OOB Access Path** scenario defined in [TCD 22022420821 -- Socket RAPL Registers Verification](https://hsdes.intel.com/appstore/article-one/#/22022420821) §5-D: "OOB register reads via PECI-over-MCTP/OOBMSM are consistent with inband TPMI reads for all Socket RAPL registers." BMC/NM accesses Socket RAPL TPMI registers via OOBMSM/PECI-over-MCTP. This TC reads all Socket RAPL TPMI registers via both inband (PythonSV) and OOB paths, verifies value consistency, and tests OOB write capability including PLR source attribution (OOB writes should set PLR bit[12] = PKG_PL1_OOB).
 
-This test verifies **all TPMI Socket RAPL registers via OOB access** path (in-band via PythonSV + TPMI). The registers are in the `ptpcfsms` block, which aggregates the TPMI Socket RAPL domain.
+### Pre-Conditions
 
-All registers under NWP path: `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.*`
+| Item | Requirement |
+|------|-------------|
+| Platform | NWP post-silicon system with BMC/OOBMSM connectivity |
+| OS / Driver | SVOS with PythonSV; BMC Redfish/PECI tools available |
+| BIOS | Default RAPL settings |
+| Feature state | RAPL active; OOB/PECI path functional (BMC connected) |
+| Starting state | System booted; OOBMSM initialized; Socket RAPL TPMI registers accessible |
+| TPMI base path | sv.socket0.nio.punit.ptpcfsms.ptpcfsms.* (inband) |
+| OOB path | BMC -> PECI-over-MCTP -> NIO PCode -> TPMI |
 
-Tags: `DMR_PO`, `plc.feature.p2`, `PMSS_NWP_READINESS_CHECK`.
+### Test Steps
 
----
+| # | Action | Expected Result (PASS) | Failure Indication |
+|---|--------|------------------------|-------------------|
+| 1 | Inband read all 8 Socket RAPL TPMI registers via PythonSV: domain_header, energy_status, perf_status, pl1_control, pl2_control, pl4_control, pl_info, power_unit. Record all values. | All 8 registers readable. Values non-zero where expected (energy_status progressing, pl_info populated). | Any register read failure. |
+| 2 | OOB read the same 8 registers via PECI-over-MCTP/OOBMSM (using BMC tooling or pd.debug.tpmi_oob_read). Record all values. | All 8 registers readable via OOB. | OOB read failure or timeout. |
+| 3 | Compare inband vs OOB values for each register. Allow small delta for energy_status (counter progresses between reads). | All static registers match exactly (pl_info, power_unit, domain_header, pl1_control, pl2_control, pl4_control). Energy_status and perf_status within timing tolerance. | Any static register mismatch between inband and OOB. |
+| 4 | Verify domain_header: check capability bits, instance count, and RAPL domain ID. | domain_header reports valid Socket RAPL domain with correct capabilities for NWP. | Invalid domain ID or capability bits. |
+| 5 | Verify power_unit via OOB: energy_unit, time_unit, power_unit fields. | Same encoding as inband. power_unit consistent with U11.3 spec. | Power unit mismatch between OOB and inband. |
+| 6 | OOB write test: write a custom PL1 limit via OOB path (PECI WrIAMSREx or OOBMSM TPMI write). | OOB write accepted. PL1_CONTROL.PWR_LIM reflects new value via inband readback. | OOB write rejected or inband readback mismatch. |
+| 7 | Verify PLR source attribution after OOB PL1 write: trigger throttle condition with the OOB-programmed PL1. Read PLR reason bits. | PLR bit[12] (PKG_PL1_OOB) set — identifies OOB as the PL1 source. Inband PL1 bit[10] NOT set. | Wrong PLR source bit or PLR = 0. |
+| 8 | OOB write while LOCK=1: if PL1_CONTROL.LOCK is set, attempt OOB write to PL1. | OOB write rejected. PL1_CONTROL unchanged. LOCK enforcement applies to OOB path as well. | OOB bypasses LOCK — PL1 changed despite LOCK=1. |
+| 9 | Restore original PL1 value. Verify no MCA or hang. | Test completes cleanly. OOB and inband paths both functional. | System instability. |
 
-## Section B: NWP-Specific Test Procedure
+### Pass / Fail Criteria
 
-### Complete NWP Socket RAPL TPMI Register Set
+- **PASS**: Per TCD 22022420821 §5-D — All 8 Socket RAPL TPMI registers readable via OOB. OOB values consistent with inband TPMI reads (static registers exact match; counters within timing tolerance). OOB PL1 write accepted and reflected in inband readback. PLR correctly attributes OOB source (bit[12]). LOCK enforcement applies to OOB writes. No MCA or hang.
+- **FAIL**: OOB read failure. Inband/OOB register mismatch on static registers. OOB write not reflected in inband state. PLR source misattributed. OOB bypasses LOCK. System instability.
 
-| TPMI Register | NWP Path | Description |
-|---------------|----------|-------------|
-| `socket_rapl_domain_header` | `ptpcfsms.socket_rapl_domain_header` | Socket RAPL domain capability header |
-| `socket_rapl_energy_status` | `ptpcfsms.socket_rapl_energy_status` | Socket energy counter |
-| `socket_rapl_perf_status` | `ptpcfsms.socket_rapl_perf_status` | Throttle counter |
-| `socket_rapl_pl1_control` | `ptpcfsms.socket_rapl_pl1_control` | PL1 limit, tau, lock, clamp, enable |
-| `socket_rapl_pl2_control` | `ptpcfsms.socket_rapl_pl2_control` | PL2 limit, tau, enable |
-| `socket_rapl_pl4_control` | `ptpcfsms.socket_rapl_pl4_control` | PL4 peak power limit |
-| `socket_rapl_pl_info` | `ptpcfsms.socket_rapl_pl_info` | Min/max power information |
-| `socket_rapl_power_unit` | `ptpcfsms.socket_rapl_power_unit` | Power/energy/time units |
+### Health Checks
 
-### Adapted Steps
+| Register / Log | Access | Pass/Fail Criteria |
+|----------------|--------|--------------------|
+| TPMI domain_header | Inband + OOB | Exact match; valid domain ID |
+| TPMI power_unit | Inband + OOB | Exact match; correct encoding |
+| TPMI pl_info | Inband + OOB | Exact match; MAX_PL1/PL2/MIN_PL correct |
+| TPMI pl1_control | Inband + OOB | Exact match; OOB write reflected |
+| TPMI pl2_control | Inband + OOB | Exact match |
+| TPMI energy_status | Inband + OOB | Within timing tolerance |
+| TPMI perf_status | Inband + OOB | Within timing tolerance |
+| PLR reason bits | plr_die_level | PKG_PL1_OOB (bit 12) set after OOB PL1 write |
 
-| Step | Action | NWP Details |
-|------|--------|-------------|
-| 1 | Run cpu_rapl PMx | `python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3` |
-| 2 | OOB read all Socket RAPL TPMI registers | Via PythonSV `ptpcfsms` accessor |
-| 3 | Verify `socket_rapl_power_unit` encoding | Power/energy/time units match spec defaults |
-| 4 | Verify `socket_rapl_pl_info` bounds | Min/max power per fuse-driven TDP |
-| 5 | Verify `socket_rapl_domain_header` | Capability bits correct for NWP |
-| 6 | Verify PL1/PL2/PL4 defaults | Match fuse-driven or BIOS-programmed defaults |
-| 7 | Verify energy status incrementing | Non-zero and increasing |
-| 8 | Cross-check PL1/PL2 vs CSR registers | TPMI should match CSR (`package_rapl_limit_cfg`) |
+### Post-Process
 
-### Full OOB Register Dump
+N/A
 
-```python
-# NWP: OOB dump of all Socket RAPL TPMI registers
-ptpcfsms = sv.socket0.imh0.punit.ptpcfsms.ptpcfsms
+### References
 
-# All socket RAPL registers
-rapl_regs = [
-    "socket_rapl_domain_header",
-    "socket_rapl_energy_status",
-    "socket_rapl_perf_status",
-    "socket_rapl_pl1_control",
-    "socket_rapl_pl2_control",
-    "socket_rapl_pl4_control",
-    "socket_rapl_pl_info",
-    "socket_rapl_power_unit",
-]
-for reg in rapl_regs:
-    try:
-        r = ptpcfsms.getbypath(reg)
-        r.show()
-    except Exception as e:
-        print(f"{reg}: ERROR {e}")
-```
-
-### Pass Criteria
-- All 8 Socket RAPL TPMI registers readable via OOB
-- `socket_rapl_power_unit` fields match spec-defined encoding
-- `socket_rapl_pl_info` min/max power bounds within spec
-- `socket_rapl_domain_header` capability bits correct
-- PL1/PL2 defaults consistent with fuse/BIOS settings
-- TPMI registers agree with corresponding CSR registers
+- [TCD 22022420821 -- Socket RAPL Registers Verification](https://hsdes.intel.com/appstore/article-one/#/22022420821)
+- [Wave 3 Common HAS -- Socket RAPL](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Socket_RAPL/Socket_RAPL.html)
+- [DMR RAPL Simplification](https://docs.intel.com/documents/pm_doc/src/server/dmr/pm%20features/dmr_rapl_simplification.html)
 
 ---
 
-## Section F: Recommendation
+## Section A: NWP Delta
 
-**Recommendation: ADOPT — All ptpcfsms paths directly applicable to NWP; single imh0; enumerate all 8 RAPL TPMI registers**
+NIO replaces IMH as TPMI endpoint. OOB path: BMC -> PECI-over-MCTP -> NIO PCode -> TPMI (same architecture as DMR).
 
-1. `python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`
-2. OOB access all 8 Socket RAPL TPMI registers via `sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.*`
-3. Cross-check against CSR equivalents; verify power unit encoding and pl_info bounds
+| Aspect | DMR | NWP |
+|--------|-----|-----|
+| TPMI base | sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.* | sv.socket0.nio.punit.ptpcfsms.ptpcfsms.* |
+| OOB path | BMC -> IMH OOBMSM | BMC -> NIO OOBMSM |
+| PLR OOB bit | bit[12] PKG_PL1_OOB | bit[12] PKG_PL1_OOB (unchanged) |
 
-**Priority**: High — `plc.feature.p2`; comprehensive OOB register validation ensures TPMI Socket RAPL domain is fully accessible and correctly initialized
+## Section F: Recommendations
+
+Recommendation: ADOPT — imh0 -> nio; OOB read/write/PLR attribution validation. Priority: High — OOB register access is critical for BMC/NM power management on managed platforms.
