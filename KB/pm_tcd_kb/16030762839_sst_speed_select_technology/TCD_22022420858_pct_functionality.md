@@ -279,10 +279,10 @@ assert hp_perf > lp_perf, "HP must have higher highest_perf than LP"
 
 | Scenario | Expected Behavior | TC(s) |
 |----------|-------------------|-------|
-| Normal PCT active | HP at ~4.4 GHz; LP clipped at ~P1; HWP_CAP differs per core | 22022422116, 16030715692 |
-| All HP cores in C6 | LP cores still clipped at LP_CLIP -- invariant | 22022422104, 16030715676 |
+| Normal PCT active | HP at ~4.4 GHz; LP clipped at ~P1; HWP_CAP differs per core; runtime control writes verified complete via `SST_CP_CONTROL.HANDSHAKE` / `SST_CP_STATUS.LAST_HANDSHAKE` match | 22022422116, 16030715692 |
+| All HP cores in C6 | LP cores still clipped at LP_CLIP -- invariant; **under PL1 pressure, verify LP clip maintained before HP throttles** (Co-Design finding #11, spec: ordered throttling + power-limited behavior) | 22022422104, 16030715676 |
 | Default HP selection | 8 HP cores in CLOS[0]; first 2 per partition per CBB | 22022422105, 16030715686 |
-| TDP convergence (Phase A/B) | LP drops first under RAPL PL1; HP TRL maintained while LP has headroom | 22022422117 |
+| TDP convergence (Phase A/B) | LP drops first under RAPL PL1; HP TRL maintained while LP has headroom; **ordered throttle verified across all 4 CLOS groups: CLOS0 > CLOS1 > CLOS2 > CLOS3** (Co-Design finding #10, spec: ordered throttling section, Intel SST HAS) | 22022422117 |
 | PCT × RAPL Phase C — HP throttle under severe limit | LP at minimum floor with PL1 still exceeded: HP drops below HP TRL; power converges to PL1 | *(TC TBD)* |
 | PCT disabled (default) | SST_CP_ENABLE=0; all cores at conventional TRL; no HP/LP split | 16030715684 |
 | PCT enabled automatically | feature_state[1]=1 at boot; HP/LP differentiation active | 16030768619 |
