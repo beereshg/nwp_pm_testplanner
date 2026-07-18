@@ -1,23 +1,23 @@
-# TCD 22022420862 — PCT - Ubuntu E2E Functional Test
+# TCD 22022420862 — PCT - PV BIOS Configuration and Disable
 
 | Field | Value |
 |-------|-------|
 | **TCD ID** | [22022420862](https://hsdes.intel.com/appstore/article-one/#/22022420862) |
-| **Title** | PCT - Ubuntu E2E Functional Test |
+| **Title** | PCT - PV BIOS Configuration and Disable |
 | **Status** | open |
 | **Owner** | bg3 |
 | **Parent TPF** | [16030762939 — NWP PM PCT (Priority Core Turbo)](https://hsdes.intel.com/appstore/article-one/#/16030762939) |
-| **Siblings** | [22022420855 — PCT Enabling & Discovery](https://hsdes.intel.com/appstore/article-one/#/22022420855) · [22022420858 — PCT Functionality](https://hsdes.intel.com/appstore/article-one/#/22022420858) |
-| **Feature** | Power / SST — PCT end-to-end OS-level Platform Validation |
+| **Siblings** | [22022420855 — PCT Enabling & Discovery](https://hsdes.intel.com/appstore/article-one/#/22022420855) · [22022420858 — PCT Functionality](https://hsdes.intel.com/appstore/article-one/#/22022420858) · [16031169214 — PCT - PV Discovery](https://hsdes.intel.com/appstore/article-one/#/16031169214) |
+| **Feature** | Power / SST — PCT PV: BIOS partition count knob → HP/LP CLOS programming → OS-visible configuration and disable |
 | **KB last updated** | 2026-07-18 |
 
 ---
 
 ## Section 1: Architecture / Micro-architecture and Functionality
 
-**PCT - Ubuntu E2E Functional Test** is the Platform Validation (PV) TCD that verifies Priority Core Turbo end-to-end on NWP from the Ubuntu Linux OS perspective. Where sibling TCD 22022420858 (Functionality) uses PythonSV to read TPMI/MSR registers directly, this TCD validates the same invariants via the OS-visible surface: BIOS knob configuration paths, the `intel-speed-select` user-space tool, and `cpufreq` / `ia32_hwp_capabilities` as seen from Linux. The automation framework is `kayak` with `kayak.plugins.sst.plugin`.
+**PCT - PV BIOS Configuration and Disable** validates that the PCT BIOS Partition Count knob correctly drives HP/LP CLOS register programming as observed from Ubuntu Linux via `intel-speed-select` and `cpufreq`. Scope is limited to partition count configuration (custom positions, full sweep) and the disable path (partition count = 0). Feature discovery and capability reporting are in sibling TCD [16031169214 — PCT - PV Discovery](https://hsdes.intel.com/appstore/article-one/#/16031169214).
 
-**Scope boundary:** BIOS programs PCT partition count and HP module assignments via BIOS Setup knobs; OS boots into the resulting HP/LP CLOS configuration; tests verify HP/LP frequency differentiation, partition correctness, and clean disable from OS.
+> **Architecture overview:** See [TPF 16030762939 — NWP PM PCT](https://hsdes.intel.com/appstore/article-one/#/16030762939) §2 Design Details for boot flow, CLOS mechanism, and frequency hierarchy.
 
 ### PCT Boot-to-OS Flow (NWP)
 
