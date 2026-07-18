@@ -150,6 +150,7 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
         in_raw_arch = False
         raw_arch_buf = []
         pre_buf = []
+        pre_lang = ""
         current_tbl = []
         bullet_lines_all = []
         ol_lines = []
@@ -174,8 +175,15 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
                 continue
             if s.startswith("```"):
                 if in_pre:
-                    arch_extra += f'<pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">{_h.escape(chr(10).join(pre_buf))}</pre>'
+                    content = chr(10).join(pre_buf)
+                    if pre_lang == "mermaid":
+                        arch_extra += f'<div class="mermaid" style="background:#f8fafc;padding:16px;border-radius:6px;margin:12px 0;">{content}</div>'
+                    else:
+                        arch_extra += f'<pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">{_h.escape(content)}</pre>'
                     pre_buf = []
+                    pre_lang = ""
+                else:
+                    pre_lang = s[3:].strip().lower()  # Get language after ```
                 in_pre = not in_pre
             elif in_pre:
                 pre_buf.append(l)
@@ -252,7 +260,7 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
             return _convert_inline_md(s)
 
         out = ""
-        in_pre, pre_buf = False, []
+        in_pre, pre_buf, pre_lang = False, [], ""
         in_raw, raw_buf = False, []
         cur_tbl, cur_bul = [], []
 
@@ -289,9 +297,14 @@ def build_desc_from_kb(kb_text: str) -> tuple[str, list[str]]:
             if s.startswith("```"):
                 out += flush_tbl() + flush_bul()
                 if in_pre:
-                    out += f'<pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">{_h.escape(chr(10).join(pre_buf))}</pre>'
-                    pre_buf, in_pre = [], False
+                    content = chr(10).join(pre_buf)
+                    if pre_lang == "mermaid":
+                        out += f'<div class="mermaid" style="background:#f8fafc;padding:16px;border-radius:6px;margin:12px 0;">{content}</div>'
+                    else:
+                        out += f'<pre style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:12px;font-family:Consolas,monospace;font-size:0.85em;white-space:pre-wrap;">{_h.escape(content)}</pre>'
+                    pre_buf, in_pre, pre_lang = [], False, ""
                 else:
+                    pre_lang = s[3:].strip().lower()
                     in_pre = True
             elif in_pre:
                 pre_buf.append(l)
@@ -438,8 +451,10 @@ def generate(tcd_id: str, force: bool = False, hsd_only: bool = False) -> int:
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline' https://cdn.jsdelivr.net;"/>
   <title>TCD Preview: {_h.escape(title)}</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({{startOnLoad:true, theme:'default', themeVariables:{{primaryColor:'#e8eef7',primaryTextColor:'#1f2937',primaryBorderColor:'#0f4c81',lineColor:'#666',secondaryColor:'#f0f4f9',tertiaryColor:'#fff'}}}});</script>
   <style>
     *{{box-sizing:border-box;margin:0;padding:0}}
     body{{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;font-size:13px;color:#1f2937;}}
