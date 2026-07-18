@@ -44,8 +44,6 @@
 
 ## Section 2: Design Details
 
-## Section 2: Design Details
-
 ### PCT Architecture — Full Stack (Policy built on SST-TF Enforcement)
 
 <!-- raw-html -->
