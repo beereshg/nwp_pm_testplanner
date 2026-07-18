@@ -75,6 +75,9 @@ Example: `KB/pm_tpf_kb/16030762839_sst_speed_select_technology/TPF_16030762939_n
 | Per-TCD-specific scope text | "This TCD covers BIOS knob validation only" | Keep in TCD |
 | TC coverage map table | Links to child TCs with scope | Keep in TCD |
 | NWP-specific constants table | Total cores, partition count, max_partitions | Keep in TCD (reference values) |
+| Programming model register/MSR table (feature-wide) | Full register list from TCD §4 | Move to TPF §2 → `### Interface & Register Matrix` |
+| Debug observability list (MSRs, tools, BIOS knobs — cross-TCD) | Tools + commands to observe feature state | Move to TPF §2 → `### Observability` |
+| SKU / config behavioral distinctions (affects multiple TCDs) | Fuse/BIOS-knob gating table from TCD §1 or §4 | Move to TPF §2 → `### SKU / Config Distinctions` |
 
 **What stays in TCD Section 1 after extraction:**
 
@@ -90,6 +93,44 @@ Example: `KB/pm_tpf_kb/16030762839_sst_speed_select_technology/TPF_16030762939_n
 | TC | Title | Scope |
 ...
 ```
+
+---
+
+## Step 2b — §2 Completeness Lint (Run After Any TCD Promotion)
+
+Run these two lints after editing TPF §2 and before generating the preview.
+
+**Lint A — Layer claim coverage:**
+Every layer in the Full-Stack Cross-Layer Diagram must be claimed by at least one non-❌ tier in the Validation-Tier Layer Claim table. Rows with PSS=❌, FV=❌, PV=❌ are validation gaps — surface each in §5 Accepted Coverage Limitations.
+
+```python
+# Quick section health-check — run from repo root before generate_tpf_preview.py
+from tools.html.generate_tcd_preview import parse_block
+kb_text = open('<kb_file>', encoding='utf-8').read()
+for section in ['Design Details', 'Validation Strategy', 'Tier Coverage', 'Risks', 'DFX', 'Common Corner']:
+    block = parse_block(kb_text, section)
+    status = '⚠️  EMPTY — check for duplicate ## heading' if len(block) < 3 else '✓'
+    print(f'{section:<22}: {len(block):>4} lines  {status}')
+```
+
+**Lint B — TCD extraction completeness (block-by-block diff):**
+Before pushing, diff the promoted content:
+1. List every `###` heading removed from the source TCD KB
+2. Confirm each maps to a `###` heading in TPF §2 (use the table below)
+3. Any unmatched heading = dropped content → add it to the appropriate landing zone
+
+A regenerated diagram may look "prettier" but drop panels from the original — verify subsection count matches.
+
+| TCD source heading removed | Required TPF §2 landing zone |
+|---|---|
+| `### Boot Flow` / `### Reset Sequence` | `### {Feature} Boot / Reset Flow` |
+| `### Architecture Block` / `### Ordered Throttle` | `### {Feature} Architecture Block` |
+| `### Frequency Hierarchy` / `### Frequency Table` | `### Frequency Hierarchy` |
+| `### Selection Algorithm` / `### Assignment` | `### Key Selection / Assignment Algorithm` |
+| `### Register Table` / `### MSR Table` / `### Programming Model` | `### Interface & Register Matrix` |
+| `### Observability` / `### Debug Registers` / `### Debug Knobs` | `### Observability` |
+| `### SKU` / `### Config` / `### Platform Variations` | `### SKU / Config Distinctions` |
+| Unrecognized heading | ⚠️  Flag for manual placement — do NOT silently drop |
 
 ---
 
@@ -151,13 +192,49 @@ The generator (`generate_tpf_preview.py`) maps KB headings to numbered HTML sect
 > assert len(block) > 10, f"Section 2 empty — check for duplicate ## heading (got {len(block)} lines)"
 > ```
 
+### ⚡ MANDATORY: Full-Stack Cross-Layer Diagram
+
+**One diagram showing every layer from OS/tool down to silicon is required in every TPF.**
+Derive layer names from the feature's HAS/MAS — do NOT hard-code PCT's five layers.
+RALP's stack, SST-TF's stack, and PCT's stack decompose differently; the template mandates
+a stack with tier claims; the spec supplies the layer names.
+
+<!-- raw-html -->
+<!-- Example structure — adapt layer names to feature HAS: -->
+<div style="border:2px solid #333;border-radius:8px;padding:12px;font-family:Arial,sans-serif;max-width:600px">
+  <div style="background:#4472C4;color:#fff;padding:8px;margin:4px;border-radius:4px;text-align:center"><strong>Layer N: OS / Tool</strong> — userspace tools, kernel drivers</div>
+  <div style="background:#ED7D31;color:#fff;padding:8px;margin:4px;border-radius:4px;text-align:center"><strong>Layer N-1: Firmware Policy</strong> — PCode / OCode / BIOS knob control</div>
+  <div style="background:#A020F0;color:#fff;padding:8px;margin:4px;border-radius:4px;text-align:center"><strong>Layer N-2: Enforcement / Control</strong> — frequency / throttle enforcement</div>
+  <div style="background:#70AD47;color:#fff;padding:8px;margin:4px;border-radius:4px;text-align:center"><strong>Layer 2: Platform Agent</strong> — Acode, PCU interface</div>
+  <div style="background:#FF0000;color:#fff;padding:8px;margin:4px;border-radius:4px;text-align:center"><strong>Layer 1: Silicon / HW</strong> — PHM, HPM, WPM, CLU hardware</div>
+</div>
+<!-- /raw-html -->
+
+### ⚡ MANDATORY: Validation-Tier Layer Claim
+
+**Placed directly under the full-stack diagram.**
+Every row (= every stack layer) must be claimed by at least one non-❌ tier.
+Rows where PSS=❌, FV=❌, PV=❌ are validation gaps → surface each in §5 Accepted Coverage Limitations.
+
+> **§3 pointer (required):** Validation Strategy §3 must reference this table:
+> *"Layer coverage is mapped in §2 — Validation-Tier Layer Claim table identifies which tier
+> validates each stack layer and flags any unclaimed layers as accepted gaps."*
+
+| Layer (from full-stack diagram) | PSS | FV | PV | Notes |
+|---|---|---|---|---|
+| OS / Tool Layer | ❌ | ❌ | ✅ | Requires booted OS + tool stack |
+| Firmware Policy Layer | ✅ | ✅ | ✅ | All tiers validate |
+| Enforcement / Control Layer | ✅ | ✅ | ❌ | Model-level only pre-Si |
+| Platform Agent Layer | ✅ | ✅ | ✅ | Covered across tiers |
+| Silicon / HW Layer | ✅ | ✅ | ❌ | RTL / model coverage; PV observes indirectly |
+
 ### {Feature} Boot / Reset Flow
 
-` ` `
+```
 ASCII diagram here
-` ` `
+```
 
-### {Feature} Architecture Block
+### {Feature} Architecture Block (within-layer view)
 
 <!-- raw-html -->
 <existing HTML diagram from TCD>
@@ -171,6 +248,33 @@ ASCII diagram here
 ### Key Selection / Assignment Algorithm
 
 [HP core selection, CLOS assignment, etc.]
+
+### Interface & Register Matrix
+
+**Named landing zone.** Feature-wide register / MSR table promoted from TCD §4 (Programming Model).
+Provides stable anchor for TCD cross-references: link here rather than duplicating the table in each TCD.
+
+| Register / MSR | Field | Default | Feature effect | Tier validated |
+|---|---|---|---|---|
+| *(populate from HAS §Programming Model or TCD §4)* | | | | |
+
+### Observability
+
+**Named landing zone.** Debug MSRs, tool commands, and BIOS knobs used to observe feature
+state — promoted from any TCD whose observability list applies across multiple TCD scopes.
+
+| Observable | Type | Tool / Command | What it shows |
+|---|---|---|---|
+| *(populate from TCD observability or HAS debug section)* | | | |
+
+### SKU / Config Distinctions
+
+**Named landing zone.** Platform-specific behavioral variations promoted from TCDs — fuse-gated,
+BIOS-knob-controlled, or config-restricted behaviors that affect multiple TCDs under this TPF.
+
+| SKU / Config | Distinction | TCDs affected |
+|---|---|---|
+| *(populate from HAS §SKU or TCD config tables)* | | |
 
 ---
 
@@ -284,10 +388,12 @@ Preview includes:
 ## Step 5 — User Reviews
 
 User checks:
-- Section 2 (Design Details) — diagrams render correctly; all feature-wide diagrams present
-- Section 3 (Validation Strategy) — tier rationale is accurate
+- Section 2 (Design Details) — **full-stack cross-layer diagram present** (not only within-layer views); every layer has a tier claim in the Validation-Tier Layer Claim table; no unclaimed rows
+- Section 2 (Design Details) — Interface & Register Matrix, Observability, and SKU/Config Distinctions landing zones populated (or explicitly marked `N/A — not applicable for this feature`)
+- Section 3 (Validation Strategy) — references §2 Validation-Tier Layer Claim table by name
 - Section 4 (Tier Coverage) — bug matrix and scenario coverage complete
 - Section 8 — TCD table matches live children (generator fetches live from HSD)
+- **Completeness diff** — every `###` heading removed from source TCD KBs appears in TPF §2 (verify using Lint B from Step 2b)
 
 ---
 
@@ -385,3 +491,6 @@ Example: TPF `16030762939` lives under TP `16030762839_sst_speed_select_technolo
 | Coverage gap table mixes actionable + accepted gaps | Keep them separate: accepted/inherent gaps (no TC possible) → TPF §5 table; gaps with candidate TCs → TCD §6 bullets |
 | **Duplicate `## Section N:` heading causes empty section** | When inserting a `### subsection` into an existing `## Section N:` block using `replace_string_in_file`, the `newString` must **NOT** repeat the `## Section N:` heading. Start `newString` at the first `### SubSection` line. Duplicate `## ` headings cause `parse_block()` to stop at the second one and return an empty block (rendered as "Not documented."). |
 | `<!-- raw-html -->` diagram renders in preview but empty in HSD | Verify the `<!-- raw-html --> ... <!-- /raw-html -->` block is inside the correct `## Section N:` block (not orphaned before or after it). Run `parse_block(kb_text, 'Design Details')` and check `len(block)` before pushing. |
+| **Full-stack diagram missing — only within-layer views present** | §2 must include one diagram showing all layers from OS/tool down to silicon. Boot-flow, mechanism diagrams, and frequency tables are within-layer views and do NOT substitute. Derive layer names from the feature's HAS/MAS; the template mandates the structure, the spec supplies the names. |
+| **Validation-tier layer claim table missing from §2** | Required directly under the full-stack diagram. Every stack layer must be claimed by ≥1 tier. Unclaimed rows → flag in §5 Accepted Coverage Limitations. This is the sentence that justifies the TCD structure below the TPF; §3 must reference it by name. |
+| **TCD content promoted but silently dropped** | Run Lint B (Step 2b): for each `###` heading removed from source TCD KB, confirm it exists in a TPF §2 landing zone. A redrawn "prettier" diagram may omit original panels — verify subsection count matches. |
