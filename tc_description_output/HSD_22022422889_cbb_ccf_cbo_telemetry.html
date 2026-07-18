@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+  <title>CBB CCF CBO Telemetry</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>CBB CCF CBO Telemetry</h1>
+    <p>Segment: FV | Source: HSD_22022422889_cbb_ccf_cbo_telemetry.inference.md | Generated: 2026-07-18 18:51:29</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>CBB CCF CBO Telemetry</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>[22022422889](https://hsdes.intel.com/appstore/article-one/#/22022422889)</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>CBB CCF CBO Telemetry</td>
+</tr>
+<tr>
+<td>**Status**</td>
+<td>open</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>bg3</td>
+</tr>
+<tr>
+<td>**Val Environment**</td>
+<td>silicon, virtual_platform</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Ring Scalability / CBO Lookup Telemetry</td>
+</tr>
+<tr>
+<td>**Parent TCD**</td>
+<td>[22022421189](https://hsdes.intel.com/appstore/article-one/#/22022421189)</td>
+</tr>
+<tr>
+<td>**KB last updated**</td>
+<td>2026-07-08</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Test Case Intent</h2>
+<p>Verify post-silicon extraction of CBB CCF ring scalability telemetry from **CBO lookup counters**. Ring Scalability telemetry is the mechanism by which PCode measures IA traffic to decide CCF frequency (GV) changes per RSE (Ring Scalability Event, ~2k uclk cycles). This TC focuses on CBO (Cache Box) lookup counters — the IA traffic side of ring scalability telemetry. SBO snoop counters are covered separately by TC [22022422900](https://hsdes.intel.com/appstore/article-one/#/22022422900) under TCD &quot;CBB CCF SBO Snoop Telemetry&quot;.</p>
+<p>**CBO telemetries (per cluster `i_ccf_env{N}`, per ingress `ingress_{NN}`):**</p>
+<ul>
+<li>Lookup counter — `cbb.base.i_ccf_env{N}.ingress_{NN}.cbo_lookup_counter.lookup_counter` (non-addressless transactions)</li>
+<li>Enable bit — `cbb.base.i_ccf_env{N}.ingress_{NN}.cbo_lookup_counter.lookup_counter_enable`</li>
+<li>Ingress-all register — enables/disables all counters within a cluster</li>
+</ul>
+<p>**Flow:**</p>
+<ul>
+<li>Verify CBO lookup counters are accessible per CBB per cluster</li>
+<li>Test enable/disable toggle via `lookup_counter_enable`</li>
+<li>Verify counters are non-zero when enabled under CCF activity (IA load or PEGA P-state injection)</li>
+<li>Verify disabled counters remain stable (freeze mechanism)</li>
+</ul>
+<p>**Test script:**</p>
+<ul>
+<li>`pmx_ccf_cbo.py --test_ccf_cbo_telemetry` → `ccf_cbo_telemetry_lookup_cntr_disable_test()` + `ccf_cbo_telemetry_lookup_cntr_enable_disable_all_test()`</li>
+</ul>
+<p>**Script vs TC note:** The script tests disable/freeze functionality (counters stay zero when disabled = PASS). The TC also requires verifying counters are NON-ZERO during activity — not covered by the existing script; needs workload + enable + verify non-zero.</p>
+<p>---</p>
+<h2>Pre-Conditions</h2>
+<table class="md-table"><thead><tr>
+<th>Pre-Condition</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>System booted to OS</td>
+<td>BIOS CPL4 complete; PCode running Ring Scalability</td>
+</tr>
+<tr>
+<td>CBO counters accessible</td>
+<td>`cbb.base.i_ccf_env0.ingress_00.cbo_lookup_counter` readable/writable</td>
+</tr>
+<tr>
+<td>IA activity available</td>
+<td>System running workload (idle OS or Supercollider) to drive CBO lookups</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Test Steps</h2>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Enable all CBO lookup counters per CBB: set `lookup_counter_enable=1` for all `i_ccf_env{0-3}.ingress_{NN}`. Let run 15s. Read `lookup_counter`</td>
+<td>At least one `lookup_counter &gt; 0` per CBB under idle OS activity</td>
+<td>All counters zero — CBO lookup counting not functional</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Test CBO counter disable: `ccf_cbo_telemetry_lookup_cntr_disable_test(skt, &#x27;cbbs&#x27;, &#x27;i_ccf_envs&#x27;, &#x27;ingresss&#x27;, rtime=100)`</td>
+<td>PASS (diff==0) — disabled counters stable; freeze mechanism works</td>
+<td>FAIL — disabled counters changed; disable mechanism broken</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Test CBO ingress-all enable/disable toggle: `ccf_cbo_telemetry_lookup_cntr_enable_disable_all_test(skt, &#x27;cbbs&#x27;, &#x27;i_ccf_envs&#x27;, iter_num=10)`</td>
+<td>All toggles accepted; `lookup_counter_enable` reflects written value</td>
+<td>Any toggle fails — ingress-all register not controlling all ingresss</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Pass / Fail Criteria</h2>
+<p>**PASS:** All CBO lookup counters accessible per CBB per cluster; enable/disable toggle works; at least one `lookup_counter &gt; 0` per CBB when enabled under system activity; disabled counters remain stable (freeze mechanism works).</p>
+<p>**FAIL:** Any CBO counter inaccessible; enable/disable toggle fails; all counters remain zero when enabled; disabled counters change.</p>
+<p>---</p>
+<h2>Post-Process</h2>
+<p>Save: CBO `lookup_counter` values for all `i_ccf_env{N}.ingress_{NN}` per CBB (enabled state); enable/disable toggle pass/fail counts.</p>
+<p>---</p>
+<h2>References</h2>
+<ul>
+<li>[CBB Ring frequency scalability](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#cbb-ring-frequency-scalability)</li>
+<li>[CBB Telemetry Aggregator](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/CBB_Telemetry/TelemetryAggregator_CBB.html#punit-telemetry-space-details)</li>
+<li>[CBB CCF Power Management HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/IP%20Integration/CCF/CBB_CCF_PM.html#ccf-gv)</li>
+<li>[CBB CCF Power Management HAS index](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/index.html)</li>
+<li>[pCode Home](https://wiki.ith.intel.com/display/ServerPcode/Server+Pcode+Home)</li>
+</ul></div>
+  </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+  <title>TC Description: RAPL BIOS Knobs Verification</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>TC Description: RAPL BIOS Knobs Verification</h1>
+    <p>Segment: FV | Source: HSD_22022422018_rapl_bios_knobs_verification.inference.md | Generated: 2026-07-18 18:47:44</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+    <button class="tab" data-tab="tab1">A: NWP Delta</button>
+    <button class="tab" data-tab="tab2">F: Recommendations</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>TC Description: RAPL BIOS Knobs Verification</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>[22022422018](https://hsdes.intel.com/appstore/article-one/#/22022422018)</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>RAPL BIOS Knobs Verification</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-07-18</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>BIOS knob verification — PL1/PL2/tau/lock knobs reflected in TPMI/CSR</td>
+</tr>
+<tr>
+<td>**Parent TCD**</td>
+<td>[22022420813 -- Socket RAPL Fuse and BIOS Knobs](https://hsdes.intel.com/appstore/article-one/#/22022420813)</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>mps</td>
+</tr>
+<tr>
+<td>**Status**</td>
+<td>open / ready_for_content_review</td>
+</tr>
+<tr>
+<td>**Priority**</td>
+<td>2-high</td>
+</tr>
+<tr>
+<td>**Tags**</td>
+<td>`DMR_PO`, `PMSS_NWP_READINESS_CHECK`</td>
+</tr>
+<tr>
+<td>**Val Environment**</td>
+<td>silicon, virtual_platform</td>
+</tr>
+<tr>
+<td>**Val Framework**</td>
+<td>os-svos, python-sv</td>
+</tr>
+<tr>
+<td>**Automation**</td>
+<td>`flexconPM.py -c NWPSV.ini`</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+<tr>
+<td>**Cache version**</td>
+<td>3</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Test Case Intent</h2>
+<p>Validates the **BIOS knob verification** scenario defined in [TCD 22022420813 -- Socket RAPL Fuse and BIOS Knobs](https://hsdes.intel.com/appstore/article-one/#/22022420813) §5, row &quot;BIOS knob verification&quot;: &quot;BIOS-programmed PL1_CONTROL / PL2_CONTROL values match expected policy; LOCK bit reflects BIOS lock setting; PL values within fused MAX bounds.&quot; BIOS programs CSR package_rapl_limit_cfg at CPL3; PrimeCode reads CSR and programs TPMI accordingly. TPMI should reflect BIOS values within 1 LSB. When LOCK bit is set, runtime writes to PL1_CONTROL/PL2_CONTROL are rejected. This TC verifies the full BIOS -&gt; PrimeCode -&gt; TPMI programming chain and lock enforcement.</p>
+<h3>Pre-Conditions</h3>
+<table class="md-table"><thead><tr>
+<th>Item</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>Platform</td>
+<td>NWP post-silicon system or VP (Simics)</td>
+</tr>
+<tr>
+<td>OS / Driver</td>
+<td>SVOS with PythonSV environment</td>
+</tr>
+<tr>
+<td>BIOS</td>
+<td>Known BIOS RAPL knob configuration; ability to modify BIOS knobs and reboot</td>
+</tr>
+<tr>
+<td>Tool</td>
+<td>flexconPM.py accessible with NWPSV.ini config</td>
+</tr>
+<tr>
+<td>Starting state</td>
+<td>System booted with known BIOS RAPL knob settings (PL1, PL2, tau, lock)</td>
+</tr>
+<tr>
+<td>TPMI PL1 path</td>
+<td>sv.socket0.nio.punit.tpmi.socket_rapl.pl1_control</td>
+</tr>
+<tr>
+<td>TPMI PL2 path</td>
+<td>sv.socket0.nio.punit.tpmi.socket_rapl.pl2_control</td>
+</tr>
+<tr>
+<td>CSR path</td>
+<td>sv.socket0.nio.punit.ptpcioregs.ptpcioregs.package_rapl_limit_cfg</td>
+</tr>
+</tbody></table>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run flexconPM BIOS knob checkout: flexconPM.py -c NWPSV.ini. This verifies all RAPL-related BIOS knobs match expected default values.</td>
+<td>flexconPM reports all RAPL BIOS knob checks PASS.</td>
+<td>Any BIOS knob default mismatch.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read TPMI PL1_CONTROL.PWR_LIM [17:0]. Compare to expected BIOS PL1 setting (BIOS knob PackagePowerLimit).</td>
+<td>PL1_CONTROL.PWR_LIM matches BIOS-configured PL1 value (U11.3 encoding, within 1 LSB). Default = fused TDP.</td>
+<td>PL1 mismatch between BIOS knob and TPMI register.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read TPMI PL2_CONTROL.PWR_LIM [17:0]. Compare to expected BIOS PL2 setting (BIOS knob ShortDurationPowerLimit).</td>
+<td>PL2_CONTROL.PWR_LIM matches BIOS-configured PL2 value. Default = 1.2 x fused TDP.</td>
+<td>PL2 mismatch.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read TPMI PL1_CONTROL.TIME_WINDOW [24:18]. Verify encoded tau matches BIOS-configured time window.</td>
+<td>TIME_WINDOW value produces tau within [1 s, 5 s] range (PrimeCode clips out-of-range values).</td>
+<td>Tau out of expected range or does not match BIOS setting.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Read TPMI PL2_CONTROL.TIME_WINDOW [24:18]. Verify PL2 tau.</td>
+<td>TIME_WINDOW produces tau within [11.7 ms, 39 ms] range.</td>
+<td>PL2 tau out of valid range.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Read CSR package_rapl_limit_cfg. Verify CSR PL1/PL2 fields match TPMI PL1_CONTROL/PL2_CONTROL values.</td>
+<td>CSR and TPMI agree on PL1 power limit, PL2 power limit, PL1 tau, PL2 tau (within 1 LSB).</td>
+<td>CSR/TPMI mismatch on any field.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify LOCK bit default. Read TPMI PL1_CONTROL.LOCK [63]. Default BIOS setting TurboPowerLimitLock = 0x0 (disabled).</td>
+<td>LOCK = 0 (unlocked). TPMI PL1_CONTROL writable by OS/SW.</td>
+<td>LOCK = 1 when BIOS default should be unlocked.</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Test LOCK enforcement: set BIOS knob TurboPowerLimitLock = 1, reboot. Read PL1_CONTROL.LOCK.</td>
+<td>LOCK = 1. PL1_CONTROL is now locked.</td>
+<td>LOCK bit not set after BIOS lock knob enabled.</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Attempt to write PL1_CONTROL.PWR_LIM via TPMI while LOCK = 1. Read back PL1_CONTROL.PWR_LIM.</td>
+<td>Write rejected; PL1_CONTROL.PWR_LIM unchanged from pre-write value. LOCK enforcement working.</td>
+<td>PL1 value changed despite LOCK = 1 (lock bypass).</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Verify CSR lock: read CSR package_rapl_limit_cfg lock bit. If TurboPowerLimitCsrLock = 1, verify CSR writes also rejected.</td>
+<td>CSR lock bit reflects BIOS knob. Locked CSR rejects writes.</td>
+<td>CSR lock mismatch or lock bypass.</td>
+</tr>
+</tbody></table>
+<h3>Pass / Fail Criteria</h3>
+<ul>
+<li>**PASS**: Per TCD 22022420813 §5 — TPMI PL1_CONTROL/PL2_CONTROL values match BIOS-configured PL1/PL2 (within 1 LSB). Time windows within valid clipped range. CSR and TPMI registers agree. LOCK bit reflects BIOS lock knob setting. When locked, runtime writes are rejected. flexconPM reports all BIOS knob checks PASS.</li>
+<li>**FAIL**: PL1/PL2 mismatch between BIOS knob and TPMI register. Time window out of valid range. CSR/TPMI disagreement. LOCK bit wrong. Locked register accepts writes. flexconPM reports any failure.</li>
+</ul>
+<h3>Health Checks</h3>
+<table class="md-table"><thead><tr>
+<th>Register / Log</th>
+<th>Access</th>
+<th>Pass/Fail Criteria</th>
+</tr></thead><tbody>
+<tr>
+<td>TPMI PL1_CONTROL</td>
+<td>sv.socket0.nio.punit.tpmi.socket_rapl.pl1_control</td>
+<td>PWR_LIM matches BIOS PL1; TIME_WINDOW in [1s, 5s]; LOCK matches BIOS knob</td>
+</tr>
+<tr>
+<td>TPMI PL2_CONTROL</td>
+<td>sv.socket0.nio.punit.tpmi.socket_rapl.pl2_control</td>
+<td>PWR_LIM matches BIOS PL2; TIME_WINDOW in [11.7ms, 39ms]</td>
+</tr>
+<tr>
+<td>CSR package_rapl_limit_cfg</td>
+<td>sv.socket0.nio.punit.ptpcioregs.ptpcioregs.package_rapl_limit_cfg</td>
+<td>Matches TPMI values; lock bit correct</td>
+</tr>
+<tr>
+<td>TPMI PL_INFO</td>
+<td>sv.socket0.nio.punit.tpmi.socket_rapl.pl_info</td>
+<td>BIOS PL1 &lt;= MAX_PL1; BIOS PL2 &lt;= MAX_PL2 (within fused bounds)</td>
+</tr>
+</tbody></table>
+<h3>Post-Process</h3>
+<p>N/A</p>
+<h3>References</h3>
+<ul>
+<li>[TCD 22022420813 -- Socket RAPL Fuse and BIOS Knobs](https://hsdes.intel.com/appstore/article-one/#/22022420813)</li>
+<li>[Wave 3 Common HAS -- Socket RAPL](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Socket_RAPL/Socket_RAPL.html)</li>
+<li>[OakStream CPUPM FAS](https://docs.intel.com/documents/System-firmware-bios/Domain/ServerCpuPm/Dmr/DMR/Oakstream_CPUPM_FAS.html)</li>
+</ul>
+<p>---</p></div>
+  <div id="tab1" class="panel"><p>NWP carries forward DMR BIOS RAPL knob programming model. NIO replaces IMH.</p>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+</tr></thead><tbody>
+<tr>
+<td>TPMI PL1_CONTROL</td>
+<td>sv.socket0.imh0.punit.tpmi.socket_rapl.pl1_control</td>
+<td>sv.socket0.nio.punit.tpmi.socket_rapl.pl1_control</td>
+</tr>
+<tr>
+<td>CSR path</td>
+<td>sv.socket0.imh0.punit.ptpcioregs...</td>
+<td>sv.socket0.nio.punit.ptpcioregs...</td>
+</tr>
+<tr>
+<td>flexconPM config</td>
+<td>DMRSV.ini</td>
+<td>NWPSV.ini</td>
+</tr>
+</tbody></table></div>
+  <div id="tab2" class="panel"><p>Recommendation: ADOPT — DMRSV.ini -&gt; NWPSV.ini; verify lock enforcement on both TPMI and CSR paths. Priority: High — BIOS knob checkout is critical for bring-up; lock bits affect OS-level power capping.</p></div>
+  </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

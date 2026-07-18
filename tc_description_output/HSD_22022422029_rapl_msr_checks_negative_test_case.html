@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+  <title>TC Description: RAPL MSR Checks - Negative Test Case</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>TC Description: RAPL MSR Checks - Negative Test Case</h1>
+    <p>Segment: FV | Source: HSD_22022422029_rapl_msr_checks_negative_test_case.inference.md | Generated: 2026-07-18 18:55:46</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+    <button class="tab" data-tab="tab1">A: NWP Delta</button>
+    <button class="tab" data-tab="tab2">F: Recommendations</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>TC Description: RAPL MSR Checks - Negative Test Case</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>[22022422029](https://hsdes.intel.com/appstore/article-one/#/22022422029)</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>RAPL MSR checks - Negative test case</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-07-18</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Deprecated RAPL MSR negative testing — reads=0, writes no-op</td>
+</tr>
+<tr>
+<td>**Parent TCD**</td>
+<td>[22022420821 -- Socket RAPL Registers Verification - CSR and TPMI](https://hsdes.intel.com/appstore/article-one/#/22022420821)</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>mps</td>
+</tr>
+<tr>
+<td>**Status**</td>
+<td>open / ready_for_content_review</td>
+</tr>
+<tr>
+<td>**Priority**</td>
+<td>2-high</td>
+</tr>
+<tr>
+<td>**Tags**</td>
+<td>`DMR_PO`, `plc.feature.p2`, `PMSS_NWP_READINESS_CHECK`</td>
+</tr>
+<tr>
+<td>**Val Environment**</td>
+<td>silicon, virtual_platform</td>
+</tr>
+<tr>
+<td>**Val Framework**</td>
+<td>os-svos, python-sv</td>
+</tr>
+<tr>
+<td>**Automation**</td>
+<td>`python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+<tr>
+<td>**Cache version**</td>
+<td>3</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Test Case Intent</h2>
+<p>Validates the **Deprecated MSR Negative Testing** scenario defined in [TCD 22022420821 -- Socket RAPL Registers Verification](https://hsdes.intel.com/appstore/article-one/#/22022420821) §5-C: &quot;MSR 0x610, 0x611, 0x606: reads return 0; writes silently dropped; no TPMI side effect.&quot; DMR and NWP deprecated the legacy MSR RAPL interface. This TC is a negative test confirming that writes to deprecated MSRs have no effect on the active TPMI/CSR RAPL state, reads return 0, and no system fault (#GP) occurs. MSR 0xBC (IA32_MISC_PACKAGE_CTLS) is explicitly NOT deprecated and must remain writable.</p>
+<h3>Pre-Conditions</h3>
+<table class="md-table"><thead><tr>
+<th>Item</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>Platform</td>
+<td>NWP post-silicon system or VP (Simics)</td>
+</tr>
+<tr>
+<td>OS / Driver</td>
+<td>SVOS with PythonSV environment; rdmsr/wrmsr capability</td>
+</tr>
+<tr>
+<td>BIOS</td>
+<td>Default RAPL settings</td>
+</tr>
+<tr>
+<td>Starting state</td>
+<td>System booted; RAPL active via TPMI/CSR</td>
+</tr>
+<tr>
+<td>TPMI PL1 path</td>
+<td>sv.socket0.nio.punit.ptpcfsms.ptpcfsms.socket_rapl_pl1_control</td>
+</tr>
+<tr>
+<td>CSR PL1 path</td>
+<td>sv.socket0.nio.punit.ptpcioregs.ptpcioregs.package_rapl_limit_cfg</td>
+</tr>
+</tbody></table>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Record baseline TPMI state: read socket_rapl_pl1_control (PL1 power, tau, lock), socket_rapl_pl2_control, socket_rapl_energy_status. Also read CSR package_rapl_limit_cfg.</td>
+<td>All registers readable; baseline values recorded.</td>
+<td>Register read failure.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read deprecated MSR 0x606 (IA32_PKG_POWER_SKU_UNIT).</td>
+<td>Returns 0. No #GP exception.</td>
+<td>Non-zero value returned (MSR not properly deprecated).</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read deprecated MSR 0x611 (IA32_PKG_ENERGY_STATUS).</td>
+<td>Returns 0. No #GP.</td>
+<td>Non-zero value returned.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read deprecated MSR 0x610 (IA32_PKG_RAPL_LIMIT).</td>
+<td>Returns 0. No #GP.</td>
+<td>Non-zero value returned.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Write to deprecated MSR 0x610 with a valid PL1/PL2 encoding (e.g., 0x00DD800000EA8000). No #GP expected — write silently dropped.</td>
+<td>Write completes without exception.</td>
+<td>#GP or system crash on MSR write.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Read TPMI socket_rapl_pl1_control after MSR 0x610 write. Compare to baseline.</td>
+<td>TPMI PL1_CONTROL unchanged from baseline. MSR write had no effect on TPMI state.</td>
+<td>TPMI value changed — deprecated MSR write leaked to TPMI.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Read CSR package_rapl_limit_cfg after MSR 0x610 write. Compare to baseline.</td>
+<td>CSR unchanged from baseline. MSR write had no effect on CSR state.</td>
+<td>CSR value changed.</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Write to deprecated MSR 0x606. Read back.</td>
+<td>Returns 0 on read-back. Write silently dropped. No #GP.</td>
+<td>Read-back non-zero or #GP.</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Verify RAPL algorithm still operating: read socket_rapl_energy_status. Compare to baseline.</td>
+<td>Energy counter has progressed (E_now &gt; E_baseline). RAPL still active and unaffected by deprecated MSR writes.</td>
+<td>Energy counter stale — RAPL algorithm disrupted by MSR writes.</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Verify MSR 0xBC (IA32_MISC_PACKAGE_CTLS) is NOT deprecated: read, toggle bit 0, read back.</td>
+<td>MSR 0xBC is writable. Bit 0 toggled successfully. This MSR is valid on NWP.</td>
+<td>MSR 0xBC returns 0 or write fails — incorrectly deprecated.</td>
+</tr>
+</tbody></table>
+<h3>Pass / Fail Criteria</h3>
+<ul>
+<li>**PASS**: Per TCD 22022420821 §5-C — All deprecated RAPL MSRs (0x606, 0x610, 0x611) return 0 on read. Writes to deprecated MSRs silently dropped — no #GP, no TPMI/CSR side effect. RAPL algorithm continues operating via TPMI/CSR. MSR 0xBC remains writable (not deprecated). No MCA or system instability.</li>
+<li>**FAIL**: Any deprecated MSR returns non-zero. Any MSR write causes TPMI/CSR state change. #GP on MSR access. RAPL algorithm disrupted. MSR 0xBC incorrectly deprecated.</li>
+</ul>
+<h3>Health Checks</h3>
+<table class="md-table"><thead><tr>
+<th>Register / Log</th>
+<th>Access</th>
+<th>Pass/Fail Criteria</th>
+</tr></thead><tbody>
+<tr>
+<td>MSR 0x606</td>
+<td>rdmsr 0x606</td>
+<td>Returns 0</td>
+</tr>
+<tr>
+<td>MSR 0x610</td>
+<td>rdmsr/wrmsr 0x610</td>
+<td>Returns 0; write silently dropped</td>
+</tr>
+<tr>
+<td>MSR 0x611</td>
+<td>rdmsr 0x611</td>
+<td>Returns 0</td>
+</tr>
+<tr>
+<td>MSR 0xBC</td>
+<td>rdmsr/wrmsr 0xBC</td>
+<td>Writable; NOT deprecated</td>
+</tr>
+<tr>
+<td>TPMI PL1_CONTROL</td>
+<td>sv.socket0.nio.punit.ptpcfsms.ptpcfsms.socket_rapl_pl1_control</td>
+<td>Unchanged after deprecated MSR writes</td>
+</tr>
+<tr>
+<td>CSR package_rapl_limit_cfg</td>
+<td>sv.socket0.nio.punit.ptpcioregs.ptpcioregs.package_rapl_limit_cfg</td>
+<td>Unchanged after deprecated MSR writes</td>
+</tr>
+<tr>
+<td>TPMI energy_status</td>
+<td>sv.socket0.nio.punit.ptpcfsms.ptpcfsms.socket_rapl_energy_status</td>
+<td>Still progressing (RAPL alive)</td>
+</tr>
+</tbody></table>
+<h3>Post-Process</h3>
+<p>N/A</p>
+<h3>References</h3>
+<ul>
+<li>[TCD 22022420821 -- Socket RAPL Registers Verification](https://hsdes.intel.com/appstore/article-one/#/22022420821)</li>
+<li>[PrimeCode RAPL DMR -- MSR Deprecation](https://docs.intel.com/documents/primecode/primecode_one/firmware%20architecture/ip%20drivers%20and%20libraries/rapl_dmr.html)</li>
+<li>[DMR RAPL Simplification](https://docs.intel.com/documents/pm_doc/src/server/dmr/pm%20features/dmr_rapl_simplification.html)</li>
+</ul>
+<p>---</p></div>
+  <div id="tab1" class="panel"><p>NWP carries forward DMR MSR deprecation. Same deprecated MSRs; same TPMI/CSR active paths. NIO replaces IMH.</p></div>
+  <div id="tab2" class="panel"><p>Recommendation: ADOPT — same deprecated MSRs on NWP; verify no TPMI/CSR side effects; confirm MSR 0xBC NOT deprecated. Priority: Medium — negative test validates deprecated interface isolation.</p>
+<p>2. Write to each deprecated RAPL MSR; verify no change in TPMI or CSR RAPL registers</p>
+<p>3. Confirms NWP correctly ignores MSR-based RAPL interface</p>
+<p>**Priority**: Medium — `plc.feature.p2`; negative test validates that deprecated MSR paths are truly non-functional — important for software compatibility</p></div>
+  </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

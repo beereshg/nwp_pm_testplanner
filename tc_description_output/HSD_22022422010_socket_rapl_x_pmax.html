@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+  <title>TC: Socket RAPL x PMAX</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>TC: Socket RAPL x PMAX</h1>
+    <p>Segment: FV | Source: HSD_22022422010_socket_rapl_x_pmax.inference.md | Generated: 2026-07-18 18:48:30</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>TC: Socket RAPL x PMAX</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>[22022422010](https://hsdes.intel.com/appstore/article-one/#/22022422010)</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>Socket rapl x Pmax</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-07-18</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL × Cross-products</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>RAPL × PMAX concurrent limiter arbitration</td>
+</tr>
+<tr>
+<td>**Parent TCD**</td>
+<td>[22022420806 — Socket RAPL Cross-products](https://hsdes.intel.com/appstore/article-one/#/22022420806)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+<tr>
+<td>**Automation**</td>
+<td>`python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>mps</td>
+</tr>
+<tr>
+<td>**Val Framework**</td>
+<td>PMX, os-svos, python-sv</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Test Case Intent</h2>
+<p>Validates the **RAPL × PMAX** cross-product scenario defined in [TCD 22022420806 — Socket RAPL Cross-products](https://hsdes.intel.com/appstore/article-one/#/22022420806) §5 (&quot;effective frequency ceiling reflects the more restrictive active limiter&quot;). Environment: NWP post-silicon (SVOS).</p>
+<p>**Micro-architecture:** Socket RAPL and PMAX are independent power limiters. RAPL uses NN-PID feedback (1 ms loop) to enforce average power limits (PL1/PL2). PMAX is a hardware overcurrent protection circuit that detects instantaneous VccIN voltage droop (hundreds of nanoseconds) and triggers immediate frequency throttling to Psafe. When both are simultaneously active, the effective frequency ceiling should be min(RAPL output, PMAX ceiling). This TC validates that the arbitration is correct and that `perf_limit_reasons` correctly identifies the binding limiter.</p>
+<p>---</p>
+<h3>Pre-Conditions</h3>
+<table class="md-table"><thead><tr>
+<th>Item</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>Platform</td>
+<td>NWP post-silicon, SVOS</td>
+</tr>
+<tr>
+<td>Sockets</td>
+<td>1S minimum</td>
+</tr>
+<tr>
+<td>BIOS knobs</td>
+<td>Default RAPL and PMAX configuration; TPMI unlocked</td>
+</tr>
+<tr>
+<td>OS / Driver</td>
+<td>Ubuntu/SVOS; PTU available</td>
+</tr>
+<tr>
+<td>PythonSV</td>
+<td>`pm.pmutils.cpu_rapl` module; PMAX register access via namednodes</td>
+</tr>
+<tr>
+<td>Feature state</td>
+<td>Both Socket RAPL and PMAX enabled</td>
+</tr>
+<tr>
+<td>NWP topology</td>
+<td>2 CBBs; NIO root die; single VCCIN (NWP-SP)</td>
+</tr>
+<tr>
+<td>Interface</td>
+<td>TPMI for RAPL; CSR/PythonSV for PMAX threshold control</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Launch PMx: `python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</td>
+<td>PMx initialized; RAPL defaults active</td>
+<td>PMx error</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Start PTU TDP workload: `./ptu -ct 3`</td>
+<td>All 96 cores loaded; socket power exceeds TDP</td>
+<td>PTU fails</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Set RAPL PL1 = TDP (permissive — RAPL not actively limiting)</td>
+<td>PL1 at TDP; power at or below TDP; RAPL not throttling</td>
+<td>RAPL unexpectedly throttling</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Trigger PMAX condition (lower PMAX threshold below current power) or inject PMAX via PythonSV</td>
+<td>PMAX asserts; frequency immediately drops to PMAX ceiling</td>
+<td>PMAX does not trigger</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Check `perf_limit_reasons`</td>
+<td>PMAX bit asserted; RAPL PL1 bit NOT asserted (PMAX is binding)</td>
+<td>Wrong limiter indicated</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify effective frequency = PMAX ceiling (not RAPL output)</td>
+<td>Core frequency at PMAX-dictated level</td>
+<td>Frequency at RAPL level or incorrect</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Now set RAPL PL1 well below PMAX ceiling</td>
+<td>RAPL becomes binding limiter</td>
+<td>TPMI write rejected</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Wait for PID convergence (≤ 5 × tau1)</td>
+<td>Power converges to PL1; RAPL actively throttling</td>
+<td>Power does not converge to PL1</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Check `perf_limit_reasons`</td>
+<td>RAPL PL1 bit[10] asserted; PMAX bit may or may not be asserted depending on power level</td>
+<td>Wrong limiter indicated</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Verify effective frequency = RAPL output (more restrictive than PMAX)</td>
+<td>Core frequency at RAPL-dictated level</td>
+<td>Frequency at PMAX level or incorrect</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Release PMAX condition (restore threshold)</td>
+<td>Only RAPL remains active; no PMAX influence</td>
+<td>PMAX stuck active</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Restore PL1 = TDP; stop workload</td>
+<td>System returns to idle; no limits active</td>
+<td>Limits stuck</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h3>Pass / Fail Criteria</h3>
+<p>**Bar:** Per [TCD 22022420806](https://hsdes.intel.com/appstore/article-one/#/22022420806) §5: effective frequency ceiling reflects the more restrictive active limiter.</p>
+<p>**PASS** when ALL of the following are true:</p>
+<ul>
+<li>When PMAX &lt; RAPL: effective ceiling = PMAX; `perf_limit_reasons` shows PMAX as binding</li>
+<li>When RAPL &lt; PMAX: effective ceiling = RAPL; `perf_limit_reasons` shows RAPL PL1 as binding</li>
+<li>Arbitration: min(PMAX, RAPL) correctly enforced at all times</li>
+<li>Transitions between binding limiters are clean (no glitch, no incorrect override)</li>
+<li>No MCAs, dmesg errors, or system hangs</li>
+</ul>
+<p>**FAIL** when ANY of the following are true:</p>
+<ul>
+<li>Wrong limiter binding (RAPL overrides PMAX or vice versa when incorrect)</li>
+<li>`perf_limit_reasons` does not identify correct binding limiter</li>
+<li>Frequency ceiling does not match the more restrictive limiter</li>
+<li>System hang, MCA, or unexpected reset</li>
+</ul>
+<p>---</p>
+<h3>Health Checks</h3>
+<table class="md-table"><thead><tr>
+<th>Register / Log</th>
+<th>Access</th>
+<th>Pass/Fail Criteria</th>
+</tr></thead><tbody>
+<tr>
+<td>`TPMI PL1_CONTROL` (idx=2)</td>
+<td>`sv.socket0.nio.punit.tpmi.pl1_control.read()`</td>
+<td>PWR_LIM matches programmed value</td>
+</tr>
+<tr>
+<td>`TPMI ENERGY_STATUS` (idx=7)</td>
+<td>`sv.socket0.nio.punit.tpmi.energy_status.read()`</td>
+<td>Counter incrementing</td>
+</tr>
+<tr>
+<td>`perf_limit_reasons`</td>
+<td>PMx readout</td>
+<td>Correct limiter bits asserted</td>
+</tr>
+<tr>
+<td>PMAX status</td>
+<td>`sv.socket0.nio.punit.ptpcfsms.*`</td>
+<td>PMAX trigger status matches test condition</td>
+</tr>
+<tr>
+<td>`dmesg`</td>
+<td>`dmesg \</td>
+<td>grep -i &#x27;mca\</td>
+<td>error\</td>
+<td>pmax\</td>
+<td>rapl&#x27;`</td>
+<td>No unexpected errors</td>
+</tr>
+</tbody></table>
+<h3>Post-Process</h3>
+<p>N/A — RAPL and PMAX status captured inline by PMx and register reads.</p>
+<h3>References</h3>
+<ul>
+<li>[TCD 22022420806 — Socket RAPL Cross-products](https://hsdes.intel.com/appstore/article-one/#/22022420806)</li>
+<li>[Socket RAPL KB — socket_rapl.md](../../pm_features/power_rapl/socket_rapl.md)</li>
+<li>[PMAX KB — pmax.md](../../pm_features/power_rapl/pmax.md)</li>
+<li>[NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)</li>
+<li>[Intel RAPL HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/RAPL/RAPL.html)</li>
+</ul>
+<p>---</p>
+<h2>NWP Adaptation Notes</h2>
+<table class="md-table"><thead><tr>
+<th>DMR</th>
+<th>NWP</th>
+</tr></thead><tbody>
+<tr>
+<td>`dmr.xml`</td>
+<td>`nwp.xml`</td>
+</tr>
+<tr>
+<td>4 CBBs, dual VCCIN (AP)</td>
+<td>2 CBBs, single VCCIN (SP)</td>
+</tr>
+<tr>
+<td>`sv.socket0.imh0.punit.ptpcfsms.*`</td>
+<td>`sv.socket0.nio.punit.ptpcfsms.*`</td>
+</tr>
+<tr>
+<td>Per-IMH PMAX detectors (DMR-AP)</td>
+<td>Single NIO PMAX detector</td>
+</tr>
+</tbody></table>
+<p>**Disposition: Runnable_On_N-1** — Change XML config. NWP single-VCCIN simplifies PMAX topology (one detector instead of two). RAPL × PMAX arbitration logic is identical.</p></div>
+  </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

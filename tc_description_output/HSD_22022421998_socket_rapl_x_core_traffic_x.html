@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+  <title>TC: Socket RAPL x Core Traffic x IO Traffic</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>TC: Socket RAPL x Core Traffic x IO Traffic</h1>
+    <p>Segment: FV | Source: HSD_22022421998_socket_rapl_x_core_traffic_x.inference.md | Generated: 2026-07-18 18:48:30</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>TC: Socket RAPL x Core Traffic x IO Traffic</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>[22022421998](https://hsdes.intel.com/appstore/article-one/#/22022421998)</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>Socket Rapl x Core Traffic x IO Traffic</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-07-18</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL × Cross-products</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>RAPL enforcement under simultaneous CPU compute + IO traffic</td>
+</tr>
+<tr>
+<td>**Parent TCD**</td>
+<td>[22022420806 — Socket RAPL Cross-products](https://hsdes.intel.com/appstore/article-one/#/22022420806)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+<tr>
+<td>**Automation**</td>
+<td>`python runPmx.py -x nwp.xml -p cpu_rapl -p cpu_traffic -p core_power -tM 6 -M 3`</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>mps</td>
+</tr>
+<tr>
+<td>**Val Framework**</td>
+<td>PMX, os-svos</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Test Case Intent</h2>
+<p>Validates the **RAPL × Core + IO Traffic** cross-product scenario defined in [TCD 22022420806 — Socket RAPL Cross-products](https://hsdes.intel.com/appstore/article-one/#/22022420806) §5 (&quot;Socket RAPL remains correctly enforced under mixed activity&quot;). Environment: NWP post-silicon (SVOS).</p>
+<p>**Micro-architecture:** When CPU compute cores and IO devices generate simultaneous power draw, Socket RAPL must correctly account for total socket power (both core and uncore/IO contributions) and enforce PL1/PL2 limits through the NN-PID loop. The IMON telemetry aggregates all power domains; the PID output (`RAPL_PERF_LIMIT` via HPM 0x14) throttles CBB cores while IO traffic continues. This TC validates that RAPL enforcement is accurate and energy accounting is correct under mixed traffic patterns.</p>
+<p>---</p>
+<h3>Pre-Conditions</h3>
+<table class="md-table"><thead><tr>
+<th>Item</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>Platform</td>
+<td>NWP post-silicon, SVOS</td>
+</tr>
+<tr>
+<td>Sockets</td>
+<td>1S minimum</td>
+</tr>
+<tr>
+<td>BIOS knobs</td>
+<td>Default RAPL configuration; PL1 = TDP (fused); TPMI unlocked</td>
+</tr>
+<tr>
+<td>OS / Driver</td>
+<td>Ubuntu/SVOS; PTU available; IO traffic generator available</td>
+</tr>
+<tr>
+<td>PythonSV</td>
+<td>`pm.pmutils.cpu_rapl` module available; `runPmx.py` accessible</td>
+</tr>
+<tr>
+<td>Feature state</td>
+<td>Socket RAPL enabled; no RAPL lock</td>
+</tr>
+<tr>
+<td>NWP topology</td>
+<td>2 CBBs × 48 cores = 96 total; NIO root die; single NIO aggregates all power</td>
+</tr>
+<tr>
+<td>Interface</td>
+<td>**TPMI only** — legacy MSRs 0x610/0x611 deprecated on NWP</td>
+</tr>
+<tr>
+<td>Traffic</td>
+<td>CPU compute workload (PTU TDP) + IO traffic generator (DMA, PCIe, or equivalent)</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Launch PMx RAPL + traffic automation: `python runPmx.py -x nwp.xml -p cpu_rapl -p cpu_traffic -p core_power -tM 6 -M 3`</td>
+<td>PMx initializes; plugins loaded; NWP topology detected (2 CBBs)</td>
+<td>PMx startup error; plugin load failure</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Start PTU TDP workload on all 96 cores: `./ptu -ct 3`</td>
+<td>All cores loaded; CPU power contribution significant</td>
+<td>PTU fails to start; insufficient load</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Start IO traffic generator (DMA/PCIe workload)</td>
+<td>IO traffic active; IO power contribution visible in IMON telemetry</td>
+<td>IO generator fails; no IO power contribution</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read baseline socket power with both traffic active: `TPMI ENERGY_STATUS`</td>
+<td>Total socket power = CPU power + IO power; exceeds idle significantly</td>
+<td>Energy counter stale or not incrementing</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Set RAPL PL1 below current total socket power via TPMI</td>
+<td>PL1 accepted; PrimeCode begins throttling CPU cores</td>
+<td>TPMI write rejected; PL1 not applied</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Wait for PID convergence (≤ 5 × tau1)</td>
+<td>Total socket power converges to PL1 target</td>
+<td>Power does not converge; diverges or oscillates</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Verify energy accounting accuracy under mixed traffic</td>
+<td>`TPMI ENERGY_STATUS` reflects correct total socket power (CPU + IO)</td>
+<td>Energy counter shows only CPU or only IO power</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Check `perf_limit_reasons` for PL1 throttle indication</td>
+<td>Bit[10] (PKG_PL1_INBAND) asserted while PL1 actively limiting</td>
+<td>PL1 bit not asserted during active throttle</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Stop IO traffic; CPU-only workload continues</td>
+<td>Socket power drops (IO contribution removed); RAPL re-converges if PL1 still binding</td>
+<td>Power does not adjust after IO traffic stops</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Restart IO traffic with CPU still running</td>
+<td>Socket power increases again; RAPL re-engages if total &gt; PL1</td>
+<td>RAPL fails to re-engage; energy accounting incorrect</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Stop all traffic; verify return to idle</td>
+<td>Socket power drops below PL1; `perf_limit_reasons` PL1 bit clears</td>
+<td>Power elevated; perf_limit_reasons stuck</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h3>Pass / Fail Criteria</h3>
+<p>**Bar:** Per [TCD 22022420806](https://hsdes.intel.com/appstore/article-one/#/22022420806) §5: Socket RAPL remains correctly enforced under mixed CPU + IO activity.</p>
+<p>**PASS** when ALL of the following are true:</p>
+<ul>
+<li>Total socket power converges to PL1 within 5 × tau1 under combined CPU + IO traffic</li>
+<li>Energy accounting (TPMI ENERGY_STATUS) correctly reflects total socket power</li>
+<li>`perf_limit_reasons` bit[10] asserts during PL1 throttle and clears when power drops below limit</li>
+<li>RAPL dynamically adjusts when IO traffic starts/stops while CPU workload continues</li>
+<li>No dmesg errors, MCAs, or system hangs during test</li>
+</ul>
+<p>**FAIL** when ANY of the following are true:</p>
+<ul>
+<li>Power does not converge to PL1 under mixed traffic</li>
+<li>Energy accounting excludes IO power contribution</li>
+<li>`perf_limit_reasons` incorrect</li>
+<li>System hang, MCA, or unexpected reset</li>
+</ul>
+<p>---</p>
+<h3>Health Checks</h3>
+<table class="md-table"><thead><tr>
+<th>Register / Log</th>
+<th>Access</th>
+<th>Pass/Fail Criteria</th>
+</tr></thead><tbody>
+<tr>
+<td>`TPMI ENERGY_STATUS` (idx=7)</td>
+<td>`sv.socket0.nio.punit.tpmi.energy_status.read()`</td>
+<td>Counter incrementing; reflects total socket power</td>
+</tr>
+<tr>
+<td>`TPMI PERF_STATUS` (idx=8)</td>
+<td>`sv.socket0.nio.punit.tpmi.perf_status.read()`</td>
+<td>Throttle counter &gt; 0 during PL1 limit</td>
+</tr>
+<tr>
+<td>`TPMI PL1_CONTROL` (idx=2)</td>
+<td>`sv.socket0.nio.punit.tpmi.pl1_control.read()`</td>
+<td>PWR_LIM matches programmed value</td>
+</tr>
+<tr>
+<td>`perf_limit_reasons`</td>
+<td>PMx readout</td>
+<td>Bit[10] correct during throttle</td>
+</tr>
+<tr>
+<td>`dmesg`</td>
+<td>`dmesg \</td>
+<td>grep -i &#x27;mca\</td>
+<td>error\</td>
+<td>rapl&#x27;`</td>
+<td>No unexpected errors</td>
+</tr>
+</tbody></table>
+<h3>Post-Process</h3>
+<p>N/A — energy and convergence results captured inline by PMx plugins.</p>
+<h3>References</h3>
+<ul>
+<li>[TCD 22022420806 — Socket RAPL Cross-products](https://hsdes.intel.com/appstore/article-one/#/22022420806)</li>
+<li>[Socket RAPL KB — socket_rapl.md](../../pm_features/power_rapl/socket_rapl.md)</li>
+<li>[NWP PM MAS — RAPL](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)</li>
+<li>[Intel RAPL HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/RAPL/RAPL.html)</li>
+</ul>
+<p>---</p>
+<h2>NWP Adaptation Notes</h2>
+<table class="md-table"><thead><tr>
+<th>DMR</th>
+<th>NWP</th>
+</tr></thead><tbody>
+<tr>
+<td>`dmr.xml` / `spr.xml`</td>
+<td>`nwp.xml`</td>
+</tr>
+<tr>
+<td>4 CBBs</td>
+<td>2 CBBs</td>
+</tr>
+<tr>
+<td>MSR 0x610 for RAPL control</td>
+<td>**Deprecated** — use TPMI only</td>
+</tr>
+<tr>
+<td>`sv.socket0.imh0.punit.*`</td>
+<td>`sv.socket0.nio.punit.*`</td>
+</tr>
+</tbody></table>
+<p>**Disposition: Runnable_On_N-1** — Change XML config to `nwp.xml`. IO traffic generator must be NWP-compatible.</p></div>
+  </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

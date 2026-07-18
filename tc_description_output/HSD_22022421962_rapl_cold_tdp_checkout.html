@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+  <title>TC Description: RAPL Cold TDP Checkout</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>TC Description: RAPL Cold TDP Checkout</h1>
+    <p>Segment: FV | Source: HSD_22022421962_rapl_cold_tdp_checkout.inference.md | Generated: 2026-07-18 18:47:44</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+    <button class="tab" data-tab="tab1">A: NWP Delta</button>
+    <button class="tab" data-tab="tab2">F: Recommendations</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>TC Description: RAPL Cold TDP Checkout</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>[22022421962](https://hsdes.intel.com/appstore/article-one/#/22022421962)</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>RAPL Cold TDP checkout</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-07-18</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>Cold TDP — PL1 offset applied when die temperature below fused threshold</td>
+</tr>
+<tr>
+<td>**Parent TCD**</td>
+<td>[22022420813 -- Socket RAPL Fuse and BIOS Knobs](https://hsdes.intel.com/appstore/article-one/#/22022420813)</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>mps</td>
+</tr>
+<tr>
+<td>**Status**</td>
+<td>open / ready_for_content_review</td>
+</tr>
+<tr>
+<td>**Priority**</td>
+<td>2-high</td>
+</tr>
+<tr>
+<td>**Tags**</td>
+<td>`pss`</td>
+</tr>
+<tr>
+<td>**Val Environment**</td>
+<td>virtual_platform</td>
+</tr>
+<tr>
+<td>**Val Framework**</td>
+<td>os-svos, python-sv</td>
+</tr>
+<tr>
+<td>**Automation**</td>
+<td>`python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+<tr>
+<td>**Cache version**</td>
+<td>3</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Test Case Intent</h2>
+<p>Validates the **Cold TDP** scenario defined in [TCD 22022420813 -- Socket RAPL Fuse and BIOS Knobs](https://hsdes.intel.com/appstore/article-one/#/22022420813) §5, row &quot;Cold boot defaults&quot;: &quot;PL_INFO / default fuse initialization; PL1 default = TDP, PL2 default = 1.2xTDP.&quot; Specifically, this TC verifies Cold TDP behavior: PCode applies a fused power limit offset (cold_long_power_limit_delta) to the effective PL1 budget when DTS temperature drops below the fused cold threshold (cold_long_power_limit_temp). The effective PL1 = base_PL1 + cold_delta when cold, and reverts to base_PL1 when warm. The key observable is pkg_computed_pl1_power_budget_0 increasing by the cold delta after DFX temperature injection.</p>
+<h3>Pre-Conditions</h3>
+<table class="md-table"><thead><tr>
+<th>Item</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>Platform</td>
+<td>NWP virtual platform (Simics) — DFX temperature injection required</td>
+</tr>
+<tr>
+<td>OS / Driver</td>
+<td>SVOS with PythonSV environment</td>
+</tr>
+<tr>
+<td>BIOS</td>
+<td>Default BIOS PL1 settings (PL1 = fused TDP)</td>
+</tr>
+<tr>
+<td>Feature state</td>
+<td>Cold TDP fuses programmed for SKU; cold_long_power_limit_delta non-zero</td>
+</tr>
+<tr>
+<td>Tool</td>
+<td>runPmx.py accessible; DFX temperature injection capability (dfxTemperaturesEnabled)</td>
+</tr>
+<tr>
+<td>Starting state</td>
+<td>System booted; PrimeCode PH6 init complete; die temperature above cold threshold (normal operation)</td>
+</tr>
+<tr>
+<td>Cold TDP fuse paths</td>
+<td>sv.socket0.nio.fuses.punit.cold_long_power_limit_temp, sv.socket0.nio.fuses.punit.cold_long_power_limit_delta</td>
+</tr>
+<tr>
+<td>PL1 budget register</td>
+<td>sv.socket0.nio.pcudata.pkg_computed_pl1_power_budget_0</td>
+</tr>
+</tbody></table>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Read Cold TDP fuse values: cold_long_power_limit_temp (threshold) and cold_long_power_limit_delta (offset). Record both.</td>
+<td>Both fuse values readable and non-zero for this SKU. Threshold is a valid temperature (e.g., 40-60C). Delta is a valid power offset (U11.3 encoding).</td>
+<td>Fuse reads 0 (Cold TDP not fused for this SKU — test N/A).</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read current die temperature via DTS. Verify system is warm (above cold threshold).</td>
+<td>Die temperature &gt; cold_long_power_limit_temp. System in normal (warm) operating state.</td>
+<td>Die temperature already below threshold — cannot establish warm baseline.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read baseline pkg_computed_pl1_power_budget_0. This is the effective PL1 budget PrimeCode uses for the RAPL PID. Record as baseline_pl1.</td>
+<td>baseline_pl1 = fused TDP (base PL1, no cold offset applied).</td>
+<td>baseline_pl1 does not match expected fused TDP.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Inject DFX temperature below the cold threshold: use dfxTemperaturesEnabled to set die temperature to (cold_threshold - 10C). Wait for PrimeCode to detect cold condition (~1-2 PID cycles, ~2ms).</td>
+<td>PrimeCode detects die temperature below cold threshold and applies cold delta.</td>
+<td>DFX temperature injection fails or PrimeCode does not respond to injected temperature.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Read pkg_computed_pl1_power_budget_0 after cold injection. Compare to baseline_pl1.</td>
+<td>effective_pl1 = baseline_pl1 + cold_long_power_limit_delta. PL1 budget increased by cold offset.</td>
+<td>PL1 budget unchanged or delta does not match fused cold_long_power_limit_delta value.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify RAPL PID uses the elevated PL1: check socket_rapl_pid_output reflects higher power ceiling.</td>
+<td>PID output frequency ceiling is higher than warm-state ceiling (more power budget available).</td>
+<td>PID output unchanged despite higher PL1 budget.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Remove cold injection: restore DFX temperature to above threshold (e.g., threshold + 10C). Wait for PrimeCode to revert.</td>
+<td>PrimeCode detects warm condition and removes cold delta.</td>
+<td>Cold delta remains applied after temperature recovery.</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Read pkg_computed_pl1_power_budget_0 after warm recovery.</td>
+<td>effective_pl1 reverts to baseline_pl1 (cold offset removed). Clean transition. No MCA or hang.</td>
+<td>PL1 budget still elevated or system instability during transition.</td>
+</tr>
+</tbody></table>
+<h3>Pass / Fail Criteria</h3>
+<ul>
+<li>**PASS**: Per TCD 22022420813 §5 — pkg_computed_pl1_power_budget_0 increases by exactly cold_long_power_limit_delta when die temperature drops below cold threshold. PL1 budget reverts to baseline when temperature recovers above threshold. Transitions are clean in both directions. RAPL PID reflects elevated budget during cold. No MCA or system instability.</li>
+<li>**FAIL**: PL1 budget does not change when temperature crosses cold threshold. Delta mismatch (applied delta != fused delta). PL1 does not revert when temperature recovers. System instability during temperature transitions.</li>
+</ul>
+<h3>Health Checks</h3>
+<table class="md-table"><thead><tr>
+<th>Register / Log</th>
+<th>Access</th>
+<th>Pass/Fail Criteria</th>
+</tr></thead><tbody>
+<tr>
+<td>cold_long_power_limit_temp (fuse)</td>
+<td>sv.socket0.nio.fuses.punit.cold_long_power_limit_temp</td>
+<td>Non-zero, valid temperature value</td>
+</tr>
+<tr>
+<td>cold_long_power_limit_delta (fuse)</td>
+<td>sv.socket0.nio.fuses.punit.cold_long_power_limit_delta</td>
+<td>Non-zero, valid power offset</td>
+</tr>
+<tr>
+<td>pkg_computed_pl1_power_budget_0</td>
+<td>sv.socket0.nio.pcudata.pkg_computed_pl1_power_budget_0</td>
+<td>= base_PL1 + delta when cold; = base_PL1 when warm</td>
+</tr>
+<tr>
+<td>socket_rapl_pid_output</td>
+<td>sv.socket0.nio.pcudata.raplVars.socket_rapl_pid_output</td>
+<td>Reflects elevated PL1 ceiling during cold</td>
+</tr>
+<tr>
+<td>DTS temperature</td>
+<td>DFX injection via dfxTemperaturesEnabled</td>
+<td>Below threshold for cold; above threshold for warm</td>
+</tr>
+</tbody></table>
+<h3>Post-Process</h3>
+<p>N/A</p>
+<h3>Notes</h3>
+<ul>
+<li>Cold TDP is a SKU-specific feature — if cold fuses are 0, test is N/A for that SKU.</li>
+<li>This TC requires DFX temperature injection (virtual_platform only); cannot run on production silicon without DFX overrides.</li>
+<li>Cold TDP was moved from TCD 22022420798 (Algorithm) to TCD 22022420813 (Fuse/BIOS) per Co-Design T2 audit — it is fuse scope, not PID scope.</li>
+</ul>
+<h3>References</h3>
+<ul>
+<li>[TCD 22022420813 -- Socket RAPL Fuse and BIOS Knobs](https://hsdes.intel.com/appstore/article-one/#/22022420813)</li>
+<li>[PrimeCode RAPL DMR -- Cold TDP](https://docs.intel.com/documents/primecode/primecode_one/firmware%20architecture/ip%20drivers%20and%20libraries/rapl_dmr.html)</li>
+<li>[Wave 3 Common HAS -- Socket RAPL](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Socket_RAPL/Socket_RAPL.html)</li>
+</ul>
+<p>---</p></div>
+  <div id="tab1" class="panel"><p>NWP carries forward DMR Cold TDP fuse mechanism. NIO replaces IMH as root die. Cold TDP fuses are SKU-dependent.</p>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+</tr></thead><tbody>
+<tr>
+<td>Cold TDP fuse</td>
+<td>sv.socket0.imh0.fuses.punit.cold_*</td>
+<td>sv.socket0.nio.fuses.punit.cold_*</td>
+</tr>
+<tr>
+<td>PL1 budget register</td>
+<td>sv.socket0.imh0.pcudata.pkg_computed_pl1_power_budget_0</td>
+<td>sv.socket0.nio.pcudata.pkg_computed_pl1_power_budget_0</td>
+</tr>
+<tr>
+<td>Temperature aggregation</td>
+<td>2 IMH dies, 4 CBBs</td>
+<td>1 NIO die, 2 CBBs</td>
+</tr>
+</tbody></table></div>
+  <div id="tab2" class="panel"><p>Recommendation: ADOPT — imh0 -&gt; nio register paths; DFX temperature injection for cold/warm transition testing. Priority: Medium — Cold TDP is a boundary condition; validates correct fuse-driven PL1 offset on NWP.</p></div>
+  </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

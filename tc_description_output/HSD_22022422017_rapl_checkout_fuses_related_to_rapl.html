@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+  <title>TC Description: RAPL - Checkout Fuses Related to RAPL</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>TC Description: RAPL - Checkout Fuses Related to RAPL</h1>
+    <p>Segment: FV | Source: HSD_22022422017_rapl_checkout_fuses_related_to_rapl.inference.md | Generated: 2026-07-18 18:47:44</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+    <button class="tab" data-tab="tab1">A: NWP Delta</button>
+    <button class="tab" data-tab="tab2">F: Recommendations</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>TC Description: RAPL - Checkout Fuses Related to RAPL</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>[22022422017](https://hsdes.intel.com/appstore/article-one/#/22022422017)</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>RAPL - Checkout fuses related to RAPL</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-07-18</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>RAPL fuse checkout — verify fuse-driven capability values in PL_INFO</td>
+</tr>
+<tr>
+<td>**Parent TCD**</td>
+<td>[22022420813 -- Socket RAPL Fuse and BIOS Knobs](https://hsdes.intel.com/appstore/article-one/#/22022420813)</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>mps</td>
+</tr>
+<tr>
+<td>**Status**</td>
+<td>open / ready_for_content_review</td>
+</tr>
+<tr>
+<td>**Priority**</td>
+<td>2-high</td>
+</tr>
+<tr>
+<td>**Tags**</td>
+<td>`DMR_PO`, `PMSS_NWP_READINESS_CHECK`</td>
+</tr>
+<tr>
+<td>**Val Environment**</td>
+<td>silicon, virtual_platform</td>
+</tr>
+<tr>
+<td>**Val Framework**</td>
+<td>os-svos, python-sv</td>
+</tr>
+<tr>
+<td>**Automation**</td>
+<td>`flexconPM.py -c NWPSV.ini`</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+<tr>
+<td>**Cache version**</td>
+<td>3</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Test Case Intent</h2>
+<p>Validates the **fuse checkout** scenario defined in [TCD 22022420813 -- Socket RAPL Fuse and BIOS Knobs](https://hsdes.intel.com/appstore/article-one/#/22022420813) §5, row &quot;Fuse checkout&quot;: &quot;PL_INFO.MAX_PL1 = fused TDP; MAX_PL2 = 1.2 x TDP; MIN_PL non-zero; values match silicon fuse programming.&quot; PrimeCode reads RAPL capability fuses at PH6 and populates TPMI PL_INFO. This TC reads the raw fuse values and compares them to the TPMI PL_INFO register fields to verify correct fuse-to-register propagation. Legacy MSR 0x606 is deprecated on NWP — reads return 0 and must not be used for power unit discovery.</p>
+<h3>Pre-Conditions</h3>
+<table class="md-table"><thead><tr>
+<th>Item</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>Platform</td>
+<td>NWP post-silicon system or VP (Simics)</td>
+</tr>
+<tr>
+<td>OS / Driver</td>
+<td>SVOS with PythonSV environment</td>
+</tr>
+<tr>
+<td>BIOS</td>
+<td>Default BIOS settings; no custom PL overrides</td>
+</tr>
+<tr>
+<td>Tool</td>
+<td>flexconPM.py accessible with NWPSV.ini config</td>
+</tr>
+<tr>
+<td>Starting state</td>
+<td>System booted; PrimeCode has completed PH6 initialization</td>
+</tr>
+<tr>
+<td>TPMI PL_INFO path</td>
+<td>sv.socket0.nio.punit.tpmi.socket_rapl.pl_info</td>
+</tr>
+<tr>
+<td>Power encoding</td>
+<td>U11.3 format: 1 LSB = 0.125 W</td>
+</tr>
+</tbody></table>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Run flexconPM fuse checkout: flexconPM.py -c NWPSV.ini. This reads all RAPL-related fuses and compares them to the corresponding register values.</td>
+<td>flexconPM reports all RAPL fuse-to-register checks PASS.</td>
+<td>Any fuse-to-register mismatch flagged by flexconPM.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Read TPMI PL_INFO.MAX_PL1 [17:0] via sv.socket0.nio.punit.tpmi.socket_rapl.pl_info. Compare to expected fused TDP for this NWP SKU.</td>
+<td>MAX_PL1 = fused Socket TDP value (U11.3 encoding, e.g., 350W = 0xAF0).</td>
+<td>MAX_PL1 does not match expected fused TDP.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read TPMI PL_INFO.MAX_PL2 [53:36]. Verify = 1.2 x MAX_PL1.</td>
+<td>MAX_PL2 = 1.2 x fused TDP (within 1 LSB rounding tolerance).</td>
+<td>MAX_PL2 deviates from 1.2x TDP by more than 1 LSB.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Read TPMI PL_INFO.MIN_PL [35:18]. Verify non-zero and less than MAX_PL1.</td>
+<td>MIN_PL &gt; 0 and MIN_PL &lt; MAX_PL1. Represents minimum supported power limit for this SKU.</td>
+<td>MIN_PL = 0 (uninitialized) or MIN_PL &gt;= MAX_PL1.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Read TPMI POWER_UNIT register. Verify power unit encoding matches expected (U11.3 = 3 fractional bits = power unit = 8).</td>
+<td>POWER_UNIT reflects correct fractional bit count for U11.3 encoding.</td>
+<td>Power unit mismatch — calculations would produce wrong wattage.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Read CSR package_power_sku (sv.socket0.nio.punit.ptpcioregs.ptpcioregs.package_power_sku). Verify pkg_tdp, pkg_min_pwr, pkg_max_pwr fields match TPMI PL_INFO values.</td>
+<td>CSR fields match TPMI PL_INFO: pkg_tdp = MAX_PL1, pkg_min_pwr = MIN_PL, pkg_max_pwr = MAX_PL2.</td>
+<td>CSR/TPMI mismatch on any capability field.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Read deprecated MSR 0x606 (IA32_PKG_POWER_SKU_UNIT). Verify returns 0.</td>
+<td>MSR 0x606 reads 0. Deprecated on NWP — must not be used for power unit discovery.</td>
+<td>MSR 0x606 returns non-zero value (not properly deprecated).</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Write to deprecated MSR 0x610 (IA32_PKG_RAPL_LIMIT). Read back TPMI PL1_CONTROL. Verify TPMI value unchanged.</td>
+<td>MSR write silently dropped; TPMI PL1_CONTROL unchanged from pre-write value.</td>
+<td>TPMI value changed after deprecated MSR write.</td>
+</tr>
+</tbody></table>
+<h3>Pass / Fail Criteria</h3>
+<ul>
+<li>**PASS**: Per TCD 22022420813 §5 — PL_INFO.MAX_PL1 = fused TDP for SKU. PL_INFO.MAX_PL2 = 1.2 x TDP (within 1 LSB). PL_INFO.MIN_PL non-zero and &lt; MAX_PL1. CSR package_power_sku matches TPMI PL_INFO. POWER_UNIT encoding correct. Deprecated MSR 0x606 reads 0. Deprecated MSR 0x610 write has no effect on TPMI. flexconPM reports all checks PASS.</li>
+<li>**FAIL**: Any PL_INFO field does not match expected fuse value. CSR/TPMI capability mismatch. Deprecated MSR not properly deprecated. flexconPM reports any failure.</li>
+</ul>
+<h3>Health Checks</h3>
+<table class="md-table"><thead><tr>
+<th>Register / Log</th>
+<th>Access</th>
+<th>Pass/Fail Criteria</th>
+</tr></thead><tbody>
+<tr>
+<td>TPMI PL_INFO</td>
+<td>sv.socket0.nio.punit.tpmi.socket_rapl.pl_info</td>
+<td>MAX_PL1 = fused TDP; MAX_PL2 = 1.2x TDP; MIN_PL &gt; 0</td>
+</tr>
+<tr>
+<td>TPMI POWER_UNIT</td>
+<td>sv.socket0.nio.punit.tpmi.socket_rapl.power_unit</td>
+<td>Correct U11.3 encoding</td>
+</tr>
+<tr>
+<td>CSR package_power_sku</td>
+<td>sv.socket0.nio.punit.ptpcioregs.ptpcioregs.package_power_sku</td>
+<td>Matches TPMI PL_INFO fields</td>
+</tr>
+<tr>
+<td>MSR 0x606</td>
+<td>rdmsr 0x606</td>
+<td>Returns 0 (deprecated)</td>
+</tr>
+<tr>
+<td>MSR 0x610</td>
+<td>wrmsr 0x610 then read TPMI</td>
+<td>TPMI unchanged (write silently dropped)</td>
+</tr>
+</tbody></table>
+<h3>Post-Process</h3>
+<p>N/A</p>
+<h3>References</h3>
+<ul>
+<li>[TCD 22022420813 -- Socket RAPL Fuse and BIOS Knobs](https://hsdes.intel.com/appstore/article-one/#/22022420813)</li>
+<li>[Wave 3 Common HAS -- Socket RAPL](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Socket_RAPL/Socket_RAPL.html)</li>
+<li>[DMR RAPL Simplification](https://docs.intel.com/documents/pm_doc/src/server/dmr/pm%20features/dmr_rapl_simplification.html)</li>
+<li>[PrimeCode RAPL DMR](https://docs.intel.com/documents/primecode/primecode_one/firmware%20architecture/ip%20drivers%20and%20libraries/rapl_dmr.html)</li>
+</ul>
+<p>---</p></div>
+  <div id="tab1" class="panel"><p>NWP carries forward DMR fuse structure and TPMI PL_INFO register layout. NIO replaces IMH as root die.</p>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+</tr></thead><tbody>
+<tr>
+<td>TPMI PL_INFO</td>
+<td>sv.socket0.imh0.punit.tpmi.socket_rapl.pl_info</td>
+<td>sv.socket0.nio.punit.tpmi.socket_rapl.pl_info</td>
+</tr>
+<tr>
+<td>flexconPM config</td>
+<td>DMRSV.ini</td>
+<td>NWPSV.ini</td>
+</tr>
+<tr>
+<td>MSR 0x606</td>
+<td>Deprecated (reads 0)</td>
+<td>Deprecated (reads 0)</td>
+</tr>
+</tbody></table></div>
+  <div id="tab2" class="panel"><p>Recommendation: ADOPT — DMRSV.ini -&gt; NWPSV.ini; NIO replaces IMH paths. Priority: High — fuse checkout is fundamental bring-up validation confirming PrimeCode correctly consumed all RAPL capability fuses.</p></div>
+  </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

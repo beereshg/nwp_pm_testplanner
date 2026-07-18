@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+  <title>TC: RAPL Response Time and Quality</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>TC: RAPL Response Time and Quality</h1>
+    <p>Segment: FV | Source: HSD_22022421965_rapl_response_time_and_quality.inference.md | Generated: 2026-07-18 18:33:31</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>TC: RAPL Response Time and Quality</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>[22022421965](https://hsdes.intel.com/appstore/article-one/#/22022421965)</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>RAPL Response time and quality</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-07-18</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PL1/PL2 NN-PID convergence time and response quality</td>
+</tr>
+<tr>
+<td>**Parent TCD**</td>
+<td>[22022420798 — Socket RAPL Algorithm &amp; Functionality Verification](https://hsdes.intel.com/appstore/article-one/#/22022420798)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+<tr>
+<td>**Automation**</td>
+<td>`python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>mps</td>
+</tr>
+<tr>
+<td>**Val Framework**</td>
+<td>os-svos, python-sv</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Test Case Intent</h2>
+<p>Validates the **PL1/PL2 NN-PID convergence time and response quality** scenario defined in [TCD 22022420798 — Socket RAPL Algorithm &amp; Functionality Verification](https://hsdes.intel.com/appstore/article-one/#/22022420798) §5 (&quot;PL1 response time: 3–5 × τ; PL2 response time: ~8 ms; frequency oscillation ≤ ±1 bin; steady-state error &lt; 1%&quot;). Environment: NWP post-silicon (SVOS).</p>
+<p>**Micro-architecture:** Socket RAPL enforces package power limits via NN-PID control loops running in **PrimeCode (NIO die)** at 1 ms cadence. Power telemetry (IMON via SVID) feeds the PID; the min-resolved output (`RAPL_PID_FREQ_OUTPUT`) is distributed via HPM 0x14 to CBB×2 PCode, which enforces frequency ceilings. This TC measures convergence time — the interval from PL1/PL2 activation to when measured power settles at the target ± error margin — and validates response quality (no oscillation &gt; ±1 bin).</p>
+<p>---</p>
+<h3>Pre-Conditions</h3>
+<table class="md-table"><thead><tr>
+<th>Item</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>Platform</td>
+<td>NWP post-silicon, SVOS</td>
+</tr>
+<tr>
+<td>Sockets</td>
+<td>1S minimum</td>
+</tr>
+<tr>
+<td>BIOS knobs</td>
+<td>Default RAPL configuration; PL1 = TDP (fused), PL2 = 1.2 × TDP; TPMI unlocked</td>
+</tr>
+<tr>
+<td>OS / Driver</td>
+<td>Ubuntu/SVOS; `intel_pstate` driver loaded; PTU available</td>
+</tr>
+<tr>
+<td>PythonSV</td>
+<td>`pm.pmutils.cpu_rapl` module available; `runPmx.py` accessible</td>
+</tr>
+<tr>
+<td>Feature state</td>
+<td>Socket RAPL enabled (default); no platform-level RAPL lock</td>
+</tr>
+<tr>
+<td>Workload</td>
+<td>PTU TDP workload (`./ptu -ct 3`) driving &gt;100% TDP power consumption</td>
+</tr>
+<tr>
+<td>Starting state</td>
+<td>System at idle or under steady-state workload before limit change</td>
+</tr>
+<tr>
+<td>NWP topology</td>
+<td>2 CBBs × 48 cores = 96 total cores; NIO root die runs PrimeCode NN-PID</td>
+</tr>
+<tr>
+<td>Interface</td>
+<td>**TPMI only** — legacy MSRs 0x610/0x611/0x606 are deprecated on NWP (reads=0, writes silently dropped)</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Launch PMx RAPL automation: `python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</td>
+<td>PMx initializes; `cpu_rapl` plugin loaded; NWP topology detected (2 CBBs)</td>
+<td>PMx startup error; plugin load failure</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Start PTU TDP workload on all 96 cores: `./ptu -ct 3`</td>
+<td>All cores loaded; socket power exceeds TDP; `TPMI ENERGY_STATUS` counter incrementing</td>
+<td>PTU fails to start; insufficient load; energy counter stale</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Read current tau1 value: `TPMI PL1_CONTROL.TIME_WINDOW` (bits [24:18])</td>
+<td>Tau1 reported (default 1 s, range 1–5 s)</td>
+<td>TIME_WINDOW = 0 or out of valid range</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Call `pl1_limit_convergence(limit=&lt;target_pl1&gt;)` with target above idle power but below TDP</td>
+<td>Function sets PL1 via TPMI; monitors ENERGY_STATUS over time; reports convergence time</td>
+<td>Function error; TPMI write rejected</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Verify PL1 convergence time ≤ 5 × tau1</td>
+<td>Convergence time reported ≤ 5 × tau1 (e.g., ≤ 5 s for tau1 = 1 s)</td>
+<td>Convergence time exceeds 5 × tau1; &quot;PL1 did not converge&quot; message</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Verify PL1 steady-state power error &lt; 1% of target</td>
+<td>`abs(measured_power - target_pl1) / target_pl1 &lt; 0.01`</td>
+<td>Steady-state error ≥ 1%</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Read tau2 value: `TPMI PL2_CONTROL.TIME_WINDOW` (bits [24:18])</td>
+<td>Tau2 reported (default 16 ms, range 11.7–39 ms)</td>
+<td>TIME_WINDOW = 0 or out of valid range</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Call `pl2_limit_convergence(limit=&lt;target_pl2&gt;)` with target above idle power</td>
+<td>Function sets PL2 via TPMI; monitors convergence</td>
+<td>Function error; TPMI write rejected</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Verify PL2 convergence time ≤ 5 × tau2</td>
+<td>Convergence time reported ≤ 5 × tau2 (e.g., ≤ 80 ms for tau2 = 16 ms)</td>
+<td>Convergence time exceeds 5 × tau2</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Verify PL2 steady-state power error &lt; 1% of target</td>
+<td>`abs(measured_power - target_pl2) / target_pl2 &lt; 0.01`</td>
+<td>Steady-state error ≥ 1%</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Monitor core frequency oscillation at PL1 steady state</td>
+<td>Core frequency ripple ≤ ±1 bin (±100 MHz) at convergence</td>
+<td>Frequency oscillation &gt; ±1 bin</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Check `perf_limit_reasons` bit[10] (PKG_PL1_INBAND) during PL1 throttle</td>
+<td>Bit asserted while PL1 is actively limiting power</td>
+<td>Bit not asserted during active throttle</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Stop PTU workload; verify power returns to idle</td>
+<td>Socket power drops below PL1; `perf_limit_reasons` PL1 bit clears</td>
+<td>Power remains elevated; perf_limit_reasons stuck</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h3>Pass / Fail Criteria</h3>
+<p>**Bar:** Per [TCD 22022420798](https://hsdes.intel.com/appstore/article-one/#/22022420798) §5:</p>
+<ul>
+<li>PL1 response time: 3–5 × τ</li>
+<li>PL2 response time: ~8 ms</li>
+<li>Frequency oscillation at steady state: ≤ ±1 bin (100 MHz)</li>
+<li>Steady-state power error: &lt; 1% of target power limit</li>
+</ul>
+<p>**PASS** when ALL of the following are true:</p>
+<ul>
+<li>PL1 convergence time ≤ 5 × tau1</li>
+<li>PL2 convergence time ≤ 5 × tau2</li>
+<li>Steady-state power error &lt; 1% for both PL1 and PL2</li>
+<li>Core frequency oscillation ≤ ±1 bin (100 MHz) at steady state</li>
+<li>`perf_limit_reasons` bit[10] correctly asserts during PL1 throttle and clears when power drops below limit</li>
+<li>No dmesg errors, MCAs, or system hangs during test</li>
+</ul>
+<p>**FAIL** when ANY of the following are true:</p>
+<ul>
+<li>PL1 or PL2 convergence time exceeds 5 × tau</li>
+<li>Steady-state power error ≥ 1%</li>
+<li>Frequency oscillation &gt; ±1 bin</li>
+<li>`perf_limit_reasons` bit[10] behavior incorrect</li>
+<li>System hang, MCA, or unexpected reset</li>
+</ul>
+<p>---</p>
+<h3>Health Checks</h3>
+<table class="md-table"><thead><tr>
+<th>Register / Log</th>
+<th>Access</th>
+<th>Pass/Fail Criteria</th>
+</tr></thead><tbody>
+<tr>
+<td>`TPMI ENERGY_STATUS` (idx=7)</td>
+<td>`sv.socket0.nio.punit.tpmi.energy_status.read()`</td>
+<td>Counter incrementing; non-zero after workload</td>
+</tr>
+<tr>
+<td>`TPMI PERF_STATUS` (idx=8)</td>
+<td>`sv.socket0.nio.punit.tpmi.perf_status.read()`</td>
+<td>`PWR_LIMIT_THROTTLE_CTR` &gt; 0 during PL1 throttle</td>
+</tr>
+<tr>
+<td>`TPMI PL1_CONTROL` (idx=2)</td>
+<td>`sv.socket0.nio.punit.tpmi.pl1_control.read()`</td>
+<td>`PWR_LIM` matches programmed value; `TIME_WINDOW` in valid range</td>
+</tr>
+<tr>
+<td>`TPMI PL_INFO` (idx=9)</td>
+<td>`sv.socket0.nio.punit.tpmi.pl_info.read()`</td>
+<td>`MAX_PL1` = TDP (fused); `MAX_PL2` = 1.2 × TDP</td>
+</tr>
+<tr>
+<td>`perf_limit_reasons`</td>
+<td>PMx `perf_limit_reasons` readout</td>
+<td>Bit[10] (PKG_PL1_INBAND) behavior correct</td>
+</tr>
+<tr>
+<td>`dmesg`</td>
+<td>`dmesg \</td>
+<td>grep -i &#x27;mca\</td>
+<td>error\</td>
+<td>rapl&#x27;`</td>
+<td>No unexpected errors</td>
+</tr>
+<tr>
+<td>`PACKAGE_RAPL_LIMIT_CFG`</td>
+<td>`sv.socket0.nio.punit.package_rapl_limit_cfg.read()`</td>
+<td>PL1/PL2 fields match TPMI programming</td>
+</tr>
+</tbody></table>
+<h3>Post-Process</h3>
+<p>N/A — convergence results captured inline by `pl1_limit_convergence` / `pl2_limit_convergence` functions.</p>
+<h3>References</h3>
+<ul>
+<li>[TCD 22022420798 — Socket RAPL Algorithm &amp; Functionality Verification](https://hsdes.intel.com/appstore/article-one/#/22022420798)</li>
+<li>[Socket RAPL KB — socket_rapl.md](../../pm_features/power_rapl/socket_rapl.md)</li>
+<li>[NWP PM MAS — RAPL](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)</li>
+<li>[Intel RAPL HAS — TPMI register definitions](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/RAPL/RAPL.html)</li>
+<li>[DMR IMH PM HAS §7.3 — NN-PID controller](https://docs.intel.com/documents/pm_doc/src/server/DMR/SOC_PM_HAS/DMR_SOC_PM_HAS.html)</li>
+</ul>
+<p>---</p>
+<h2>NWP Adaptation Notes</h2>
+<table class="md-table"><thead><tr>
+<th>DMR</th>
+<th>NWP</th>
+</tr></thead><tbody>
+<tr>
+<td>`dmr.xml`</td>
+<td>`nwp.xml`</td>
+</tr>
+<tr>
+<td>4 CBBs (`range(4)`)</td>
+<td>2 CBBs (`range(2)`)</td>
+</tr>
+<tr>
+<td>`sv.socket0.imh0.punit.*`</td>
+<td>`sv.socket0.nio.punit.*`</td>
+</tr>
+<tr>
+<td>MSR 0x610 / 0x611 for RAPL control</td>
+<td>**Deprecated** — use TPMI only</td>
+</tr>
+<tr>
+<td>IMH-P root + IMH-S leaf</td>
+<td>NIO root (single NIO)</td>
+</tr>
+<tr>
+<td>PL1 limit must be above idle for both DMR and NWP</td>
+<td>Same — avoid setting PL1/PL2 below idle power</td>
+</tr>
+</tbody></table>
+<p>**Disposition: Runnable_On_N-1** — Change `dmr.xml` → `nwp.xml` in the `runPmx.py` command line. The `pl1_limit_convergence` and `pl2_limit_convergence` functions in `pm.pmutils.cpu_rapl` are platform-generic and will use the correct TPMI path for NWP. No script code changes needed beyond the XML config swap.</p></div>
+  </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>

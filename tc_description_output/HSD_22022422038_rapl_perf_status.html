@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+  <title>TC Description: RAPL Perf Status</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>TC Description: RAPL Perf Status</h1>
+    <p>Segment: FV | Source: HSD_22022422038_rapl_perf_status.inference.md | Generated: 2026-07-18 18:29:18</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+    <button class="tab" data-tab="tab1">A: NWP Delta</button>
+    <button class="tab" data-tab="tab2">F: Recommendations</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>TC Description: RAPL Perf Status</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>[22022422038](https://hsdes.intel.com/appstore/article-one/#/22022422038)</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>RAPL Perf status</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-07-18</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>RAPL PERF_STATUS throttle accounting counter</td>
+</tr>
+<tr>
+<td>**Parent TCD**</td>
+<td>[16031169448 -- Socket RAPL - Reporting / Observability](https://hsdes.intel.com/appstore/article-one/#/16031169448)</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>mps</td>
+</tr>
+<tr>
+<td>**Status**</td>
+<td>open / ready_for_content_review</td>
+</tr>
+<tr>
+<td>**Priority**</td>
+<td>2-high</td>
+</tr>
+<tr>
+<td>**Tags**</td>
+<td>`DMR_PO`, `plc.feature.p2`, `PMSS_NWP_READINESS_CHECK`</td>
+</tr>
+<tr>
+<td>**Val Environment**</td>
+<td>silicon, virtual_platform</td>
+</tr>
+<tr>
+<td>**Val Framework**</td>
+<td>PMX, os-svos, python-sv</td>
+</tr>
+<tr>
+<td>**Automation**</td>
+<td>`python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3`</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+<tr>
+<td>**Cache version**</td>
+<td>3</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Test Case Intent</h2>
+<p>Validates the **PERF_STATUS throttle accounting counter** scenario defined in [TCD 16031169448 -- Socket RAPL - Reporting / Observability](https://hsdes.intel.com/appstore/article-one/#/16031169448) §5-A: &quot;PERF_STATUS throttle counter increments during active RAPL limiting; counter does NOT increment when frequency is unconstrained by RAPL; counter increment rate is proportional to throttle duration.&quot; The PERF_STATUS counter (pwr_limit_throttle_ctr) is the primary OS-visible indicator of RAPL throttle activity. It is accessible via both CSR (package_rapl_perf_status) and TPMI (socket_rapl_perf_status). This TC triggers PL1 and PL2 throttle conditions, verifies the counter increments during throttle and stops when limits are released, and confirms CSR and TPMI interfaces report consistent values.</p>
+<h3>Pre-Conditions</h3>
+<table class="md-table"><thead><tr>
+<th>Item</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>Platform</td>
+<td>NWP post-silicon system (2 CBBs, single NIO die) or VP (Simics)</td>
+</tr>
+<tr>
+<td>OS / Driver</td>
+<td>SVOS with PythonSV environment; ptu or equivalent workload available</td>
+</tr>
+<tr>
+<td>BIOS knobs</td>
+<td>Socket RAPL PL1 enabled (default); PL1/PL2 limits unlocked or programmable via TPMI</td>
+</tr>
+<tr>
+<td>Feature state</td>
+<td>RAPL active at TDP; no prior throttle condition</td>
+</tr>
+<tr>
+<td>Tool</td>
+<td>runPmx.py accessible; diamondrapids.pm.pmutils.cpu_rapl importable; PEGA available</td>
+</tr>
+<tr>
+<td>Starting state</td>
+<td>System booted to SVOS; cores active at P1 or below</td>
+</tr>
+<tr>
+<td>CSR register</td>
+<td>sv.socket0.nio.punit.ptpcioregs.ptpcioregs.package_rapl_perf_status</td>
+</tr>
+<tr>
+<td>TPMI register</td>
+<td>sv.socket0.nio.punit.ptpcfsms.ptpcfsms.socket_rapl_perf_status (field: pwr_limit_throttle_ctr)</td>
+</tr>
+</tbody></table>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Read baseline PERF_STATUS counter from both CSR and TPMI interfaces. CSR: package_rapl_perf_status. TPMI: socket_rapl_perf_status.pwr_limit_throttle_ctr. Record values as baseline_csr and baseline_tpmi.</td>
+<td>Both registers readable; baseline values recorded. CSR and TPMI agree (same counter value).</td>
+<td>Register read failure or CSR/TPMI mismatch at baseline.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Verify counter is stable at idle (no throttle). Wait 1 second and re-read both registers.</td>
+<td>Counter values unchanged from baseline (delta = 0). Counter does NOT increment when frequency is unconstrained by RAPL.</td>
+<td>Counter incrementing at idle — spurious throttle condition active.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Start sustained all-core workload (ptu -ct 1) to establish power draw near TDP.</td>
+<td>Cores running at P1 frequency; power draw near TDP.</td>
+<td>Workload fails to start.</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Set PL1 to aggressive low value via TPMI (socket_rapl_pl1_control.pwr_lim) to force PL1 throttle. Wait for RAPL convergence (~3-5x tau).</td>
+<td>RAPL PID output drops; core frequencies throttled; power converges toward PL1 limit.</td>
+<td>RAPL does not engage; frequencies remain at P1.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Read PERF_STATUS counter (TPMI: pwr_limit_throttle_ctr) at time t0. Wait 1 second. Read again at time t1. Compute delta = t1 - t0.</td>
+<td>Delta &gt; 0: counter is incrementing during active PL1 throttle. Counter increment rate proportional to throttle duration.</td>
+<td>Delta = 0: counter not incrementing during active throttle (check_rapl_perf_status would flag this).</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Read CSR package_rapl_perf_status and compare to TPMI socket_rapl_perf_status.pwr_limit_throttle_ctr.</td>
+<td>CSR and TPMI counter values agree (same value or within 1 tick due to read timing).</td>
+<td>CSR/TPMI mismatch exceeds 1 tick — interface desync.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Read additional reporting registers: dfo_pkg_rapl_perf_status and dfo_primary_plane_rapl_perf_status.</td>
+<td>Both registers progressing (non-stale) during throttle.</td>
+<td>Either register stale (not changing).</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Verify PLR (Perf Limit Reasons) attribution during PL1 throttle. Read plr_die_level per compute die.</td>
+<td>PLR SktPL1 reason bit set. Other reason bits clear (unless those conditions also exist).</td>
+<td>PLR = 0 during active throttle or wrong reason bit set.</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Restore PL1 to TDP. Use PEGA to re-assert high ratios (pegaPstate iagv=4). Wait 5 seconds for convergence. Clear PLR mailbox.</td>
+<td>Core frequencies recover above throttle point. PLR reason bits clear (no limiter active).</td>
+<td>Frequency does not recover; PLR remains set.</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Verify counter stops after throttle release. Read PERF_STATUS at t0, wait 1 second, read at t1. Compute delta.</td>
+<td>Delta = 0: counter stops incrementing when RAPL is no longer constraining. (check_rapl_perf_status verifies this with expect_change=False.)</td>
+<td>Counter still incrementing despite no active throttle — residual throttle or counter bug.</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Set PL2 to aggressive low value to trigger PL2 throttle during burst workload. Wait for PL2 timer convergence.</td>
+<td>PL2 throttle engages; RAPL PID output drops during burst.</td>
+<td>PL2 throttle does not engage.</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Read PERF_STATUS counter during PL2 throttle. Verify delta &gt; 0. Then restore PL2 to default (1.2 x TDP). Verify counter stops. Restore all registers.</td>
+<td>Counter increments during PL2 throttle. Counter stops after PL2 release. Test exits cleanly (exit code 0). No MCA or hang.</td>
+<td>Counter not incrementing during PL2 throttle; counter continues after release; script error or system hang.</td>
+</tr>
+</tbody></table>
+<h3>Pass / Fail Criteria</h3>
+<ul>
+<li>**PASS**: Per TCD 16031169448 §5-A — PERF_STATUS throttle counter (pwr_limit_throttle_ctr) increments during active PL1 throttle (delta &gt; 0 over 1s sampling window). Counter increments during PL2 throttle. Counter does NOT increment at idle or after throttle release (delta = 0). CSR (package_rapl_perf_status) and TPMI (socket_rapl_perf_status) report consistent values. dfo_pkg_rapl_perf_status and dfo_primary_plane_rapl_perf_status also progressing during throttle. PLR reason bits correctly attributed. No MCA or hang. Script exit code 0.</li>
+<li>**FAIL**: Counter does not increment during active RAPL throttle (delta = 0). Counter increments at idle or after throttle release. CSR and TPMI counter values disagree beyond 1-tick tolerance. dfo counters stale during throttle. PLR reason bits incorrect. MCA or system hang at any point.</li>
+</ul>
+<h3>Health Checks</h3>
+<table class="md-table"><thead><tr>
+<th>Register / Log</th>
+<th>Access</th>
+<th>Pass/Fail Criteria</th>
+</tr></thead><tbody>
+<tr>
+<td>socket_rapl_perf_status.pwr_limit_throttle_ctr (TPMI)</td>
+<td>sv.socket0.nio.punit.ptpcfsms.ptpcfsms.socket_rapl_perf_status</td>
+<td>Increments during throttle; stable when unconstrained</td>
+</tr>
+<tr>
+<td>package_rapl_perf_status (CSR)</td>
+<td>sv.socket0.nio.punit.ptpcioregs.ptpcioregs.package_rapl_perf_status</td>
+<td>Matches TPMI counter value</td>
+</tr>
+<tr>
+<td>dfo_pkg_rapl_perf_status</td>
+<td>sv.socket0.nio.dfo_pkg_rapl_perf_status</td>
+<td>Progressing during throttle</td>
+</tr>
+<tr>
+<td>dfo_primary_plane_rapl_perf_status</td>
+<td>sv.socket0.nio.dfo_primary_plane_rapl_perf_status</td>
+<td>Progressing during throttle</td>
+</tr>
+<tr>
+<td>socket_rapl_pid_output</td>
+<td>sv.socket0.nio.pcudata.raplVars.socket_rapl_pid_output</td>
+<td>Confirms PID output drop during throttle</td>
+</tr>
+<tr>
+<td>plr_die_level</td>
+<td>Per compute die pcudata</td>
+<td>SktPL1 or SktPL2 reason bit set during corresponding throttle</td>
+</tr>
+<tr>
+<td>Per-core frequency</td>
+<td>die.computes.pmas.pmsb.io_core_operating_point.core_ratio_16p67</td>
+<td>Reduced during throttle; recovers after release</td>
+</tr>
+</tbody></table>
+<h3>Post-Process</h3>
+<p>N/A</p>
+<h3>References</h3>
+<ul>
+<li>[TCD 16031169448 -- Socket RAPL - Reporting / Observability](https://hsdes.intel.com/appstore/article-one/#/16031169448)</li>
+<li>[Wave 3 Common HAS -- Socket RAPL](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Socket_RAPL/Socket_RAPL.html)</li>
+<li>[DMR RAPL Simplification](https://docs.intel.com/documents/pm_doc/src/server/dmr/pm%20features/dmr_rapl_simplification.html)</li>
+</ul>
+<p>---</p></div>
+  <div id="tab1" class="panel"><p>NWP carries forward DMR PERF_STATUS reporting. NIO replaces IMH as the root die hosting the PERF_STATUS registers.</p>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+</tr></thead><tbody>
+<tr>
+<td>TPMI perf status</td>
+<td>sv.socket0.imh0.punit.ptpcfsms.ptpcfsms.socket_rapl_perf_status</td>
+<td>sv.socket0.nio.punit.ptpcfsms.ptpcfsms.socket_rapl_perf_status</td>
+</tr>
+<tr>
+<td>CSR perf status</td>
+<td>sv.socket0.imh0.punit.ptpcioregs.ptpcioregs.package_rapl_perf_status</td>
+<td>sv.socket0.nio.punit.ptpcioregs.ptpcioregs.package_rapl_perf_status</td>
+</tr>
+<tr>
+<td>PID output</td>
+<td>socket.imh0.pcudata.raplVars.socket_rapl_pid_output</td>
+<td>socket.nio.pcudata.raplVars.socket_rapl_pid_output</td>
+</tr>
+<tr>
+<td>CBB count</td>
+<td>4</td>
+<td>2</td>
+</tr>
+</tbody></table></div>
+  <div id="tab2" class="panel"><p>Recommendation: ADOPT — imh0 -&gt; nio register paths; verify counter on both CSR and TPMI; confirm counter starts/stops correctly with throttle transitions. Priority: High — plc.feature.p2; RAPL perf status is the primary OS-visible throttle counter used by Linux/Windows power management monitoring.</p></div>
+  </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>
