@@ -117,6 +117,19 @@
 </div>
 <!-- /raw-html -->
 
+### Validation-Tier Layer Claim
+
+| Layer (from full-stack diagram) | PSS | FV | PV | Notes |
+|---|---|---|---|---|
+| OS / Tool Layer (`intel-speed-select`, `cpufreq`, sysfs) | ❌ | ❌ | ✅ | Requires booted Ubuntu; TCDs: 16031169214, 16030717717/18 |
+| PCT Policy Layer (BIOS partition count / `SST_CLOS_ASSOC` programming) | ❌ | ❌ | ✅ | BIOS programs CLOS assignments; all PCT PV TCDs |
+| SST-TF Enforcement Layer (PCode WP4 broadcast, ordered throttle) | ✅ | ✅ | ✅ | PSS/FV: register-level; PV: indirectly via `cpuinfo_max_freq` |
+| Acode / Microcode Layer (per-core frequency ceiling application) | ✅ | ✅ | ✅ | PSS model; FV functional; PV observes `cpuinfo_max_freq` |
+| HW Enforcement Layer (FIVR, PLL, silicon frequency gates, fuse cap) | ✅ | ✅ | ❌ | RTL/model coverage; PV has no direct HW layer observability → §5 G-4 |
+
+> **§3 pointer:** PCT Validation Strategy §3 maps to this table — PSS + FV own Enforcement/Acode/HW layers;
+> PV owns OS/Tool + Policy layers; all three tiers share the SST-TF Enforcement layer.
+
 ### PCT Reset / Boot to OS Flow
 
 ```
@@ -192,11 +205,50 @@ Custom config override (BIOS knob "PCT HP Module Select"):
     BIOS programs SST_CLOS_ASSOC directly per user selection
 ```
 
+### Interface & Register Matrix
+
+| Register / MSR | Field | Default | Feature effect | Tier validated |
+|---|---|---|---|---|
+| `SST_TF_INFO_0` (TPMI, R/O after PrimeCode Phase 5) | `LP_CLIP_RATIO_CDYN_[0..5]` | Fuse-programmed | LP frequency ceiling per CDYN bucket | PSS, FV |
+| `SST_TF_INFO_2` (TPMI, R/O after Phase 5) | `TRL_RATIO_[0..5]` | Fuse-programmed | HP TRL per active HP count bucket | PSS, FV |
+| `SST_TF_INFO_8` (TPMI, R/O) | `NUM_CORE_0` | Fuse | `max_partitions = NUM_CORE_0 / MAX_LPIDS` (=4 on NWP) | PSS, FV |
+| `SST_TF_INFO_10` (TPMI) | `PCT_Module_Mask` | Fuse (DLCP) | PCT feature enable gate | FV, PV |
+| `SST_CLOS_CONFIG[0].max` (TPMI, RW by BIOS) | `ratio` | 0 (disabled) | HP frequency ceiling = HP TRL | PSS, FV, PV |
+| `SST_CLOS_CONFIG[3].max` (TPMI, RW by BIOS) | `ratio` | 0 (disabled) | LP frequency ceiling = LP_CLIP | PSS, FV, PV |
+| `SST_CLOS_ASSOC[core]` (TPMI, RW by BIOS) | `clos_id` | 0 | HP=CLOS[0], LP=CLOS[3] per APIC-ID order | FV, PV |
+| `SST_CP_CONTROL` (TPMI, RW by BIOS) | `priority_type` | 0 | 1 = Ordered Throttle (LP reduced first) | PSS, FV |
+| `SST_PP_CONTROL` (TPMI, RW by BIOS) | `feature_state[1]` | 0 | 1 = SST-TF / PCT active | PSS, FV, PV |
+| MSR `0x1AD` | HP TRL ratio | 0 | OS-visible HP turbo ratio limit written by BIOS | PV |
+
+### Observability
+
+| Observable | Type | Tool / Command | What it shows |
+|---|---|---|---|
+| `cpuinfo_max_freq` (per-core sysfs) | PV runtime | `cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_max_freq` | HP vs LP frequency ceiling visible to OS |
+| `intel-speed-select perf-profile info` | PV runtime | `intel-speed-select -d perf-profile info` | HP module list, partition count, feature enabled flag |
+| `isst` HP count | PV runtime | `isst -d perf-profile info \| grep 'hp-count'` | Expected HP core count per config |
+| TPMI `SST_TF_INFO_0/2` | FV / PSS | PythonSV: `sv.socket0.getbypath('imh0.sst_tf_info_0').read()` | Fuse-loaded LP clip / HP TRL ratios |
+| TPMI `SST_CLOS_CONFIG[0/3].max` | FV / PSS | PythonSV TPMI read | BIOS-programmed HP/LP frequency ceilings |
+| WP4_HP / WP4_LP broadcast value | PSS / FV | RAPL NLog / WP4 trace or PythonSV PMSB | Runtime ordered throttle targets per 1 ms RAPL PID loop |
+| BIOS F2 debug serial log | PV | BIOS serial log | CLOS assignment + PCT knob readback at boot |
+
+### SKU / Config Distinctions
+
+| SKU / Config | Distinction | TCDs affected |
+|---|---|---|
+| PCT disabled (BIOS knob `0` or fuse `PCT_Module_Mask=0`) | `SST_PP_CONTROL.feature_state[1]=0`; all cores get flat P0n TRL; `cpuinfo_max_freq` uniform across all cores | TCD 16031169217 (Disable), TCD 16031169214 (Discovery) |
+| PCT enabled, N=1 partition (BIOS default) | 1 HP module per socket (first APIC-ID 0); 95 LP cores; ordered throttle active | TCD 22022420862 (BIOS Config), TCD 22022420858 (Functionality) |
+| PCT enabled, N=1..4 partitions (custom via BIOS HP Module Select knob) | Up to 4 HP cores (one per partition); BIOS overrides APIC-ID default ordering | TCD 22022420862 (custom sweep) |
+| SST-BF conflict | SST-BF is ZBB on NWP — mutually exclusive with PCT; if both configured, SST-BF takes precedence over PCT | All PCT TCDs |
+| FV (post-silicon, no OS boot) | PythonSV direct TPMI register access; no `intel-speed-select`; no sysfs; ordered throttle validated via WP4 trace | TCD 22022420858 (Functionality) |
+
 ---
 
 ## Section 3: Validation Strategy
 
 PCT validation requires **three complementary tiers**. Same feature ≠ same validation. Feature overlap across tiers = expected. Validation overlap = false assumption.
+
+> **Layer coverage:** Stack-to-tier mapping is in §2 — Validation-Tier Layer Claim table. That table identifies which tier validates each PCT stack layer. Unclaimed layers (OS/Tool and PCT Policy = PV-only; HW Enforcement = no PV coverage) are captured as accepted gaps in §5 (G-4, G-5).
 
 ### Tier Definitions
 
