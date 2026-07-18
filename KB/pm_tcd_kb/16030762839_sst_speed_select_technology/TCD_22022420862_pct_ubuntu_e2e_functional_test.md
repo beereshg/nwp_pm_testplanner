@@ -17,33 +17,7 @@
 
 **PCT - PV BIOS Configuration** validates that the PCT BIOS Partition Count knob correctly drives HP/LP CLOS register programming as observed from Ubuntu Linux via `intel-speed-select` and `cpufreq`. Scope is limited to positive-path partition configuration: custom HP module positions and full partition count sweep. The disable scenario (partition count = 0) is in sibling TCD [16031169217 — PCT - PV BIOS Disable](https://hsdes.intel.com/appstore/article-one/#/16031169217).
 
-> **Architecture overview:** See [TPF 16030762939 — NWP PM PCT](https://hsdes.intel.com/appstore/article-one/#/16030762939) §2 Design Details for boot flow, CLOS mechanism, and frequency hierarchy.
-
-### PCT Boot-to-OS Flow (NWP)
-
-```
-PrimeCode Phase 5
-  Reads SST-TF fuses → writes SST_TF_INFO_0/2 (LP clip / HP TRL)
-
-BIOS CPL3
-  Reads PCT Partition Count knob
-    (EDKII → Socket Config → Advanced PM Config → PCT Configuration)
-  max_partitions = SST_TF_INFO_8.NUM_CORE_0 / MAX_LPIDS  [typically 4 on NWP]
-  Divides 96 cores (2 CBBs × 48) into N partitions of 24
-  Assigns first core per partition → CLOS[0] (HP); rest → CLOS[3] (LP)
-  Programs SST_TF TPMI:
-    SST_CLOS_CONFIG[0].max = SST_TF_INFO_2.ratio_0  [~4.4 GHz]
-    SST_CLOS_CONFIG[3].max = SST_TF_INFO_0.lp_clip_ratio_0  [~P1 ~2.3 GHz]
-    SST_CP_CONTROL.priority_type = 1  [Ordered Throttle]
-    SST_PP_CONTROL.feature_state[1] = 1  [SST-TF active]
-  Custom config path: user selects HP module positions explicitly via knob
-
-Ubuntu OS boots
-  intel-speed-select discovers PCT topology:
-    Number of HP modules, APIC IDs per module, SST-TF feature flag
-  cpufreq/cpuinfo_max_freq reflects HP vs LP ceiling per core
-  ia32_hwp_capabilities.highest_performance: HP=P0max, LP=LP_clip
-```
+> **Architecture overview:** See [TPF 16030762939 — NWP PM PCT](https://hsdes.intel.com/appstore/article-one/#/16030762939) §2 Design Details for the full-stack architecture diagram (PCT policy → SST-TF enforcement → Acode → HW), boot flow, CLOS mechanism, and frequency hierarchy.
 
 ### TC Coverage Map
 

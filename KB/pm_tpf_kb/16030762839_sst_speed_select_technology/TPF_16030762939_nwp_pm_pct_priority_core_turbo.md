@@ -44,6 +44,42 @@
 
 ## Section 2: Design Details
 
+### PCT Architecture — Full Stack (Policy built on SST-TF Enforcement)
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│  VALIDATION TIER   │ OS / TOOL LAYER                                  │
+│                   │ intel-speed-select · cpufreq sysfs               │
+│       PV          │ /sys/.../cpuinfo_max_freq · isst perf-profile info │
+│                   ┃                                                  ┃
+│                   ┃ PCT POLICY LAYER (BIOS configures)               ┃
+│     PV + FV       ┃ BIOS Partition Count knob → CLOS_ASSOC[core]       ┃
+│                   ┃ HP → CLOS[0]   LP → CLOS[3]                        ┃
+│                   ┃ SST_CLOS_CONFIG[0/3].max · SST_PP_CONTROL          ┃
+│                   ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+│                   ┃ SST-TF ENFORCEMENT LAYER (PCode orchestrates)    ┃
+│  PSS + FV + PV    ┃ PCode: WP4_HP/LP per CDYN → PMSB sideband        ┃
+│                   ┃ Ordered throttle (PRIORITY_TYPE=1): LP first      ┃
+│                   ┃ SST_TF_INFO_0/2 → LP_CLIP / HP_TRL per bucket     ┃
+│                   ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+│                   ┃ ACODE / MICROCODE LAYER (per-core application)   ┃
+│     PSS + FV      ┃ Applies CLOS ratio from WP4 broadcast             ┃
+│                   ┃ HP ceiling: P0max (~4.4 GHz)                      ┃
+│                   ┃ LP ceiling: LP_CLIP (~P1 ~2.3 GHz)                ┃
+│                   ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+│                   ┃ HW ENFORCEMENT LAYER (silicon gates frequency)   ┃
+│       FV          ┃ Core FIVR + PLL · CBB compute                      ┃
+│                   ┃ TPMI decoder · Acode derating ratio                ┃
+│                   ┃ Real fuse gating · Silicon TPMI register HW       ┃
+└───────────────────┳──────────────────────────────────────────────────┘
+                        ↓
+             Each tier validates a different layer.
+             PV catches OS/policy bugs. FV catches HW enforcement bugs.
+             PSS catches firmware/model bugs before silicon exists.
+```
+
+**Key insight:** PCT is the *policy* (which cores get HP priority) built on top of SST-TF *enforcement* (how frequency is delivered). Bugs in one layer are invisible to the other tier — this is why validation cannot collapse to a single tier.
+
 ### PCT Reset / Boot to OS Flow
 
 ```
