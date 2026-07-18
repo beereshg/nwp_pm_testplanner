@@ -97,12 +97,13 @@ Write: `data/metadata/HSD_{id}_metadata.json`
 
 For each HSD:
 1. Read metadata JSON
-2. **Load KB article** — inline, no sub-agent:
-  - Use the feature→KB path mapping from `.github/skills/nwp-tc-description/SKILL.md` Part 6
-   - Extract HW Touchpoints, FW Touchpoints, OS Interfaces, KPI & Timing, NWP Delta
-   - If a section is missing or stale, call `codesign-ask-specs-and-wikis` to fill the gap
+2. **Query Co-Design MCP first** (authoritative spec source):
+   - Call `codesign-ask-specs-and-wikis` for HW Touchpoints, FW Touchpoints, OS Interfaces, NWP Delta
    - Optionally call `CodeWithRegistersTool` or `DebugAssistantAgentTool` for register/signal detail
-3. Query `codesign-ask-specs-and-wikis` for any gaps not covered by KB article
+3. **Fill gaps from local KB articles** (cached supplementary data):
+   - Use the feature→KB path mapping from `.github/skills/nwp-tc-description/SKILL.md` Part 6
+   - Extract any sections the MCP response did not cover (topology diagrams, KPI & Timing, NWP Delta details)
+   - MCP content takes precedence; KB fills where MCP is silent or incomplete
 4. Generate sections and write: `cache/HSD_{id}_{slug}.inference.md`
 
 See `.github/skills/nwp-tc-description/SKILL.md` Part 5 for Section B swimlane format,

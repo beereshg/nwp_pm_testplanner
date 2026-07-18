@@ -627,7 +627,12 @@ After enrichment, each KB article should have:
 6. `## NWP Delta` — what changes vs DMR
 7. `## Legacy (Human-Curated Reference)` — all original sections preserved verbatim as H3
 
-### MCP Enrichment Queries
+### Enrichment Order: Co-Design MCP First, KB Fallback
+
+**Step 1 — Query Co-Design MCP** (authoritative, always run first):
+
+Call `codesign-ask-specs-and-wikis` for each missing section. These queries return spec-grounded answers from HAS/MAS/wiki sources.
+
 ```
 # HW touchpoints
 codesign-ask-specs-and-wikis: "What hardware IP blocks are involved in {FEATURE} on DMR?
@@ -646,7 +651,17 @@ codesign-ask-specs-and-wikis: "What changes for {FEATURE} on Newport vs DMR?
   Topology differences, register path changes, ZBB differences."
 ```
 
-**Local HAS file check first**: before MCP queries, check `KB/pm_features/PNC PM HAS 0.5_text.txt` for core-level PM features (C-states, DTS, THERM_STATUS, budget negotiation).
+**Step 2 — Fill gaps from local KB files** (cached supplementary data):
+
+After MCP results are collected, check local KB articles (see Feature → KB File Mapping above) for any sections the MCP response did not cover — especially:
+- Topology diagrams and ASCII art not returned by MCP
+- KPI & Timing tables with precise numeric values
+- NWP Delta details captured from prior analysis sessions
+- Legacy human-curated notes
+
+Also check `KB/pm_features/PNC PM HAS 0.5_text.txt` for core-level PM features (C-states, DTS, THERM_STATUS, budget negotiation) — this local file has detail that MCP may not fully reproduce.
+
+**Step 3 — Merge and deduplicate**: MCP content takes precedence when both sources cover the same field. Local KB content fills in where MCP is silent or incomplete.
 
 ---
 
