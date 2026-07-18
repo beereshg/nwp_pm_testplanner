@@ -13,7 +13,7 @@ description: >
 > Repo root: `c:/github/nwp_testplan/`
 > Depends on: `nwp-tc-deepanalysis` skill (NWP architecture constants, ZBB table, HSD API patterns)
 > Related: `nwp-tpf-description` skill — architecture diagrams and feature-wide flows belong at TPF level, not in TCD Section 1
-> Related: **`nwp-tc-description` skill** — HOW content (test steps, command lines, BIOS register sequences, pass/fail criteria) belongs in TC, not TCD
+> Related: **`nwp-tc-description` skill** — HOW content (test steps, command lines, BIOS register execution sequences, measurement method) belongs in TC, not TCD. **The pass/fail bar (measurable thresholds, acceptance criteria) is owned by TCD §5.**
 
 ---
 
@@ -337,6 +337,7 @@ has the **correct ID but wrong title slug** (HSD article was renamed after initi
 | Section 4 contains TC test code | Section 4 = feature programming theory (register sequence, BIOS flow, OS discovery). Move test code to TC descriptions, not TCD |
 | Architecture diagram in TCD Section 1 | Feature-wide diagrams (boot flow, CLOS mechanism, frequency hierarchy) belong in TPF Section 2 — use `nwp-tpf-description` skill to extract and promote them |
 | Test steps / command lines in TCD | Numbered HOW steps and tool commands belong in TC — use `nwp-tc-description` skill to author TC descriptions |
-| Pass/fail criteria in TCD Section 5 | Criteria with exact values belong in TC §5 — TCD Section 5 shows scenario → expected behavior → TC link only |
+| Pass/fail criteria authored in TC §5 instead of TCD §5 | **The bar lives in TCD.** Move measurable thresholds and acceptance criteria to TCD §5. TC §5 = measurement procedure + link to TCD bar only. Multiple TCs against one TCD will otherwise have contradictory bars. |
+| TCD Section 5 has no measurable bar (L5 lint) | TCD §5 must state the acceptance threshold (e.g. “PC6 residency counter ≥ X within Y sec”). A TCD with only scenario → expected-behavior → TC-link rows but no quantitative bar is incomplete — block enrichment. |
 | Stale KB filename (ID present, title wrong) | Fetch live HSD title first; rename stale file to `TCD_STALE_*` (removes ID from glob); create new file with correct slug |
 | Section 6 as bullet list only | Convert to 4-column coverage table (Corner Case / Description / Current Coverage / Action Required) when assessing gaps |

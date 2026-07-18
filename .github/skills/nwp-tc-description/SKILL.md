@@ -39,7 +39,7 @@ description: >
 ## When to Use
 
 - User asks to write, enrich, or update a TC description
-- TC description is generic ("run kayak") with no test steps or pass/fail criteria
+- TC description is generic ("run kayak") with no test steps or measurement procedure
 - TC inherits a rich TCD and needs the HOW details filled in
 - User says `enrich tc <ID>`, `write tc steps <ID>`, `update tc <ID>`
 
@@ -50,11 +50,11 @@ description: >
 Phoenix TC = HOW to validate. Sections map to Phoenix TC fields:
 
 ```
-1. Validation Scope       ← Links to TCD §1 scenario + §5 row (≤80 words; never restate TCD)
-2. Preconditions          ← Platform, BIOS knobs, driver state, tool availability
-3. Automation             ← Exact command line(s) to run the test
-4. Test Steps             ← Numbered sequence: action → expected result per step
-5. Pass/Fail Criteria     ← Link to TCD §5 bar + TC-specific execution assertions
+1. Validation Scope           ← Links to TCD §1 scenario + §5 row (≤80 words; never restate TCD)
+2. Preconditions              ← Platform, BIOS knobs, driver state, tool availability
+3. Automation                 ← Exact command line(s) to run the test
+4. Test Steps                 ← Numbered sequence: action → expected result per step
+5. Pass/Fail Measurement Method  ← HOW to evaluate against the bar in TCD §5; execution assertions only
 ```
 
 **Guardrails:**
@@ -118,20 +118,20 @@ Numbered sequence. Each step = **one action** + **one expected result**.
 - Include the exact expected value or comparison
 - Never omit the "Expected:" line — that IS the pass/fail logic
 
-### Section 5: Pass/Fail Criteria
+### Section 5: Pass/Fail Measurement Method
 
-**The pass/fail bar is owned by the parent TCD §5.** TC §5 references that bar and adds only execution-specific assertions that are TC-level (not feature-level).
+**The pass/fail bar (measurable threshold) is owned by the parent TCD §5.** TC §5 describes HOW to measure against that bar — which tool, which command, which register read sequence — and adds only execution-specific assertions (no timeouts, no dmesg errors) that are not feature-level.
 
 ```markdown
-**Pass/fail bar:** Per [TCD ID — Title](url) §5 Operational Behavior — [scenario row].
+**Bar:** Per [TCD ID — Title](url) §5: [exact bar statement from TCD, e.g. “HP core cpuinfo_max_freq ≥ hp_trl_khz × 0.95”].
 
-**Execution-specific assertions (this TC only):**
-- No SST-related errors in `dmesg` during test
-- Test completes within N minutes
-- `intel-speed-select` exits with code 0
+**Measurement procedure (this TC only):**
+1. Read: `for c in hp_cpus: open(f'/sys/bus/cpu/devices/cpu{c}/cpufreq/cpuinfo_max_freq').read()`
+2. Compare: `assert max_freq >= hp_trl_khz * 0.95` per core
+3. Execution assertions: no SST-related dmesg errors; test completes < N minutes
 ```
 
-> Never define a competing criteria bar. If TCD §5 criteria change, all linked TCs inherit the change automatically.
+> Never define a threshold value here. If TCD §5 bar changes (e.g. 0.95 → 0.98), all linked TCs inherit the change without TC edits.
 - LP core `cpuinfo_max_freq` ≤ `lp_clip_khz × 1.05` for all LP CPUs
 - `intel-speed-select` reports correct HP module count = `partition_count × 2`
 - No dmesg errors related to SST or PCT during test
@@ -209,6 +209,7 @@ r = s.put(f'https://hsdes-api.intel.com/rest/article/{TC_ID}',
 |---------|-----|
 | Test steps in TCD Section 4 | Move numbered test steps to TC; TCD Section 4 = feature programming theory only |
 | Pass/fail criteria missing | Always required in TC Section 5 — block TC if absent |
+| **Criteria bar authored in TC (Mistake 2)** | **Move the measurable threshold to TCD §5.** TC §5 = measurement procedure + link to TCD bar only. Authoring the bar in TC creates contradictory thresholds across M:N TCs. |
 | `kayak` command in TCD | Command lines belong in TC Section 3, not TCD |
 | OS API calls (`cpuinfo_max_freq`, `isst`) in TCD | Move to TC test steps; TCD references the observable outcome only |
 | BIOS register sequence in TCD Section 4 | Move specific test-time register reads/writes to TC preconditions or steps; TCD Section 4 = what registers are involved conceptually |
