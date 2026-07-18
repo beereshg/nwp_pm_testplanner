@@ -185,12 +185,24 @@ PCT validation requires **three complementary tiers**. Same feature ≠ same val
 
 ## Section 5: Risks & Dependencies
 
+### Active Risks
+
 - **PSS model gap — Acode**: VP (Simics) simulates a simplified core; exact Acode frequency derating for HP vs LP is not modeled at RTL precision. PSS catches PCode/PrimeCode firmware bugs; Acode-level HP/LP enforcement must be validated on FV. Mitigation: HSLE XOS provides full-RTL Acode validation pre-silicon.
-- **PSS model gap — cross-die HPM**: HSLE cannot model cross-die IMH↔CBB HPM protocol in isolation. Only HSLE XOS (both IMH and CBB RTL) covers this path. Mitigation: HSLE XOS is the mandatory pre-silicon cross-die validation environment for PCT.
+- **PSS model gap — cross-die HPM**: HSLE cannot model cross-die IMH↔CBB HPM protocol in isolation. Only HSLE XOS (both IMH and CBB RTL) covers this path. HSLE XOS is a **mandatory pre-silicon environment** for PCT — schedule risk if availability is constrained. Mitigation: plan HSLE XOS runs early in the PSS schedule.
 - **NWP QDF dependency**: PCT requires `SST_TF_INFO_0.FEATURE_SUPPORTED = 1` on the test QDF. Parts where SST-TF fuses are not programmed will show PCT as unsupported. FV and PV tests must confirm QDF capability before execution.
-- **PV driver dependency**: `intel-speed-select` tool and `intel_pstate` driver must be present and active on Ubuntu. `scaling_driver != intel_pstate` produces silent false-pass in PV frequency checks.
+- **PV driver dependency**: `intel-speed-select` tool and `intel_pstate` driver must be present and active on Ubuntu. `scaling_driver != intel_pstate` produces silent false-pass in PV frequency checks. Mitigation: add precondition guard to kayak test setup.
 - **RAPL MSR deprecation**: MSR 0x610/0x638 are deprecated on NWP (BIOS HSD 14018460453). All RAPL PL1 tests must use TPMI `SOCKET_RAPL_PL1_CONTROL`. Any TC referencing the legacy MSR path will fail silently.
 - **GNR vs NWP default**: CAPID4.bit29 auto-enables PCT on GNR but is NOT used on NWP. TCs written for GNR default-enabled path (TC 16030768619) are NWP POR-irrelevant but code-path validated.
+
+### Accepted Coverage Limitations (by design — no new TCs required)
+
+| Gap ID | Description | Coverage Today | Accepted Rationale |
+|--------|-------------|----------------|-------------------|
+| **G4** | Silicon TPMI decoder HW bug | FV only | Inherent silicon-level HW bug; not detectable in RTL model by design. FV is the only and sufficient catcher. |
+| **G5** | Real fuse gating PCT wrong | FV only | Production fuses cannot be safely overridden in PSS or emulated in PV. FV on QDF-programmed parts is the correct and only detection path. |
+| **G6** | `intel-speed-select` driver bug | PV only | Driver bugs require a booted Linux OS on real silicon; no PSS/FV equivalent. PV is the correct and only detection path. |
+| **G12** | Cross-die IMH↔CBB HPM protocol | HSLE XOS only (PSS) | No lighter-weight pre-silicon alternative exists. HSLE XOS is mandatory and accepted as the single pre-silicon path for this class. |
+| **G13** | Acode HP/LP frequency derating in VP | HSLE / HSLE XOS / FV only | VP core model is simplified by design; Acode behavior not modeled at RTL precision. VP passes silently on this class — accepted model gap with HSLE XOS as mitigation. |
 
 ---
 
