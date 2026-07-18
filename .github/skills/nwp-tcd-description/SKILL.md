@@ -13,6 +13,7 @@ description: >
 > Repo root: `c:/github/nwp_testplan/`
 > Depends on: `nwp-tc-deepanalysis` skill (NWP architecture constants, ZBB table, HSD API patterns)
 > Related: `nwp-tpf-description` skill — architecture diagrams and feature-wide flows belong at TPF level, not in TCD Section 1
+> Related: **`nwp-tc-description` skill** — HOW content (test steps, command lines, BIOS register sequences, pass/fail criteria) belongs in TC, not TCD
 
 ---
 
@@ -89,30 +90,40 @@ The generator renders Section 1 in order, separated by `### SubHeading` markers:
 - `### Feature Overview` heading is **not needed** if the intro paragraph text is the feature overview — it would render as an empty h3
 - Numbered list items must start with `\d+. ` or `\d+) ` pattern
 
+**Content routing (enforced before writing any section):**
+
+| Content type | Belongs in | NOT in TCD |
+|-------------|-----------|------------|
+| Feature architecture diagrams / boot flows | **TPF §2** | TCD §1 |
+| Runtime control flow (numbered HOW steps) | **TC §4 Steps** | TCD §1 |
+| Tool command lines (`kayak`, `isst`, script paths) | **TC §3 Automation** | TCD |
+| BIOS register sequences used during test execution | **TC §2/§4** | TCD §4 |
+| Pass/fail criteria with exact values | **TC §5** | TCD |
+| Feature programming theory (WHAT registers are involved) | TCD §4 | TC (exec details) |
+
+See `nwp-tc-description` skill for the full HOW content authoring guide.
+
 ### Recommended Section 1 Structure
 
 ```markdown
 ## Section 1: Architecture / Micro-architecture and Functionality
 
-Intro paragraph with **bold** terms and `code` — no leading `### Feature Overview` needed.
+Intro paragraph ≤80 words. WHAT this scenario validates and why it matters. No diagrams, no numbered steps.
 
-### Runtime Control Flow
-
-1. Step one description
-2. Step two description
-
-### Block Decomposition
-
-` ` `
-ASCII diagram here
-` ` `
-
-### Key Properties Table
-
-| Property | Value A | Value B |
-|----------|---------|---------|
+> **Architecture overview:** See [TPF {ID} — {Title}]({url}) §2 Design Details
+> for boot flow, feature mechanism, and frequency hierarchy.
 
 ### NWP-Specific Deltas
+- Delta item 1 (scenario-specific constant or NWP difference from GNR/DMR)
+
+### TC Coverage Map
+
+| TC | Scope | Environment |
+|----|-------|-------------|
+| [HSD ID — Title](url) | scenario description | FV / PSS / PV |
+```
+
+**Removed from template:** `### Runtime Control Flow` (→ TC §4 Steps), `### Block Decomposition` (→ TPF §2 Design Details).
 
 - Delta item 1
 - Delta item 2
@@ -287,12 +298,12 @@ Use the same section/box style as existing TCD descriptions:
 `
 
 **Section numbering convention:**
-1. Architecture / Micro-architecture and Functionality  (Feature Overview, Enabling, Discovery, NWP Delta)
-2. Interfaces and Protocols
-3. Reset, Power, and Clocking
-4. Programming Model
-5. Operational Behavior  (Test Cases table)
-6. Corner Cases & Error Handling
+1. Architecture / Micro-architecture and Functionality — WHAT the scenario validates; NWP deltas; TC coverage map; pointer to TPF §2 for architecture diagrams
+2. Interfaces and Protocols — registers/sysfs/MSRs this scenario touches (≤15 rows, scenario-relevant only)
+3. Reset, Power, and Clocking — which boot phase scenario begins; relevant state transitions
+4. Programming Model — **WHAT registers/interfaces are involved conceptually**; feature operation theory; NOT test steps or command lines (those → TC)
+5. Operational Behavior — scenario × expected outcome × TC links table
+6. Corner Cases & Error Handling — 4-column coverage verdict (see Step 4a)
 7. Security / Safety / Policy
 8. References
 
@@ -334,5 +345,7 @@ has the **correct ID but wrong title slug** (HSD article was renamed after initi
 | Wrong subject in PUT | Use `subject: test_case_definition` for TCD (not `test_case`) |
 | Section 4 contains TC test code | Section 4 = feature programming theory (register sequence, BIOS flow, OS discovery). Move test code to TC descriptions, not TCD |
 | Architecture diagram in TCD Section 1 | Feature-wide diagrams (boot flow, CLOS mechanism, frequency hierarchy) belong in TPF Section 2 — use `nwp-tpf-description` skill to extract and promote them |
+| Test steps / command lines in TCD | Numbered HOW steps and tool commands belong in TC — use `nwp-tc-description` skill to author TC descriptions |
+| Pass/fail criteria in TCD Section 5 | Criteria with exact values belong in TC §5 — TCD Section 5 shows scenario → expected behavior → TC link only |
 | Stale KB filename (ID present, title wrong) | Fetch live HSD title first; rename stale file to `TCD_STALE_*` (removes ID from glob); create new file with correct slug |
 | Section 6 as bullet list only | Convert to 4-column coverage table (Corner Case / Description / Current Coverage / Action Required) when assessing gaps |
