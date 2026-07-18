@@ -141,6 +141,16 @@ The generator (`generate_tpf_preview.py`) maps KB headings to numbered HTML sect
 [Architecture diagrams extracted from TCDs — boot flow, CLOS mechanism, frequency hierarchy,
  key register sequences that apply across ALL TCDs under this TPF.]
 
+> **⚠️ Insertion rule:** When adding a `### SubSection` into this block via `replace_string_in_file`,
+> start the `newString` at `### SubSection` — **do NOT repeat `## Section 2: Design Details`** in the
+> replacement. A duplicate `## ` heading causes `parse_block()` to stop immediately and renders the
+> section as "Not documented." Verify with:
+> ```python
+> from tools.html.generate_tcd_preview import parse_block
+> block = parse_block(kb_text, 'Design Details')
+> assert len(block) > 10, f"Section 2 empty — check for duplicate ## heading (got {len(block)} lines)"
+> ```
+
 ### {Feature} Boot / Reset Flow
 
 ` ` `
@@ -373,3 +383,5 @@ Example: TPF `16030762939` lives under TP `16030762839_sst_speed_select_technolo
 | Using TCD regex extraction for TPF push | TPF regex `(.*?)</div>\s*</div>\s*</body>` works for TPF. TCD preview has deeper nesting — use index-based extraction for TCD (see `nwp-tcd-description` skill) |
 | §5 is a flat bullet list after gap analysis | After a formal gap analysis, split §5 into "Active Risks" + "Accepted Coverage Limitations" table. Actionable gaps (candidate TC exists) stay in TCD §6 as *(TC TBD)*, NOT in TPF §5 |
 | Coverage gap table mixes actionable + accepted gaps | Keep them separate: accepted/inherent gaps (no TC possible) → TPF §5 table; gaps with candidate TCs → TCD §6 bullets |
+| **Duplicate `## Section N:` heading causes empty section** | When inserting a `### subsection` into an existing `## Section N:` block using `replace_string_in_file`, the `newString` must **NOT** repeat the `## Section N:` heading. Start `newString` at the first `### SubSection` line. Duplicate `## ` headings cause `parse_block()` to stop at the second one and return an empty block (rendered as "Not documented."). |
+| `<!-- raw-html -->` diagram renders in preview but empty in HSD | Verify the `<!-- raw-html --> ... <!-- /raw-html -->` block is inside the correct `## Section N:` block (not orphaned before or after it). Run `parse_block(kb_text, 'Design Details')` and check `len(block)` before pushing. |
