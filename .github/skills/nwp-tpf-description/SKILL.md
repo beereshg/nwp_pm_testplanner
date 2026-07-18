@@ -1,0 +1,343 @@
+---
+name: nwp-tpf-description
+description: >
+  Generate, preview, and update NWP PM TPF / TP descriptions in HSD.
+  Follows KB → HTML → push-to-HSD pipeline (same flywheel as nwp-tcd-description).
+  Owns the "Design Details" section — architecture diagrams and block flows extracted
+  from TCD descriptions live here, not in individual TCDs.
+---
+
+# NWP TPF Description Skill
+
+> Repo root: `c:/github/nwp_testplan/`
+> Depends on: `nwp-tcd-description` skill (push pattern, stale file handling, PowerShell fix)
+> Generator: `tools/html/generate_tpf_preview.py` (imports render utils from `generate_tcd_preview.py`)
+
+---
+
+## When to Use
+
+- User asks to enrich, preview, or update a TP / TPF description
+- Architecture diagrams or boot flow diagrams are duplicated across multiple TCD Section 1s
+- TPF is missing Risks & Dependencies, DFX, or Common Corner Cases sections
+- TPF TCD coverage table is stale (titles or counts changed)
+- User says `enrich tpf <ID>`, `preview tpf <ID>`, `update tpf <ID>`
+
+---
+
+## Workflow
+
+```
+Step 1: Fetch       HSD TPF → KB/pm_tpf_kb cache (.md)
+Step 2: Extract     Design Details from TCD KB files → TPF Section 2
+Step 3: Enrich      Add Risks/DFX/Corner Cases from HAS/MAS/KB
+Step 4: Preview     cache → tpf_description_output/TPF_{id}_{slug}_preview.html
+Step 5: Confirm     user reviews HTML preview
+Step 6: Update TCD  Strip extracted diagrams from TCD Section 1, add TPF reference line
+Step 7: Update HSD  PUT TPF description (then PUT updated TCDs)
+```
+
+**Never update HSD without explicit user confirmation after preview.**
+**Update TPF first, then TCDs — never leave TCDs diagram-free before TPF is live.**
+
+---
+
+## Step 1 — Fetch and Cache TPF
+
+```python
+import sys; sys.path.insert(0, '.')
+from hsd_utils import get_session, get_article, get_children
+
+s = get_session()
+TPF_ID = '<tpf_id>'
+
+tpf  = get_article(TPF_ID, fields='id,title,description,status,owner,parent_id', session=s)
+tcds = get_children(TPF_ID, 'test_case_definition', fields='id,title,status', session=s)
+```
+
+**Cache file path:**
+`KB/pm_tpf_kb/{tp_id}_{tp_slug}/TPF_{tpf_id}_{slug}.md`
+
+Example: `KB/pm_tpf_kb/16030762839_sst_speed_select_technology/TPF_16030762939_nwp_pm_pct_priority_core_turbo.md`
+
+---
+
+## Step 2 — Design Details Extraction Contract
+
+**What moves FROM TCD Section 1 TO TPF Section 2:**
+
+| Content type | Example (PCT) | Action |
+|-------------|---------------|--------|
+| Boot/reset flow ASCII diagram (feature-wide) | PCT boot-to-OS flow: PrimeCode → BIOS → Ubuntu | Move to TPF §2 |
+| Architecture diagram (applies to all TCDs under this TPF) | WP4 broadcast / ordered throttle HTML diagram | Move to TPF §2 |
+| Frequency hierarchy table | P0max → LP_CLIP with NWP values | Move to TPF §2 |
+| HP core selection algorithm | First-per-partition / APIC-ID ordering rule | Move to TPF §2 |
+| Per-TCD-specific scope text | "This TCD covers BIOS knob validation only" | Keep in TCD |
+| TC coverage map table | Links to child TCs with scope | Keep in TCD |
+| NWP-specific constants table | Total cores, partition count, max_partitions | Keep in TCD (reference values) |
+
+**What stays in TCD Section 1 after extraction:**
+
+```markdown
+## Section 1: Architecture / Micro-architecture and Functionality
+
+[One-paragraph scope statement for THIS TCD — no diagrams.]
+
+> **Architecture overview:** See [TPF 16030762939 — NWP PM PCT](url) §Design Details
+> for boot flow, CLOS mechanism, ordered throttle diagram, and frequency hierarchy.
+
+### TC Coverage Map
+| TC | Title | Scope |
+...
+```
+
+---
+
+## Step 3 — TPF KB File Format (8 sections)
+
+**File path:** `KB/pm_tpf_kb/{folder}/TPF_{id}_{slug}.md`
+
+The generator (`generate_tpf_preview.py`) maps KB headings to numbered HTML sections via keyword matching:
+
+| KB heading keyword | HTML section label | Phoenix §3.1 mapping |
+|--------------------|--------------------|----------------------|
+| `Feature Classification` | 1. Feature Classification & Introduction | Introduction + design details focus |
+| `Design Details` | 2. Design Details | Block diagrams / state diagrams / pipeline flows |
+| `Validation Strategy` | 3. Validation Strategy | Validation strategy highlights |
+| `Tier Coverage` | 4. Tier Coverage | Validation strategy — tier-level coverage |
+| `Risks` | 5. Risks & Dependencies | Risks and dependencies |
+| `DFX` | 6. DFX Considerations | DFX |
+| `Common Corner` | 7. Common Corner Cases | Potential corner cases (cross-TCD) |
+| `TCD Coverage` | 8. TCD Coverage Summary & References | References + TCD coverage table |
+
+### Recommended TPF KB Structure
+
+```markdown
+# TPF {ID} — {Title}
+
+| Field | Value |
+|-------|-------|
+| **TPF ID** | [{ID}](url) |
+| **Title** | {title} |
+| **Parent TP** | [{tp_id} — {tp_title}](url) |
+| **KB last updated** | {date} |
+
+---
+
+## Section 1: Feature Classification & Introduction
+
+[Feature overview: what the feature is, silicon-heavy vs firmware-heavy classification,
+ key capability gating mechanism (fuse, BIOS knob, etc.)]
+
+### Firmware Agent Responsibilities
+
+| Agent | Role |
+...
+
+---
+
+## Section 2: Design Details
+
+[Architecture diagrams extracted from TCDs — boot flow, CLOS mechanism, frequency hierarchy,
+ key register sequences that apply across ALL TCDs under this TPF.]
+
+### {Feature} Boot / Reset Flow
+
+` ` `
+ASCII diagram here
+` ` `
+
+### {Feature} Architecture Block
+
+<!-- raw-html -->
+<existing HTML diagram from TCD>
+<!-- /raw-html -->
+
+### Frequency Hierarchy
+
+| Level | Value | Notes |
+...
+
+### Key Selection / Assignment Algorithm
+
+[HP core selection, CLOS assignment, etc.]
+
+---
+
+## Section 3: Validation Strategy
+
+[Three-tier rationale: PSS / FV / PV — what each validates and why all are needed.]
+
+### Tier Definitions
+
+| Tier | Environment | Interface | What it validates |
+...
+
+---
+
+## Section 4: Tier Coverage
+
+[Bug coverage matrix (which tier catches which bug class) + scenario coverage across tiers.]
+
+### Bug Coverage Matrix
+
+| Bug Category | PSS | FV | PV |
+...
+
+### Scenario Coverage Across Tiers
+
+| Scenario | PSS | FV | PV | Unique value |
+...
+
+---
+
+## Section 5: Risks & Dependencies
+
+- **{Risk 1}**: description + mitigation
+- **{Risk 2}**: ...
+
+---
+
+## Section 6: DFX Considerations
+
+- **{DFX item}**: ...
+
+---
+
+## Section 7: Common Corner Cases
+
+[Cross-TCD corner cases — conditions that affect multiple TCDs under this TPF.]
+
+| Corner Case | Affected TCDs | Expected Behavior |
+...
+
+---
+
+## Section 8: TCD Coverage Summary & References
+
+### Child TCDs
+
+| TCD ID | Title | Segment | TC Count |
+...
+
+### References
+
+- [Feature HAS](url)
+- [NWP PM MAS — feature section](url)
+- [Relevant HSD](url)
+```
+
+---
+
+## Step 4 — Generate Preview HTML
+
+```powershell
+# From repo root
+python tools/html/generate_tpf_preview.py --tpf <TPF_ID> --force
+# Output: tpf_description_output/TPF_{id}_{slug}_preview.html
+```
+
+Preview includes:
+- Header bar with TPF ID, parent TP link, status, owner
+- **Child TCDs panel** (live from HSD — always current count)
+- 8 numbered sections from KB
+
+---
+
+## Step 5 — User Reviews
+
+User checks:
+- Section 2 (Design Details) — diagrams render correctly; all feature-wide diagrams present
+- Section 3 (Validation Strategy) — tier rationale is accurate
+- Section 4 (Tier Coverage) — bug matrix and scenario coverage complete
+- Section 8 — TCD table matches live children (generator fetches live from HSD)
+
+---
+
+## Step 6 — TCD Update After Extraction
+
+For each TCD whose Section 1 had diagrams extracted to TPF Section 2:
+
+1. Open the TCD KB file
+2. Remove the diagram blocks (ASCII / raw-html) from Section 1
+3. Replace with a single reference line:
+   ```markdown
+   > **Architecture overview:** See [TPF {ID} — {Title}]({url}) §2 Design Details
+   > for boot flow, {feature} mechanism, and frequency hierarchy.
+   ```
+4. Regenerate TCD preview: `python tools/html/generate_tcd_preview.py --tcd <ID> --force`
+5. Push TCD to HSD only after TPF is live
+
+---
+
+## Step 7 — Push to HSD (TPF subject = `test_plan`)
+
+**IMPORTANT:** Write to a temp `.py` file — never inline Python in PowerShell `@"..."@`.
+
+```powershell
+@'
+import re, requests, urllib3
+from requests_kerberos import HTTPKerberosAuth, OPTIONAL
+urllib3.disable_warnings()
+
+html = open('tpf_description_output/TPF_{ID}_{slug}_preview.html', encoding='utf-8').read()
+m = re.compile(r'<div class="desc-box">(.*?)</div>\s*</div>\s*</body>', re.DOTALL).search(html)
+content = m.group(1).strip()
+print('content_len:', len(content))
+
+s = requests.Session()
+s.auth = HTTPKerberosAuth(mutual_authentication=OPTIONAL)
+s.verify = False
+s.headers.update({'Content-Type': 'application/json', 'Accept': 'application/json'})
+
+r = s.put('https://hsdes-api.intel.com/rest/article/{TPF_ID}',
+    json={'tenant': 'server', 'subject': 'test_plan',
+          'fieldValues': [{'description': content}, {'send_mail': 'false'}]},
+    timeout=60)
+print(r.status_code, 'OK' if r.status_code == 200 else r.text[:400])
+'@ | Set-Content '_push_tpf_{TPF_ID}.py' -Encoding utf8
+
+python _push_tpf_{TPF_ID}.py
+Remove-Item _push_tpf_{TPF_ID}.py
+```
+
+> **Key difference from TCD push:** subject = `test_plan` (not `test_case_definition`)
+
+---
+
+## KB File Naming Convention
+
+| Artifact | Path pattern |
+|----------|-------------|
+| TPF KB cache | `KB/pm_tpf_kb/{tp_id}_{tp_slug}/TPF_{tpf_id}_{slug}.md` |
+| Preview HTML | `tpf_description_output/TPF_{tpf_id}_{slug}_preview.html` |
+
+**Parent folder naming:** Use the TP (parent of TPF) ID + slug, not the TPF ID.
+Example: TPF `16030762939` lives under TP `16030762839_sst_speed_select_technology/`.
+
+---
+
+## Phoenix Alignment Checklist
+
+| Phoenix §3.1 Requirement | TPF Section | Status |
+|--------------------------|-------------|--------|
+| Introduction | 1 — Feature Classification | ✅ |
+| Scope and assumptions | 1 + 3 — Classification + Strategy | ✅ |
+| Validation strategy highlights | 3 — Validation Strategy | ✅ |
+| Design details (focus area) | 1 — Classification | ✅ |
+| Block diagrams / state diagrams / flows | **2 — Design Details** | ✅ (extracted from TCDs) |
+| Risks and dependencies | 5 — Risks & Dependencies | ✅ |
+| DFX considerations | 6 — DFX | ✅ |
+| Potential corner cases | 7 — Common Corner Cases | ✅ |
+
+---
+
+## Common Pitfalls
+
+| Pitfall | Fix |
+|---------|-----|
+| Pushing TCD diagram removal before TPF is live | Always push TPF first; TCD update second |
+| Diagram in TPF + same diagram in TCD | Extract means remove from TCD — do not keep duplicates |
+| Wrong HSD subject for TPF PUT | Use `subject: test_plan` (TPF and TP share the same subject) |
+| Child TCD table in Section 8 is stale | Generator fetches live children from HSD — table is always current; Section 8 KB text is for references only |
+| No KB file → generator falls back to HSD-LIVE | Creates preview from raw HSD HTML (unstructured) — enrich KB first for structured output |

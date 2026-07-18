@@ -12,6 +12,7 @@ description: >
 
 > Repo root: `c:/github/nwp_testplan/`
 > Depends on: `nwp-tc-deepanalysis` skill (NWP architecture constants, ZBB table, HSD API patterns)
+> Related: `nwp-tpf-description` skill — architecture diagrams and feature-wide flows belong at TPF level, not in TCD Section 1
 
 ---
 
@@ -326,5 +327,6 @@ has the **correct ID but wrong title slug** (HSD article was renamed after initi
 | PowerShell quote mangling in push script | Write script to temp `.py` file, run it, then delete — never inline double-quoted Python in `@"..."@` |
 | Wrong subject in PUT | Use `subject: test_case_definition` for TCD (not `test_case`) |
 | Section 4 contains TC test code | Section 4 = feature programming theory (register sequence, BIOS flow, OS discovery). Move test code to TC descriptions, not TCD |
+| Architecture diagram in TCD Section 1 | Feature-wide diagrams (boot flow, CLOS mechanism, frequency hierarchy) belong in TPF Section 2 — use `nwp-tpf-description` skill to extract and promote them |
 | Stale KB filename (ID present, title wrong) | Fetch live HSD title first; rename stale file to `TCD_STALE_*` (removes ID from glob); create new file with correct slug |
 | Section 6 as bullet list only | Convert to 4-column coverage table (Corner Case / Description / Current Coverage / Action Required) when assessing gaps |
