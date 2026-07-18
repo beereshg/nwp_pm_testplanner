@@ -189,6 +189,9 @@ for core in pctd.LP_CORES:
 | [16030982837](https://hsdes.intel.com/appstore/article-one/#/16030982837) | PCT - DLCP HP Core Position and HWP Capabilities Verification | Runnable_On_NWP | A only |
 | [16030982844](https://hsdes.intel.com/appstore/article-one/#/16030982844) | PCT - Per-SST-Instance Programming Completeness (NWP 2-CBB) | Runnable_On_NWP | A + B |
 | [16030982850](https://hsdes.intel.com/appstore/article-one/#/16030982850) | PCT - NWP MADT Partition Algorithm Validation | Runnable_On_NWP | A + B |
+| *(TC TBD)* | SST_TF_INFO_10 write-protect enforcement | Gap — Co-Design T1 finding #7 | A + B |
+
+> **Bar note (Co-Design T1 finding #8):** TC 16030982844 should be updated to explicitly require an **intentionally asymmetric per-CBB mask** test scenario (CBB0 mask ≠ CBB1 mask) rather than only validating no cross-CBB confusion with identical masks. This confirms per-dielet independence rather than coincidental agreement.
 
 ---
 
@@ -213,6 +216,8 @@ for core in pctd.LP_CORES:
 
 - [PCT HAS](https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html) — `PCT_Module_Mask`; `SST_TF_INFO_10`; DLCP HP core discovery
 - [SST HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html) — `SST_CLOS_CONFIG` / `SST_CLOS_ASSOC` / `SST_CP_CONTROL`; Ordered Throttling; **`SST_TF_INFO_101.QUALIFIED_MODULE_MASK`** (NWP-specific DLCP register; confirms DLCP has NWP-specific architected behavior beyond standard PCT)
+- [TPMI HAS](https://docs.intel.com/documents/pm_doc/src/server/arch_common/tpmi/tpmi.html) — `IA32_HWP_CAPABILITIES.highest_perf` per-core differentiation; `SST_TF_INFO_101.QUALIFIED_MODULE_MASK`
+- Co-Design T1 spec refs (2026-07-18): SST_CP_STATUS.ERROR_TYPE / HANDSHAKE / LAST_HANDSHAKE — SST HAS; TPMI HAS source confirmed for NWP SST_TF_INFO_101
 - [NWP PM MAS](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html) — NWP PCT scope; DLCP confirmation pending
 - CCB HSD 14026595435 — NWP PCT 8 HP cores, 4.4 GHz target
 

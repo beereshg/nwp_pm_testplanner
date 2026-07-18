@@ -49,7 +49,25 @@ DLCP requires the same three-tier approach as PCT, with an additional PSS scope 
 
 ---
 
-## Section 8: TCD Coverage Summary & References
+## Section 5: Risks & Dependencies
+
+### Active Risks
+
+- **No PV TCs yet:** All 4 existing TCs are PSS/FV scope only. PV coverage (OS-visible DLCP discovery via `SST_TF_INFO_101.QUALIFIED_MODULE_MASK`, intel-speed-select reporting, per-core `IA32_HWP_CAPABILITIES`) is a gap — 3 PV TCs needed (TCD TBD: DLCP - PV Discovery / Topology).
+- **NWP silicon availability:** DLCP depends on OTP fuse `PCT_Module_Mask`; not all NWP QDFs will have DLCP active. PV/FV TCs must check QDF capability before execution.
+
+### Accepted Coverage Limitations (by design — no new TCs required)
+
+| Gap ID | Description | Coverage Today | Accepted Rationale |
+|--------|-------------|----------------|-------------------|
+| **G-1** | HSLE XOS (IMH2+CBB both-die) not required for any identified DLCP scenario | HSLE single-die covers per-CBB TPMI programming; DLCP operates per-CBB dielet independently | Co-Design T1 audit found no specific DLCP control/telemetry behavior that provably requires cross-die IMH2↔CBB protocol. Accept: single-die HSLE is sufficient for all identified PSS DLCP scenarios. |
+
+---
+
+## Section 6: DFX Considerations
+
+- `PCT_Module_Mask` is OTP fuse — not patchable at runtime; DFX can only verify final fuse value.
+- `SST_TF_INFO_10` is read-only post Phase 5 — DFX write-protect verification is a TC requirement (TC TBD under TCD 16030982802).
 
 ### Child TCDs
 
