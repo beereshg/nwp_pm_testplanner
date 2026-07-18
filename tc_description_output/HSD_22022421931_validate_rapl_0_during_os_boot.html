@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';" />
+  <title>Deep Analysis: [BEAT][FV PM][AR] Validate RAPL=0 during OS Boot</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:2px;}
+    .header p{font-size:11px;opacity:.85;margin-top:4px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar .tab{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 16px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar .tab:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar .tab.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h1{color:#0f4c81;font-size:16px;margin:0 0 12px;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel li{margin:3px 0;}
+    pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    code{font-family:Consolas,monospace;}
+    .md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    .md-table th,.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    .md-table th{background:#e8eef7;font-weight:600;}
+    .md-table tr:nth-child(even){background:#f8fafc;}
+    .md-pre{white-space:pre-wrap;}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Deep Analysis: [BEAT][FV PM][AR] Validate RAPL=0 during OS Boot</h1>
+    <p>Segment: FV | Source: HSD_22022421931_validate_rapl_0_during_os_boot.inference.md | Generated: 2026-07-18 16:00:01</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab active" data-tab="tab0">Overview</button>
+    <button class="tab" data-tab="tab1">A: NWP Delta</button>
+    <button class="tab" data-tab="tab2">B: Interactions</button>
+    <button class="tab" data-tab="tab3">C: Coverage</button>
+    <button class="tab" data-tab="tab4">D: Spec Refs</button>
+    <button class="tab" data-tab="tab5">E: Risk Assessment</button>
+    <button class="tab" data-tab="tab6">F: Recommendations</button>
+  </div>
+  <div class="panels">
+  <div id="tab0" class="panel active"><h1>Deep Analysis: [BEAT][FV PM][AR] Validate RAPL=0 during OS Boot</h1>
+<table class="md-table"><thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead><tbody>
+<tr>
+<td>**HSD ID**</td>
+<td>[22022421931](https://hsdes.intel.com/appstore/article-one/#/22022421931)</td>
+</tr>
+<tr>
+<td>**Title**</td>
+<td>[BEAT][FV PM][AR] Validate RAPL=0 during OS Boot</td>
+</tr>
+<tr>
+<td>**Date**</td>
+<td>2026-07-18</td>
+</tr>
+<tr>
+<td>**Target Program**</td>
+<td>NWP (Newport)</td>
+</tr>
+<tr>
+<td>**Source Program**</td>
+<td>DMR (Diamond Rapids)</td>
+</tr>
+<tr>
+<td>**Feature**</td>
+<td>Socket RAPL</td>
+</tr>
+<tr>
+<td>**Sub-Feature**</td>
+<td>PL1=0 boundary validation (PrimeCode clips to MIN_PL)</td>
+</tr>
+<tr>
+<td>**NWP Disposition**</td>
+<td>**Runnable_On_N-1**</td>
+</tr>
+<tr>
+<td>**Owner**</td>
+<td>mps</td>
+</tr>
+<tr>
+<td>**Status**</td>
+<td>open</td>
+</tr>
+<tr>
+<td>**Val Environment**</td>
+<td>silicon</td>
+</tr>
+<tr>
+<td>**Tags**</td>
+<td>PMSS_NWP_READINESS_CHECK</td>
+</tr>
+<tr>
+<td>**Parent TCD**</td>
+<td>[22022420821 -- Socket RAPL Registers Verification - CSR and TPMI](https://hsdes.intel.com/appstore/article-one/#/22022420821)</td>
+</tr>
+</tbody></table>
+<p>---</p>
+<h2>Test Case Intent</h2>
+<p>Verify that when Socket RAPL PL1 is programmed to 0 watts via TPMI PL1_CONTROL, PrimeCode firmware clips the effective power limit to MIN_PL (minimum programmable power limit from SKU fuse), the RAPL NN-PID output is clamped to minimum frequency (Pm), and package power converges to approximately MIN_PL watts. This validates the PL1=0 boundary clipping behavior per the Socket RAPL HAS.</p>
+<p>**Differentiation from related TCs:**</p>
+<ul>
+<li>TC 22022422034 (PL1/PL2 Limits and Tau) validates normal PL1/PL2 encoding and readback -- this TC validates the **boundary case PL1=0**</li>
+<li>TC 22022421976 (Sweep CPU RAPL Limits) sweeps PL1 across a range -- this TC specifically targets the **zero boundary**</li>
+</ul>
+<p>---</p>
+<h3>Pre-Conditions</h3>
+<table class="md-table"><thead><tr>
+<th>Item</th>
+<th>Requirement</th>
+</tr></thead><tbody>
+<tr>
+<td>Platform</td>
+<td>NWP post-silicon system (OakStream)</td>
+</tr>
+<tr>
+<td>BIOS</td>
+<td>Default Socket RAPL; PL1 LOCK bit must be clear (unlocked) to allow runtime PL1 override</td>
+</tr>
+<tr>
+<td>OS</td>
+<td>SVOS or Ubuntu booted to idle</td>
+</tr>
+<tr>
+<td>Tool</td>
+<td>PythonSV with namednodes access to NIO TPMI registers</td>
+</tr>
+<tr>
+<td>Baseline</td>
+<td>Record default PL1 (= TDP) and MIN_PL from PL_INFO before starting</td>
+</tr>
+<tr>
+<td>Workload</td>
+<td>PTU or stress-ng running TDP-level load on all 96 cores</td>
+</tr>
+</tbody></table>
+<h3>Test Steps</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>Action</th>
+<th>Expected Result (PASS)</th>
+<th>Failure Indication</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>Read PL_INFO to get MIN_PL and MAX_PL1: `pl_info = sv.socket0.nio.punit.tpmi.socket_rapl.pl_info.read()`</td>
+<td>MIN_PL field is non-zero; MAX_PL1 = TDP</td>
+<td>MIN_PL = 0 (fuse not programmed)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Record baseline PL1: `baseline = sv.socket0.nio.punit.tpmi.socket_rapl.pl1_control.read()`</td>
+<td>PL1 = TDP (default)</td>
+<td>PL1 already modified</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Start TDP workload: `./ptu -ct 3` across all cores</td>
+<td>CPU at full load; power near TDP</td>
+<td>Workload fails to start</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Program PL1=0: `sv.socket0.nio.punit.tpmi.socket_rapl.pl1_control.write(0x0)` (PWR_LIM=0, enable=1)</td>
+<td>Write accepted (no error)</td>
+<td>Write rejected or system crash</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Read back PL1_CONTROL: `effective = sv.socket0.nio.punit.tpmi.socket_rapl.pl1_control.read()`</td>
+<td>Effective PWR_LIM readback shows MIN_PL (PrimeCode clipped 0 to MIN_PL)</td>
+<td>Readback shows 0 (no clipping) or unexpected value</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Wait 5x PL1 tau (~5s) for PID convergence; read PERF_STATUS throttle counter</td>
+<td>PERF_STATUS throttle counter incrementing (system is RAPL-throttled)</td>
+<td>No throttling observed</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Measure package power: read ENERGY_STATUS twice 2s apart and compute power</td>
+<td>pkg_power approximately MIN_PL watts (within +/-20%)</td>
+<td>Power at TDP (no throttling) or zero</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Restore PL1 to baseline: `sv.socket0.nio.punit.tpmi.socket_rapl.pl1_control.write(baseline)`</td>
+<td>PL1 restored; power returns to TDP level</td>
+<td>Power does not recover</td>
+</tr>
+</tbody></table>
+<h3>Pass / Fail Criteria</h3>
+<p>**Bar:** Per RAPL HAS -- PL1=0 is clipped to MIN_PL by PrimeCode. System throttles to minimum frequency (Pm). pkg_power converges to approximately MIN_PL.</p>
+<p>**PASS**: PL1_CONTROL readback shows MIN_PL after writing 0 AND PERF_STATUS throttle counter incrementing AND pkg_power within MIN_PL +/-20% AND power recovers after PL1 restore</p>
+<p>**FAIL**: PL1 readback shows 0 (no clipping) OR no throttling OR system hang/MCA OR power does not converge to MIN_PL</p>
+<p>---</p></div>
+  <div id="tab1" class="panel"><p>**Disposition: Runnable_On_N-1**</p>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>DMR</th>
+<th>NWP</th>
+<th>Impact</th>
+</tr></thead><tbody>
+<tr>
+<td>Register path</td>
+<td>`sv.socket0.imh0.punit.tpmi.socket_rapl.*`</td>
+<td>`sv.socket0.nio.punit.tpmi.socket_rapl.*`</td>
+<td>Path prefix swap only</td>
+</tr>
+<tr>
+<td>MIN_PL source</td>
+<td>SKU fuse via PL_INFO</td>
+<td>Same SKU fuse via PL_INFO</td>
+<td>Identical mechanism</td>
+</tr>
+<tr>
+<td>Clipping logic</td>
+<td>PrimeCode clips PL1 &lt; MIN_PL to MIN_PL</td>
+<td>Same PrimeCode logic on NIO</td>
+<td>No change</td>
+</tr>
+<tr>
+<td>PID behavior</td>
+<td>NN-PID output clamped to Pm</td>
+<td>Same NN-PID on NIO</td>
+<td>Single instance vs dual</td>
+</tr>
+</tbody></table>
+<p>**Adaptation required:** Register path prefix swap (`imh0` to `nio`). No script logic changes.</p>
+<p>---</p></div>
+  <div id="tab2" class="panel"><h3>Swimlane Data</h3>
+<table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Actor</th>
+<th>Action</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>OS/Test</td>
+<td>Read PL_INFO for MIN_PL and MAX_PL1</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>OS/Test</td>
+<td>Write PL1_CONTROL.PWR_LIM = 0</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PrimeCode (NIO)</td>
+<td>Detect PL1 &lt; MIN_PL; clip to MIN_PL; update effective PL1</td>
+<td>[Internal]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>PrimeCode (NIO)</td>
+<td>NN-PID computes output; clamps to Pm; asserts fast_throttle</td>
+<td>[Internal]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>PrimeCode (NIO)</td>
+<td>Distribute RAPL_PERF_LIMIT to CBBs via HPM 0x14</td>
+<td>[HPM]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>PCode (CBBx2)</td>
+<td>Enforce Pm frequency ceiling; increment PERF_STATUS</td>
+<td>[HPM]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>OS/Test</td>
+<td>Read PERF_STATUS and measure power</td>
+<td>[TPMI MMIO]</td>
+</tr>
+</tbody></table>
+<h3>Sequence Data</h3>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>From</th>
+<th>To</th>
+<th>Message</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>OS/Test</td>
+<td>PrimeCode (NIO)</td>
+<td>TPMI write PL1_CONTROL.PWR_LIM=0</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>PrimeCode (NIO)</td>
+<td>PrimeCode (NIO)</td>
+<td>Clip PL1 to MIN_PL; feed NN-PID</td>
+<td>[Internal]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PrimeCode (NIO)</td>
+<td>PCode (CBBx2)</td>
+<td>HPM RAPL_PERF_LIMIT = Pm</td>
+<td>[HPM]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>PCode (CBBx2)</td>
+<td>Cores</td>
+<td>Enforce frequency ceiling = Pm</td>
+<td>[HW wire]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>PCode (CBBx2)</td>
+<td>PrimeCode (NIO)</td>
+<td>HPM LEAF_PERF_STATUS (throttled)</td>
+<td>[HPM]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>OS/Test</td>
+<td>PrimeCode (NIO)</td>
+<td>TPMI read PERF_STATUS</td>
+<td>[TPMI MMIO]</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="tab3" class="panel"><table class="md-table"><thead><tr>
+<th>Scenario</th>
+<th>Covered by this TC</th>
+<th>Covered elsewhere</th>
+</tr></thead><tbody>
+<tr>
+<td>PL1=0 clipped to MIN_PL</td>
+<td>Yes</td>
+<td>--</td>
+</tr>
+<tr>
+<td>PERF_STATUS increments under PL1=0 throttle</td>
+<td>Yes</td>
+<td>TC 22022422038 (general PERF_STATUS)</td>
+</tr>
+<tr>
+<td>Power converges to MIN_PL</td>
+<td>Yes</td>
+<td>--</td>
+</tr>
+<tr>
+<td>PL1 restore to baseline</td>
+<td>Yes</td>
+<td>--</td>
+</tr>
+<tr>
+<td>PL2=0 boundary</td>
+<td>No</td>
+<td>TC TBD (boundary case for PL2)</td>
+</tr>
+<tr>
+<td>PL1 = MIN_PL (exact boundary)</td>
+<td>No</td>
+<td>TC 22022421976 (sweep)</td>
+</tr>
+<tr>
+<td>PL1 below MIN_PL but non-zero</td>
+<td>No</td>
+<td>TC 22022421976 (sweep)</td>
+</tr>
+<tr>
+<td>PL1=0 with LOCK bit set</td>
+<td>No</td>
+<td>TC 22022422034 (LOCK behavior)</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="tab4" class="panel"><ul>
+<li>[Socket RAPL KB -- socket_rapl.md](../../pm_features/power_rapl/socket_rapl.md) -- PL1 clipping, MIN_PL, PID behavior</li>
+<li>[TCD 22022420821 -- Socket RAPL Registers CSR/TPMI](https://hsdes.intel.com/appstore/article-one/#/22022420821) -- register interface validation</li>
+<li>[Intel RAPL HAS -- Clipping of Power Limits](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/RAPL/RAPL.html) -- PL1 clipping to MIN_PL</li>
+<li>[PrimeCode Socket RAPL -- Frequency Clipping below TDP](https://docs.primecode.intel.com/master/rapl.html) -- NN-PID output clamped to Pm</li>
+</ul>
+<p>---</p></div>
+  <div id="tab5" class="panel"><table class="md-table"><thead><tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr></thead><tbody>
+<tr>
+<td>System hang when PL1=0 before clipping takes effect</td>
+<td>Low</td>
+<td>High</td>
+<td>PrimeCode clips synchronously on TPMI write; no transient 0W window</td>
+</tr>
+<tr>
+<td>MIN_PL fuse not programmed (reads 0)</td>
+<td>Low</td>
+<td>Test blocked</td>
+<td>Step 1 checks MIN_PL before proceeding</td>
+</tr>
+<tr>
+<td>Power measurement tolerance too tight</td>
+<td>Medium</td>
+<td>False fail</td>
+<td>Use +/-20% tolerance for MIN_PL convergence</td>
+</tr>
+<tr>
+<td>PL1 LOCK bit set by BIOS</td>
+<td>Medium</td>
+<td>Test blocked</td>
+<td>Pre-condition: verify LOCK=0 before write</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="tab6" class="panel"><p>1. **Runnable as-is on NWP** with path prefix swap (`imh0` to `nio`). No script logic changes needed.</p>
+<p>2. **Add PL2=0 boundary variant** as a separate TC under the same TCD.</p>
+<p>3. **Consider adding to kayak automation** -- this is a write-read-measure-restore pattern suitable for `runPmx.py`.</p>
+<p>4. **Note for TC title clarity:** &quot;RAPL=0&quot; means PL1=0W; the title could be clarified to &quot;Validate PL1=0 Boundary Clipping&quot; to avoid confusion with counter initialization.</p></div>
+  </div>
+<script>
+const tabs  = Array.from(document.querySelectorAll('.tab-bar .tab'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+tabs.forEach(t => t.addEventListener('click', () => {
+  tabs.forEach(b  => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  t.classList.add('active');
+  const p = document.getElementById(t.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>
