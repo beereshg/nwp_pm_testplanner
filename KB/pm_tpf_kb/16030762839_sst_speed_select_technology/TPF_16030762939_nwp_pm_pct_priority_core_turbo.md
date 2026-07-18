@@ -44,41 +44,80 @@
 
 ## Section 2: Design Details
 
+## Section 2: Design Details
+
 ### PCT Architecture — Full Stack (Policy built on SST-TF Enforcement)
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│  VALIDATION TIER   │ OS / TOOL LAYER                                  │
-│                   │ intel-speed-select · cpufreq sysfs               │
-│       PV          │ /sys/.../cpuinfo_max_freq · isst perf-profile info │
-│                   ┃                                                  ┃
-│                   ┃ PCT POLICY LAYER (BIOS configures)               ┃
-│     PV + FV       ┃ BIOS Partition Count knob → CLOS_ASSOC[core]       ┃
-│                   ┃ HP → CLOS[0]   LP → CLOS[3]                        ┃
-│                   ┃ SST_CLOS_CONFIG[0/3].max · SST_PP_CONTROL          ┃
-│                   ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
-│                   ┃ SST-TF ENFORCEMENT LAYER (PCode orchestrates)    ┃
-│  PSS + FV + PV    ┃ PCode: WP4_HP/LP per CDYN → PMSB sideband        ┃
-│                   ┃ Ordered throttle (PRIORITY_TYPE=1): LP first      ┃
-│                   ┃ SST_TF_INFO_0/2 → LP_CLIP / HP_TRL per bucket     ┃
-│                   ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
-│                   ┃ ACODE / MICROCODE LAYER (per-core application)   ┃
-│     PSS + FV      ┃ Applies CLOS ratio from WP4 broadcast             ┃
-│                   ┃ HP ceiling: P0max (~4.4 GHz)                      ┃
-│                   ┃ LP ceiling: LP_CLIP (~P1 ~2.3 GHz)                ┃
-│                   ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
-│                   ┃ HW ENFORCEMENT LAYER (silicon gates frequency)   ┃
-│       FV          ┃ Core FIVR + PLL · CBB compute                      ┃
-│                   ┃ TPMI decoder · Acode derating ratio                ┃
-│                   ┃ Real fuse gating · Silicon TPMI register HW       ┃
-└───────────────────┳──────────────────────────────────────────────────┘
-                        ↓
-             Each tier validates a different layer.
-             PV catches OS/policy bugs. FV catches HW enforcement bugs.
-             PSS catches firmware/model bugs before silicon exists.
-```
+<!-- raw-html -->
+<div style="max-width:680px;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;margin:16px 0;">
 
-**Key insight:** PCT is the *policy* (which cores get HP priority) built on top of SST-TF *enforcement* (how frequency is delivered). Bugs in one layer are invisible to the other tier — this is why validation cannot collapse to a single tier.
+  <!-- OS / Tool Layer -->
+  <div style="background:#e8f4fd;border:2px solid #2196f3;border-radius:8px 8px 0 0;padding:12px 18px;">
+    <div style="font-weight:700;color:#1565c0;font-size:11px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">OS / Tool Layer</div>
+    <div style="color:#1a237e;line-height:1.7;font-size:11.5px;">
+      <code style="background:#fff;border:1px solid #90caf9;border-radius:3px;padding:1px 5px;">intel-speed-select</code> &nbsp;·&nbsp;
+      <code style="background:#fff;border:1px solid #90caf9;border-radius:3px;padding:1px 5px;">cpufreq / cpuinfo_max_freq</code> &nbsp;·&nbsp;
+      <code style="background:#fff;border:1px solid #90caf9;border-radius:3px;padding:1px 5px;">isst perf-profile info</code>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div style="text-align:center;font-size:18px;color:#555;line-height:1.2;">&#11015;</div>
+
+  <!-- PCT Policy Layer -->
+  <div style="background:#fff3e0;border:2px solid #ff9800;padding:12px 18px;">
+    <div style="font-weight:700;color:#e65100;font-size:11px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">PCT Policy Layer &nbsp;<span style="font-weight:400;font-size:10px;color:#bf360c;">(BIOS programs)</span></div>
+    <div style="color:#bf360c;line-height:1.8;font-size:11.5px;">
+      BIOS Partition Count knob &nbsp;→&nbsp; <code style="background:#fff;border:1px solid #ffcc80;border-radius:3px;padding:1px 5px;">SST_CLOS_ASSOC[core]</code><br>
+      HP cores &nbsp;→&nbsp; <strong>CLOS[0]</strong> &nbsp;&nbsp;·&nbsp;&nbsp; LP cores &nbsp;→&nbsp; <strong>CLOS[3]</strong><br>
+      <code style="background:#fff;border:1px solid #ffcc80;border-radius:3px;padding:1px 5px;">SST_CLOS_CONFIG[0].max</code> &nbsp;=&nbsp; HP TRL &nbsp;&nbsp;·&nbsp;&nbsp;
+      <code style="background:#fff;border:1px solid #ffcc80;border-radius:3px;padding:1px 5px;">SST_CLOS_CONFIG[3].max</code> &nbsp;=&nbsp; LP clip
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div style="text-align:center;font-size:18px;color:#555;line-height:1.2;">&#11015;</div>
+
+  <!-- SST-TF Enforcement Layer -->
+  <div style="background:#f3e5f5;border:2px solid #9c27b0;padding:12px 18px;">
+    <div style="font-weight:700;color:#6a1b9a;font-size:11px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">SST-TF Enforcement Layer &nbsp;<span style="font-weight:400;font-size:10px;color:#4a148c;">(PCode orchestrates)</span></div>
+    <div style="color:#4a148c;line-height:1.8;font-size:11.5px;">
+      PCode RAPL PID (1ms loop) &nbsp;→&nbsp; WP4_HP / WP4_LP per CDYN &nbsp;→&nbsp; PMSB sideband broadcast<br>
+      Ordered throttle (<code style="background:#fff;border:1px solid #ce93d8;border-radius:3px;padding:1px 5px;">SST_CP_PRIORITY_TYPE=1</code>): LP frequency reduced first &nbsp;·&nbsp; HP maintained longer<br>
+      Source: <code style="background:#fff;border:1px solid #ce93d8;border-radius:3px;padding:1px 5px;">SST_TF_INFO_0</code> (LP clip) &nbsp;·&nbsp; <code style="background:#fff;border:1px solid #ce93d8;border-radius:3px;padding:1px 5px;">SST_TF_INFO_2</code> (HP TRL per CDYN bucket)
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div style="text-align:center;font-size:18px;color:#555;line-height:1.2;">&#11015;</div>
+
+  <!-- Acode / Microcode Layer -->
+  <div style="background:#e8f5e9;border:2px solid #4caf50;padding:12px 18px;">
+    <div style="font-weight:700;color:#1b5e20;font-size:11px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">Acode / Microcode Layer &nbsp;<span style="font-weight:400;font-size:10px;color:#2e7d32;">(per-core application)</span></div>
+    <div style="color:#1b5e20;line-height:1.8;font-size:11.5px;">
+      Applies CLOS frequency ceiling from WP4 broadcast per core<br>
+      HP cores: P0max ceiling &nbsp;≈&nbsp; <strong>4.4 GHz</strong> &nbsp;&nbsp;·&nbsp;&nbsp; LP cores: LP_CLIP ceiling &nbsp;≈&nbsp; <strong>P1 ~2.3 GHz</strong>
+    </div>
+  </div>
+
+  <!-- Arrow -->
+  <div style="text-align:center;font-size:18px;color:#555;line-height:1.2;">&#11015;</div>
+
+  <!-- HW Enforcement Layer -->
+  <div style="background:#fce4ec;border:2px solid #f44336;border-radius:0 0 8px 8px;padding:12px 18px;">
+    <div style="font-weight:700;color:#b71c1c;font-size:11px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">HW Enforcement Layer &nbsp;<span style="font-weight:400;font-size:10px;color:#c62828;">(silicon gates frequency)</span></div>
+    <div style="color:#b71c1c;line-height:1.8;font-size:11.5px;">
+      Core FIVR + PLL &nbsp;·&nbsp; CBB compute die &nbsp;·&nbsp; TPMI register decoder (HW)<br>
+      Acode derating ratio enforced in silicon &nbsp;·&nbsp; Fuse-gated capability
+    </div>
+  </div>
+
+  <!-- Key insight -->
+  <div style="margin-top:12px;background:#f8f9fa;border-left:4px solid #607d8b;padding:10px 14px;border-radius:0 4px 4px 0;font-size:11px;color:#37474f;line-height:1.6;">
+    <strong>Key insight:</strong> PCT is the <em>policy</em> (which cores are HP, which are LP) built on SST-TF <em>enforcement</em> (how frequency ceilings are applied at runtime). A bug in the policy layer (wrong CLOS assignment) produces different failure signatures than a bug in the enforcement layer (wrong WP4 calculation).
+  </div>
+</div>
+<!-- /raw-html -->
 
 ### PCT Reset / Boot to OS Flow
 
