@@ -84,6 +84,7 @@ Base functional behavior is covered by **[TCD 22022420798](https://hsdes.intel.c
 | [22022422029 -- RAPL MSR checks - Negative test case](https://hsdes.intel.com/appstore/article-one/#/22022422029) | MSR 0x610, 0x611, 0x606 | Deprecated on NWP: reads return 0, writes no-op; negative validation |
 | [22022422034 -- RAPL PL1/PL2 limits and Tau Verification](https://hsdes.intel.com/appstore/article-one/#/22022422034) | TPMI PL1_CONTROL, PL2_CONTROL | Power-limit and time-window programming / readback; U11.3 encoding |
 | [22022422040 -- Socket RAPL verification - OOB](https://hsdes.intel.com/appstore/article-one/#/22022422040) | PECI-over-MCTP / OOBMSM | OOB access consistency with in-band TPMI reads / writes |
+| [16031169546 -- PL1 Toggle 0W ↔ TDP Under Load](https://hsdes.intel.com/appstore/article-one/#/16031169546) | TPMI PL1_CONTROL, PL_INFO, PERF_STATUS | Cyclic PL1 toggle: clipping to MIN_PL, throttle engagement/release, power convergence/recovery × 10 cycles |
 
 > **Moved out (Co-Design T2 audits 2026-07-18):**
 > - TC 22022422032 (PEM), TC 22022422036 (PLR), TC 22022422038 (Perf Status), TC 16030715724 (PSS Perf Status) → [TCD 16031169448 — Reporting / Observability](https://hsdes.intel.com/appstore/article-one/#/16031169448)
@@ -162,10 +163,11 @@ Base functional behavior is covered by **[TCD 22022420798](https://hsdes.intel.c
 - Energy fuzzing via MSR 0xBC.bit0: when enabled, ENERGY_STATUS values are fuzzed; when disabled, raw values
 - *Boot-time counter init (ENERGY_STATUS=0, PERF_STATUS=0) moved to [TCD 16031169466 — Boot / Reset Boundary](https://hsdes.intel.com/appstore/article-one/#/16031169466)*
 
-**B. PL Control Encoding** (TC 22022422034):
+**B. PL Control Encoding** (TC 22022422034, **NEW PL1 Toggle TC**):
 - PL1_CONTROL / PL2_CONTROL: programmed PWR_LIM readback matches written value (U11.3 encoding)
 - TIME_WINDOW: programmed tau encoding readback matches (exponent-mantissa)
 - LOCK: when set, subsequent writes rejected; readback unchanged
+- **PL1 Toggle (0W ↔ TDP)**: PL1=0 clipped to MIN_PL on every cycle; PL1=TDP readback matches; PERF_STATUS increments during throttle, stops after recovery; power converges and recovers within 5× tau; 10 consecutive cycles without MCA/hang/frequency drift
 - **Boundary with TCD 22022420813:** This TCD validates register encoding/readback correctness. TCD 22022420813 validates that BIOS-configured policy values are correct (fuse-sourced bounds, BIOS knob intent).
 
 **C. Deprecated MSR Negative Testing** (TC 22022422029):

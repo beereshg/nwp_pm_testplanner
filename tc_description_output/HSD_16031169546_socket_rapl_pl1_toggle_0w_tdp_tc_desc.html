@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';"/>
+  <title>TC: [FV PM] Socket RAPL PL1 Toggle 0W to TDP Under Load</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1f2937;font-size:13px;}
+    .header{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .header h1{font-size:18px;font-weight:600;margin-bottom:4px;}
+    .header .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+    .chip{background:rgba(255,255,255,.18);border-radius:12px;padding:2px 10px;font-size:11px;}
+    .chip.disp{background:#1565c0;font-weight:bold;}
+    a.hsd-link{color:#90caf9;font-size:11px;margin-left:8px;}
+    .tab-bar{display:flex;background:#1a5fa8;padding:0 16px;gap:2px;overflow-x:auto;}
+    .tab-bar button{background:none;border:none;color:rgba(255,255,255,.72);padding:10px 18px;
+        font-size:12px;font-weight:500;cursor:pointer;border-bottom:3px solid transparent;
+        white-space:nowrap;transition:all .15s;}
+    .tab-bar button:hover{color:#fff;background:rgba(255,255,255,.08);}
+    .tab-bar button.active{color:#fff;border-bottom-color:#64b5f6;background:rgba(255,255,255,.12);}
+    .panels{max-width:1200px;margin:20px auto;padding:0 16px 40px;}
+    .panel{display:none;background:#fff;border:1px solid #d9e2ec;border-radius:8px;padding:22px 26px;line-height:1.6;}
+    .panel.active{display:block;}
+    .panel h2{color:#0f4c81;font-size:15px;margin:18px 0 8px;border-bottom:1px solid #e8eef7;padding-bottom:4px;}
+    .panel h3{color:#1a5fa8;font-size:13px;margin:14px 0 6px;}
+    .panel h4{color:#555;font-size:12px;margin:10px 0 4px;}
+    .panel p{margin:6px 0;}
+    .panel ul{margin:6px 0 6px 18px;}
+    .panel pre{background:#f3f6fb;border:1px solid #d9e2ec;padding:10px;overflow:auto;border-radius:6px;font-size:11px;}
+    .panel code{font-family:Consolas,monospace;}
+    table.md-table{border-collapse:collapse;width:100%;margin:8px 0;font-size:12px;}
+    table.md-table th,table.md-table td{border:1px solid #d9e2ec;padding:5px 8px;text-align:left;}
+    table.md-table th{background:#e8eef7;font-weight:600;}
+    table.md-table tr:nth-child(even){background:#f8fafc;}
+    .tc-content{font-size:12.5px;}
+    .tc-content h3{color:#004a80;font-size:13px;margin:14px 0 4px;
+        background:#cce4f7;padding:8px 14px;border-left:4px solid #0071c5;border-radius:0 4px 4px 0;font-weight:bold;}
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>[FV PM] Socket RAPL PL1 Toggle 0W to TDP Under Load
+    <a class="hsd-link" href="https://hsdes.intel.com/appstore/article-one/#/16031169546" target="_blank" rel="noopener">HSD 16031169546 ↗</a>
+  </h1>
+  <div class="chips">
+    <span class="chip">Socket RAPL › PL1 runtime toggle — clipping, throttle engagement, recovery</span>
+    <span class="chip disp">NWP-Native</span>
+    <span class="chip">Env: silicon</span>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="active" data-tab="tc">Test Case</button>
+  <button data-tab="sec-a">A: NWP Delta</button>
+  <button data-tab="sec-b">B: Interactions</button>
+  <button data-tab="sec-c">C: Coverage</button>
+  <button data-tab="sec-d">D: Spec Refs</button>
+  <button data-tab="sec-e">E: Risks</button>
+  <button data-tab="sec-f">F: Recommendations</button>
+</div>
+
+<div class="panels">
+  <div id="tc" class="panel active tc-content">
+<div class="desc-box">
+
+
+
+
+<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
+<br/><p style="margin:10px 0 16px 0;">Validate that Socket RAPL PL1 can be safely toggled between 0W (clipped to MIN_PL) and TDP at runtime under sustained workload across multiple cycles. Each cycle verifies: (1) PL1=0 write is clipped to MIN_PL per spec, (2) PERF_STATUS throttle counter increments during throttling, (3) package power converges to approximately MIN_PL, (4) PL1=TDP restore causes power recovery to TDP level, and (5) PERF_STATUS stops incrementing after recovery. All 10 cycles must complete without MCA, hang, or frequency drift. <strong>Differentiation from related TCs:</strong></p>
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Preconditions</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Platform</td><td style="text-align:left;padding:8px;">NWP post-silicon system (OakStream)</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">BIOS</td><td style="text-align:left;padding:8px;">Default Socket RAPL configuration; PL1 LOCK bit must be clear (unlocked)</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">OS</td><td style="text-align:left;padding:8px;">SVOS or Ubuntu booted to idle</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Tool</td><td style="text-align:left;padding:8px;">PythonSV with namednodes access to NIO TPMI registers</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Baseline</td><td style="text-align:left;padding:8px;">Record default PL1 (= TDP) and MIN_PL from PL_INFO before starting</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">Workload</td><td style="text-align:left;padding:8px;">PTU or stress-ng running TDP-level load on all 96 cores</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">MCA monitor</td><td style="text-align:left;padding:8px;">`mcelog` or equivalent running to catch machine check exceptions</td></tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Test Steps</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 8px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">#</th>
+  <th style="text-align:left;padding:8px;">Action</th>
+  <th style="text-align:left;padding:8px;">Expected Result (PASS)</th>
+  <th style="text-align:left;padding:8px;">Failure Indication</th>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read PL_INFO: `pl_info = sv.socket0.nio.punit.tpmi.socket_rapl.pl_info.read()`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">MIN_PL field is non-zero; MAX_PL1 = TDP</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">MIN_PL = 0 (fuse not programmed)</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read baseline PL1: `baseline_pl1 = sv.socket0.nio.punit.tpmi.socket_rapl.pl1_control.read()`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PL1 = TDP (default)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PL1 already modified or locked</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read tau from PL1_CONTROL TIME_WINDOW field; compute settle_time = 5 × tau</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">tau is within [1s, 5s]; settle_time = 5–25s</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">tau = 0 or out of range</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Record initial PERF_STATUS: `ps0 = sv.socket0.nio.punit.tpmi.socket_rapl.perf_status.read()`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Throttle counter value captured</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read error</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Start TDP workload: `stress-ng --cpu 96 --cpu-method matrixprod` or PTU across all cores</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">CPU at full load; power ≈ TDP</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Workload fails to start</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">BEGIN CYCLE (repeat steps 6–13 for N=10 cycles)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">—</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">—</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Write PL1=0: `sv.socket0.nio.punit.tpmi.socket_rapl.pl1_control.write(0x0)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Write accepted (no error/crash)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">System hang or MCA</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">8</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read back PL1_CONTROL: `effective = sv.socket0.nio.punit.tpmi.socket_rapl.pl1_control.pl1_power.read()`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Readback = MIN_PL (PrimeCode clipped 0 → MIN_PL)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Readback = 0 (no clipping)</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">9</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Wait settle_time (5× tau); read PERF_STATUS: `ps1 = sv.socket0.nio.punit.tpmi.socket_rapl.perf_status.read()`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">ps1 > ps0 (throttle counter incrementing)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">ps1 == ps0 (no throttling)</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">10</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read ENERGY_STATUS twice, 2s apart; compute power = delta_energy / delta_time</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">pkg_power ≈ MIN_PL (within ±20%)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Power still at TDP</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">11</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Write PL1=TDP: `sv.socket0.nio.punit.tpmi.socket_rapl.pl1_control.write(baseline_pl1)`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Write accepted; readback = TDP</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Write rejected or readback mismatch</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">12</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Wait settle_time (5× tau); record PERF_STATUS: `ps2 = sv.socket0.nio.punit.tpmi.socket_rapl.perf_status.read()`</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">PERF_STATUS stops incrementing (ps2 ≈ ps_after_recover, no new increments after recovery)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Counter still incrementing at TDP</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">13</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read ENERGY_STATUS twice, 2s apart; compute power</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">pkg_power ≈ TDP (within ±10%)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Power stuck at MIN_PL</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">14</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">END CYCLE — update ps0 = ps2; repeat from step 7</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Cycle N completes successfully</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Any cycle fails</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">15</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Stop workload; verify no MCA via `mcelog --client` or dmesg</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">No MCA, no IERR, no system errors</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">MCA or system error detected</td>
+</tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Pass / Fail Criteria</div>
+<br/>
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
+  <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
+  <p style="margin:0;font-size:0.9em;">when ALL of the following hold across all 10 cycles:</p>
+</div>
+
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
+  <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
+  <p style="margin:0;font-size:0.9em;">when ANY of the following occur:</p>
+</div>
+
+
+
+
+
+<h3>NOTEs</h3>
+<div style="font-size:0.85em;color:#555;margin-left:12px;padding:10px;background:#f8f9fa;border-left:3px solid #999;border-radius:3px;">
+
+<p style="margin:6px 0;">PID oscillation on rapid PL1 toggle — 5× tau wait ensures full EWMA convergence per cycle</p>
+
+<p style="margin:6px 0;">Frequency stuck at Pm after TDP restore — Verify freq recovery in step 13; if stuck, indicates PID bug</p>
+
+<p style="margin:6px 0;">PERF_STATUS counter overflow during test — Counter is 32-bit; 10 cycles × 5s = 50s total throttle time — no overflow risk</p>
+
+<p style="margin:6px 0;">MCA during rapid limit change — Monitor mcelog; any MCA is an immediate fail</p>
+
+</div>
+
+
+
+
+<h3>OPENs</h3>
+<div style="font-size:0.85em;color:#c62828;margin-left:12px;padding:10px;background:#fff3f3;border-left:3px solid #c62828;border-radius:3px;">
+<ul style="margin:4px 0;padding-left:20px;">
+
+<li style="margin:4px 0;">PID oscillation on rapid PL1 toggle → 5× tau wait ensures full EWMA convergence per cycle</li>
+
+</ul>
+</div>
+
+
+<br/>
+
+
+
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
+<br/><p style="margin:10px 0;">N/A</p>
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">References</div>
+<br/>
+
+<p>N/A</p>
+
+
+</div>
+</div>
+  </div>
+  <div id="sec-a" class="panel"><p>**Disposition: NWP-Native**</p>
+<p>This is a new TC authored for NWP. No DMR predecessor exists.</p>
+<table class="md-table"><thead><tr>
+<th>Aspect</th>
+<th>NWP Detail</th>
+</tr></thead><tbody>
+<tr>
+<td>Register path</td>
+<td>`sv.socket0.nio.punit.tpmi.socket_rapl.*`</td>
+</tr>
+<tr>
+<td>MIN_PL source</td>
+<td>SKU fuse via PL_INFO on NIO</td>
+</tr>
+<tr>
+<td>Clipping logic</td>
+<td>PrimeCode on NIO clips PL1 &lt; MIN_PL to MIN_PL</td>
+</tr>
+<tr>
+<td>PID settling</td>
+<td>NN-PID on NIO; 3–5× tau for EWMA convergence</td>
+</tr>
+<tr>
+<td>Topology</td>
+<td>Single NIO (1 PrimeCode instance), 2 CBBs</td>
+</tr>
+<tr>
+<td>PERF_STATUS</td>
+<td>Throttle counter on NIO TPMI; incrementing during PL1 throttle</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-b" class="panel"><table class="md-table"><thead><tr>
+<th>Step</th>
+<th>Actor</th>
+<th>Action</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>OS/Test</td>
+<td>Read PL_INFO (MIN_PL, TDP)</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>OS/Test</td>
+<td>Read baseline PL1_CONTROL</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>OS/Test</td>
+<td>Start TDP workload</td>
+<td>[OS]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>OS/Test</td>
+<td>Write PL1=0 via PL1_CONTROL</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>PrimeCode (NIO)</td>
+<td>Clip PL1=0 to MIN_PL</td>
+<td>[Internal]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>PrimeCode (NIO)</td>
+<td>NN-PID computes min freq from MIN_PL</td>
+<td>[Internal]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>PrimeCode (NIO)</td>
+<td>Distribute RAPL_PERF_LIMIT to CBBs</td>
+<td>[HPM]</td>
+</tr>
+<tr>
+<td>8</td>
+<td>PCode (CBB×2)</td>
+<td>Enforce frequency ceiling; increment PERF_STATUS</td>
+<td>[HPM]</td>
+</tr>
+<tr>
+<td>9</td>
+<td>OS/Test</td>
+<td>Verify PERF_STATUS incrementing; power ≈ MIN_PL</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>10</td>
+<td>OS/Test</td>
+<td>Write PL1=TDP via PL1_CONTROL</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>11</td>
+<td>PrimeCode (NIO)</td>
+<td>NN-PID computes freq from TDP (no throttle)</td>
+<td>[Internal]</td>
+</tr>
+<tr>
+<td>12</td>
+<td>PrimeCode (NIO)</td>
+<td>Distribute new RAPL_PERF_LIMIT to CBBs</td>
+<td>[HPM]</td>
+</tr>
+<tr>
+<td>13</td>
+<td>PCode (CBB×2)</td>
+<td>Release frequency ceiling; PERF_STATUS stops incrementing</td>
+<td>[HPM]</td>
+</tr>
+<tr>
+<td>14</td>
+<td>OS/Test</td>
+<td>Verify power recovers to TDP; PERF_STATUS stable</td>
+<td>[TPMI MMIO]</td>
+</tr>
+</tbody></table>
+<table class="md-table"><thead><tr>
+<th>#</th>
+<th>From</th>
+<th>To</th>
+<th>Message</th>
+<th>Interface</th>
+</tr></thead><tbody>
+<tr>
+<td>1</td>
+<td>OS/Test</td>
+<td>NIO TPMI</td>
+<td>Read PL_INFO, PL1_CONTROL baseline</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>2</td>
+<td>OS/Test</td>
+<td>NIO TPMI</td>
+<td>Write PL1_CONTROL.PWR_LIM = 0</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PrimeCode</td>
+<td>PrimeCode</td>
+<td>Clip PL1 to MIN_PL; recalculate NN-PID</td>
+<td>[Internal]</td>
+</tr>
+<tr>
+<td>4</td>
+<td>PrimeCode</td>
+<td>PCode (CBB0)</td>
+<td>HPM RAPL_PERF_LIMIT (min freq)</td>
+<td>[HPM 0x14]</td>
+</tr>
+<tr>
+<td>5</td>
+<td>PrimeCode</td>
+<td>PCode (CBB1)</td>
+<td>HPM RAPL_PERF_LIMIT (min freq)</td>
+<td>[HPM 0x14]</td>
+</tr>
+<tr>
+<td>6</td>
+<td>PCode (CBB0)</td>
+<td>PrimeCode</td>
+<td>HPM LEAF_PERF_STATUS</td>
+<td>[HPM 0x16]</td>
+</tr>
+<tr>
+<td>7</td>
+<td>PCode (CBB1)</td>
+<td>PrimeCode</td>
+<td>HPM LEAF_PERF_STATUS</td>
+<td>[HPM 0x16]</td>
+</tr>
+<tr>
+<td>8</td>
+<td>OS/Test</td>
+<td>NIO TPMI</td>
+<td>Read PERF_STATUS (incrementing)</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>9</td>
+<td>OS/Test</td>
+<td>NIO TPMI</td>
+<td>Read ENERGY_STATUS (power ≈ MIN_PL)</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>10</td>
+<td>OS/Test</td>
+<td>NIO TPMI</td>
+<td>Write PL1_CONTROL.PWR_LIM = TDP</td>
+<td>[TPMI MMIO]</td>
+</tr>
+<tr>
+<td>11</td>
+<td>PrimeCode</td>
+<td>PrimeCode</td>
+<td>Recalculate NN-PID (no throttle)</td>
+<td>[Internal]</td>
+</tr>
+<tr>
+<td>12</td>
+<td>PrimeCode</td>
+<td>PCode (CBB0)</td>
+<td>HPM RAPL_PERF_LIMIT (unrestricted)</td>
+<td>[HPM 0x14]</td>
+</tr>
+<tr>
+<td>13</td>
+<td>PrimeCode</td>
+<td>PCode (CBB1)</td>
+<td>HPM RAPL_PERF_LIMIT (unrestricted)</td>
+<td>[HPM 0x14]</td>
+</tr>
+<tr>
+<td>14</td>
+<td>OS/Test</td>
+<td>NIO TPMI</td>
+<td>Read PERF_STATUS (stable), ENERGY_STATUS (power ≈ TDP)</td>
+<td>[TPMI MMIO]</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-c" class="panel"><table class="md-table"><thead><tr>
+<th>Coverage Dimension</th>
+<th>What This TC Covers</th>
+</tr></thead><tbody>
+<tr>
+<td>Register encoding</td>
+<td>PL1_CONTROL PWR_LIM field: boundary values 0 and TDP</td>
+</tr>
+<tr>
+<td>Clipping</td>
+<td>PrimeCode clips PL1 &lt; MIN_PL to MIN_PL (spec compliance)</td>
+</tr>
+<tr>
+<td>Dynamic transition</td>
+<td>Runtime PL1 change under load — PID re-convergence</td>
+</tr>
+<tr>
+<td>Throttle engagement</td>
+<td>PERF_STATUS counter increments during MIN_PL enforcement</td>
+</tr>
+<tr>
+<td>Throttle release</td>
+<td>PERF_STATUS counter stops after PL1 restored to TDP</td>
+</tr>
+<tr>
+<td>Power convergence</td>
+<td>EWMA settles to MIN_PL within 5× tau</td>
+</tr>
+<tr>
+<td>Power recovery</td>
+<td>EWMA settles back to TDP within 5× tau</td>
+</tr>
+<tr>
+<td>Cyclic robustness</td>
+<td>10 consecutive toggle cycles without drift or error</td>
+</tr>
+<tr>
+<td>System stability</td>
+<td>No MCA/IERR/hang across all toggle cycles</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-d" class="panel"><p><em>Not available.</em></p></div>
+  <div id="sec-e" class="panel"><table class="md-table"><thead><tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr></thead><tbody>
+<tr>
+<td>PID oscillation on rapid PL1 toggle</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>5× tau wait ensures full EWMA convergence per cycle</td>
+</tr>
+<tr>
+<td>Frequency stuck at Pm after TDP restore</td>
+<td>Low</td>
+<td>High</td>
+<td>Verify freq recovery in step 13; if stuck, indicates PID bug</td>
+</tr>
+<tr>
+<td>PERF_STATUS counter overflow during test</td>
+<td>Very Low</td>
+<td>Low</td>
+<td>Counter is 32-bit; 10 cycles × 5s = 50s total throttle time — no overflow risk</td>
+</tr>
+<tr>
+<td>MCA during rapid limit change</td>
+<td>Low</td>
+<td>High</td>
+<td>Monitor mcelog; any MCA is an immediate fail</td>
+</tr>
+</tbody></table>
+<p>---</p></div>
+  <div id="sec-f" class="panel"><p>1. **Script implementation**: Extend existing RAPL PMx test or create `rapl_pl1_toggle_stress.py` under `pm/Active_PM/` with parameterized cycle count</p>
+<p>2. **Cross-product with PL2**: Future TC should toggle PL2 simultaneously to validate multi-limit PID interaction</p>
+<p>3. **Tau sweep variant**: Run with tau=1s and tau=5s to validate settling at both extremes</p>
+<p>4. **OOB toggle variant**: Repeat via PECI-over-MCTP OOB path (covered by TCD scope item D)</p></div>
+</div>
+
+<script>
+const btns  = Array.from(document.querySelectorAll('.tab-bar button'));
+const panes = Array.from(document.querySelectorAll('.panel'));
+btns.forEach(btn => btn.addEventListener('click', () => {
+  btns.forEach(b => b.classList.remove('active'));
+  panes.forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const p = document.getElementById(btn.dataset.tab);
+  if (p) p.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+</script>
+</body>
+</html>
