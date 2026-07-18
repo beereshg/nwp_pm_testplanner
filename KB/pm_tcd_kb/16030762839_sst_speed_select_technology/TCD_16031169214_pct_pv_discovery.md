@@ -7,7 +7,7 @@
 | **Status** | open |
 | **Owner** | bg3 |
 | **Parent TPF** | [16030762939 — NWP PM PCT (Priority Core Turbo)](https://hsdes.intel.com/appstore/article-one/#/16030762939) |
-| **Siblings** | [22022420855 — PCT Enabling & Discovery](https://hsdes.intel.com/appstore/article-one/#/22022420855) · [22022420862 — PCT - PV BIOS Configuration and Disable](https://hsdes.intel.com/appstore/article-one/#/22022420862) |
+| **Siblings** | [22022420855 — PCT - BIOS Enabling](https://hsdes.intel.com/appstore/article-one/#/22022420855) · [22022420858 — PCT - Functionality](https://hsdes.intel.com/appstore/article-one/#/22022420858) · [22022420862 — PCT - PV BIOS Configuration](https://hsdes.intel.com/appstore/article-one/#/22022420862) · [16031169217 — PCT - PV BIOS Disable](https://hsdes.intel.com/appstore/article-one/#/16031169217) · [16031169297 — PCT - TPMI Runtime Control](https://hsdes.intel.com/appstore/article-one/#/16031169297) · [16031169298 — PCT - DQ Rules](https://hsdes.intel.com/appstore/article-one/#/16031169298) · [16031169308 — PCT - Negative / Boundary Validation](https://hsdes.intel.com/appstore/article-one/#/16031169308) · [16031169309 — PCT × C-states (HP C6 mixed workload)](https://hsdes.intel.com/appstore/article-one/#/16031169309) · [16031169310 — PCT × RAPL × C-states × thermal](https://hsdes.intel.com/appstore/article-one/#/16031169310) · [16031169376 — PCT × Thermal (throttle escalation)](https://hsdes.intel.com/appstore/article-one/#/16031169376) |
 | **Feature** | Power / SST — PCT PV: OS-layer feature discovery, capability reporting, and 2-CBB topology enumeration |
 | **KB last updated** | 2026-07-18 |
 
@@ -74,6 +74,20 @@ The discovery path is read-only from the OS perspective. BIOS gates all PCT conf
 
 ## Section 5: Operational Behavior
 
+### Pass / Fail Bar
+
+| Criterion | Threshold | Measurement |
+|-----------|-----------|-------------|
+| BIOS knob visibility (PCT-capable QDF) | PCT Partition Count knob visible in BIOS Setup when `SST_TF_INFO_0.FEATURE_SUPPORTED = 1` | BIOS Setup UI inspection |
+| BIOS knob hidden (non-PCT QDF) | PCT Partition Count knob hidden when `SST_TF_INFO_0.FEATURE_SUPPORTED = 0` | BIOS Setup UI inspection |
+| `intel-speed-select` HP module count | `isst perf-profile info -l 0` reports exactly **8 HP cores** (2 per partition × 4 partitions) when partition count = 4 | `intel-speed-select` CLI output parse |
+| 2-CBB enumeration completeness | `intel-speed-select` lists HP APIC IDs from **both** CBB0 and CBB1 (not CBB0-only) | APIC ID range spans both CBBs |
+| Max partition count accuracy | `isst perf-profile get-config-levels` max level = `SST_TF_INFO_8.NUM_CORE_0 / MAX_LPIDS` (expected: 4) | CLI output vs TPMI register read |
+| HP/LP frequency ceiling | `cpuinfo_max_freq` for HP cores > `cpuinfo_max_freq` for LP cores | sysfs per-core read |
+| PCT disabled reporting | When partition count = 0, `intel-speed-select` reports PCT feature as disabled / no active HP modules | CLI output parse |
+
+### Scenario × Expected Outcome
+
 | Scenario | Expected Behavior | TC |
 |----------|-------------------|----|
 | PCT capable QDF (FEATURE_SUPPORTED=1) | BIOS exposes partition count knob; `intel-speed-select` reports HP module count and APIC IDs | [16030717720](https://hsdes.intel.com/appstore/article-one/#/16030717720) |
@@ -105,6 +119,11 @@ The discovery path is read-only from the OS perspective. BIOS gates all PCT conf
 - [Intel SST HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html)
 - [NWP PM MAS — PCT section](https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html)
 - [CCB HSD 14026595435](https://hsdes.intel.com/appstore/article-one/#/14026595435) — NWP 8 HP cores, 4.4 GHz target
-- [PCT - PV BIOS Configuration and Disable TCD 22022420862](https://hsdes.intel.com/appstore/article-one/#/22022420862)
-- [PCT Enabling & Discovery TCD 22022420855](https://hsdes.intel.com/appstore/article-one/#/22022420855)
+- [PCT - PV BIOS Configuration TCD 22022420862](https://hsdes.intel.com/appstore/article-one/#/22022420862)
+- [PCT - BIOS Enabling TCD 22022420855](https://hsdes.intel.com/appstore/article-one/#/22022420855)
+- [PCT - Functionality TCD 22022420858](https://hsdes.intel.com/appstore/article-one/#/22022420858)
+- [PCT - PV BIOS Disable TCD 16031169217](https://hsdes.intel.com/appstore/article-one/#/16031169217)
+- [PCT - TPMI Runtime Control TCD 16031169297](https://hsdes.intel.com/appstore/article-one/#/16031169297)
+- [PCT - DQ Rules TCD 16031169298](https://hsdes.intel.com/appstore/article-one/#/16031169298)
+- [PCT - Negative / Boundary Validation TCD 16031169308](https://hsdes.intel.com/appstore/article-one/#/16031169308)
 - KB: KB/pm_features/sst/pct.md

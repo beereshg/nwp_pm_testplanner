@@ -19,17 +19,6 @@ This TCD validates the **BIOS Setup interface** for PCT (Priority Core Turbo) --
 
 > **Architecture overview:** See [TPF 16030762939 -- NWP PM PCT](https://hsdes.intel.com/appstore/article-one/#/16030762939) §2 Design Details for full-stack PCT architecture, frequency hierarchy, CLOS mechanism, and standard vs DLCP distinction.
 
-### Scope Boundary
-
-This TCD owns **BIOS knob visibility, defaults, and enable/disable state** only. Adjacent WHATs are covered by sibling TCDs:
-
-| WHAT | TCD |
-|------|-----|
-| TPMI register correctness, runtime enable/disable via TPMI | [16031169297 -- PCT - TPMI Runtime Control](https://hsdes.intel.com/appstore/article-one/#/16031169297) |
-| DQ rules (mutual exclusion), negative/invalid config | [16031169298 -- PCT - DQ Rules & Negative Validation](https://hsdes.intel.com/appstore/article-one/#/16031169298) |
-| Runtime frequency enforcement, C6 resilience, TDP convergence | [22022420858 -- PCT - Functionality](https://hsdes.intel.com/appstore/article-one/#/22022420858) |
-| DLCP fuse-based HP core positions, SST_TF_INFO_10 | [16030982802 -- PCT - DLCP](https://hsdes.intel.com/appstore/article-one/#/16030982802) |
-
 ### NWP-Specific Deltas
 
 - **Default disabled**: PCT Partition Count defaults to Auto = 0 on NWP/DMR (GNR: enabled if fused)

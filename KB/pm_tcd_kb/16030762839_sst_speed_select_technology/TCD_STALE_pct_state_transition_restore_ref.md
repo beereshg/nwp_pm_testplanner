@@ -1,4 +1,5 @@
-# TCD 16031169309 -- PCT - State Transition / Restore
+<!-- STALE: HSD 16031169309 renamed. See TCD_16031169309_pct_c_states_hp_c6_mixed_workload.md -->
+# TCD 16031169309 -- PCT - State Transition / Restore (STALE)
 
 | Field | Value |
 |-------|-------|

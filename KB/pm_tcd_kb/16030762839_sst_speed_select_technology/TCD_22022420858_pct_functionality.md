@@ -7,9 +7,32 @@
 | **Status** | open |
 | **Owner** | bg3 |
 | **Parent TPF** | [16030762939 -- NWP PM PCT (Priority Core Turbo)](https://hsdes.intel.com/appstore/article-one/#/16030762939) |
-| **Scope distinct from** | TCD 22022420855 (PCT - Enabling & Discovery) |
-| **Child TCs** | [22022422104](https://hsdes.intel.com/appstore/article-one/#/22022422104) -- All HP in C6 (VP)<br>[22022422105](https://hsdes.intel.com/appstore/article-one/#/22022422105) -- Default HP selection (VP)<br>[22022422110](https://hsdes.intel.com/appstore/article-one/#/22022422110) -- SST-PP x PCT (rejected)<br>[22022422116](https://hsdes.intel.com/appstore/article-one/#/22022422116) -- Turbo freq check (VP)<br>[22022422117](https://hsdes.intel.com/appstore/article-one/#/22022422117) -- TDP convergence (VP)<br>[16030715676](https://hsdes.intel.com/appstore/article-one/#/16030715676) -- PSS All HP in C6<br>[16030715680](https://hsdes.intel.com/appstore/article-one/#/16030715680) -- PSS BIOS Negative<br>[16030715684](https://hsdes.intel.com/appstore/article-one/#/16030715684) -- PSS Default Disabled<br>[16030715686](https://hsdes.intel.com/appstore/article-one/#/16030715686) -- PSS Default HP selection<br>[16030715692](https://hsdes.intel.com/appstore/article-one/#/16030715692) -- PSS Turbo freq check<br>[16030715694](https://hsdes.intel.com/appstore/article-one/#/16030715694) -- PSS enable/disable<br>[16030717717](https://hsdes.intel.com/appstore/article-one/#/16030717717) -- PV Custom Config<br>[16030717718](https://hsdes.intel.com/appstore/article-one/#/16030717718) -- PV Partition Sweep<br>[16030717719](https://hsdes.intel.com/appstore/article-one/#/16030717719) -- PV PCT Disable<br>[16030768619](https://hsdes.intel.com/appstore/article-one/#/16030768619) -- Default Enabled<br>[16030768620](https://hsdes.intel.com/appstore/article-one/#/16030768620) -- TPMI runtime enable/disable<br>[16030768621](https://hsdes.intel.com/appstore/article-one/#/16030768621) -- TPMI runtime negative |
-| **KB last updated** | 2026-07-18 |
+| **Scope distinct from** | TCD 22022420855 (PCT - BIOS Enabling), TCD 16031169297 (PCT - TPMI Runtime Control), TCD 16031169298 (PCT - DQ Rules & Negative Validation) |
+| **WHAT** | PCT runtime frequency enforcement behaves per spec — HP/LP CLOS ceilings, LP clip invariant under HP C-state, ordered throttle phase ordering under RAPL PL1 |
+| **Child TCs (live)** | [22022422116](https://hsdes.intel.com/appstore/article-one/#/22022422116) -- PCT - Turbo frequency check (FV)<br>[16030715686](https://hsdes.intel.com/appstore/article-one/#/16030715686) -- [PSS] Default HP core selection<br>[16030715692](https://hsdes.intel.com/appstore/article-one/#/16030715692) -- [PSS] Turbo frequency check |
+| **KB last updated** | 2026-07-18 (TC refresh) |
+
+### Reorg: Co-Design T2 Finding (2026-07-18)
+
+**Source:** Co-Design T2 WHAT-boundary check against [Intel SST HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html) — SST spec separates discovery/control/runtime behavior, BIOS role, and ordered-throttling/runtime behavior into distinct functional areas.
+
+TCD 22022420858 was overloaded with 17 TCs spanning 5+ distinct WHATs. Reorg moves 10 TCs to sibling TCDs that already exist:
+
+| TC | Moved To (live HSD) | Rationale | Status |
+|----|---------|-----------|--------|
+| 16030768620 | [16031169297](https://hsdes.intel.com/appstore/article-one/#/16031169297) TPMI Runtime Control | TPMI runtime enable/disable = distinct WHAT | ✅ Done |
+| 16030715694 | [16031169297](https://hsdes.intel.com/appstore/article-one/#/16031169297) TPMI Runtime Control | PSS enable/disable = runtime control scope | ✅ Done |
+| 16030768621 | [16031169308](https://hsdes.intel.com/appstore/article-one/#/16031169308) Negative / Boundary Validation | TPMI negative = negative WHAT | ✅ Done |
+| 16030715680 | [16031169308](https://hsdes.intel.com/appstore/article-one/#/16031169308) Negative / Boundary Validation | BIOS negative = negative WHAT | ✅ Done |
+| 22022422118 | [16031169298](https://hsdes.intel.com/appstore/article-one/#/16031169298) DQ Rules & Negative | Fuse DQ rules = DQ WHAT | ✅ Done |
+| 22022422110 | [16031169298](https://hsdes.intel.com/appstore/article-one/#/16031169298) DQ Rules & Negative | SST-PP x PCT (rejected) = DQ scope | ✅ Done (2026-07-18) |
+| 16030768619 | [22022420855](https://hsdes.intel.com/appstore/article-one/#/22022420855) BIOS Enabling | Default enabled = enabling WHAT | ✅ Done |
+| 16030715684 | [16031169217](https://hsdes.intel.com/appstore/article-one/#/16031169217) PV BIOS Disable | Default disabled = PV disable scope | ✅ Done |
+| 16030717717 | [22022420862](https://hsdes.intel.com/appstore/article-one/#/22022420862) PV BIOS Config | PV custom config = PV BIOS WHAT | ✅ Done |
+| 16030717718 | [22022420862](https://hsdes.intel.com/appstore/article-one/#/22022420862) PV BIOS Config | PV partition sweep = PV BIOS WHAT | ✅ Done |
+| 16030717719 | [16031169217](https://hsdes.intel.com/appstore/article-one/#/16031169217) PV BIOS Disable | PV PCT disable = PV disable WHAT | ✅ Done |
+
+> **Note (2026-07-18):** Live HSD revealed TCD [16031169308](https://hsdes.intel.com/appstore/article-one/#/16031169308) (PCT - Negative / Boundary Validation) as a separate sibling from 16031169298 (DQ Rules). Negative TCs (BIOS negative, TPMI negative) went to 16031169308; DQ/fuse TCs went to 16031169298.
 
 ---
 
@@ -128,6 +151,8 @@ PCT Functionality covers the **runtime enforcement** of HP/LP frequency ceilings
 
 ## Section 2: Interfaces and Protocols
 
+**Spec boundary (Co-Design T2, 2026-07-18):** [Intel SST HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html) separates discovery/control/runtime behavior into distinct functional areas. This TCD covers only the **runtime enforcement** interfaces — CLOS frequency ceilings and ordered throttle under RAPL PL1. Runtime toggle (SST_PP_CONTROL.feature_state), negative validation (invalid CLOS writes), and DQ rules belong to sibling TCDs.
+
 | Interface | Register | Direction | Functional Purpose |
 |-----------|----------|-----------|--------------------|
 | TPMI | SST_CLOS_CONFIG[0].max | RW | HP frequency ceiling = SST_TF_INFO_2.RATIO_0 |
@@ -159,7 +184,7 @@ PCT Functionality covers the **runtime enforcement** of HP/LP frequency ceilings
 
 ## Section 4: Programming Model
 
-### Preconditions (Enabling -- see TCD 22022420855)
+### Preconditions (Enabling — see TCD 22022420855)
 
 | Step | Actor | Register | Value |
 |------|-------|----------|-------|
@@ -170,108 +195,15 @@ PCT Functionality covers the **runtime enforcement** of HP/LP frequency ceilings
 | 5 | BIOS CPL3 | SST_CLOS_ASSOC[core] | HP=CLOS[0], LP=CLOS[3] |
 | 6 | BIOS CPL3 | SST_PP_CONTROL.feature_state[1] | = 1 |
 
-### TC 22022422116 / 16030715692: Turbo frequency check
+### Runtime Frequency Enforcement Invariants
 
-```python
-nio = sv.socket0.nio0
-hp_trl = nio.tpmi.sst_tf_info_2.ratio_0
-lp_clip = nio.tpmi.sst_tf_info_0.lp_clip_ratio_0
+Once BIOS enabling is complete, PCode enforces per-core frequency ceilings via the standard SST-TF CLOS flow. The key programming model invariants that validation must observe:
 
-for cbb_idx in range(2):
-    for core_idx in range(48):
-        core = sv.socket0.getbypath(f"cbb{cbb_idx}.compute0.module{core_idx//2}.core{core_idx%2}")
-        hwp_high = core.ia32_hwp_capabilities.highest_performance
-        clos = sv.socket0.nio0.tpmi.sst_clos_assoc.read_field(f"clos_{core_idx}")
-        if clos == 0:  # HP
-            assert hwp_high == hp_trl, f"HP core {core_idx} expected {hp_trl}, got {hwp_high}"
-        else:          # LP
-            assert hwp_high == lp_clip, f"LP core {core_idx} expected {lp_clip}, got {hwp_high}"
-```
-
-### TC 22022422104 / 16030715676: All HP cores in C6 -- LP still clipped
-
-```python
-# Force all HP cores into C6
-for hp_core in hp_cores:
-    hp_core.force_c6()
-
-import time; time.sleep(0.1)  # wait for C6 entry
-
-# Verify LP cores not exceeding clip
-for lp_core in lp_cores:
-    freq = lp_core.ia32_perf_status & 0xFF
-    assert freq <= lp_clip, f"LP core exceeded clip ({freq} > {lp_clip}) when all HP in C6"
-```
-
-### TC 22022422117: TDP convergence (Ordered Throttle)
-
-```python
-# Set RAPL PL1 below current power draw to trigger throttle
-set_rapl_pl1(low_limit)
-time.sleep(0.2)  # allow throttle to take effect
-
-# Verify LP frequency dropped before HP
-lp_ratios = [get_core_ratio(c) for c in lp_cores]
-hp_ratios = [get_core_ratio(c) for c in hp_cores]
-
-# LP must be at or near clip minimum before HP starts dropping
-assert min(lp_ratios) < lp_clip, "LP not throttled yet"
-assert min(hp_ratios) >= hp_trl * 0.9, "HP throttled before LP exhausted"
-```
-
-### TC (TBD): PCT × RAPL — Phase C HP throttle under severe power limit
-
-Covers the regime where PL1 is set so aggressively that LP reaches its minimum floor and budget is still exceeded, forcing HP to throttle (Phase C). TC 22022422117 covers Phases A/B only.
-
-```python
-import time
-
-# Set PL1 aggressively to force Phase C
-nio = sv.socket0.nio0
-hp_trl = nio.tpmi.sst_tf_info_2.ratio_0
-lp_floor = nio.tpmi.sst_tf_info_0.lp_clip_ratio_0  # Pn; LP floor once LP_CLIP exhausted
-
-severe_pl1_watts = get_tdp_watts() * 0.35  # ~35% TDP — forces Phase C on NWP
-set_socket_rapl_pl1(severe_pl1_watts)       # TPMI SOCKET_RAPL_PL1_CONTROL
-time.sleep(0.5)  # allow multiple 1ms PID cycles to converge
-
-lp_ratios = [get_core_ratio(c) for c in lp_cores]
-hp_ratios = [get_core_ratio(c) for c in hp_cores]
-
-# Phase A/B invariant: LP must have reached floor before HP drops
-assert max(lp_ratios) <= lp_floor + 1, \
-    f"LP not at minimum floor (max={max(lp_ratios)}, floor={lp_floor}) before HP throttle"
-
-# Phase C invariant: HP must have throttled below HP TRL
-assert min(hp_ratios) < hp_trl, \
-    f"HP did not throttle in Phase C (min={min(hp_ratios)}, trl={hp_trl})"
-
-# Power convergence: socket power within 10% of PL1
-socket_power = get_socket_power_watts()
-assert abs(socket_power - severe_pl1_watts) / severe_pl1_watts < 0.10, \
-    f"Power did not converge: {socket_power:.1f}W vs {severe_pl1_watts:.1f}W"
-
-# Ordering check: HP drop must not precede LP reaching floor
-# (verify via IA32_PERF_STATUS snapshot sequence across the throttle ramp)
-```
-
-### TC 16030768620: TPMI runtime enable/disable
-
-```python
-# Disable PCT
-nio.tpmi.sst_pp_control.feature_state.write(0)
-time.sleep(0.05)
-# All cores should now have same highest_perf (conventional turbo)
-perfs = [get_hwp_highest_perf(c) for c in all_cores]
-assert len(set(perfs)) == 1, "All cores should have same perf when PCT disabled"
-
-# Re-enable PCT
-nio.tpmi.sst_pp_control.feature_state.write(1)
-time.sleep(0.05)
-hp_perf = get_hwp_highest_perf(hp_cores[0])
-lp_perf = get_hwp_highest_perf(lp_cores[0])
-assert hp_perf > lp_perf, "HP must have higher highest_perf than LP"
-```
+- **HP ceiling**: `SST_CLOS_CONFIG[0].max` = `SST_TF_INFO_2.ratio_0` — HP cores (CLOS[0]) operate up to the HP TRL (~4.4 GHz on NWP). `IA32_HWP_CAPABILITIES.highest_performance` on HP cores reflects this ceiling.
+- **LP clip**: `SST_CLOS_CONFIG[3].max` = `SST_TF_INFO_0.lp_clip_ratio_0` — LP cores (CLOS[3]) are clipped at LP_CLIP (~P1). `IA32_HWP_CAPABILITIES.highest_performance` on LP cores reflects the clip.
+- **Per-core CLOS association**: `SST_CLOS_ASSOC[core]` maps each core to either CLOS[0] (HP) or CLOS[3] (LP). The CLOS assignment determines which frequency ceiling applies.
+- **Ordered throttle**: When `SST_CP_CONTROL.priority_type = 1` and RAPL PL1 constrains power, LP cores are throttled first (Phase A/B) before HP cores are reduced (Phase C).
+- **MSR 0x1AD alignment**: `PRIMARY_TURBO_RATIO_LIMIT` must equal `SST_TF_INFO_2.ratio_0` — BIOS overrides this MSR at CPL3.
 
 ---
 
@@ -279,35 +211,30 @@ assert hp_perf > lp_perf, "HP must have higher highest_perf than LP"
 
 | Scenario | Expected Behavior | TC(s) |
 |----------|-------------------|-------|
-| Normal PCT active | HP at ~4.4 GHz; LP clipped at ~P1; HWP_CAP differs per core; runtime control writes verified complete via `SST_CP_CONTROL.HANDSHAKE` / `SST_CP_STATUS.LAST_HANDSHAKE` match | 22022422116, 16030715692 |
-| All HP cores in C6 | LP cores still clipped at LP_CLIP -- invariant; **under PL1 pressure, verify LP clip maintained before HP throttles** (Co-Design finding #11, spec: ordered throttling + power-limited behavior) | 22022422104, 16030715676 |
-| Default HP selection | 8 HP cores in CLOS[0]; first 2 per partition per CBB | 22022422105, 16030715686 |
-| TDP convergence (Phase A/B) | LP drops first under RAPL PL1; HP TRL maintained while LP has headroom; **ordered throttle verified across all 4 CLOS groups: CLOS0 > CLOS1 > CLOS2 > CLOS3** (Co-Design finding #10, spec: ordered throttling section, Intel SST HAS) | 22022422117 |
-| PCT × RAPL Phase C — HP throttle under severe limit | LP at minimum floor with PL1 still exceeded: HP drops below HP TRL; power converges to PL1 | *(TC TBD)* |
-| PCT disabled (default) | SST_CP_ENABLE=0; all cores at conventional TRL; no HP/LP split | 16030715684 |
-| PCT enabled automatically | feature_state[1]=1 at boot; HP/LP differentiation active | 16030768619 |
-| TPMI runtime disable/enable | SST tool toggle; HWP_CAP updates within 1 slow-loop | 16030768620 |
-| TPMI runtime negative | Invalid CLOS write rejected; illegal feature combo flagged | 16030768621 |
-| BIOS negative | Invalid Partition Count rejected; default preserved | 16030715680 |
-| PV partition sweep | All valid counts 0..max programmed; CLOS consistent | 16030717718 |
-| PV custom config | User-specified HP positions; CLOS_ASSOC matches config | 16030717717 |
-| PV PCT disable | Partition Count=0; conventional turbo; MSR 0x1AD not overridden | 16030717719 |
-| SST-PP x PCT (rejected) | TC 22022422110 rejected -- SST-PP switching separate scope | -- |
+| Normal PCT active | HP at ~4.4 GHz; LP clipped at ~P1; HWP_CAP differs per core | [22022422116](https://hsdes.intel.com/appstore/article-one/#/22022422116) (FV), [16030715692](https://hsdes.intel.com/appstore/article-one/#/16030715692) (PSS) |
+| Default HP selection (PSS) | 8 HP cores in CLOS[0]; first 2 per partition per CBB | [16030715686](https://hsdes.intel.com/appstore/article-one/#/16030715686) (PSS) |
+| All HP cores in C6 | LP cores still clipped at LP_CLIP — invariant | Moved → [TCD 16031169309](https://hsdes.intel.com/appstore/article-one/#/16031169309) (22022422104, 16030715676) |
+| TDP convergence (Phase A/B) | LP drops first under RAPL PL1; HP TRL maintained | Moved → [TCD 22022420855](https://hsdes.intel.com/appstore/article-one/#/22022420855) (22022422117) |
+| TPMI runtime disable/enable | Toggle SST-TF at runtime | Moved → [TCD 16031169297](https://hsdes.intel.com/appstore/article-one/#/16031169297) |
+| DQ rules / negative | Fuse DQ, BIOS/TPMI negative | Moved → [TCD 16031169298](https://hsdes.intel.com/appstore/article-one/#/16031169298) / [16031169308](https://hsdes.intel.com/appstore/article-one/#/16031169308) |
+| PV BIOS scenarios | Disable, partition sweep, custom config | Moved → [TCD 22022420862](https://hsdes.intel.com/appstore/article-one/#/22022420862) / [16031169217](https://hsdes.intel.com/appstore/article-one/#/16031169217) |
 
 ---
 
 ## Section 6: Corner Cases & Error Handling
 
-- **LP clip when all HP in C6**: CLOS_CONFIG[3].max is the HW-enforced ceiling. HP C6 does not release LP frequency. Test must verify LP frequency under load with HP forced idle.
-- **TPMI negative -- feature_state=0 with CLOS set**: When PCT disabled at runtime, CLOS assignments persist in TPMI but HP/LP differentiation stops. Verify no residual frequency bias.
-- **Default disabled on NWP/DMR**: Unlike GNR (CAPID4.bit29 auto-enables), NWP requires explicit BIOS opt-in (Partition Count > 0). TC 16030715684 verifies default-disabled state.
-- **Default enabled (TC 16030768619)**: Tests GNR-style auto-enable. On NWP this TC is likely POR-irrelevant but validates the code path for platforms where CAPID4.bit29=1.
-- **Partition count bounds**: Max HP = SST_TF_INFO_8.NUM_CORE_0 / MAX_LPIDS. BIOS must reject values above this. TC 16030715680 validates the rejection path.
-- **SST-PP x PCT (TC 22022422110 rejected)**: Dynamic SST-PP switching while PCT active tested and rejected for NWP. SST-PP switching scope belongs to a separate TCD.
-- **SST-BF conflict**: ZBB on NWP. DQ rules (TC 22022422118) verify no interference. Actual mutex not exercised.
-- **Phase C — HP throttle under severe PL1** *(gap — TC TBD)*: TC 22022422117 verifies Phase A/B only — LP drops before HP, HP TRL preserved while LP has headroom. It does **not** cover Phase C: when PL1 is set aggressively low (≈30–50% TDP) and LP is already at its minimum floor, HP must throttle too. This regime has no TC. Candidate: new TC in this TCD targeting PL1 ≈ 35% TDP with PTAT on all 96 cores, verifying LP is at floor before HP drops and that power converges to PL1.
-- **Runtime disable — stale `CLOS_ASSOC` with `SST_CP_ENABLE=0`** *(gap — TC TBD)*: TC 16030768620 covers runtime disable/enable via `feature_state` toggle. It does **not** explicitly verify that stale `CLOS_ASSOC` entries in TPMI do not cause misreporting after disable. After `SST_PP_CONTROL.feature_state[1]=0`: `CLOS_ASSOC[core]` entries persist in TPMI SRAM; `SST_CP_ENABLE` goes to 0; OS tools and `IA32_HWP_CAPABILITIES.highest_performance` must show no HP/LP differentiation despite stale assignment. Candidate: extend TC 16030768620 with an explicit stale-state negative assertion after disable.
-- **Re-enable after disable — stale state must not reactivate** *(gap — TC TBD)*: After disable (feature_state=0) with stale `CLOS_ASSOC`, a subsequent re-enable must produce fresh HP/LP differentiation from the CLOS assignments (not from stale state). No TC verifies that the re-enable path correctly reactivates ordering rather than producing incorrect frequency assignment. Candidate: add as step 4 in TC 16030768620 (disable → assert no differentiation → re-enable → assert correct HP>LP differentiation restored).
+> **Post-reorg scope (2026-07-18):** Only runtime frequency enforcement corner cases remain here.
+> TPMI negative, BIOS negative, DQ rules, enable/disable state, and PV BIOS scenarios moved to sibling TCDs.
+
+| Corner Case | Description | Current Coverage | Action Required |
+|-------------|-------------|-----------------|----------------|
+| **LP clip when all HP in C6** | CLOS_CONFIG[3].max HW-enforced ceiling; HP C6 does not release LP frequency | ✅ Covered by TC 22022422104 (now under [TCD 16031169309](https://hsdes.intel.com/appstore/article-one/#/16031169309)) | No action — covered in sibling TCD |
+| **Turbo frequency per-core validation** | HP cores hit HP TRL; LP cores hit LP clip; HWP_CAP differs per CLOS | ✅ Covered by TC 22022422116 (FV) + 16030715692 (PSS) | No action |
+| **Default HP core selection** | 8 HP in CLOS[0], first 2 per partition per CBB, MADT order | ⚠️ PSS only (16030715686); FV TC 22022422105 moved to [TCD 22022420855](https://hsdes.intel.com/appstore/article-one/#/22022420855) | Consider: FV TC under this TCD for runtime HP selection verification, or confirm 22022420855 covers it |
+| **HP bucket transition under core C6** | Active HP count drops → remaining HP should ratchet to higher-ratio bucket | ❌ No TC covers HP bucket ratchet-up on partial HP C6 | Gap — new TC needed |
+| **PCT × C-states: partial HP C6 + active LP** | HP C6 mixed workload: bucket ratchet-up AND LP still clipped | ❌ TC 22022422104 tests all-HP-in-C6 only (now in sibling TCD); no partial HP C6 test | Gap — new TC needed (4 of 8 HP in C6 + LP stress) |
+| **Phase C — HP throttle under severe PL1** | PL1 ≈35% TDP, LP at floor, HP must throttle | ❌ TC 22022422117 (Phase A/B only, now under TCD 22022420855) | Gap — new TC needed under this or cross-product TCD |
+| **PCT × RAPL: PL2 burst + PL4 clamp** | PL2 burst: do HP cores get headroom above HP TRL? PL4 clamp with PCT? | ❌ No TC validates | Gap — new TC needed |
 
 ---
 

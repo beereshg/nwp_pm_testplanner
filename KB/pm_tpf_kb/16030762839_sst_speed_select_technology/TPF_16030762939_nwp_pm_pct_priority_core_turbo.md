@@ -330,6 +330,19 @@ PCT validation requires **three complementary tiers**. Same feature ≠ same val
 | **G6** | `intel-speed-select` driver bug | PV only | Driver bugs require a booted Linux OS on real silicon; no PSS/FV equivalent. PV is the correct and only detection path. |
 | **G12** | Cross-die IMH↔CBB HPM protocol | HSLE XOS only (PSS) | No lighter-weight pre-silicon alternative exists. HSLE XOS is mandatory and accepted as the single pre-silicon path for this class. |
 | **G13** | Acode HP/LP frequency derating in VP | HSLE / HSLE XOS / FV only | VP core model is simplified by design; Acode behavior not modeled at RTL precision. VP passes silently on this class — accepted model gap with HSLE XOS as mitigation. |
+| **G14** | PCT × FlexRatio / overclocking interaction | none | Low risk (L). FlexRatio / overclocking is not a server PCT use case on NWP. No customer scenario requires validation. *(Co-Design T1, 2026-07-18; spec: DMR Turbo HAS Cross Products)* |
+
+### Co-Design T1 Gap Findings — New TCD Candidates (2026-07-18)
+
+**Source:** Co-Design T1 coverage gap audit against PCT HAS, DMR Turbo HAS, Intel SST HAS.
+
+| Candidate TCD | WHAT | Risk | Spec ref | Status |
+|---------------|------|------|----------|--------|
+| PCT State Transition Lifecycle | Enable→disable→re-enable with stale CLOS_ASSOC validation | H | SST HAS: Dynamic SST-PP; DMR Turbo HAS: TPMI Watcher Control | ⏳ Evaluate — partial coverage in TCD 16031169297 (stale state gaps tracked there) |
+| PCT Cross-Product Interactions | PCT × RAPL (beyond Phase A/B), PCT × C-states, PCT × thermal escalation | H | SST HAS: Cross Products; RAPL HAS; Core C-states HAS; DMR Turbo HAS: Thermal | ⏳ Evaluate — some RAPL interaction in TCD 22022420858, but cross-product breadth needs dedicated TCD |
+| PCT Virtualization & VMM Assignment | VMM HP/LP core assignment across VMs; SoC-wide PCT effect on VM frequency | H | PCT HAS: Virtualization; DMR Turbo HAS: BIOS/OS/VMM | ⏳ Evaluate — zero coverage today; requires VMM test environment |
+| PCT Hotplug & Dynamic Topology | Core online/offline while PCT active; partition rebalancing | M | DMR Turbo HAS: Hotplug; GNR_SOC_PM_HAS | ⏳ Evaluate — depends on NWP hotplug POR status |
+| PCT Error Injection & Recovery | WHEA/EINJ, parity, PCIe errors during PCT active state; recovery paths | M | DMR RAS HAS: Error Injection; PCT HAS: Error Handling; SST HAS: Error Handling | ⏳ Evaluate — RAS team may own this scope |
 
 ---
 
@@ -355,21 +368,31 @@ Corner cases that span multiple TCDs under this TPF:
 | **SST-BF ZBB passively satisfied** | All TCDs | SST-BF and PCT are architecturally mutually exclusive (DQ rule). On NWP, SST-BF is ZBB — mutual exclusion never exercised. DQ validation (TC 22022422118) confirms no interference. |
 | **TPMI stale state on PCT disable** | 22022420858, 22022420862 | On runtime disable (`SST_PP_CONTROL.feature_state[1]=0`), `CLOS_ASSOC` entries persist in TPMI but `SST_CP_ENABLE` goes to 0. OS tools must report no HP/LP differentiation. |
 | **Max partition count boundary** | 22022420862 | BIOS must reject partition count > `SST_TF_INFO_8.NUM_CORE_0 / MAX_LPIDS`. TC 16030717718 sweeps valid range only — max+1 rejection is a gap. |
+| **PCT × C-states: HP C6 mixed workload** | 22022420858 | HP cores entering C6 under mixed workload should trigger HP bucket ratchet-up (fewer active HP = higher per-core TRL). No TC validates HP bucket transition on partial HP C6. *(Co-Design T1, 2026-07-18; spec: Core C-states HAS, DMR Turbo HAS)* |
+| **PCT × RAPL: all limit interactions** | 22022420858 | TC 22022422117 covers Phase A/B only. Full RAPL interaction includes: PL2 burst with PCT, PL4 clamp with PCT, RAPL enable/disable toggle while PCT active. No TC beyond Phase A/B. *(Co-Design T1, 2026-07-18; spec: RAPL HAS, SST HAS Cross Products)* |
+| **PCT × Thermal: throttle escalation** | *(no TCD)* | Thermal events (EMTTM, DTS, TCC) interacting with PCT ordered throttle — does thermal override PCT priority ordering? Spec says yes but no TC validates. *(Co-Design T1, 2026-07-18; spec: DMR Turbo HAS: Thermal, SST HAS Cross Products)* |
+| **State transition lifecycle** | 16031169297 | Enable → disable → re-enable lifecycle: stale CLOS_ASSOC after disable, re-enable from stale state. Gaps tracked in TCD 16031169297 §6 but no TC authored. *(Co-Design T1, 2026-07-18; spec: SST HAS Dynamic SST-PP, DMR Turbo HAS TPMI Watcher Control)* |
+| **Virtualization: VMM HP/LP assignment** | *(no TCD)* | PCT is SoC-wide; all non-HP cores are LP-clipped regardless of VM. VMM should assign HP cores to frequency-sensitive VMs. No TC validates this. *(Co-Design T1, 2026-07-18; spec: PCT HAS Virtualization)* |
+| **Hotplug / online-offline core** | *(no TCD)* | Onlining/offlining HP or LP cores at runtime while PCT active may break partition balance or CLOS assignment. No TC. *(Co-Design T1, 2026-07-18; spec: DMR Turbo HAS Hotplug)* |
+| **Driver/tool robustness** | 22022420862, 16031169214 | Wrong `intel-speed-select` version, missing capability flag in driver, scaling_driver != intel_pstate — silent false-pass risk. No negative driver TC. *(Co-Design T1, 2026-07-18; spec: SST HAS Discovery/Control, PCT HAS OS/driver interface)* |
+| **Topology corners** | 22022420862 | All-HP partition, all-LP partition, single-core partition, max partitions at boundary. TC 16030717718 sweeps but doesn't cover degenerate/extreme topologies. *(Co-Design T1, 2026-07-18; spec: PCT HAS Topology, CPUID/MADT)* |
 
 ---
 
 ## Section 8: TCD Coverage Summary & References
 
-### Child TCDs
+### Child TCDs (post-reorg, verified 2026-07-18)
 
 | TCD ID | Title | Segment | Scope |
 |--------|-------|---------|-------|
-| [22022420855](https://hsdes.intel.com/appstore/article-one/#/22022420855) | PCT - Enabling & Discovery | FV | TPMI register baseline; BIOS capability discovery; CAPID4.bit29 (GNR) |
-| [22022420858](https://hsdes.intel.com/appstore/article-one/#/22022420858) | PCT - Functionality | FV + PSS | HP/LP behavior; C6 interaction; TDP convergence; RAPL ordered throttle |
-| [22022420862](https://hsdes.intel.com/appstore/article-one/#/22022420862) | PCT - Ubuntu E2E Functional Test | PV | OS-level: partition config, sweep, disable via BIOS knob + kayak |
-| [22022420862](https://hsdes.intel.com/appstore/article-one/#/22022420855) | PCT - Fuse | FV | FlexconPM DQ rules; fuse-gated behavior (TC 22022422118) |
-
-> **Note**: [TCD 22022420862](https://hsdes.intel.com/appstore/article-one/#/22022420862) was renamed from "PCT - Fuse" to "PCT - Ubuntu E2E Functional Test" (2026-07-18). Fuse validation is covered by TC 22022422118 under TCD 22022420858.
+| [22022420855](https://hsdes.intel.com/appstore/article-one/#/22022420855) | PCT - BIOS Enabling | FV + PSS | BIOS knob visibility, defaults, enable/disable HW state |
+| [22022420858](https://hsdes.intel.com/appstore/article-one/#/22022420858) | PCT - Functionality | FV + PSS | Runtime frequency enforcement: HP/LP CLOS, LP clip invariant, ordered throttle |
+| [16031169297](https://hsdes.intel.com/appstore/article-one/#/16031169297) | PCT - TPMI Runtime Control | FV + PSS | Runtime toggle via SST_PP_CONTROL, state transitions |
+| [16031169298](https://hsdes.intel.com/appstore/article-one/#/16031169298) | PCT - DQ Rules & Negative Validation | FV + PSS | FlexconPM DQ compliance, fuse mutexes (SST-BF, FCT) |
+| [16031169308](https://hsdes.intel.com/appstore/article-one/#/16031169308) | PCT - Negative / Boundary Validation | FV + PSS | Invalid BIOS configs, invalid TPMI writes, error rejection |
+| [22022420862](https://hsdes.intel.com/appstore/article-one/#/22022420862) | PCT - PV BIOS Configuration | PV | Ubuntu E2E: partition config, sweep, HP/LP cpufreq |
+| [16031169214](https://hsdes.intel.com/appstore/article-one/#/16031169214) | PCT - PV Discovery | PV | OS-level intel-speed-select discovery, APIC ID reporting |
+| [16031169217](https://hsdes.intel.com/appstore/article-one/#/16031169217) | PCT - PV BIOS Disable | PV + PSS | PCT disable produces uniform conventional turbo |
 
 ### References
 
