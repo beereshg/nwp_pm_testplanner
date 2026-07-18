@@ -383,4 +383,4 @@ Corner cases that span multiple TCDs under this TPF:
 - [BIOS HSD 14018460453](https://hsdes.intel.com/appstore/article-one/#/14018460453) — MSR 0x610/0x638 deprecated on NWP
 - KB feature ref: KB/pm_features/sst/pct.md
 - Sibling TPF: [16030762839 — NWP PM SST](https://hsdes.intel.com/appstore/article-one/#/16030762839)
-> **Structural pending action (Co-Design T1, 2026-07-18):** TCD 16030982802 (DLCP \u2014 Die Level Cherry Picking) is architecturally distinct from standard PCT. NWP-specific register `SST_TF_INFO_101.QUALIFIED_MODULE_MASK` confirms DLCP has separate architected behavior. **Action required (human confirmation):** create a dedicated DLCP TPF under TP 16030762839 and move TCD 16030982802 there. Until then, TCD 16030982802 remains under this TPF but is excluded from PCT standard coverage analysis.
+> **DLCP structural action — COMPLETED (2026-07-18):** TCD 16030982802 (DLCP) moved to dedicated DLCP TPF [16031169314](https://hsdes.intel.com/appstore/article-one/#/16031169314) under TP 16030762839. TPF 16031169315 is an empty duplicate created by accident — set to `rejected` status to close it. TCD 16030982802 is **no longer a child of this TPF**.

@@ -6,8 +6,8 @@
 | **Title** | PCT - DLCP (Die Level Cherry Picking) |
 | **Status** | open |
 | **Owner** | bg3 |
-| **Parent TPF** | [16030762939](https://hsdes.intel.com/appstore/article-one/#/16030762939) |
-| **Parent TP** | [16030762839 — NWP PM SST](https://hsdes.intel.com/appstore/article-one/#/16030762839) |
+| **Parent TPF** | [16031169314 — NWP PM DLCP (Die Level Cherry Picking)](https://hsdes.intel.com/appstore/article-one/#/16031169314) |
+| **Parent TP**  | [16030762839 — NWP PM SST](https://hsdes.intel.com/appstore/article-one/#/16030762839) |
 | **Child TCs** | [16030982833](https://hsdes.intel.com/appstore/article-one/#/16030982833) -- DLCP SST_TF_INFO_10 Fuse-to-Register Verification<br>[16030982837](https://hsdes.intel.com/appstore/article-one/#/16030982837) -- DLCP HP Core Position and HWP Capabilities Verification<br>[16030982844](https://hsdes.intel.com/appstore/article-one/#/16030982844) -- Per-SST-Instance Programming Completeness (NWP 2-CBB)<br>[16030982850](https://hsdes.intel.com/appstore/article-one/#/16030982850) -- NWP MADT Partition Algorithm Validation |
 | **NWP Status** | Runnable_On_NWP — 4 TCs covering Scenario A (DLCP active) and Scenario B (DLCP absent) |
 | **KB last updated** | 2026-07-15 |
