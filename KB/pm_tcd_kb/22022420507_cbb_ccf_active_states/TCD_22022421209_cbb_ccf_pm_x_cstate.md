@@ -1,17 +1,15 @@
 # TCD: CBB CCF PM Idle Exit GV Recovery
 
-<!-- STALE: HSD 22022421209 reparented to TPF 22022420507 (CCF Active States) and renamed "CBB CCF PM x CState". See KB/pm_tcd_kb/22022420507_cbb_ccf_active_states/TCD_22022421209_cbb_ccf_pm_x_cstate.md -->
-
 | Field | Value |
 |-------|-------|
 | **TCD ID** | [22022421209](https://hsdes.intel.com/appstore/article-one/#/22022421209) |
-| **Title** | CBB CCF[04] PM Idle Exit GV Recovery |
+| **Title** | CBB CCF PM x CState |
 | **Status** | open |
 | **Owner** | bg3 |
-| **Parent Sub-TP** | [22022420514 — CBB CCF Ring Scalability](https://hsdes.intel.com/appstore/article-one/#/22022420514) |
+| **Parent TPF** | [22022420507 — CBB CCF Active States](https://hsdes.intel.com/appstore/article-one/#/22022420507) |
 | **Feature** | CBB CCF PM Idle Exit — C-state wake event GV recovery flow |
 | **Validation Phase** | Alpha/Beta — idle exit GV transition correctness |
-| **KB last updated** | 2026-07-15 |
+| **KB last updated** | 2026-07-18 |
 
 ## Section 1: Architecture / Micro-architecture and Functionality
 

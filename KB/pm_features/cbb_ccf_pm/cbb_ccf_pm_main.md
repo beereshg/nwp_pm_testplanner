@@ -1,7 +1,7 @@
 # CBB CCF Power Management — Main Flow
 
-> **Status**: T6 lineage + T2 WHAT-boundary findings ingested (2026-07-18)
-> **Source**: Co-Design `codesign-ask-specs-and-wikis` T6 lineage + T2 grouping queries
+ > **Status**: T6 lineage + T2 WHAT-boundary + T1 coverage gap findings ingested (2026-07-18)
+> **Source**: Co-Design `codesign-ask-specs-and-wikis` T6/T2/T1 queries
 
 ## Overview
 
@@ -120,6 +120,46 @@ PCode interfaces are identical per Co-Design lineage analysis.
 | 22022421183 | GVFSM MAS §"NonAutoGV/Fast GV" |
 | 22022421190–22022421205 | CCF PMA HAS §14–16; Ring Scalability MAS; P-state Stack HAS §"Ring distress" |
 | 22022421207–22022421218 | Fabric DVFS HAS §"UNIFORM_CBB_FABRIC_FREQ_MODE"; UFS_CONTROL |
+
+## T1 Coverage Gap Findings
+
+> Ingested from Co-Design T1 coverage gap audit 2026-07-18.
+> **Status**: Gap rows — no HSD writes pending. Requires human confirmation before any action.
+> 10 spec-defined behaviors have no TC coverage at any tier.
+
+### High Risk
+
+| Gap | Spec ref | Coverage | Tier | Action | Status |
+|---|---|---|---|---|---|
+| **No negative/boundary validation** — invalid UFS_CONTROL, out-of-range PEGA, bad TPMI values | NWP CCF HAS; DMR CBB HAS §3.2.8; Telemetry HAS "Negative Validation" | none | FV | new TCD [CBB CCF PM Negative/Boundary Validation] | *(TBD)* |
+| **No CCF PMA save/restore** — S/R FSM, RESET_BYPASS_CFG.SKIP_SAVE_RESTORE, DFD_EN across C-state | DMR CBB CCF PM HAS "CCF PMA Save/Restore"; NWP CCF HAS | none | FV | new TCD [CBB CCF PMA Save/Restore Across C-State] | *(TBD)* |
+| **No cross-die IMH↔CBB HPM coordination** — HPM 0x1b, 0x14, 0x15, Uniform Fabric Freq end-to-end | DMR Fabric DVFS HAS; DMR CBB HAS; NWP CCF HAS | none | FV | new TCD [CBB CCF Cross-Die HPM Coordination] | *(TBD)* |
+
+### Medium Risk
+
+| Gap | Spec ref | Coverage | Tier | Action | Status |
+|---|---|---|---|---|---|
+| **No state transition coverage** — enable→disable→re-enable for CCF PM features | DMR CBB HAS; DMR Reset Widget MAS; NWP Reset Construction MAS | none | FV | new TCD [CBB CCF PM State Transition Coverage] | *(TBD)* |
+| **No RESET_BYPASS_CFG coverage** — SKIP_BIST, SKIP_PLL_RESET, SKIP_SAVE_RESTORE | DMR CBB CCF PM HAS "RESET_BYPASS_CFG"; NWP CCF HAS | none | FV | new TCD [CBB CCF RESET_BYPASS_CFG Debug/Survivability] | *(TBD)* |
+| **No ELC modes** — UFS_CONTROL ELC fields, thresholds, ratios for CCF ring | DMR CBB HAS "Efficiency Latency Control"; Fabric DVFS HAS | none | FV | new TCD [CBB CCF ELC Modes] | *(TBD)* |
+| **No abort handling** — PCode abort, LLC_COMMAND phase, CCF PMA FSM abort points | DMR CBB CCF PM HAS "Abort handling during C-state flows" | none | FV | new TCD [CBB CCF PMA Abort Handling During C-State Entry] | *(TBD)* |
+| **No FIVR/PLL sequencing** — ordering, resource readiness, reset sequencing for ring GV | DMR CBB HAS "FIVR control"; NWP Reset Construction MAS | none | FV | new TCD [CBB CCF FIVR/PLL Sequencing for Ring GV] | *(TBD)* |
+| **No error injection/recovery** — error registers, recovery flows, injection hooks | DMR RAS HAS; NWP RAS HAS; DMR CBB HAS | none | FV | new TCD [CBB CCF PMA Error Injection and Recovery] | *(TBD)* |
+
+### Low Risk
+
+| Gap | Spec ref | Coverage | Tier | Action | Status |
+|---|---|---|---|---|---|
+| **No CCF PMA command register** — CCF_PMA_COMMAND, block/unblock/monitor_copy | DMR CBB CCF PM HAS "CCF PMA Interfaces" | none | FV | new TCD [CBB CCF PMA Command Register Interface] | *(TBD)* |
+
+### Structural Issues (from T1 hierarchy audit)
+
+| Issue | Detail | Action |
+|---|---|---|
+| 3 telemetry TCs misparented | PMON (22022422886), CBO (22022422889), SBO (22022422900) under UFF TCD 22022421207 | ✅ **DONE 2026-07-18** — Re-parented: 22022422886→TCD 22022421190, 22022422889→TCD 22022421194, 22022422900→TCD 22022421202 |
+| 1 C-state wake TC misparented | TC 22022422868 under UFF TCD 22022421209; script not implemented | move TC; implement script |
+| 5 orphan TCDs | 22022421190, 22022421194, 22022421199, 22022421202, 22022421205 — titles updated but no TCs | ✅ **3/5 resolved** — 22022421190, 22022421194, 22022421202 now have TCs. 22022421199 and 22022421205 still orphaned. |
+| TC 22022422896 deprecated | Merged into TC 22022422894 | close/archive |
 
 ## References
 

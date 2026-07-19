@@ -1,17 +1,24 @@
-# TCD: CBB CCF Ring Freq Telemetry Counters
+# TCD: CBB CCF Ring Scalability Telemetry Counters
 
 | Field | Value |
 |-------|-------|
 | **TCD ID** | [22022421207](https://hsdes.intel.com/appstore/article-one/#/22022421207) |
-| **Title** | CBB CCF Ring Scalability Telemetry Counters |
+| **Title** | UNIFORM_CBB_FABRIC_MODE Cross Fast Ring C3 |
+| **Title (content scope)** | CBB CCF Ring Scalability Telemetry Counters |
 | **Status** | open |
 | **Owner** | bg3 |
-| **Parent TP** | [22022420512 -- CBB CCF Ring Scalability Feature Enabling](https://hsdes.intel.com/appstore/article-one/#/22022420512) |
-| **Feature** | CBB CCF Active States -- Ring scalability telemetry counter control |
+| **Parent TPF** | [22022420514 — CBB CCF Ring Scalability](https://hsdes.intel.com/appstore/article-one/#/22022420514) |
+| **Feature** | CBB CCF Active States — Ring scalability telemetry counter control |
 | **Validation Phase** | **Alpha** — Feature enabling / path clearing (counter infrastructure sanity) |
-| **KB last updated** | 2026-07-13 |
+| **Child TCs** | 0 (see note below) |
+| **KB last updated** | 2026-07-18 |
+
+> **⚠️ Title/Content Mismatch:** HSD title is "UNIFORM_CBB_FABRIC_MODE Cross Fast Ring C3" but the description and KB content describe **ring scalability telemetry counters** (CBO/SBO/PMON). The 3 telemetry TCs (22022422886 PMON, 22022422889 CBO, 22022422900 SBO) were reparented to TCDs under other TPFs. **Action needed:** Either revert HSD title to telemetry scope and reparent TCs here, or rewrite this TCD for Uniform Fabric Mode cross-Fast-Ring-C3 scope.
 
 ## Section 1: Architecture / Micro-architecture and Functionality
+
+> **Architecture overview:** See [TPF 22022420514 — CBB CCF Ring Scalability](https://hsdes.intel.com/appstore/article-one/#/22022420514) §2 Design Details
+> for full-stack cross-layer diagram, dual-path architecture, and Interface & Register Matrix.
 
 **CBB CCF Ring Scalability Telemetry Counters** validates the **counter observability and control behavior** of the telemetry counters used by the CBB ring-frequency / ring-scalability logic.
 
@@ -164,11 +171,12 @@ NWP has 2 CBBs (cbb0, cbb1) per socket. All counter tests iterate over CBBs via 
 
 ### TC Coverage Map
 
-| TC | Scope | Script Function |
-|----|-------|-----------------|
-| [22022422886 -- CBB CCF PMON](https://hsdes.intel.com/appstore/article-one/#/22022422886) | CLR PMON counter program/freeze/event-count + Fast C3 residency counter | `ccf_pmon_clr_disable_test`, `ccf_pmon_clr_unitcontrol_op`, `ccf_pmon_clr_countercontrol_op` |
-| [22022422889 -- CBB CCF CBO Telemetry](https://hsdes.intel.com/appstore/article-one/#/22022422889) | CBO lookup counter disable/freeze + `ingress_all` bulk disable/enable | `ccf_cbo_telemetry_lookup_cntr_disable_test`, `ccf_cbo_telemetry_lookup_cntr_enable_disable_all_test` |
-| [22022422900 -- CBB CCF SBO Telemetry](https://hsdes.intel.com/appstore/article-one/#/22022422900) | SBO snoop counter disable/freeze behavior | `ccf_sbo_telemetry_snoop_cntr_disable_test` |
+> **0 child TCs in HSD.** The following TCs were previously listed here but have been reparented:
+> - [22022422886 — CBB CCF PMON](https://hsdes.intel.com/appstore/article-one/#/22022422886) → parent TCD 22022421190
+> - [22022422889 — CBB CCF CBO Telemetry](https://hsdes.intel.com/appstore/article-one/#/22022422889) → parent TCD 22022421194
+> - [22022422900 — CBB CCF SBO Telemetry](https://hsdes.intel.com/appstore/article-one/#/22022422900) → parent TCD 22022421202
+>
+> This TCD needs either TCs reparented back or new Uniform mode TCs created.
 
 1. **CBO ingress lookup counters** — CBO-side bandwidth / lookup activity used as inputs to the ring-frequency heuristic.
 2. **SBO egress snoop counters** — SBO-side snoop traffic used as inputs to the ring-scalability / distress path.

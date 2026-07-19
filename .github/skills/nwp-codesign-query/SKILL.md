@@ -41,7 +41,15 @@ TCDs and their TCs (title · one-line WHAT · pass/fail bar):
 ```
 
 Rules:
-- ≤40 lines of context. Titles + WHAT + **bar** only — no HTML, no logs.
+- **Gist rule:** Derive each TCD's one-line WHAT from the **scope
+  description's first paragraph**, never the title. Titles are
+  placeholders ("Functionality" tells you nothing); the scope paragraph
+  states the actual testable behavior.
+- ≤40 lines of context — **this cap is rigid.** Titles + WHAT + **bar**
+  only — no HTML, no logs. If a feature's hierarchy cannot fit in
+  40 lines, that is diagnostic: the feature has grab-bag TCDs.
+  **Overflow response: run T2 on the oversized TCD to decompose it,
+  then re-pack.** Do not raise the cap.
 - **Every TCD entry MUST include its pass/fail bar.** A snapshot without
   bars can only get structural answers back; bars are what enable T3-style
   bar validation to happen for free inside a T1 gap audit.
@@ -130,8 +138,9 @@ Which spec-defined behaviors have no TC coverage at any tier? Consider:
 
 ### T2: Grouping / WHAT-boundary check
 
-> Use when: a TCD title is vague, two TCDs seem to overlap, or after adding
-> new scenarios and wondering whether they need their own TCD.
+> Use when: a TCD title is vague, two TCDs seem to overlap, a grab-bag
+> TCD exceeds the Step 1a 40-line cap, or after adding new scenarios and
+> wondering whether they need their own TCD.
 
 ```
 I am a validation engineer working on NWP PM test planning.
@@ -146,7 +155,22 @@ For each TCD listed:
    expected outcomes or different pass/fail criteria?
 3. Is any spec clause tested by more than one TCD (overlap)?
 
-[PASTE OUTPUT CONTRACT]
+Then propose a target hierarchy: if any TCD should be split, merged, or
+a new TCD created, show the end-state TCD list with bars.
+
+Answer with two tables:
+
+**Table 1 — Diagnosis** (one row per existing TCD):
+| TCD ID | Spec clause(s) backing its WHAT | Clubs multiple behaviors? (yes: list them / no) | Overlap with other TCD? (TCD ID or "none") |
+
+**Table 2 — Target hierarchy proposal** (one row per recommended TCD in the target state):
+| TCD (existing ID or NEW) | WHAT (one sentence) | Spec clause | Bar sketch (measurable, spec-cited) | Action (keep / split-from [ID] / merge-into [ID] / new) |
+
+Hard rule: every NEW row in Table 2 MUST include a spec-cited bar sketch.
+A proposed TCD without a measurable bar is over-provisioning — omit it.
+
+No prose outside the tables except a ≤3-line summary at the top.
+Use our exact TCD IDs when referring to existing artifacts.
 ```
 
 ### T3: Bar validation
@@ -331,7 +355,10 @@ a guess. ≤3-line summary.
 
 ---
 
-## Step 3 — Append the output contract (always, verbatim)
+## Step 3 — Append the default output contract
+
+> **T2 and T7 define their own output contracts inline.** This default
+> contract applies to T1, T3, T4, T5, and T6.
 
 End every prompt with this block exactly as written:
 
@@ -370,6 +397,21 @@ When the user pastes a Co-Design table into this session:
 | `bar change [TCD X §5]` | Update TCD X §5 bar text + regenerate preview; bar-sync lint flags child TCs |
 | `move TC [from X to Y]` | Parent link update via HSD (verify M:N handling); update both TCD KB coverage maps |
 | `accepted gap [reason]` | Add to TPF §5 Accepted Coverage Limitations table with spec ref as rationale |
+
+**T2 ingest rules (Table 2 — Target hierarchy proposal):**
+- Table 2 is a **proposal**, not a directive. Each row passes the local
+  WHAT-boundary check before execution. Co-Design is authoritative for
+  spec; it is never authoritative for test plan structure.
+- `keep` rows: no action — they confirm the TCD is well-scoped.
+- `split-from [ID]` rows: validate that the split produces TCDs with
+  genuinely different bars. If bars converge, reject the split.
+- `new` rows: **must carry a spec-cited bar sketch** (hard rule from the
+  prompt contract). A NEW row without a bar is discarded — it is exactly
+  the over-provisioning the event-driven-creation rule exists to prevent.
+  If the bar is present and passes WHAT-boundary check, scaffold via
+  `nwp-tcd-description`.
+- `merge-into [ID]` rows: verify the surviving TCD's bar subsumes both
+  original bars. Update §5 bar + §6 coverage map in the surviving TCD.
 
 **T7 ingest rules:**
 - Each row resolves a TBD-T7 cell in the owning TCD's §6 Env column:
@@ -423,22 +465,33 @@ Silicon context:
   TPMI replaces deprecated MSR 0x610/0x638 for RAPL PL1.
 
 Feature: PCT (Priority Core Turbo) | TPF 16030762939
-TCDs and their TCs (title + one-line WHAT + bar):
-- [PV] TCD 22022420862 "PV BIOS Configuration": TCs 17717 (custom config),
-  17718 (partition sweep 1..max). Bar: CLOS regs reflect HP/LP split;
-  cpuinfo_max_freq aligns with HWP_CAP per core type.
-- [PV] TCD 16031169217 "PV BIOS Disable": TC 17719. Bar: cpuinfo_max_freq
-  uniform (no HP/LP split), conventional turbo behavior.
-- [PV] TCD 16031169214 "PV Discovery": TC 17720. Bar: intel-speed-select
-  reports correct HP module count and APIC IDs.
-- [FV] TCD 22022420858 "Functionality": 17 TCs. Bar: ordered throttle
-  (LP reduced first via SST_CP_PRIORITY_TYPE=1), CLOS register programming
-  correct (SST_CLOS_CONFIG[0/3] matches HP/LP TRL).
-- [PSS] TCD 22022420855 "Enabling & Discovery": 2 TCs. Bar: feature present
-  in TPMI SST_TF_INFO_* after PrimeCode Phase 5, fuse-gated correctly.
-NOTE: No negative validation TCD exists (invalid partition count, conflicting
-BIOS knobs). No state-transition TCD (enable → disable → re-enable).
-NOTE: NWP has no SST-BF (ZBB). PCT and SST-TF are distinct features.
+TCDs (gist from scope paragraph + bar):
+- [FV+PSS] TCD 22022420855 "BIOS Enabling" (4 TCs): BIOS Setup interface —
+  knob visibility, defaults, CLOS state. Bar: defaults correct; CLOS per partition.
+- [FV] TCD 22022420858 "Functionality" (3 TCs): Runtime HP/LP enforcement —
+  CLOS ceilings, LP invariant, ordered throttle. Bar: HP at TRL, LP at clip, LP first.
+- [PV] TCD 22022420862 "PV BIOS Config" (2 TCs): Partition Count → CLOS from
+  Ubuntu. Bar: CLOS = HP/LP split; cpuinfo_max_freq = HWP_CAP.
+- [PV] TCD 16031169214 "PV Discovery" (1 TC): OS feature/capability reporting,
+  2-CBB topology. Bar: intel-speed-select HP count + APIC IDs correct.
+- [PV] TCD 16031169217 "PV BIOS Disable" (1 TC): Partition Count=0 → uniform
+  turbo. Bar: cpuinfo_max_freq uniform, no HP/LP.
+- [FV+PSS] TCD 16031169297 "TPMI Runtime Control" (4 TCs): Register correctness
+  + dynamic enable/disable. Bar: TPMI=fuse; toggle → TRL in 1 slow loop.
+- [FV+PSS] TCD 16031169298 "DQ Rules" (2 TCs): FlexconPM assertions, SST_TF_INFO
+  per spec after PH5. Bar: assertions pass; SST-PP×PCT exclusion enforced.
+- [FV] TCD 16031169308 "Negative / Boundary" (2 TCs): Invalid configs rejected.
+  Bar: inputs rejected; CLOS not corrupted; no MCA.
+- [FV+PSS] TCD 16031169309 "PCT × C-states" (2 TCs): All HP in C6 → LP clipped.
+  Bar: LP at LP_CLIP_RATIO when all HP idle.
+- [FV] TCD 16031169310 "Error Injection" (1 TC): SST-CP error + EXCURSION_TO_MIN.
+  Bar: ERROR_TYPE correct; excursion handshake completes.
+- [FV] TCD 16031169419 "PCT × RAPL × C-states × thermal" (TC TBD): Ordered
+  throttle coherent under RAPL+C-state+thermal. Bar: LP first; assignments stable.
+- [FV] TCD 16031169376 "PCT × Thermal" (TC TBD): Phase C HP throttle escalation.
+  Bar: HP throttled only after LP at minimum.
+NOTE: DLCP has its own TPF 16031169314. Cross-product TCDs live under PCT TPF
+(PCT's bar is being tested); Cross Product TP is for multi-feature, no primary.
 
 Which spec-defined behaviors have no TC coverage at any tier? Consider:
 - Negative/boundary validation (invalid config, out-of-range values)
@@ -459,7 +512,7 @@ Where "Recommended action" must be one of:
   accepted gap [with reason]
 
 No prose outside the table except a ≤3-line summary at the top.
-Use our exact TC/TCD IDs (e.g. TCD 22022420862, TC 17717) when referring
+Use our exact TC/TCD IDs (e.g. TCD 22022420862, TC 16030717717) when referring
 to existing artifacts — do not paraphrase them.
 ```
 
@@ -483,3 +536,4 @@ to existing artifacts — do not paraphrase them.
 | Inferring model coverage from the arch spec | Spec presence ≠ model coverage; only model docs/release notes count |
 | Treating silent-default behaviors as merely "None" | They are false-pass hazards — flag with ⚠ in §6, not just a None cell |
 | Copying injection knob names into the TCD | Knobs are execution detail → TC only; TCD keeps Full/Partial/None + blocker clause |
+| Cross-product TCD filed under wrong TP | Interaction TCDs live under the primary feature's TPF (the one whose bar is tested); Cross Product TP is for multi-feature scenarios with no single primary |

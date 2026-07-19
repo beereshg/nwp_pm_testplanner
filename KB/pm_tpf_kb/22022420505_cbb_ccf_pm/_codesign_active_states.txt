@@ -1,0 +1,97 @@
+Here is a comprehensive technical summary of CBB CCF Power Management (GV active state management) for DMR/NWP, with register field details, state transition sequences, and NWP deltas:
+
+---
+
+### 1. **CCF Active States & GV Transition Management**
+- **Active states:** CCF C0 (active), CCF C3, CCF C6 (VCCR off), CCF RST.
+- **GV transitions in C0:** CCF PMA receives workpoint (CCF_WP) requests (from BIOS, PEGA, TPMI, or PCode). In C0, CCF PMA sequences voltage/frequency changes via the GVFSM, ensuring electrical safety (V-first for freq-up, F-first for freq-down).
+- **NWP delta:** No architectural change from DMR; NWP inherits DMR CBB CCF PMA flows.
+
+---
+
+### 2. **GV Control Interfaces**
+- **BIOS knobs:** `UncoreFreqCtrlCbb` (programs UFS_CONTROL.{MAX_RATIO,MIN_RATIO,ELC fields} via TPMI).
+- **PEGA injection:** Directly sets CCF ring ratio for debug/validation.
+- **TPMI UFS_CONTROL/UFS_STATUS:** MMIO interface for min/max ratio, ELC thresholds, mode, etc. All fields are per-die.
+- **PCode vars:** PCode resolves and tracks current ratio, voltage, and state; updates UFS_STATUS.
+
+---
+
+### 3. ** GVFSM Sequencing**
+- **Upward transition (freq-up):** V-first (raise voltage, then increase frequency).
+- **Downward transition (freq-down):** F-first (lower frequency, then lower voltage).
+- **Fast GV:** PLL remains locked; frequency crawls to new value without clock halt.
+- **Drainless GV:** Legacy mode for survivability; PLL mode is set to PLL, not FLL.
+
+---
+
+### 4. **VF Curves**
+- **How many:** Up to 8 VF curves per CCF FIVR (per-die).
+- **Fusing:** Fused at manufacturing; each curve is a set of (ratio, voltage) points.
+- **PCode usage:** PCode reads fuses at boot, interpolates voltage for requested ratio, and programs CCF PMA. Unused points are set to previous value or zero.
+
+---
+
+### 5. **NonAutoGV / Fast GV / Drainless GV Mode**
+- **NonAutoGV:** Default; CCF only changes workpoint when commanded (no autonomous scaling).
+- **Fast GV:** POR; PLL in FLL mode, frequency crawls, no UCLK stop.
+- **Drainless GV:** Survivability/legacy; PLL in PLL mode, atomic PLL set, no UCLK stop.
+- **Registers:** `pll_mode`, `pll_mode_ovrden` (set via fuses or override registers).
+
+---
+
+### 6. **Fast Ring C3 vs Ring C3**
+- **Fast Ring C3:** PLL ON, UCLK gated, Q-channels deasserted, D2D in L0/L1, VCCRING retained. Entry/exit is fast, no PUNIT involvement.
+- **Ring C3:** PLL OFF, UCLK gated, Q-channels deasserted, D2D in L1, VCCRING ON, requires PKGC6. Entry: must be in Fast C3 first; exit: restore PLL, UCLK, Q-channels.
+- **NWP delta:** Full Ring C3 not supported on customer silicon (PKGC6 fuse-disabled); only Fast Ring C3 is tested on silicon.
+
+---
+
+### 7. **CCF PMA Save/Restore for C-State Transitions**
+- **C6 entry:** CCF PMA saves internal state to S/R SRAM (unless `SKIP_SAVE_RESTORE` set).
+- **C6 exit:** CCF PMA restores state, reinitializes PLL, UCLK, etc.
+- **RESET_BYPASS_CFG.SKIP_SAVE_RESTORE:** If set, PCode handles save/restore.
+
+---
+
+### 8. ** ELC Modes**
+- **Purpose:** Floor ring frequency at low utilization to reduce power without latency penalty.
+- **Fields:** UFS_CONTROL.{EFFICIENCY_LATENCY_CTRL_RATIO, _LOW_THRESHOLD, _HIGH_THRESHOLD, _MID_RATIO, _HIGH_THRESHOLD_ENABLE}
+- **Modes:** ELC_LOW (floor freq), ELC_MID (mid freq), ELC_HIGH (raise freq).
+- **Thresholds:** Programmable via BIOS/TPMI.
+
+---
+
+### 9. **RESET_BYPASS_CFG Register Fields**
+- **Purpose:** Debug/survivability; bypass steps in reset/C-state flows.
+- **Fields:**
+  - `SKIP_BIST` (bit 0): Skip LLC INIT at cold boot.
+  - `SKIP_PLL_RESET` (bit 1): Skip PLL disable at C-state entry.
+  - `SKIP_SAVE_RESTORE` (bit 2): PCode does save/restore.
+  - `SKIP_FAST_INIT_ON_CST_EXIT` (bit 3): Skip LLC FAST INIT at C-state exit.
+  - `SKIP_STALL_PBIST_POST_TEST` (bits 5:4): Control PBIST POST test handling.
+  - `SET_BREAKPOINT_POST_RINGRESET` (bit 6): Debug breakpoint after ring reset.
+  - `SKIP_GPSB_VOLUNTARY_MSGS_BLOCK` (bit 7): Skip GPSB voluntary message block.
+
+---
+
+### 10. **Key Registers (Offsets are typical, check platform for exact)**
+| Register            | Offset   | Fields (summary)                                                                 |
+|---------------------|----------|----------------------------------------------------------------------------------|
+| CCF_WP[0-7]         | 0x1100+  | TARGET_VID[10:0], TARGET_C_STATE[14:11], TARGET_MAX_RATIO[24:16], RST_TYPE[28:25], TARGET_PS[31:29] |
+| UFS_CONTROL         | TPMI     | MAX_RATIO, MIN_RATIO, ELC fields, UNIFORM_CBB_FABRIC_FREQ_MODE (bit 30), etc.    |
+| UFS_STATUS          | TPMI     | CURRENT_RATIO, CURRENT_VOLTAGE, THROTTLE_COUNTER, AGENT_TYPE_*                   |
+| RESET_BYPASS_CFG    | 0x1200   | See above for field details                                                      |
+| CCF_PMA_COMMAND     | 0x1244   | BLOCK_REQ (bit 0), MONITOR_COPY (bit 1)                                          |
+
+---
+
+#### **NWP-specific deltas from DMR**
+- No architectural changes in CCF PMA, GVFSM, or register interface.
+- NWP disables PKGC6 (and thus full Ring C3) for customer silicon; only Fast Ring C3 is POR.
+- TPMI replaces legacy MSR interface for all CCF PM control/status.
+- All UFS_CONTROL/UFS_STATUS fields are per-die and must be accessed via TPMI.
+
+---
+
+If you need register bitfields, state diagrams, or further details on any subtopic, please specify!

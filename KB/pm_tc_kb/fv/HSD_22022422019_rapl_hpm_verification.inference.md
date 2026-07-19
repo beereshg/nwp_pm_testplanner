@@ -15,7 +15,7 @@
 | **Status** | open (ready_for_content_review) |
 | **Val Environment** | emulation.hsle, silicon, virtual_platform |
 | **Owner Team** | soc.pm |
-| **Automation** | yes |
+| **Automation** | `python runPmx.py -x nwp.xml -p cpu_rapl -tM 6 -M 3` |
 | **NWP Disposition** | **Runnable_On_N-1** |
 
 ---

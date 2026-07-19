@@ -1,19 +1,23 @@
-# TCD: CBB CCF Ring Frequency Scalability — Telemetry, Distress & Frequency Response
+# TCD: CBB CCF Distress Signal Path
 
 | Field | Value |
 |-------|-------|
 | **TCD ID** | [22022421197](https://hsdes.intel.com/appstore/article-one/#/22022421197) |
-| **Title** | CBB CCF Ring Frequency Scalability |
+| **Title** | CBB CCF Distress Signal Path |
 | **Status** | open |
 | **Owner** | bg3 |
-| **Parent TP** | [22022420514 -- CBB CCF PM Functionality](https://hsdes.intel.com/appstore/article-one/#/22022420514) |
+| **Parent TPF** | [22022420514 — CBB CCF Ring Scalability](https://hsdes.intel.com/appstore/article-one/#/22022420514) |
 | **Validation Phase** | **Alpha / Beta / PRQ** — Volume functional validation (multi-milestone) |
-| **Feature** | CBB CCF Ring Frequency Scalability |
-| **KB last updated** | 2026-07-10 |
+| **Feature** | CBB CCF Ring Frequency Scalability — Distress Signal Path |
+| **Child TCs** | [22022422894](https://hsdes.intel.com/appstore/article-one/#/22022422894) — Distress Signal to PUnit<br>[22022422895](https://hsdes.intel.com/appstore/article-one/#/22022422895) — Snoop Scalability/Distress<br>[22022422905](https://hsdes.intel.com/appstore/article-one/#/22022422905) — PCode Algorithm for Distress Input |
+| **KB last updated** | 2026-07-18 |
 
 ## Section 1: Architecture / Micro-architecture and Functionality
 
-The **CBB CCF Ring Frequency Scalability** feature drives CCF ring GV (Gear Voltage) transitions using two complementary telemetry inputs, both processed by CBB-local PCode:
+> **Architecture overview:** See [TPF 22022420514 — CBB CCF Ring Scalability](https://hsdes.intel.com/appstore/article-one/#/22022420514) §2 Design Details
+> for full-stack cross-layer diagram, dual-path architecture, NonAutoGV execution mechanism, and Interface & Register Matrix.
+
+The **CBB CCF Distress Signal Path** (ring frequency scalability) drives CCF ring GV (Gear Voltage) transitions using two complementary telemetry inputs, both processed by CBB-local PCode:
 
 1. **CBO Bandwidth (BW) path** — CBO mesh read/write counters feed a BW threshold LUT walk; if bandwidth exceeds the configured threshold for N slow-loops, CBB PCode requests a CCF ring GV boost via GVFSM. This is the primary **bandwidth-driven** scaling path.
 2. **SBO Distress path** — SBO snoop back-pressure occupancy feeds the ring-scalability logic, generating **IA_DISTRESS** when occupancy exceeds threshold. IA_DISTRESS is delivered to the CBB-local PUNIT, where CBB PCode computes an `ia_ring_factor` (0..1) and drives an `ia_promote_ring` workpoint via GVFSM. This is the **congestion-driven** scaling path.
@@ -99,14 +103,11 @@ HPM 0x1b (CBB_CCF_FREQUENCY) -- runs in parallel, separate concern:
 
 | TC | Scope | Mechanism |
 |----|-------|-----------|
-| [22022422894 -- CBB CCF Distress Signal to PUnit (incl. 4-bit grade encoding)](https://hsdes.intel.com/appstore/article-one/#/22022422894) | (1) Distress signal path functional: CCF PMA → PMSB → PCode receives `ia_distress[3:0]` + `snoop_level[11:8]`; (2) 4-bit grade (0–15) delivered via `CR_WR 0x1C8` using 7-threshold logistic regression — **consolidated from 22022422894 + 22022422896** | `cbb_ccf_distress_to_punit_test` — checks `disable_ring_ee=0` per core, reads `ring_distress_status` grade under varying load |
-| [22022422896 -- \[Merged\] CBB CCF Message to Punit](https://hsdes.intel.com/appstore/article-one/#/22022422896) | **Merged into 22022422894** — 4-bit grade encoding scope now covered there | — |
-| [22022422895 -- CBB CCF Snoop Scalability/Distress](https://hsdes.intel.com/appstore/article-one/#/22022422895) | Snoop distress path only: `ring_distress_status.snoop_level[11:8]` valid + responsive to snoop load; `group` field toggles (Group=0 IA / Group=1 Snoop messages both present). SBO counter disable/enable removed — covered by [TC 22022422900](https://hsdes.intel.com/appstore/article-one/#/22022422900) | `cbb_ccf_pcode_to_distress_input_test` (snoop side); prereq: TC 22022422900 |
-| [22022422905 -- CBB CCF PCODE Algorithm for Distress Input](https://hsdes.intel.com/appstore/article-one/#/22022422905) | Distress policy: `ia_distress → ia_ring_factor → ia_promote_ring` workpoint | PEGA injection, slow-loop + fast-path (200 µs DistressCycleUpdate), resolved ratio vars |
-| [22022422889 -- CBB CCF CBO Telemetry](https://hsdes.intel.com/appstore/article-one/#/22022422889) | CBO counter correctness, BW-driven CCF DVFS response | CBO counters increment under load, CCF ratio responds to BW threshold crossing |
-| [22022422900 -- CBB CCF SBO Telemetry](https://hsdes.intel.com/appstore/article-one/#/22022422900) | SBO counter correctness, snoop back-pressure threshold response | SBO increments under coherency load, triggers freq boost at threshold |
-| [22022422896 -- CBB CCF Message to Punit](https://hsdes.intel.com/appstore/article-one/#/22022422896) | CCF PMA → PUNIT sideband distress grade delivery; `PUNIT_CR_RING_DISTRESS_STATUS` 4-bit grade (0-15) | `CR_WR` to `0x1C8`, read via `punit_pmsb.pmsb_pcu.ring_distress_status`; 7-threshold logistic regression grade |
-| [16031105041 -- CBB CCF NonAutoGV Mode - Fast GV](https://hsdes.intel.com/appstore/article-one/#/16031105041) | **← Moved to TCD 22022421168 (GV Control Interface)** — NonAutoGV GV execution mechanism belongs with GV interface TCs, not ring scalability algorithm TCs. | — |
+| [22022422894 — CBB CCF Distress Signal to PUnit](https://hsdes.intel.com/appstore/article-one/#/22022422894) | Distress signal path: CCF PMA → PMSB → PCode receives `ia_distress[3:0]` + `snoop_level[11:8]`; 4-bit grade (0–15) via `CR_WR 0x1C8` using 7-threshold logistic regression | `cbb_ccf_distress_to_punit_test` — checks `disable_ring_ee=0` per core, reads `ring_distress_status` grade under varying load |
+| [22022422895 — CBB CCF Snoop Scalability/Distress](https://hsdes.intel.com/appstore/article-one/#/22022422895) | Snoop distress path: `ring_distress_status.snoop_level[11:8]` valid + responsive to snoop load; `group` field toggles (Group=0 IA / Group=1 Snoop) | `cbb_ccf_pcode_to_distress_input_test` (snoop side) |
+| [22022422905 — CBB CCF PCode Algorithm for Distress Input](https://hsdes.intel.com/appstore/article-one/#/22022422905) | Distress policy: `ia_distress → ia_ring_factor → ia_promote_ring` workpoint; slow-loop + fast-path (200 µs DistressCycleUpdate) | PEGA injection, resolved ratio vars via `pcode.vars.ring` |
+
+> **Related TCs under other TCDs:** CBO Telemetry ([22022422889](https://hsdes.intel.com/appstore/article-one/#/22022422889), parent TCD 22022421194), SBO Telemetry ([22022422900](https://hsdes.intel.com/appstore/article-one/#/22022422900), parent TCD 22022421202), PMON ([22022422886](https://hsdes.intel.com/appstore/article-one/#/22022422886), parent TCD 22022421190).
 
 ---
 

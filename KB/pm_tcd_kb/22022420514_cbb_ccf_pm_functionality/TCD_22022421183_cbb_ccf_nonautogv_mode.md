@@ -8,11 +8,14 @@
 | **Owner** | bg3 |
 | **Parent TPF** | [22022420514 — CBB CCF Ring Scalability](https://hsdes.intel.com/appstore/article-one/#/22022420514) |
 | **Child TCs** | [22022422878](https://hsdes.intel.com/appstore/article-one/#/22022422878) — Fast GV Default (FLL Mode / POR)<br>[16031123820](https://hsdes.intel.com/appstore/article-one/#/16031123820) — Fast GV with PLL Crawling Override |
-| **KB last updated** | 2026-07-15 |
+| **KB last updated** | 2026-07-18 |
 
 ---
 
 ## Section 1: Architecture / Micro-architecture and Functionality
+
+> **Architecture overview:** See [TPF 22022420514 — CBB CCF Ring Scalability](https://hsdes.intel.com/appstore/article-one/#/22022420514) §2 Design Details
+> for full-stack cross-layer diagram, NonAutoGV execution mechanism overview, and Interface & Register Matrix.
 
 **CBB CCF NonAutoGV Mode** is the **only POR frequency management mode** for the CBB ring (CCF). Unlike AutoGV (not supported in CBB), NonAutoGV does not autonomously select voltage/frequency — it executes GV transitions exclusively in response to explicit workpoint commands written to the `CCF_WP` register by PCode/PUNIT.
 

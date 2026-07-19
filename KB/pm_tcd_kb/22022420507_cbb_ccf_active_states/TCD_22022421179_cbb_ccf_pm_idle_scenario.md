@@ -1,5 +1,10 @@
 # TCD: CBB CCF PM Idle Scenario
 
+<!-- SPLIT: This TCD was split into TCD 16031169646 (CBB CCF Fast Ring C3) and TCD 16031169647 (CBB CCF Ring C3).
+     HSD title: "[SPLIT] CBB CCF Idle states - see TCD 16031169646 and 16031169647"
+     See: TCD_16031169646_cbb_ccf_fast_ring_c3.md and TCD_16031169647_cbb_ccf_ring_c3.md in this directory.
+     This KB file is retained as source material reference only — do not push to HSD. -->
+
 | Field | Value |
 |-------|-------|
 | **TCD ID** | [22022421179](https://hsdes.intel.com/appstore/article-one/#/22022421179) |
