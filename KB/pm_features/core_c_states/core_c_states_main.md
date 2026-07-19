@@ -82,3 +82,51 @@ Core C-states are a **four-level idle state hierarchy** (Thread→Core→Module�
 - **PkgC6 removed** — fused off; FUSE_PKG_C_STATE=0; Pchannel PUNIT↔RC removed; MC6 is deepest idle
 - **No autonomous E-core C6** — core C6 managed same as DMR (PNC core requires Acode involvement)
 - Pchannel/Qchannel RCs↔IPs retained for future NWP product lines that may re-enable PkgC6
+
+## Co-Design T2 Ingest (2026-07-19)
+
+Source: Co-Design T2 WHAT-boundary response for TP `15019478558` (Core C-States).
+
+### Structural Decisions
+
+| Decision | Result |
+|----------|--------|
+| `22022421247` scope | Split recommended into separate C6A vs C6S vs C6S-P WHATs because bars diverge |
+| `22022421250` scope | Split recommended: core logical entry sequencing vs module MC6 electrical entry sequencing |
+| `22022421253` scope | Split recommended: wake sequencing correctness vs exit-latency envelope validation |
+| `22022421260` scope | Keep MC6 residency as primary WHAT; split wake-target behavior into separate WHAT |
+| `22022421293` scope | Keep telemetry ownership bounded to PMT/PMX mapping consistency (avoid re-owning functional WHATs) |
+| `22022421289` / `22022421307` | Keep as framework/stress TCDs; do not merge into functional WHAT ownership |
+| PkgC6 / C6S-P on NWP | Keep parked as out-of-scope for current Newport plan unless scope changes |
+
+### Updated TODO List (from T2 ingest)
+
+| Priority | Item | Owner TCD | Action |
+|----------|------|-----------|--------|
+| P0 | Split C6 functional ownership by bar boundary | `22022421247` | Done — `22022421247` keeps C6A; created [16031170164](https://hsdes.intel.com/appstore/article-one/#/16031170164) (C6S) and [16031170168](https://hsdes.intel.com/appstore/article-one/#/16031170168) (C6S-P parked) |
+| P0 | Split entry sequencing from MC6 electrical sequence | `22022421250` | Done — `22022421250` keeps core entry; created [16031170165](https://hsdes.intel.com/appstore/article-one/#/16031170165) (MC6 entry sequence) |
+| P0 | Split wake correctness from latency KPI | `22022421253` | Done — `22022421253` keeps wake ordering; created [16031170166](https://hsdes.intel.com/appstore/article-one/#/16031170166) (exit latency class) |
+| P1 | Isolate MC6 wake-target behavior | `22022421260` | Done — `22022421260` keeps residency; created [16031170167](https://hsdes.intel.com/appstore/article-one/#/16031170167) (MC6 wake target) |
+| P1 | Bound telemetry scope and remove overlap language | `22022421293` | Edit Section 1/5 text to only own PMX/PMT-to-architectural counter consistency bars |
+| P1 | Keep stress TCDs non-owning for functional bars | `22022421289`, `22022421307` | Add explicit note: these are regression frameworks, not primary functional WHAT owners |
+| P2 | Add overlap cross-links to reduce future drift | all listed above | Add "Related TCD" links for entry/exit/MC6/telemetry handoff boundaries |
+| P2 | Re-run T1 after split draft | TP `15019478558` | Run Co-Design T1 using post-split hierarchy snapshot to validate no residual overlap |
+
+### HSD Creation Order (recommended)
+
+| Order | HSD ID | Title | Source split | Parent TPF |
+|------:|--------|-------|--------------|------------|
+| 1 | [16031170164](https://hsdes.intel.com/appstore/article-one/#/16031170164) | C6S Behavior and MC6 Qualification | `22022421247` | 15019478559 |
+| 2 | [16031170165](https://hsdes.intel.com/appstore/article-one/#/16031170165) | MC6 Electrical Entry Sequence | `22022421250` | 15019478562 |
+| 3 | [16031170166](https://hsdes.intel.com/appstore/article-one/#/16031170166) | C-State Exit Latency Class Validation | `22022421253` | 15019478559 |
+| 4 | [16031170167](https://hsdes.intel.com/appstore/article-one/#/16031170167) | MC6 Wake Target Behavior | `22022421260` | 15019478562 |
+| 5 | [16031170168](https://hsdes.intel.com/appstore/article-one/#/16031170168) | C6S-P and PKGC Behavior (Parked) | `22022421247` | 15019478559 |
+
+Execution notes:
+- Create rows 1-4 as active TCDs after preview review.
+- Keep row 5 parked unless NWP scope changes to include PKGC targeting.
+
+### Execution Gate
+
+- Do not push any split/new TCD to HSD until preview content is generated and reviewed.
+- Any NEW row without a measurable spec-cited bar stays as a parked proposal.

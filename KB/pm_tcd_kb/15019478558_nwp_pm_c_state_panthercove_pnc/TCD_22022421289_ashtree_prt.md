@@ -2,6 +2,11 @@
 
 **AshTree PRT (Power Reference Test)** is a cross-product system-level test that exercises C-state behavior under realistic OS workloads, combining OS-Idle sequences, P-state transitions, and C-state stress into a single reference test suite. On NWP (PantherCove PNC), AshTree PRT validates that C-states interact correctly with P-state scaling, DVFS, and PMX (Power Management Extensions).
 
+### T2 Boundary Notes (2026-07-19)
+
+- This is a framework/regression TCD, not a primary owner of a single architectural WHAT.
+- Functional pass/fail bars stay owned by functional C-state TCDs.
+
 ### Block Decomposition
 
 ```
