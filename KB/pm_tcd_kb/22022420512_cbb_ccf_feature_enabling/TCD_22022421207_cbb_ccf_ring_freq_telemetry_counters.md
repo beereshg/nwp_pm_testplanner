@@ -1,4 +1,10 @@
-# TCD: CBB CCF Ring Scalability Telemetry Counters
+# TCD: ~~UNIFORM_CBB_FABRIC_MODE Cross Fast Ring C3~~ [DISSOLVE]
+
+<!-- DISSOLVE 2026-07-19: Co-Design T2 ingest confirmed no bounded spec-backed WHAT/bar exists
+     for this TCD in its current state (title/content mismatch, 0 TCs, no bar).
+     Action: Close/reject in HSD. Telemetry counter content was already reparented.
+     Uniform Fabric Mode coverage is tracked separately (no bar provided by Co-Design,
+     so no new TCD scaffolded per hard rule). -->
 
 | Field | Value |
 |-------|-------|

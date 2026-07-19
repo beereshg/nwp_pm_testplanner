@@ -406,7 +406,7 @@ Ring Scalability validation requires a **three-tier** approach because the featu
 - **D2D latency impact on distress response:** NWP D2D PHY upgrade (16→32 GT/s) adds 72-cycle roundtrip latency at 2 GHz. HPM 0x1b cross-die coordination messages may arrive later than expected, affecting Uniform mode response time.
 - **Ring C3 exit (PkgC6) is ZBB on NWP:** Full Ring C3 PLL restart not validated. PkgC6→active ring GV recovery requires additional TCD post-ZBB.
 - **TCD 22022421209 reparented:** Idle Exit GV Recovery (now "CBB CCF PM x CState") moved to TPF 22022420507 (CCF Active States). Wake event / idle exit coverage is no longer under this TPF.
-- **TCD 22022421207 title/content mismatch:** HSD title is "UNIFORM_CBB_FABRIC_MODE Cross Fast Ring C3" but description and KB content describe telemetry counters (CBO/SBO/PMON). 0 TCs attached. **Action:** Either revert title to telemetry scope or rewrite content for Uniform mode cross-Fast-Ring-C3 scope.
+- **TCD 22022421207 dissolved (T2 ingest 2026-07-19):** Title/content mismatch resolved by dissolution. Telemetry counter content was already reparented; Uniform Fabric Mode coverage requires a separate TCD with spec-cited bar (Co-Design did not provide one — deferred).
 
 ### Accepted Coverage Limitations (by design — no new TCs required)
 
@@ -434,16 +434,16 @@ esolved_ratios, ia_distress, ia_ring_factor — critical for root-causing incorr
 
 | Corner Case | Affected TCDs | Expected Behavior |
 |---|---|---|
-| Both CBBs at max distress simultaneously | 22022421197, 22022421207 | Each CBB independently boosts to P0; Uniform mode enforces max(cbb0, cbb1) |
-| Distress oscillation (rapid assert/de-assert) | 22022421197 | Hysteresis window (N_OFF loops below LOW threshold) prevents frequency oscillation |
-| PEGA injection during active distress | 22022421197, 22022421168 | PEGA overrides BW heuristic but distress workpoint may override PEGA if higher |
+| Both CBBs at max distress simultaneously | NEW-TELEM, 22022421168 | Each CBB independently boosts to P0; Uniform mode enforces max(cbb0, cbb1) |
+| Distress oscillation (rapid assert/de-assert) | NEW-TELEM, NEW-PCODE | Hysteresis window (N_OFF loops below LOW threshold) prevents frequency oscillation |
+| PEGA injection during active distress | NEW-PCODE, 22022421168 | PEGA overrides BW heuristic but distress workpoint may override PEGA if higher |
 | Wake event during GVFSM mid-transition | *(22022421209 — reparented to TPF 22022420507)* | GVFSM must complete current step before processing wake; event must not be lost |
-| UFS_CONTROL ratio lock (MAX=MIN) during distress | 22022421197, 22022421168 | GV transitions suppressed; distress grade still generated but ratio clamped |
+| UFS_CONTROL ratio lock (MAX=MIN) during distress | NEW-PCODE, 22022421168 | GV transitions suppressed; distress grade still generated but ratio clamped |
 | Concurrent C-state wake events (core exit + BW request) | *(22022421209 — reparented to TPF 22022420507)* | Highest-priority event wins; lower-priority absorbed or queued |
 | PLL Crawling mode idle exit | 22022421183 | FLL step-size limit increases GV recovery time; ratio change must complete correctly |
-| CBO counter wrap-around | 22022421197, 22022421207 | Counter reset per RSE prevents wrap; verify no stale data after RSE boundary |
-| SBO counter disabled + distress expected | 22022421197 | No distress generated when SBO counters disabled — expected behavior |
-| Uniform mode with one CBB in Fast Ring C3 | 22022421207 | Awake CBB's desired ratio propagated via HPM 0x1b; sleeping CBB receives DOWNSTREAM_RESOLVED_MIN_RATIO on wake |
+| CBO counter wrap-around | NEW-TELEM | Counter reset per RSE prevents wrap; verify no stale data after RSE boundary |
+| SBO counter disabled + distress expected | NEW-TELEM | No distress generated when SBO counters disabled — expected behavior |
+| Uniform mode with one CBB in Fast Ring C3 | *(deferred — Uniform Fabric Mode TCD pending)* | Awake CBB's desired ratio propagated via HPM 0x1b; sleeping CBB receives DOWNSTREAM_RESOLVED_MIN_RATIO on wake |
 
 ---
 
@@ -453,10 +453,15 @@ esolved_ratios, ia_distress, ia_ring_factor — critical for root-causing incorr
 
 | TCD ID | Title | Segment | TC Count | Notes |
 |---|---|---|---|---|
-| [22022421197](https://hsdes.intel.com/appstore/article-one/#/22022421197) | CBB CCF Distress Signal Path | FV | 3 | ✓ aligned |
-| [22022421207](https://hsdes.intel.com/appstore/article-one/#/22022421207) | UNIFORM_CBB_FABRIC_MODE Cross Fast Ring C3 | FV | 0 | ⚠️ Title says Uniform mode; description/KB = telemetry counters |
-| [22022421183](https://hsdes.intel.com/appstore/article-one/#/22022421183) | CBB CCF[00] NonAutoGV Mode | FV | 2 | ✓ aligned |
-| [22022421168](https://hsdes.intel.com/appstore/article-one/#/22022421168) | CBB CCF[01] PM GV Control Interface | FV | 4 | ✓ aligned |
+| [22022421168](https://hsdes.intel.com/appstore/article-one/#/22022421168) | CBB CCF GV Control Requests | FV | 3 | ✓ retitled 2026-07-19 (was "PM GV Control Interface"); TC 22022422863 reparented to TCD 22022421174 |
+| [22022421183](https://hsdes.intel.com/appstore/article-one/#/22022421183) | CBB CCF[00] NonAutoGV Mode | FV | 2 | ✓ aligned — keep |
+| NEW-TELEM | CBB CCF Ring Scalability Telemetry & Distress Generation | FV | 2 | ✓ split from 22022421197; TCs 22022422894, 22022422895 — HSD creation pending |
+| NEW-PCODE | CBB PCode Ring-Distress Consumption Algorithm | FV | 1 | ✓ split from 22022421197; TC 22022422905 — HSD creation pending |
+
+> **Dissolved (T2 ingest 2026-07-19):**
+> - TCD [22022421197](https://hsdes.intel.com/appstore/article-one/#/22022421197) — [SPLIT] into NEW-TELEM + NEW-PCODE (HW/FW boundary split)
+> - TCD [22022421207](https://hsdes.intel.com/appstore/article-one/#/22022421207) — [DISSOLVE] — title/content mismatch, 0 TCs, no bar
+> - TC 22022422863 — reparented to existing [TCD 22022421174 (CBB CCF VF Curves)](https://hsdes.intel.com/appstore/article-one/#/22022421174) under TPF 22022420512
 
 > **Reparented:** TCD [22022421209](https://hsdes.intel.com/appstore/article-one/#/22022421209) (now "CBB CCF PM x CState") moved to TPF [22022420507 — CCF Active States](https://hsdes.intel.com/appstore/article-one/#/22022420507). Idle exit GV recovery + C-state wake event coverage is now under that TPF.
 

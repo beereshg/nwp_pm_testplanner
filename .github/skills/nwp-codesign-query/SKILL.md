@@ -353,6 +353,88 @@ One row per scenario×environment asked. Unknown = `no doc access`, not
 a guess. ≤3-line summary.
 ```
 
+### T8: Microarch-completeness audit
+
+> Use when: the TPF §2 Microarch→Scenario Coverage Matrix is populated
+> and you want to validate completeness against spec ground truth.
+> This is the bidirectional check: (1) do all microarch elements have
+> a covering TCD? (2) do all TCDs trace to a documented microarch element?
+> Uses the **standard Step 1b** silicon routing context.
+
+**Context pack:** Paste the full Microarch→Scenario Coverage Matrix from
+TPF §2 as-is, plus a compact list of all TCDs under the TPF with their
+one-line WHAT.
+
+```
+I am a validation engineer working on NWP PM test planning.
+The TPF microarch details are my oracle for scenario completeness.
+Below is the Microarch→Scenario Coverage Matrix from TPF [ID] §2,
+followed by all TCDs under this TPF.
+
+[PASTE SILICON ROUTING CONTEXT — Step 1b]
+
+=== MICROARCH→SCENARIO COVERAGE MATRIX (from TPF §2) ===
+
+[PASTE MATRIX TABLE — all rows including GAP rows]
+
+=== TCDs UNDER THIS TPF ===
+
+[PASTE TCD LIST — ID, title, one-line WHAT, TC count]
+
+Please perform a bidirectional completeness audit against the
+[FEATURE] HAS/MAS in your resources:
+
+**Direction 1 — Elements → WHATs (coverage gaps):**
+For each microarch element in the matrix, does the HAS/MAS define
+additional validation-relevant behaviors NOT captured by any row?
+List any missing elements that should be in the matrix but aren't.
+
+**Direction 2 — TCDs → Elements (scope creep check):**
+For each TCD listed, does its WHAT trace to a documented HAS/MAS
+behavior? Flag any TCD whose WHAT has no spec basis.
+
+**Direction 3 — Bar validation (free ride):**
+For each non-GAP row, is the implied WHAT consistent with the spec
+behavior? Flag any row where the WHAT mischaracterizes the spec.
+```
+
+**T8 output contract** (replaces the standard Step 3 table):
+
+```
+Answer with three tables:
+
+**Table 1 — Missing microarch elements** (elements in HAS/MAS not in the matrix):
+| Element | Category (FSM/Register/Interface/Fuse/Error/Counter) | Implied WHAT | Spec ref (HAS/MAS clause) | Risk (H/M/L) |
+
+**Table 2 — Unanchored TCDs** (TCDs with no spec-traced microarch element):
+| TCD ID | WHAT | Finding (no spec basis / spec basis found but missing from matrix) |
+
+**Table 3 — WHAT mischaracterizations** (rows where implied WHAT diverges from spec):
+| Matrix row # | Current implied WHAT | Correct WHAT per spec | Spec ref |
+
+If all three tables are empty, state: "Matrix is complete against
+accessible HAS/MAS." No prose outside the tables except a ≤3-line
+summary at the top. Use exact matrix row numbers and TCD IDs.
+```
+
+**T8 ingest rules:**
+- **Table 1 rows (missing elements):** Add each to the TPF §2 matrix
+  with Status = `⚠️ GAP` and the spec ref in a new column. Each GAP
+  row is a candidate for a new TCD — but only scaffold if a spec-cited
+  bar can be derived (same hard rule as T1/T2 NEW rows).
+- **Table 2 rows (unanchored TCDs):** Two sub-cases:
+  - `no spec basis`: Challenge the TCD — it may be scope creep, or
+    the spec may have a clause Co-Design couldn't access. Check local
+    KB before removing.
+  - `spec basis found but missing from matrix`: Add the missing element
+    to the matrix. The TCD is valid; the microarch doc was incomplete.
+- **Table 3 rows (mischaracterizations):** Update the matrix row's
+  "Implied WHAT" to match the spec-corrected version. If the correction
+  changes the WHAT enough to affect the TCD's §5 bar, flag a bar
+  change for that TCD.
+- Same push gate as all templates: nothing writes to HSD without
+  human confirmation.
+
 ---
 
 ## Step 3 — Append the default output contract

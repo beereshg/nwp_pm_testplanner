@@ -296,6 +296,81 @@ Use this when a frequency / power anomaly needs to be traced to the right codeba
 |---|---|
 | *(populate from HAS §Implementation or §1 agent table `Key Artifact` column)* | |
 
+### ⚡ Microarch→Scenario Coverage Matrix
+
+**Purpose:** The TPF microarch details are the oracle. The TCD set is its
+projection. This matrix is the proof of completeness — every microarchitectural
+element implies scenarios, and every TCD must trace back to one.
+
+**Placement:** After all other §2 subsections, before §3.
+
+**Two-way completeness rule:**
+1. **Forward (element → WHAT):** Every microarch element documented in §2
+   implies one or more validation-relevant WHATs. An element with no WHAT
+   row is a coverage gap.
+2. **Reverse (TCD → element):** Every TCD under this TPF must map to at
+   least one microarch element row. A TCD with no element anchor is scope
+   creep or a sign the microarch doc is missing something.
+
+#### Derivation Procedure
+
+Project WHATs mechanically from each element category in §2:
+
+| Element category (from §2) | Implied WHAT pattern | Example |
+|---|---|---|
+| FSM state | Each state transition pair → transition-coverage WHAT | GVFSM IDLE→BLOCK: GV ramp-up initiates correctly |
+| FSM terminal/error state | Stuck-in-state WHAT + recovery WHAT | GVFSM stuck in BLK_INTF: watchdog fires, system recovers |
+| Register field (RW) | Boundary-value WHAT (min, max, default, reserved) | UFS_CONTROL.MAX_RATIO = P0_fuse_cap: accepted silently |
+| Register field (RW0C) | W0C semantics WHAT (clear-while-active, read-does-not-clear) | PEM_STATUS: SW W0C clear does not lose FW-set bit |
+| Layer interface (L_N → L_N-1) | E2E flow WHAT (request → execution → observable result) | PEGA B2P → GVFSM → UFS_STATUS.CURRENT_RATIO |
+| Cross-die interface (HPM) | Cross-die protocol WHAT (message delivery, ordering, loss) | HPM 0x1b: CBB desired ratio reaches IMH within 1 slow-loop |
+| Fuse gate | Present/absent pair (feature ON, feature fused OFF) | PEM: DRAM RAPL fused off → DRAM PEM bits always 0 |
+| BIOS knob | Enable/disable pair + invalid-value negative WHAT | ENABLE_PEM=0: PEM_STATUS stays 0 under any throttle |
+| Clock/power domain | Domain on/off WHATs (behavior during gating/ungating) | CCF FIVR gated during Ring C3: UFS_STATUS.CURRENT_RATIO=0 |
+| Error condition (from HAS) | Fault injection + recovery WHAT | SVID IMON stuck: PEM excursion fires on stale data? |
+| Threshold/algorithm parameter | Boundary WHAT (at-threshold, above, below) | EWMA avg = 0.89 (below threshold): PEM_STATUS stays 0 |
+| Counter/accumulator | Accuracy WHAT (increment rate, rollover, reset behavior) | PEM_COUNTER: 1ms/count ±10%; wraparound at 2^32 |
+
+#### Matrix Format
+
+```markdown
+### Microarch→Scenario Coverage Matrix
+
+| # | Element (from §2) | Category | Implied WHAT | Realized as TCD | TC(s) | Tier | Status |
+|---|---|---|---|---|---|---|---|
+| 1 | GVFSM IDLE→BLOCK transition | FSM | GV ramp-up initiates on ratio request | 22022421183 | 22022422878 | FV, PSS | ✓ |
+| 2 | UFS_CONTROL.MAX_RATIO above P0 fuse | Register boundary | Out-of-range ratio silently clamped | 22022421168 | 22022422850 | FV | ✓ |
+| 3 | HPM 0x1b message lost | Cross-die interface | Uniform mode frequency mismatch detected | GAP | — | FV, XOS | ⚠️ GAP |
+| 4 | PEM_COUNTER rollover at 2^32 | Counter | Counter wraps without hang; SW detects | GAP | — | Simics | ⚠️ GAP |
+```
+
+**Status values:**
+- `✓` — Element fully covered by realized TCD
+- `⚠️ GAP` — Element has no TCD; feeds T1 gap audit or T8 completeness check
+- `⚠️ PARTIAL` — TCD exists but bar doesn't fully cover the implied WHAT
+- `SCOPE_CREEP?` — Reverse audit: TCD exists but cannot be traced to any element
+
+#### Lint Gate (L8–L9)
+
+| ID | Check | Block? |
+|----|-------|--------|
+| L8 | Every element row has a non-empty "Realized as TCD" cell (ID or GAP) | Warning |
+| L9 | Every TCD under this TPF appears in at least one element row | Warning |
+
+**L8 GAP rows** feed T1 (gap audit) or T8 (microarch-completeness audit).
+**L9 unanchored TCDs** are scope-creep candidates — either the element is
+missing from §2 (add it) or the TCD doesn't belong under this TPF (reparent).
+
+#### When to build / update
+
+- **Build:** After §2 is complete (all named landing zones populated).
+  Run the derivation procedure element-by-element. Do not skip categories
+  — the categories are the guarantee of exhaustiveness.
+- **Update:** After any §2 edit (new register, new FSM state, new interface)
+  or any TCD create/split/merge/dissolve. Re-run forward + reverse checks.
+- **Validate via T8:** Generate a T8 Co-Design prompt with the matrix +
+  TCD list. Co-Design validates against spec ground truth.
+
 ---
 
 ## Section 3: Validation Strategy

@@ -1,10 +1,16 @@
 # TCD: CBB CCF Distress Signal Path
 
+<!-- SPLIT 2026-07-19: Co-Design T2 ingest split this TCD into two along the HW/FW boundary:
+     1. TCD_NEW_telemetry_distress_generation.md — CCF HW telemetry & distress signal generation (TCs 22022422894, 22022422895)
+     2. TCD_NEW_pcode_ring_distress_algorithm.md — CBB PCode ring-distress consumption algorithm (TC 22022422905)
+     Rationale: HW signal generation (silicon) has a different bar from FW algorithm correctness (PCode).
+     This file preserved as historical reference. See new TCD files in this directory. -->
+
 | Field | Value |
 |-------|-------|
 | **TCD ID** | [22022421197](https://hsdes.intel.com/appstore/article-one/#/22022421197) |
 | **Title** | CBB CCF Distress Signal Path |
-| **Status** | open |
+| **Status** | **[SPLIT]** — dissolved into TCD_NEW_telemetry + TCD_NEW_pcode |
 | **Owner** | bg3 |
 | **Parent TPF** | [22022420514 — CBB CCF Ring Scalability](https://hsdes.intel.com/appstore/article-one/#/22022420514) |
 | **Validation Phase** | **Alpha / Beta / PRQ** — Volume functional validation (multi-milestone) |

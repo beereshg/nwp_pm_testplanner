@@ -1,23 +1,30 @@
-# TCD: CBB CCF PM GV Control Interface
+# TCD: CBB CCF GV Control Requests
+
+<!-- T2-SPLIT 2026-07-19: Retitled from "CBB CCF[01] PM GV Control Interface".
+     TC 22022422863 (VF Curves Fuses) reparented to existing TCD 22022421174 (CBB CCF VF Curves).
+     Co-Design T2 ingest: GV control requests (ratio acceptance) have a different
+     bar from VF fuse enforcement (voltage correctness). -->
 
 | Field | Value |
 |-------|-------|
 | **TCD ID** | [22022421168](https://hsdes.intel.com/appstore/article-one/#/22022421168) |
-| **Title** | CBB CCF[01] PM GV Control Interface |
+| **Title** | CBB CCF GV Control Requests |
 | **Status** | open |
 | **Owner** | bg3 |
 | **Parent TPF** | [22022420514 — CBB CCF Ring Scalability](https://hsdes.intel.com/appstore/article-one/#/22022420514) |
-| **Feature** | CBB CCF Active States — CCF GV management via BIOS/PEGA/TPMI |
+| **Feature** | CBB CCF Active States — CCF GV request acceptance via BIOS/PEGA/TPMI |
 | **Validation Phase** | **Alpha** — Feature enabling / path clearing (interface sanity check) |
-| **Child TCs** | [22022422850](https://hsdes.intel.com/appstore/article-one/#/22022422850) — BIOS Configuration<br>[22022422851](https://hsdes.intel.com/appstore/article-one/#/22022422851) — PEGA Injection<br>[22022422859](https://hsdes.intel.com/appstore/article-one/#/22022422859) — TPMI Request<br>[22022422863](https://hsdes.intel.com/appstore/article-one/#/22022422863) — VF Curves Fuses |
-| **KB last updated** | 2026-07-18 |
+| **Child TCs** | [22022422850](https://hsdes.intel.com/appstore/article-one/#/22022422850) — BIOS Configuration<br>[22022422851](https://hsdes.intel.com/appstore/article-one/#/22022422851) — PEGA Injection<br>[22022422859](https://hsdes.intel.com/appstore/article-one/#/22022422859) — TPMI Request |
+| **KB last updated** | 2026-07-19 |
 
 ## Section 1: Architecture / Micro-architecture and Functionality
 
 > **Architecture overview:** See [TPF 22022420514 — CBB CCF Ring Scalability](https://hsdes.intel.com/appstore/article-one/#/22022420514) §2 Design Details
 > for full-stack cross-layer diagram, GV control interface paths, and Interface & Register Matrix.
 
-**CBB CCF GV PM Interface Check** validates the three external interface paths that configure and control the CBB CCF ring frequency GV: (1) **BIOS Configuration** -- TPMI `UFS_CONTROL` written at boot (TPMI_INIT PH1.x) to set MAX/MIN ratio envelope and ELC thresholds; (2) **PEGA Injection** -- B2P mailbox synthetic P-state bypasses the BW-heuristic slow loop for direct ratio control; (3) **TPMI Runtime** -- OS/PythonSV writes `UFS_CONTROL` at runtime (ratio lock: MAX=MIN, or restore autonomous). All three paths converge on the CBB PCode GVFSM, which applies the inputs per slow loop (~1 ms), executes V-first/PLL-first GV transitions, and reports the settled ratio via `UFS_STATUS.CURRENT_RATIO` and `HPM 0x1b`.
+**CBB CCF GV Control Requests** validates that the three external GV request paths correctly deliver ratio targets to CBB PCode and that the GVFSM accepts them in NonAutoGV mode: (1) **BIOS Configuration** -- TPMI `UFS_CONTROL` written at boot (TPMI_INIT PH1.x) to set MAX/MIN ratio envelope and ELC thresholds; (2) **PEGA Injection** -- B2P mailbox synthetic P-state bypasses the BW-heuristic slow loop for direct ratio control; (3) **TPMI Runtime** -- OS/PythonSV writes `UFS_CONTROL` at runtime (ratio lock: MAX=MIN, or restore autonomous). All three paths converge on the CBB PCode GVFSM, which applies the inputs per slow loop (~1 ms) and reports the settled ratio via `UFS_STATUS.CURRENT_RATIO`.
+
+> **VF curve fuse enforcement** is validated separately by [TCD 22022421174 — CBB CCF VF Curves](https://hsdes.intel.com/appstore/article-one/#/22022421174) (TC 22022422863).
 
 ### CCF GV Interface Architecture -- All Three Paths
 
@@ -85,7 +92,7 @@ NWP has 2 CBBs (cbb0, cbb1), each with an independent GVFSM. PEGA injection to a
 | [22022422850 — CBB CCF GV BIOS Configuration](https://hsdes.intel.com/appstore/article-one/#/22022422850) | TPMI UFS_CONTROL field accessibility, BIOS override, PCode enforcement of limits | ccf_tpmi_gv_sweep_test() |
 | [22022422851 — CBB CCF GV PEGA Injection](https://hsdes.intel.com/appstore/article-one/#/22022422851) | PEGA B2P mailbox, GVFSM ratio change, PLR clean, autonomous recovery | ccf_pegaPstate_test() in ccf_utils.py |
 | [22022422859 — CBB CCF GV TPMI Request](https://hsdes.intel.com/appstore/article-one/#/22022422859) | TPMI ratio lock (MAX=MIN), GVFSM pin behavior, boundary clamping, autonomous restore | ccf_tpmi_gv_sweep_test() |
-| [22022422863 — CBB CCF VF Curves Fuses](https://hsdes.intel.com/appstore/article-one/#/22022422863) | VF curve fuse readback, voltage/frequency pair validation, CCF VF table accessibility | cbb_ccf_vf_curve_test() |
+| ~~22022422863 — VF Curves Fuses~~ | *(Reparented to [TCD 22022421174](https://hsdes.intel.com/appstore/article-one/#/22022421174) — 2026-07-19 T2 ingest)* | — |
 
 ---
 

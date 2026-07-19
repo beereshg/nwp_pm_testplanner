@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>NWP PM Co-Design Query Prompt Catalog</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;color:#1e293b;padding:24px;line-height:1.5}
+h1{font-size:22px;color:#0f4c81;border-bottom:3px solid #0f4c81;padding-bottom:8px;margin-bottom:20px}
+h2{font-size:16px;color:#1e3a5f;margin:28px 0 12px;border-left:4px solid #0f4c81;padding-left:10px}
+table{width:100%;border-collapse:collapse;font-size:12px;margin:8px 0 20px;background:#fff;border-radius:6px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+th{background:#0f4c81;color:#fff;padding:8px 10px;text-align:left;font-weight:600;font-size:11px;letter-spacing:.3px;white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid #e5e7eb;vertical-align:top}
+tr:nth-child(even){background:#f8fafc}
+tr:hover{background:#eef2ff}
+.tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:700;margin:1px}
+.t1{background:#dbeafe;color:#1e40af}.t2{background:#fce7f3;color:#9d174d}.t3{background:#d1fae5;color:#065f46}
+.t4{background:#fef3c7;color:#92400e}.t5{background:#ede9fe;color:#5b21b6}.t6{background:#e0e7ff;color:#3730a3}
+.t7{background:#ffedd5;color:#9a3412}.t8{background:#f0fdf4;color:#166534}
+.chk{color:#16a34a;font-weight:700}.nochk{color:#d1d5db}
+.phase{background:#1e3a5f;color:#fff;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600}
+code{background:#f1f5f9;padding:1px 5px;border-radius:3px;font-family:Consolas,monospace;font-size:11px}
+.note{background:#fffbeb;border-left:3px solid #f59e0b;padding:8px 12px;font-size:11px;margin:8px 0;border-radius:0 4px 4px 0}
+footer{margin-top:30px;padding-top:12px;border-top:1px solid #e5e7eb;font-size:10px;color:#94a3b8;text-align:center}
+</style>
+</head>
+<body>
+
+<h1>NWP PM Co-Design Query &mdash; Prompt Catalog (T1&ndash;T8)</h1>
+
+<h2>1. Template Selection Guide</h2>
+<table>
+<thead><tr><th>#</th><th>Template</th><th>Trigger</th><th>When to use</th><th>Input needed</th><th>Output</th></tr></thead>
+<tbody>
+<tr><td><span class="tag t1">T1</span></td><td>Coverage gap audit</td><td><code>codesign t1 &lt;feature&gt;</code></td><td>After initial TCD creation; before execution; periodic gap check</td><td>Hierarchy snapshot (&le;40 lines): TCDs + WHATs + bars</td><td>Gap/Finding table &rarr; <code>new TC</code>, <code>new TCD</code>, <code>bar change</code>, <code>accepted gap</code></td></tr>
+<tr><td><span class="tag t2">T2</span></td><td>Grouping / WHAT-boundary check</td><td><code>codesign t2 &lt;feature&gt;</code></td><td>Vague TCD title; two TCDs overlap; grab-bag TCD too large</td><td>Hierarchy snapshot (&le;40 lines): TCDs + WHATs + bars</td><td>Diagnosis table (clubs? overlap?) + Target hierarchy proposal (keep/split/merge/new)</td></tr>
+<tr><td><span class="tag t3">T3</span></td><td>Bar validation</td><td><code>codesign t3 &lt;feature&gt;</code></td><td>TCD &sect;5 bar without spec citation; after spec update</td><td>Hierarchy snapshot <strong>with bars</strong></td><td>Per-bar verdict: tighter / looser / not-in-spec / contradicts + spec clause</td></tr>
+<tr><td><span class="tag t4">T4</span></td><td>Tier mapping check</td><td><code>codesign t4 &lt;feature&gt;</code></td><td>Adding new tier; coverage matrix update; validating TPF tier-layer claim</td><td>Hierarchy snapshot <strong>with tier prefixes</strong> [PSS]/[FV]/[PV]</td><td>Per-behavior: correct tier? unclaimed? over-tested? HSLE vs XOS?</td></tr>
+<tr><td><span class="tag t5">T5</span></td><td>New-feature bootstrap</td><td><code>codesign t5 &lt;feature&gt;</code></td><td>Starting test planning for a <strong>new feature</strong> &mdash; no TCDs exist</td><td>Feature name + silicon context only</td><td>Candidate TCD decomposition: WHAT + spec-cited bar + tier per group</td></tr>
+<tr><td><span class="tag t6">T6</span></td><td>Feature lineage / generational history</td><td><code>codesign t6 &lt;feature&gt;</code></td><td>Tracing cross-generation history for NWP-delta analysis</td><td>Feature name + <strong>scope directive</strong> (overrides Step 1b)</td><td>Lineage table: per-generation changes, interface impact, validation impact</td></tr>
+<tr><td><span class="tag t7">T7</span></td><td>Model / environment coverage check</td><td><code>codesign t7 &lt;feature&gt;</code></td><td>TCD &sect;6 Env column has TBD-T7 cells</td><td>Pending scenario list with Q1&ndash;Q3 verdicts</td><td>Per-scenario&times;environment: Modeled? Injection knob? Silent-default risk?</td></tr>
+<tr><td><span class="tag t8">T8</span></td><td>Microarch-completeness audit</td><td><code>codesign t8 &lt;feature&gt;</code></td><td>TPF &sect;2 Microarch&rarr;Scenario Matrix populated</td><td>Full matrix + TCD list</td><td>3 tables: missing elements, unanchored TCDs, WHAT mischaracterizations</td></tr>
+</tbody>
+</table>
+
+<h2>2. Prompt Assembly &mdash; Which Parts Each Template Uses</h2>
+<table>
+<thead><tr><th>Part</th><th>What it is</th><th><span class="tag t1">T1</span></th><th><span class="tag t2">T2</span></th><th><span class="tag t3">T3</span></th><th><span class="tag t4">T4</span></th><th><span class="tag t5">T5</span></th><th><span class="tag t6">T6</span></th><th><span class="tag t7">T7</span></th><th><span class="tag t8">T8</span></th></tr></thead>
+<tbody>
+<tr><td><strong>(A) Context</strong></td><td>Step 1a hierarchy + Step 1b silicon routing</td>
+<td class="chk">&check;</td><td class="chk">&check;</td><td class="chk">&check;</td><td class="chk">&check;</td><td>1b only</td><td>Scope directive</td><td>&check; + scenarios</td><td>&check; + matrix</td></tr>
+<tr><td><strong>(B) Question</strong></td><td>Template-specific question body</td>
+<td>gap audit</td><td>WHAT-boundary</td><td>bar vs spec</td><td>tier assign</td><td>bootstrap</td><td>lineage trace</td><td>model coverage</td><td>bidir audit</td></tr>
+<tr><td><strong>(C) Contract</strong></td><td>Output format Co-Design must follow</td>
+<td>default</td><td><strong>T2 inline</strong></td><td>default</td><td>default</td><td>default</td><td>default</td><td><strong>T7 inline</strong></td><td><strong>T8 inline</strong></td></tr>
+</tbody>
+</table>
+
+<h2>3. Workflow Sequence (Typical Feature Lifecycle)</h2>
+<table>
+<thead><tr><th>Phase</th><th>Step</th><th>Template</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td><span class="phase">0</span></td><td>Trace feature history</td><td><span class="tag t6">T6</span></td><td>Understand what changed DMR &rarr; NWP before writing anything</td></tr>
+<tr><td><span class="phase">1</span></td><td>Derive TCD candidates from spec</td><td><span class="tag t5">T5</span></td><td>Get spec-grounded WHAT decomposition before creating HSD tickets</td></tr>
+<tr><td><span class="phase">2</span></td><td>Validate TCD grouping after creation</td><td><span class="tag t2">T2</span></td><td>Confirm each TCD = one WHAT; fix overlaps and grab-bags</td></tr>
+<tr><td><span class="phase">3</span></td><td>Validate pass/fail bars against spec</td><td><span class="tag t3">T3</span></td><td>Ensure every &sect;5 bar is spec-cited and correctly calibrated</td></tr>
+<tr><td><span class="phase">4</span></td><td>Validate tier assignments</td><td><span class="tag t4">T4</span></td><td>Confirm each behavior is at the right tier; flag XOS requirements</td></tr>
+<tr><td><span class="phase">5</span></td><td>Audit for missing coverage</td><td><span class="tag t1">T1</span></td><td>Find spec behaviors with no TC at any tier</td></tr>
+<tr><td><span class="phase">6</span></td><td>Check model feasibility for TBD scenarios</td><td><span class="tag t7">T7</span></td><td>Resolve TBD-T7 cells in TCD &sect;6 Env column</td></tr>
+<tr><td><span class="phase">7</span></td><td>Bidirectional microarch audit</td><td><span class="tag t8">T8</span></td><td>Prove TPF&rarr;TCD projection is exhaustive against spec</td></tr>
+<tr><td><span class="phase">&infin;</span></td><td>Maintenance &mdash; re-run after changes</td><td><span class="tag t1">T1</span> or <span class="tag t8">T8</span></td><td>Catch regressions from splits, merges, bar edits</td></tr>
+</tbody>
+</table>
+
+<h2>4. Ingest Rules Summary</h2>
+<table>
+<thead><tr><th>Template</th><th>Output table format</th><th>Ingest action per row</th></tr></thead>
+<tbody>
+<tr><td><span class="tag t1">T1</span></td><td><code>new TC / new TCD / bar change / move TC / accepted gap</code></td><td>Add Gap/TBD rows &rarr; human confirms &rarr; scaffold or update</td></tr>
+<tr><td><span class="tag t2">T2</span></td><td><code>keep / split-from / merge-into / new</code></td><td><code>keep</code>=no-op; <code>split</code>=validate bars diverge; <code>new</code>=must have bar; <code>merge</code>=bar subsumes</td></tr>
+<tr><td><span class="tag t3">T3</span></td><td><code>tighter / looser / not-in-spec / contradicts</code></td><td>Update &sect;5 bar text + regenerate preview</td></tr>
+<tr><td><span class="tag t4">T4</span></td><td>Tier reassignment recommendations</td><td>Update tier prefix on TCD; update TPF &sect;4 matrix</td></tr>
+<tr><td><span class="tag t5">T5</span></td><td>Candidate TCD list with WHAT + bar + tier</td><td>Scaffold TCDs via <code>nwp-tcd-description</code></td></tr>
+<tr><td><span class="tag t6">T6</span></td><td>Lineage table (generation &times; change)</td><td>Full table &rarr; KB feature article; NWP tail &rarr; TCD &sect;1</td></tr>
+<tr><td><span class="tag t7">T7</span></td><td><code>Full / Partial / None</code> per scenario&times;environment</td><td>Resolve TBD-T7 &rarr; TCD &sect;6 Env column</td></tr>
+<tr><td><span class="tag t8">T8</span></td><td>Missing elements / unanchored TCDs / mischaracterizations</td><td>GAPs &rarr; matrix; unanchored &rarr; challenge or add element; mischar &rarr; fix WHAT + bar</td></tr>
+</tbody>
+</table>
+
+<h2>5. Key Rules (Always Enforced)</h2>
+<table>
+<thead><tr><th>Rule</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>40-line cap</strong></td><td>Step 1a hierarchy snapshot must be &le;40 lines. If it overflows, run T2 to decompose the oversized TCD first.</td></tr>
+<tr><td><strong>Gist rule</strong></td><td>Derive each TCD&rsquo;s one-line WHAT from the scope description&rsquo;s first paragraph, never the title.</td></tr>
+<tr><td><strong>Bar mandatory</strong></td><td>Every TCD entry in the snapshot MUST include its pass/fail bar. A snapshot without bars only gets structural answers.</td></tr>
+<tr><td><strong>NEW = bar required</strong></td><td>Any Co-Design <code>new</code> row without a spec-cited bar sketch is discarded &mdash; over-provisioning.</td></tr>
+<tr><td><strong>Never auto-push</strong></td><td>Co-Design findings enter as Gap/TBD rows. Human confirms before any HSD write.</td></tr>
+<tr><td><strong>Spec ref &rarr; TCD &sect;2</strong></td><td>Always copy the spec ref (clause ID) into TCD &sect;2 &mdash; this is how FR linkage gets populated.</td></tr>
+<tr><td><strong>Co-Design = spec authority</strong></td><td>Co-Design is authoritative for spec; local rules stay authoritative for structure.</td></tr>
+<tr><td><strong>Step 1b reuse</strong></td><td>Silicon routing context is write-once, reuse verbatim across all features. Only T6 overrides it with scope directive.</td></tr>
+</tbody>
+</table>
+
+<div class="note">
+<strong>Source:</strong> <code>.github/skills/nwp-codesign-query/SKILL.md</code> &nbsp;&middot;&nbsp;
+<strong>TPF Matrix:</strong> <code>.github/skills/nwp-tpf-description/SKILL.md</code> &sect;2 Microarch&rarr;Scenario Coverage Matrix
+</div>
+
+<footer>Generated 2026-07-19 &nbsp;&middot;&nbsp; NWP PM Test Planner &nbsp;&middot;&nbsp; Co-Design Query Prompt Catalog v1.0</footer>
+
+</body>
+</html>
