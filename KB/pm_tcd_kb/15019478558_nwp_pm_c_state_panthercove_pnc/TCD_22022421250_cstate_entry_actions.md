@@ -2,6 +2,11 @@
 
 **C-State Entry Actions** define the micro-architectural sequence executed when a core or module transitions into a sleep state (C6A, C6S, C6S-P, or MC6). On NWP (PantherCove PNC), entry actions include LLC cache flush, PCM messaging to PCode, voltage droop, and clock gating. Each C6 variant has a different depth of entry action.
 
+### T2 Boundary Notes (2026-07-19)
+
+- This TCD keeps core-level logical entry flow ownership.
+- Module MC6 electrical entry sequencing is split to `TCD_NEW_mc6_entry_sequence.md`.
+
 ### Entry Action Sequence by C-State Variant
 
 | Step | C6A | C6S | C6S-P | MC6 |

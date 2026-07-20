@@ -1,206 +1,149 @@
 ## Section 1: Architecture / Micro-architecture and Functionality
 
-**C6** is a deep core sleep state on NWP (PantherCove PNC) that minimizes power by flushing core caches, draining internal buffers, and gating power to the core logic. NWP supports three C6 variants: **C6A** (Autonomous — OS-requested via MWAIT), **C6S** (Supervised — PCode-managed), and **C6S-P** (Supervised with Power-Gate). PkgC6 is **Zero Bit Budget (ZBB)** on NWP and must not be entered; `IA32_PKG_C6_RESIDENCY` (MSR 0x3F9) must remain 0 throughout testing.
+**C6A (Autonomous C6)** is the OS-requested deep core sleep state on NWP (PantherCove PNC), entered via `MWAIT 0x60`. C6A flushes L1/L2 to LLC (but not to DRAM), drops FIVR to retention voltage, and gates the core clock. C6A does not power-gate the core and does not flush MLC. The core exits autonomously on any wake event (interrupt/IPI/timer).
 
-### Block Decomposition
+### T2 Boundary Notes (2026-07-19)
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                  NWP C6 State Hierarchy (PantherCove PNC)                  │
-└─────────────────────────────────────────────────────────────────────────────┘
+- This TCD owns **C6A behavior and C6A residency observability only**.
+- C6S + MC6 qualification: [16031170164](https://hsdes.intel.com/appstore/article-one/#/16031170164).
+- C6S-P / PKGC: [16031170168](https://hsdes.intel.com/appstore/article-one/#/16031170168) (parked).
+- Entry sequencing (all variants): [22022421250](https://hsdes.intel.com/appstore/article-one/#/22022421250).
+- Exit sequencing: [22022421253](https://hsdes.intel.com/appstore/article-one/#/22022421253).
+- Exit latency KPI: [16031170166](https://hsdes.intel.com/appstore/article-one/#/16031170166).
+- MC6 residency: [22022421260](https://hsdes.intel.com/appstore/article-one/#/22022421260).
+- MC6 wake target: [16031170167](https://hsdes.intel.com/appstore/article-one/#/16031170167).
+- C1 residency: [22022421257](https://hsdes.intel.com/appstore/article-one/#/22022421257).
+- Demotion/undemotion policy: [22022421266](https://hsdes.intel.com/appstore/article-one/#/22022421266).
 
-  C0 (Active)
-      │
-      ▼  MWAIT 0x00 / HALT
-  ┌───────────┐
-  │    C1     │  Clock gate only, FIVR unchanged, < 1 μs exit
-  └─────┬─────┘
-        │  c1e_enable=1  (MSR 0x1FC bit[1])
-        ▼
-  ┌───────────┐
-  │   C1E     │  Clock gate + FIVR voltage reduction, < 10 μs exit
-  └─────┬─────┘
-        │  MWAIT 0x60
-        ▼
-  ┌───────────────────────────────────────────────────┐
-  │                   C6 variants                     │
-  │                                                   │
-  │  ┌──────────┐   ┌──────────┐   ┌──────────────┐  │
-  │  │   C6A    │   │   C6S    │   │    C6S-P     │  │
-  │  │Autonomous│   │Supervised│   │Supervised+PG │  │
-  │  │LLC flush │   │LLC+DRAM  │   │LLC+DRAM+PG   │  │
-  │  │FIVR ret. │   │FIVR ret. │   │FIVR off      │  │
-  │  │No PG     │   │No PG     │   │Power Gate    │  │
-  │  └──────────┘   └──────────┘   └──────────────┘  │
-  └───────────────────────────────────────────────────┘
-        │
-        ▼  All cores in module idle
-  ┌───────────┐
-  │    MC6    │  Module clock gate + module FIVR off
-  └─────┬─────┘
-        │
-        ▼  (NWP: PkgC6 is ZBB — this transition NEVER occurs)
-  ┌──────────────────────────────┐
-  │  PkgC6  [ZBB on NWP]  ✗     │  IA32_PKG_C6_RESIDENCY (0x3F9) must stay 0
-  └──────────────────────────────┘
-```
+### C6A Characteristics
 
-### C6 Variant Summary
+| Property | C6A Value |
+|----------|-----------|
+| Trigger | `MWAIT 0x60` (OS-driven) |
+| LLC flush | L1/L2 → LLC only (MLC not flushed to DRAM) |
+| Power gate | No |
+| FIVR | Retention voltage |
+| Exit | Autonomous on wake event |
+| Residency MSR | `IA32_C6_RESIDENCY` (MSR 0x3FC) |
 
-| Variant | Trigger | LLC Flush | Power Gate | NWP Notes |
-|---------|---------|-----------|------------|-----------|
-| C6A | MWAIT 0x60 | Yes | No | Autonomous, OS-driven |
-| C6S | PCode policy | Yes | No | Supervised low-power |
-| C6S-P | PCode policy | Yes | Yes | Maximum save state |
-| PkgC6 | — | — | — | **ZBB on NWP — must not enter** |
-
-### BIOS Knob to Register Propagation
-
-Key BIOS knobs controlling C6 behavior:
+### BIOS Knob to C6A Register Propagation
 
 | BIOS Knob | Register | MSR / Path | NWP Default |
 |-----------|----------|------------|-------------|
-| `C6Enable` | CST_CONFIG_CONTROL | MSR 0xE2, bits[25:24] | Enabled |
-| `PackageCStateLimit` | PKG_CST_CONFIG_CTL | MSR 0xE2, bits[2:0] | C6 allowed |
+| `C6Enable` | CST_CONFIG_CONTROL | MSR 0xE2, bits[25:24] = 01 | Enabled |
 | `PEGA C-State` | PMG_CST_CONFIG_CONTROL | MSR 0xE2 | Enabled |
-| `dfx_ctrl_unprotected.core_cstate_limit` | DFX register | PythonSV path | Per test |
 
-### Residency Counter MSRs
+### NWP-Specific Deltas (C6A scope)
 
-| Counter | MSR Address | Notes |
-|---------|-------------|-------|
-| Core C6 residency | 0x3FC (IA32_C6_RESIDENCY) | Per-core, resets on RESET |
-| Core C3 residency | 0x3FD | Maps to C6S on NWP |
-| Package C6 residency | 0x3F9 | Must stay **0** (ZBB) |
-| Core C1 residency | 0x660–0x669 | Per-core C1 dwell time |
-
-
-### NWP-Specific Deltas
-
-| Aspect | DMR (Reference) | NWP (PantherCove PNC) | Impact on Test |
-|--------|----------------|----------------------|----------------|
-| CBB count | Up to 4 | **2** | All-core loops: `range(4)` -> `range(2)` |
-| Cores per CBB | 64 | **48** | Per-CBB loops: `range(64)` -> `range(48)` |
-| Total cores | 256 | **96** | Scale workload and verification accordingly |
-| PkgC6 | Supported | **ZBB (Zero Bit Budget)** | `IA32_PKG_C6_RESIDENCY` (0x3F9) must stay 0 |
-| Register prefix | `cbb{0..3}` | **`cbb{0,1}`** | Adjust all PythonSV paths |
-| DCM count | 32 per socket | **12 per socket** | MC6 module loops: `range(32)` -> `range(12)` |
-| HW Thread count | 2 per core | **2 per core** | No change |
+| Aspect | DMR | NWP | Impact |
+|--------|-----|-----|--------|
+| CBB count | Up to 4 | **2** | Loop: `range(4)` → `range(2)` |
+| Cores per CBB | 64 | **48** | Loop: `range(64)` → `range(48)` |
+| Total cores | 256 | **96** | Scale verification |
+| PkgC6 | Supported | **ZBB** | `MSR 0x3F9` must stay 0 |
+| Register prefix | `cbb{0..3}` | **`cbb{0,1}`** | 2-CBB namespace |
 
 
 ## Section 2: Interfaces and Protocols
 
-**OS → PCode C-State Request Flow:**
-
-The ACPI Cx state is requested by OS via the `MWAIT` instruction with a sub-state hint:
+**C6A Request Flow (OS path only — this TCD's scope):**
 
 ```
-MWAIT hint 0x60 → C6A request → Core autonomously flushes LLC → C6A entry
-MWAIT hint 0x20 → C1E request → C1E autopromotion path
+MWAIT hint 0x60 → Core evaluates entry conditions → L1/L2 flush to LLC → C6A entry
 ```
-
-The OS reads ACPI `_CST` objects to discover supported C-states. On NWP, the BIOS exposes C1, C6A/C6S/C6SP based on `C6Enable` knob state. PCode intercepts the C6 grant through the **PCM (Power Control Messaging)** interface.
 
 | Interface | Direction | Description |
 |-----------|-----------|-------------|
-| ACPI MWAIT | OS → Core | Cx state request |
-| PCM Cx message | Core → PCode | C6 entry/exit notification |
-| PECI/TPMI | BMC → PCode | Power limit override |
-| PythonSV `cbb0/cbb1` | Debug | Register inspection |
+| ACPI MWAIT 0x60 | OS → Core | C6A state request |
+| PCM Cx message | Core → PCode | C6A entry/exit notification |
+| PythonSV `cbb{0,1}` | Debug | Register inspection |
+
+> C6S/C6S-P request paths are owned by [16031170164](https://hsdes.intel.com/appstore/article-one/#/16031170164) and [16031170168](https://hsdes.intel.com/appstore/article-one/#/16031170168).
 
 ## Section 3: Reset, Power, and Clocking
 
-- C6 entry is **blocked during reset sequences** — PCode guards the reset exclusion window
-- Core clock is gated during C6; uncore (UPI, LLC tags) remains active
-- FIVR (Fully Integrated Voltage Regulator) transitions to retention voltage during C6A; power-gated during C6S-P
-- On C6 exit, PLR (Platform Latency Requirement) must be satisfied before OS resumes
-
-**C6 Entry Power Sequence:**
-1. Core flushes L1/L2 to LLC (for C6A) or all to DRAM (for C6S)
-2. Core signals PCode via PCM with Cx entry notification
-3. PCode adjusts FIVR to retention/off voltage
-4. Core clock is gated
-5. Snoop filter entry invalidated (C6S only)
+- C6A entry is blocked during reset sequences (PCode exclusion window).
+- Core clock is gated during C6A; uncore (UPI, LLC tags) remains active.
+- FIVR transitions to retention voltage during C6A (not power-gated — that is C6S-P scope).
+- On C6A exit, PLR must be satisfied before OS resumes.
 
 ## Section 4: Programming Model
 
-### Key MSR Configuration (IA32_CST_CONFIG_CONTROL, MSR 0xE2)
+### Key MSR Configuration (C6A-relevant bits only)
 
 | Bit(s) | Field | Description |
 |--------|-------|-------------|
-| [2:0] | `pkg_c_state_limit` | Max allowed package C-state (6=C6, 7=C7) |
-| [6] | `io_mwait_redirect` | Enable/disable IO-based Cx entry |
-| [10] | `unlock` | Allow OS to change CST limit |
-| [25:24] | `c6_enable` | Core C6 enable (01=C6, 10=C6S, 11=C6S-P) |
+| [25:24] | `c6_enable` | 01 = C6A enabled |
 
-### PythonSV Validation Paths
+> Full MSR 0xE2 bit map including demotion/undemotion bits is owned by [22022421266](https://hsdes.intel.com/appstore/article-one/#/22022421266).
+
+### PythonSV C6A Validation
 
 ```python
-# Read C6 residency counter for all cores
+# Read C6A residency counter for all cores
 for c in range(2):   # CBB 0,1
     for core in range(48):
         r = sv.socket0.getbypath(f"cbb{c}.compute0.module0.core{core}.msr.ia32_c6_residency").read()
         print(f"CBB{c} core{core} C6 residency: {r:#x}")
 
-# Verify PkgC6 stays 0 (ZBB)
+# Verify PkgC6 stays 0 (ZBB invariant)
 pkgc6 = sv.socket0.uncore.msr.ia32_pkg_c6_residency.read()
 assert pkgc6 == 0, f"PkgC6 must be ZBB but got {pkgc6:#x}"
-
-# Check MSR 0xE2 C6 enable bits
-cst_cfg = sv.socket0.cbb0.compute0.module0.core0.msr.ia32_cst_config_ctrl.read()
-print(f"C6 enable bits[25:24]: {(cst_cfg >> 24) & 0x3:#x}")
 ```
 
 ## Section 5: Operational Behavior
 
-### TC Coverage Map
+### Pass/Fail Bar (C6A only)
 
-| TC HSD | Title | Scope |
-|--------|-------|-------|
-| [22022423030](https://hsdes.intel.com/appstore/article-one/#/22022423030) | CState Bios_knobs checkout | — |
-| [22022423031](https://hsdes.intel.com/appstore/article-one/#/22022423031) | CState Bios_knobs checkout PIV | — |
-| [22022423032](https://hsdes.intel.com/appstore/article-one/#/22022423032) | CState C6 residency check | — |
-| [22022423036](https://hsdes.intel.com/appstore/article-one/#/22022423036) | CState C6 residency counters and CStates residency KPI | — |
-| [22022423038](https://hsdes.intel.com/appstore/article-one/#/22022423038) | CState MSR Control | — |
-| [22022423039](https://hsdes.intel.com/appstore/article-one/#/22022423039) | CState dfx_ctrl_unprotected.core_cstate_limit checkout_silicon | — |
-| [22022423042](https://hsdes.intel.com/appstore/article-one/#/22022423042) | Enable PEGA C-States | — |
-| [22022423044](https://hsdes.intel.com/appstore/article-one/#/22022423044) | Multiple B2B cstates on same core | — |
-| [22022423047](https://hsdes.intel.com/appstore/article-one/#/22022423047) | [Solar] CStates - CStates_unsupported -- Exercise | — |
-| [22022423050](https://hsdes.intel.com/appstore/article-one/#/22022423050) | [Solar] CStates - CStates_unsupported_Random -- Exercise | — |
-| [22022423053](https://hsdes.intel.com/appstore/article-one/#/22022423053) | [Solar] CStates - CStates_unsupported_Random -- Verify | — |
-| [22022423057](https://hsdes.intel.com/appstore/article-one/#/22022423057) | [Solar]_CStates-CStates_unsupported--Verify | — |
-| [16030768408](https://hsdes.intel.com/appstore/article-one/#/16030768408) | CState C6 residency counters | — |
-| [16030768409](https://hsdes.intel.com/appstore/article-one/#/16030768409) | CState Fuse dfx_ctrl_unprotected.core_cstate_limit checkout_silicon | — |
+- `IA32_C6_RESIDENCY` (MSR 0x3FC) increments when C6A stimulus is applied via MWAIT 0x60.
+- `IA32_PKG_C6_RESIDENCY` (MSR 0x3F9) remains 0 (NWP ZBB invariant).
+- BIOS knobs propagate correctly to MSR 0xE2 bits[25:24] = 01 for C6A.
+- No hang/MCA across C6A entry-exit cycles.
 
+FAIL if: C6A residency does not increment under valid stimulus; PkgC6 residency > 0; BIOS knob mismatch; hang or MCA.
 
-| Scenario | Covered By |
-|----------|-----------|
-| BIOS knobs propagate to MSR 0xE2 | CState Bios_knobs checkout TCs |
-| C6 residency counters increment | CState C6 residency check TCs |
-| KPI — C6 dwell time meets spec | CState C6 residency counters and KPI |
-| MSR 0xE2 control field checkout | CState MSR Control TC |
-| dfx_ctrl cstate_limit | CState dfx_ctrl_unprotected TC |
-| PEGA C-state enable | Enable PEGA C-States TC |
-| B2B C-state on same core | Multiple B2B cstates TC |
-| MWAIT encodings | CState MWAIT Encodings TC |
+### TC Coverage Map (C6A-owned TCs only)
+
+| TC HSD | Title | C6A Scope |
+|--------|-------|-----------|
+| [22022423030](https://hsdes.intel.com/appstore/article-one/#/22022423030) | CState Bios_knobs checkout | BIOS → MSR 0xE2 propagation |
+| [22022423031](https://hsdes.intel.com/appstore/article-one/#/22022423031) | CState Bios_knobs checkout PIV | PIV variant |
+| [22022423032](https://hsdes.intel.com/appstore/article-one/#/22022423032) | CState C6 residency check | C6A residency increment |
+| [22022423036](https://hsdes.intel.com/appstore/article-one/#/22022423036) | CState C6 residency counters and KPI | C6A dwell time KPI |
+
+### TCs needing reparent review
+
+The following TCs were listed here but belong to other split TCDs:
+
+| TC HSD | Title | Recommended owner |
+|--------|-------|--------------------|
+| [22022423038](https://hsdes.intel.com/appstore/article-one/#/22022423038) | CState MSR Control | [22022421266](https://hsdes.intel.com/appstore/article-one/#/22022421266) (demotion/undemotion) — full MSR 0xE2 ownership |
+| [22022423039](https://hsdes.intel.com/appstore/article-one/#/22022423039) | CState dfx_ctrl_unprotected | Shared DFX checkout — keep here or move to a DFX TCD |
+| [22022423042](https://hsdes.intel.com/appstore/article-one/#/22022423042) | Enable PEGA C-States | Cross-cutting PEGA enable — keep here (C6A is primary PEGA target) |
+| [22022423044](https://hsdes.intel.com/appstore/article-one/#/22022423044) | Multiple B2B cstates on same core | Stress/stability — consider [22022421307](https://hsdes.intel.com/appstore/article-one/#/22022421307) (Solar) |
+| [22022423047](https://hsdes.intel.com/appstore/article-one/#/22022423047) | [Solar] CStates_unsupported Exercise | [22022421307](https://hsdes.intel.com/appstore/article-one/#/22022421307) (Solar framework) |
+| [22022423050](https://hsdes.intel.com/appstore/article-one/#/22022423050) | [Solar] CStates_unsupported_Random Exercise | [22022421307](https://hsdes.intel.com/appstore/article-one/#/22022421307) (Solar framework) |
+| [22022423053](https://hsdes.intel.com/appstore/article-one/#/22022423053) | [Solar] CStates_unsupported_Random Verify | [22022421307](https://hsdes.intel.com/appstore/article-one/#/22022421307) (Solar framework) |
+| [22022423057](https://hsdes.intel.com/appstore/article-one/#/22022423057) | [Solar] CStates_unsupported Verify | [22022421307](https://hsdes.intel.com/appstore/article-one/#/22022421307) (Solar framework) |
+| [16030768408](https://hsdes.intel.com/appstore/article-one/#/16030768408) | CState C6 residency counters | Duplicate of 22022423032 — verify and deduplicate |
+| [16030768409](https://hsdes.intel.com/appstore/article-one/#/16030768409) | CState Fuse dfx_ctrl_unprotected | Same as 22022423039 — verify and deduplicate |
 
 ## Section 6: Corner Cases and Error Handling
 
-- **PkgC6 ZBB violation**: If `IA32_PKG_C6_RESIDENCY` (0x3F9) > 0, it indicates an architectural deviation — raise a pre-sighting
-- **C6 residency not incrementing**: Check `C6Enable` knob, verify no SW/HW demotion to C1 is active, verify OS is not using `HALT` (C1) instead of MWAIT
-- **Fuse dfx_ctrl override**: `dfx_ctrl_unprotected.core_cstate_limit` fuse can lock the core to C1 regardless of BIOS — must verify fuse state before C6 tests
-- **B2B stress**: Multiple back-to-back C6 entries on the same core should not cause hang or MCA
+- **PkgC6 ZBB invariant**: If `MSR 0x3F9` > 0, raise a pre-sighting. (ZBB scope details owned by [16031170168](https://hsdes.intel.com/appstore/article-one/#/16031170168).)
+- **C6A residency not incrementing**: Verify `C6Enable` knob and MSR 0xE2 bits[25:24] = 01; check no demotion active (demotion scope: [22022421266](https://hsdes.intel.com/appstore/article-one/#/22022421266)).
+- **Fuse dfx_ctrl override**: `dfx_ctrl_unprotected.core_cstate_limit` can lock core to C1 — verify fuse state before C6A tests.
 
 ## Section 7: Security / Safety / Policy
 
-- Core caches are flushed on C6 entry — no security-sensitive data retained in core during C6
-- FIVR voltage retention state during C6A ensures secure micro-architecture state
-- `dfx_ctrl_unprotected` registers require DFX unlocking (pre-production only)
+- Core L1/L2 caches are flushed to LLC on C6A entry.
+- FIVR retention during C6A preserves micro-architectural state securely.
+- `dfx_ctrl_unprotected` registers require DFX unlock (pre-production only).
 
 ## Section 8: References
 
 - [Core C-States HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Core_C_States/Core_C_States_HAS.html)
-- [ACP PM HAS — Autonomous Core Perimeter](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Autonomous%20Core%20Perimeter/Autonomous%20Core%20Perimeter%20PM%20HAS.html)
+- [ACP PM HAS](https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/Autonomous%20Core%20Perimeter/Autonomous%20Core%20Perimeter%20PM%20HAS.html)
 - Intel SDM — MSR 0xE2 (IA32_CST_CONFIG_CONTROL), MSR 0x3F9 (PKG_C6_RESIDENCY), MSR 0x3FC (C6_RESIDENCY)
-- [NWP PM TP: C-State (PantherCove PNC)](https://hsdes.intel.com/appstore/article-one/#/15019478558)
 - [TCD HSD 22022421247](https://hsdes.intel.com/appstore/article-one/#/22022421247)
+- Split siblings: [16031170164](https://hsdes.intel.com/appstore/article-one/#/16031170164) (C6S), [16031170168](https://hsdes.intel.com/appstore/article-one/#/16031170168) (C6S-P parked)

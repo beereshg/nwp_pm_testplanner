@@ -2,6 +2,11 @@
 
 **Module C6 (MC6)** is a module-level sleep state on NWP (PantherCove PNC) where all cores in a DCM (Dual Core Module or similar compute tile unit) have entered C6, allowing the shared module resources (module clock, module FIVR) to be further power-gated. MC6 is coordinated by PCode and enabled when **all cores in a module** reach C6.
 
+### T2 Boundary Notes (2026-07-19)
+
+- This TCD remains the primary owner of MC6 residency accounting.
+- MC6 wake routing/target correctness is split to `TCD_NEW_mc6_wake_target_behavior.md`.
+
 NWP has **12 DCMs per socket** organized across 2 CBBs × 6 compute units (modules). Each module contains **8 cores** (48 cores / 6 modules per CBB = 8 cores/module).
 
 ### Block Decomposition

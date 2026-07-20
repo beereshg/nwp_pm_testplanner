@@ -2,6 +2,11 @@
 
 **C-State Exit Actions** define the micro-architectural wake-up sequence executed when a core or module transitions from C6 back to C0. On NWP (PantherCove PNC), exit is triggered by an interrupt (IPI, APIC timer, external interrupt) and involves power restoration, clock ungating, and PLR (Platform Latency Requirement) compliance.
 
+### T2 Boundary Notes (2026-07-19)
+
+- This TCD keeps wake/restore ordering correctness ownership.
+- Exit latency envelope ownership is split to `TCD_NEW_cstate_exit_latency_class.md`.
+
 ### Exit Action Sequence by C-State Variant
 
 | Step | C6A Exit | C6S Exit | C6S-P Exit | MC6 Exit |
