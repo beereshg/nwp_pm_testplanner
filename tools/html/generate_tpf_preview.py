@@ -10,11 +10,9 @@ TPF 8-section structure (Phoenix §3.1 aligned):
   1. Feature Classification & Introduction
   2. Design Details          ← architecture diagrams / block flows (extracted from TCDs)
   3. Validation Strategy     ← tier rationale (PSS / FV / PV)
-  4. Tier Coverage           ← bug coverage matrix, scenario coverage
-  5. Risks & Dependencies
-  6. DFX Considerations
-  7. Common Corner Cases     ← cross-TCD corner cases
-  8. TCD Coverage Summary & References
+  4. Risks & Dependencies
+  5. DFX Considerations
+  6. References              ← child TCD table + spec links
 
 Usage:
   python tools/html/generate_tpf_preview.py --tpf <TPF_ID>
@@ -138,18 +136,16 @@ def build_tpf_desc_from_kb(kb_text: str) -> str:
         ("1", "Feature Classification &amp; Introduction", "Feature Classification"),
         ("2", "Design Details",                             "Design Details"),
         ("3", "Validation Strategy",                        "Validation Strategy"),
-        ("4", "Tier Coverage",                              "Tier Coverage"),
-        ("5", "Risks &amp; Dependencies",                   "Risks"),
-        ("6", "DFX Considerations",                         "DFX"),
-        ("7", "Common Corner Cases",                        "Common Corner"),
-        ("8", "TCD Coverage Summary &amp; References",      "TCD Coverage"),
+        ("4", "Risks &amp; Dependencies",                   "Risks"),
+        ("5", "DFX Considerations",                         "DFX"),
+        ("6", "References",                                 "TCD Coverage"),
     ]
 
     html = ""
     for num, label, key in SECTIONS:
         block = parse_block(kb_text, key)
         if num == "8":
-            # Section 8: render ref bullet links + any other content
+            # Section 6 (References): render ref bullet links + any other content
             ref_lines = [l for l in block if re.match(r"-\s+\[", l.strip())]
             body = refs_html(ref_lines) if ref_lines else render_block(block)
         else:

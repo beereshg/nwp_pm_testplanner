@@ -302,28 +302,7 @@ PCT validation requires **three complementary tiers**. Same feature ≠ same val
 
 ---
 
-## Section 4: Tier Coverage
-
-### Bug Coverage Matrix
-
-| Bug Category | PSS (VP) | PSS (HSLE) | PSS (XOS) | FV | PV |
-|-------------|----------|-----------|-----------|----|----|
-| PCode TPMI write logic wrong | ✅ | ⚠️ | ✅ | ✅ | indirect |
-| PrimeCode HPM message to CBB wrong | ✅ | ❌ | ✅ | ✅ | indirect |
-| CBB PCode misreads CLOS config | ❌ | ✅ | ✅ | ✅ | indirect |
-| Acode applies wrong ratio to HP cores | ❌ | ✅ | ✅ | ✅ | indirect |
-| IMH↔CBB HPM protocol bug | ❌ | ❌ | ✅ | ✅ | indirect |
-| Silicon TPMI decoder HW bug | ❌ | ❌ | ❌ | ✅ | indirect |
-| Real fuse gating PCT wrong | ❌ | ❌ | ❌ | ✅ | indirect |
-| intel-speed-select driver bug | ❌ | ❌ | ❌ | ❌ | ✅ |
-| SST tool misparse capability | ❌ | ❌ | ❌ | ❌ | ✅ |
-| NWP 2-CBB topology in driver | ❌ | ❌ | ❌ | ❌ | ✅ |
-| TDP convergence (real power) | ❌ | ❌ | ❌ | ✅ | ✅ |
-| BIOS negative validation | ✅ safe | ❌ | ❌ | ❌ risky | ❌ |
-
----
-
-## Section 5: Risks & Dependencies
+## Section 4: Risks & Dependencies
 
 ### Active Risks
 
@@ -359,7 +338,7 @@ PCT validation requires **three complementary tiers**. Same feature ≠ same val
 
 ---
 
-## Section 6: DFX Considerations
+## Section 5: DFX Considerations
 
 - **No PCT-specific debug registers**: PCT uses standard SST-TF TPMI registers. Debug visibility is through `sv.socket0.nio0.tpmi.sst_*` namednodes in PythonSV.
 - **TPMI access paths**: `sv.socket0.nio0.tpmi.sst_clos_config_0` (HP ceiling), `sst_clos_config_3` (LP ceiling), `sst_clos_assoc_*` (per-core HP/LP assignment), `sst_tf_info_0/2` (source fuse values).
@@ -369,7 +348,7 @@ PCT validation requires **three complementary tiers**. Same feature ≠ same val
 
 ---
 
-## Section 7: References
+## Section 6: References
 
 ### Child TCDs (verified 2026-07-20)
 
