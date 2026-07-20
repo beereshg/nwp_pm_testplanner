@@ -13,6 +13,11 @@
 
 ---
 
+
+## Test Case Intent
+
+Validates the ITD fuse coefficient checkout across all domains scenario defined in [TCD 16031170075 — ITD Common Controls](https://hsdes.intel.com/appstore/article-one/#/16031170075) §5. Environment: NWP post-silicon, FV.
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

@@ -14,6 +14,11 @@
 
 ---
 
+
+## Test Case Intent
+
+Validates the VccRing (CCF/PCode) temperature-dependent voltage compensation scenario defined in [TCD 16031170072 — Core/Ring Rail ITD](https://hsdes.intel.com/appstore/article-one/#/16031170072) §5. Environment: NWP post-silicon, FV.
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

@@ -9,7 +9,9 @@
 | **Feature** | Memory Thermal |
 | **Sub-Feature** | DDRIO Temperature Compensation — RC pulls DTS temp via PMSB → DDRIO Resource Adapter (~10ms rate) |
 | **NWP Disposition** | Runnable_On_N-1 |
-| **KB last updated** | 2026-06-25 |
+| **KB last updated** | 2026-07-19 |
+| **Co-Design finding** | DDRIO Temp Compensation is architecturally separate from MTM (CLTT/Memhot/Memtrip). Owned by DDRIO PHY/Memory IO team. Fully independent CRI registers and RC firmware — no overlap with CLTT control. Should have its own TPF. |
+| **Spec refs** | NWP Memory IO (DDRIO) Stack MAS: DDRIO Comp registers, CRI access sections |
 
 ## Section 1: Architecture / Micro-architecture and Functionality
 

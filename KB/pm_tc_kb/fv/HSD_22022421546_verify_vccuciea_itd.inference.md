@@ -14,6 +14,11 @@
 
 ---
 
+
+## Test Case Intent
+
+Validates the VCCUCIEA (UCIe A-side) ITD compensation scenario defined in [TCD 16031170073 — Fabric/IO Rail ITD](https://hsdes.intel.com/appstore/article-one/#/16031170073) §5. Environment: NWP post-silicon, FV.
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

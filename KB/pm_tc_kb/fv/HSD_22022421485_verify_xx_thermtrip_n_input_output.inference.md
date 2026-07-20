@@ -13,6 +13,11 @@
 
 ---
 
+
+## Test Case Intent
+
+Validates the THERMTRIP_N bidirectional assertion and cross-die wire-OR scenario defined in [TCD 16031170071 -- MEMTRIP/THERMTRIP Package Signaling](https://hsdes.intel.com/appstore/article-one/#/16031170071) S5. Environment: NWP post-silicon, FV.
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

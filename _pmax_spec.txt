@@ -1,0 +1,145 @@
+Here is a detailed explanation of the **NWP Newport PMAX (Maximum Power Protection) feature**, including architecture, throttle levels, hardware, timing, register/BIOS controls, DFX, and NWP/DMR differences:
+
+---
+
+## **1. MT-PMax Architecture**
+
+- **Multi-Threshold PMAX (MT-PMax):**  
+  - Monitors VccIN (FIVR input) voltage using an on-die analog detector.
+  - Compares VccIN against **three independently fuse-programmable thresholds** (Vtrip0, Vtrip1, Vtrip2) for progressive (soft) throttling, plus a fourth threshold for ** FDP**.
+  - Each threshold triggers a different level of throttling response, with the highest (Vtrip2) corresponding to a hard throttle event.
+
+---
+
+## **2. Throttle Levels (Vtrip 0/1/2/3)**
+
+- **Vtrip0, Vtrip1:**  
+  - Lower thresholds, typically used for **soft/proportional throttling** (e.g., PWM-based, frequency clipping).
+  - Intended to reduce power before a hard throttle is needed.
+- **Vtrip2:**  
+  - Highest programmable threshold, triggers **hard throttle** (immediate, aggressive frequency/power reduction).
+- **Vtrip3 (FDP):**  
+  - Dedicated to **Fast Droop Protection**—detects rapid voltage droops to protect FIVR Vmin.
+
+- **Encoding:**  
+  - Trip levels are encoded in fuses; 1 code = 2mV VccIN (mapping to IccIN via loadline).
+
+---
+
+## **3. Hardware Detector Locations**
+
+- **NWP Newport:**  
+  - **imh0 (NIO die):** Houses the main PMAX detector circuitry.
+  - **cbb0, cbb1:** Receive throttle signals from imh0; no independent PMAX detectors.
+- **DMR:**  
+  - Dual VCCIN domains, with PMAX detectors on both IMH dies (north/south partitions).
+
+---
+
+## **4. D2D Fast-Throttle Wire**
+
+- **YY_FAST_THROTTLE_IN_0:**  
+  - Dedicated die-to-die (D2D) wire for **hard throttle** signaling from imh0 to cbb0/cbb1.
+  - Ensures **sub-microsecond response** (target: <2μs, typically ~50ns for power reduction).
+- **YY_FAST_THROTTLE_IN_1:**  
+  - Used for PWM/proportional throttling (soft throttle).
+
+---
+
+## **5. FIVR VccIN Sensing**
+
+- **PMAX detector** directly senses the FIVR input voltage (VccIN) at imh0.
+- ** FDP:**  
+  - Additional logic in PMAX IP for rapid detection of large voltage droops, with direct signaling to core throttle logic.
+
+---
+
+## **6. PMax Frequency Response Timing**
+
+- **Hard throttle (Vtrip2):**  
+  - Power reduction to Psafe must occur within **50ns** of D2D wire assertion.
+- **Soft throttle (Vtrip0/1):**  
+  - Proportional throttling is engaged as VccIN approaches higher thresholds, slowing the voltage drop and reducing the likelihood of hard throttle.
+- **FDP:**  
+  - Response loop (detection to throttle) is completed within the first droop time constant (nanoseconds).
+
+---
+
+## **7. Register Interface for PMax Configuration**
+
+- **PMAX_CONTROL (imh0):**  
+  - Programs trip thresholds, enables/disables PMAX, masks outputs.
+- **ICCMAX_CONFIG:**  
+  - Allows Pcode to adjust trip levels dynamically (e.g., for IccMax reduction).
+- **GPIO PMAX_TRIGGER_IO:**  
+  - Bi-directional IO for external Pmax event injection or live observability (configurable as RX/TX/disabled via BIOS).
+- **Punit/PrimeCode registers:**  
+  - Masking PMAX during package C6, clearing/resetting throttle events, and configuring edge/level retrigger logic.
+
+---
+
+## **8. BIOS Knob Controls**
+
+- **PMAX_TRIGGER_IO mode:**  
+  - BIOS can set to RX (default, for platform-driven events), TX (for validation/DFX), or disabled.
+- **Trip threshold adjustment:**  
+  - BIOS can adjust hard throttle trip threshold (legacy capability).
+- **Feature disable:**  
+  - Overclocking platforms may disable PMAX for higher performance.
+
+---
+
+## **9. NWP-Specific Deltas from DMR**
+
+- **Single VCCIN on NIO (imh0):**  
+  - NWP has a single VCCIN domain and PMAX detector on imh0.
+  - DMR-AP has dual VCCIN domains, with PMAX detectors on both IMH dies.
+- **Throttle signaling:**  
+  - NWP: imh0 drives D2D fast-throttle wire to both cbb0 and cbb1.
+  - DMR: Each IMH partition independently manages its CBBs.
+- **Simplified coordination:**  
+  - No need for cross-die HPM messaging for Pmax events in NWP.
+
+---
+
+## **10. DFX Observability for PMax Events**
+
+- **PMAX_TRIGGER_IO GPIO:**  
+  - In TX mode, allows external monitoring of live PMAX events (scope/SMB connector).
+- **Registers:**  
+  - Event counters and status bits in PMAX IP and Punit for validation.
+- **FDP event counters:**  
+  - Registers track number of FDP triggers for validation and debug.
+
+---
+
+## **11. Risks and Corner Cases**
+
+- **Platform voltage tolerance:**  
+  - Mapping of IccMax reduction to trip codes is sensitive to loadline and voltage accuracy.
+- **PkgC6 interaction:**  
+  - PMAX must be masked/disabled during deep package C-states to avoid false triggers.
+- **External event injection:**  
+  - If PMAX_TRIGGER_IO is misconfigured, external events could cause unintended throttling.
+- **Overclocking:**  
+  - Disabling PMAX increases risk of Vmin violations and FIVR instability.
+- **Illegal trip encoding:**  
+  - Only 001, 011, 111 are valid; 010, 110, 100 are illegal and must be avoided.
+
+---
+
+## **Summary Table**
+
+| Aspect                | NWP Newport (NIO)                | DMR-AP                        |
+|-----------------------|----------------------------------|-------------------------------|
+| VCCIN domains         | Single (imh0)                    | Dual (IMH0, IMH1)             |
+| PMAX detector         | imh0 only                        | Both IMH dies                 |
+| Throttle signaling    | imh0 → cbb0/cbb1 (D2D wire)      | Each IMH → local CBBs         |
+| Trip levels           | 3 soft + 1 FDP                   | 3 soft + 1 FDP                |
+| GPIO observability    | PMAX_TRIGGER_IO (bi-dir, BIOS)   | PMAX_TRIGGER_IO               |
+| Register config       | PMAX_CONTROL, ICCMAX_CONFIG      | PMAX_CONTROL (per IMH)        |
+| DFX                   | GPIO, event counters             | GPIO, event counters          |
+
+---
+
+**If you need register bitfields, event flow diagrams, or more on DFX/validation, let me know!**

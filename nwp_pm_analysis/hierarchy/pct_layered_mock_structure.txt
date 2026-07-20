@@ -1,0 +1,413 @@
+# PCT Feature — Restructured Mock (Layered Coverage Instrument)
+# =============================================================
+# TPF: 16030762939 — [NWP PM] PCT (Priority Core Turbo)
+# Parent TP: 16030762839 — [NWP PM] SST (Speed Select Technology)
+#
+# This is the target structure applying the layered test plan architecture:
+# - Layers (-1 through 4) as tags on TCDs
+# - Enablement ladder (prerequisite gates)
+# - Program-agnostic TCD sentences (manifest-referenced thresholds)
+# - Per-tile/backend/corner fan-out at TC level
+# - Verdict taxonomy: pass / fail / blocked / N-A-for-config / waived
+#
+# Notation:
+#   [Layer N] = layer tag
+#   [Gate: X] = must-pass prerequisite (blocked if X is red)
+#   {manifest.field} = symbolic reference to SKU manifest
+#   Applicable: = machine-readable applicability clause
+#   Suspect: = suspect-on-failure tag
+#   Fan-out: = TC instantiation axes
+
+================================================================================
+FOUNDATION NODE (runs first, gates everything)
+================================================================================
+
+These TCDs also appear in the global "Platform Identity & Enumeration" feature
+node — listed here for PCT-specific context.
+
+[Layer -1] PCT-FUSE-001
+─────────────────────────────────────────────────────────────────────────────────
+Title:    "PCT fuse shadow matches SKU manifest, per tile"
+Sentence: On every tile, SST-TF capability fusing (CAPID4 SST bits, PCT
+          availability) matches the SKU manifest. All tiles report identical
+          PCT feature fusing.
+§5 Bar:   CAPID4.SST_TF_CAP shadow == manifest.pct_capable per tile;
+          cross-tile diff of PCT fusing == empty set.
+Applicable: All NWP parts (PCT universally fused on NWP per HAS).
+Suspect:  Wrong SKU / fab escape / fuse controller error.
+Gate:     None (this IS the first gate).
+Fan-out:  Per-socket × per-tile (CBB0, CBB1).
+
+  TC instances:
+    PCT-FUSE-001 / silicon / CBB0
+    PCT-FUSE-001 / silicon / CBB1
+    PCT-FUSE-001 / simics / CBB0  (model fuse injection)
+
+
+[Layer 0] PCT-ENUM-001
+─────────────────────────────────────────────────────────────────────────────────
+Title:    "PCT enumeration sources are mutually consistent per socket"
+Sentence: CPUID SST leaf (0x07 sub-leaf), TPMI SST_TF_INFO discovery registers,
+          BIOS PCT knob visibility, and OS intel-speed-select topology report
+          are mutually consistent — all agree PCT is present/absent, and report
+          identical partition count capability.
+§5 Bar:   {cpuid_sst_leaf.pct_present} == {tpmi.sst_tf_info.pct_cap}
+          == {bios_knob.pct_visible} == {isst.pct_discovered}; all TRUE.
+Applicable: Parts where PCT-FUSE-001 == PASS.
+Suspect:  BIOS table bug (knob missing) or TPMI programming error.
+Gate:     PCT-FUSE-001 must be PASS.
+Fan-out:  Per-socket (single NIO on NWP).
+
+  TC instances:
+    PCT-ENUM-001 / silicon / OS-isst-harness
+    PCT-ENUM-001 / simics / scripted-register-read
+    PCT-ENUM-001 / PV / OS-isst-harness
+
+
+================================================================================
+LAYER 1 — CONTRACT (register encode/decode, lock semantics)
+================================================================================
+
+[Layer 1] PCT-CONTRACT-001
+─────────────────────────────────────────────────────────────────────────────────
+Title:    "PCT BIOS knob produces correct TPMI SRAM state"
+Sentence: Setting BIOS PCT Partition Count = N programs SST_CLOS_CONFIG[0].max
+          = manifest.hp_trl, SST_CP_CONTROL.priority_type = 1,
+          SST_CLOS_ASSOC maps exactly manifest.hp_core_count cores to CLOS[0],
+          and remaining cores to CLOS[3] with clip = manifest.lp_clip_ratio.
+§5 Bar:   SST_CLOS_CONFIG[0].max == {manifest.hp_trl};
+          count(cores in CLOS[0]) == {manifest.hp_core_count};
+          SST_CLOS_CONFIG[3].max == {manifest.lp_clip_ratio};
+          All per-tile.
+Applicable: Parts where PCT-ENUM-001 == PASS; backends: silicon, simics.
+Suspect:  BIOS CPL3 programming error.
+Gate:     PCT-ENUM-001.
+Fan-out:  Per-partition-count (1, 2, 4) × per-tile.
+
+  TC instances:
+    PCT-CONTRACT-001 / silicon / partition=1 / CBB0
+    PCT-CONTRACT-001 / silicon / partition=2 / CBB0
+    PCT-CONTRACT-001 / silicon / partition=4 / CBB0
+    PCT-CONTRACT-001 / silicon / partition=1 / CBB1
+    PCT-CONTRACT-001 / silicon / partition=2 / CBB1
+    PCT-CONTRACT-001 / silicon / partition=4 / CBB1
+    PCT-CONTRACT-001 / simics / partition=2 / CBB0
+    PCT-CONTRACT-001 / simics / partition=4 / CBB0
+
+
+[Layer 1] PCT-CONTRACT-002
+─────────────────────────────────────────────────────────────────────────────────
+Title:    "PCT runtime toggle via SST_PP_CONTROL.feature_state[1] is honored"
+Sentence: Writing SST_PP_CONTROL.feature_state[1] = 0 disables PCT (HP cores
+          drop to base, LP cores unclip). Writing = 1 re-enables (HP cores
+          return to HP TRL, LP cores re-clip). Transition completes within
+          {manifest.pct_toggle_latency_us}.
+§5 Bar:   Post-disable: all cores at uniform base ratio ±{manifest.ratio_tolerance};
+          Post-re-enable: HP cores at {manifest.hp_trl} ±tolerance, LP at
+          {manifest.lp_clip_ratio} ±tolerance.
+Applicable: Parts where PCT-CONTRACT-001 == PASS on at least one partition; backends: silicon, simics.
+Suspect:  PCode SST-TF flow (toggle path).
+Gate:     PCT-CONTRACT-001.
+Fan-out:  Per-backend × enable→disable, disable→enable sequences.
+
+  TC instances:
+    PCT-CONTRACT-002 / silicon / enable→disable / OS-isst
+    PCT-CONTRACT-002 / silicon / disable→enable / OS-isst
+    PCT-CONTRACT-002 / simics / enable→disable / scripted
+
+
+[Layer 1] PCT-CONTRACT-003
+─────────────────────────────────────────────────────────────────────────────────
+Title:    "PCT negative: invalid CLOS/partition inputs are rejected or clamped"
+Sentence: Out-of-range partition count (0, >4, non-power-of-2), writes to
+          reserved CLOS fields, and direct TPMI writes bypassing BIOS either
+          fault, are clamped to valid range, or produce no state change.
+          Invalid inputs never corrupt live CLOS state.
+§5 Bar:   Post-invalid-write: CLOS state == pre-write snapshot (bitwise);
+          no silent corruption; error status register (if any) set.
+Applicable: Parts where PCT-ENUM-001 == PASS; backends: silicon.
+Suspect:  PCode input validation / TPMI access control.
+Gate:     PCT-ENUM-001 (doesn't need CONTRACT-001 — tests the error path, not happy path).
+Fan-out:  Per-invalid-input-class (out-of-range, reserved-field, bypass).
+
+  TC instances:
+    PCT-CONTRACT-003 / silicon / partition=0
+    PCT-CONTRACT-003 / silicon / partition=5
+    PCT-CONTRACT-003 / silicon / reserved-field-write
+    PCT-CONTRACT-003 / silicon / direct-tpmi-bypass
+
+
+================================================================================
+LAYER 2 — OBSERVABILITY (are the meters honest?)
+================================================================================
+
+[Layer 2] PCT-OBS-001
+─────────────────────────────────────────────────────────────────────────────────
+Title:    "HP/LP frequency differentiation is observable via APERF/MPERF"
+Sentence: With PCT enabled and all cores loaded, HP core APERF/MPERF ratio
+          reflects HP TRL ceiling and LP core APERF/MPERF ratio reflects LP
+          clip — simultaneously, on the same measurement window.
+§5 Bar:   HP cores: APERF/MPERF ratio ≥ {manifest.hp_trl} × 0.95;
+          LP cores: APERF/MPERF ratio ≤ {manifest.lp_clip_ratio} × 1.05;
+          Measured over {manifest.obs_window_sec} seconds.
+Applicable: Parts where PCT-CONTRACT-001 == PASS; backends: silicon.
+Suspect:  PCode frequency delivery / FIVR response.
+Gate:     PCT-CONTRACT-001.
+Fan-out:  Per-tile × per-partition-count.
+
+  TC instances:
+    PCT-OBS-001 / silicon / partition=2 / CBB0 / turbostat-harness
+    PCT-OBS-001 / silicon / partition=2 / CBB1 / turbostat-harness
+    PCT-OBS-001 / silicon / partition=4 / CBB0 / turbostat-harness
+    PCT-OBS-001 / silicon / partition=4 / CBB1 / turbostat-harness
+
+
+[Layer 2] PCT-OBS-002
+─────────────────────────────────────────────────────────────────────────────────
+Title:    "HP core selection matches manifest favored-core topology"
+Sentence: Under default PCT partition configuration, the cores assigned to
+          CLOS[0] (HP) are the {manifest.hp_core_count} highest-performance
+          cores as identified by the favored-core ranking in
+          IA32_HWP_CAPABILITIES.highest_perf per tile.
+§5 Bar:   set(HP cores) == set(top-N cores by HWP_CAPABILITIES.highest_perf)
+          where N = {manifest.hp_core_count} / {manifest.tile_count}.
+Applicable: Parts where PCT-CONTRACT-001 == PASS; backends: silicon.
+Suspect:  BIOS HP selection algorithm / favored-core fusing.
+Gate:     PCT-CONTRACT-001.
+Fan-out:  Per-tile.
+
+  TC instances:
+    PCT-OBS-002 / silicon / CBB0
+    PCT-OBS-002 / silicon / CBB1
+
+
+================================================================================
+LAYER 3 — SCENARIOS (invariants about coordination, interaction, direction)
+================================================================================
+
+[Layer 3] PCT-SCENARIO-001
+─────────────────────────────────────────────────────────────────────────────────
+Title:    "LP cores remain clipped when all HP cores enter C6"
+Sentence: With PCT enabled, when all HP (CLOS[0]) cores enter C6, LP (CLOS[3])
+          cores do NOT gain access to the HP turbo budget. LP frequency ceiling
+          remains at LP clip regardless of HP C-state residency.
+§5 Bar:   LP core APERF/MPERF ≤ {manifest.lp_clip_ratio} × 1.05 while
+          HP core C6 residency > 90%, sustained for ≥ 30 seconds.
+Applicable: Parts where PCT-OBS-001 == PASS; backends: silicon, simics-with-cstate-model.
+Suspect:  PCode CLOS recalculation logic (must NOT recalculate on HP idle).
+Gate:     PCT-OBS-001.
+Fan-out:  Per-tile × per-backend.
+
+  TC instances:
+    PCT-SCENARIO-001 / silicon / CBB0 / all-HP-idle-workload
+    PCT-SCENARIO-001 / silicon / CBB1 / all-HP-idle-workload
+    PCT-SCENARIO-001 / simics / CBB0 / injected-C6
+
+
+[Layer 3] PCT-SCENARIO-002
+─────────────────────────────────────────────────────────────────────────────────
+Title:    "Ordered Throttle: LP cores throttle first under RAPL PL1"
+Sentence: When RAPL PL1 is set below the power required to sustain HP TRL +
+          LP clip simultaneously, PCode throttles LP cores first (reducing LP
+          frequency toward Pn) before reducing HP cores below HP TRL.
+§5 Bar:   Under sustained PL1 = {manifest.pl1_ordered_throttle_test_watts}:
+          HP frequency ≥ {manifest.hp_trl} × 0.90 while LP frequency <
+          {manifest.lp_clip_ratio} × 0.90 — for ≥ 10 seconds steady state.
+Applicable: Parts where PCT-OBS-001 == PASS; backends: silicon.
+Suspect:  PCode ordered-throttle priority logic.
+Gate:     PCT-OBS-001.
+Fan-out:  Per-PL1-level (mild throttle, severe throttle) × per-tile.
+
+  TC instances:
+    PCT-SCENARIO-002 / silicon / PL1=mild / CBB0
+    PCT-SCENARIO-002 / silicon / PL1=severe / CBB0
+    PCT-SCENARIO-002 / silicon / PL1=mild / CBB1
+    PCT-SCENARIO-002 / silicon / PL1=severe / CBB1
+
+
+[Layer 3] PCT-SCENARIO-003
+─────────────────────────────────────────────────────────────────────────────────
+Title:    "Thermal throttle respects HP/LP priority under PROCHOT"
+Sentence: Under thermal throttle (PROCHOT or EMTTM), HP cores are protected
+          longer than LP cores — LP frequency drops first. HP frequency
+          reduction occurs only after LP is at minimum.
+§5 Bar:   During thermal event: LP freq < {manifest.lp_clip_ratio} × 0.80
+          while HP freq ≥ {manifest.hp_trl} × 0.85 — until thermal severity
+          exceeds ordered-throttle range.
+Applicable: Parts where PCT-OBS-001 == PASS; backends: silicon (requires real thermal injection).
+Suspect:  PCode thermal × ordered-throttle interaction.
+Gate:     PCT-OBS-001.
+Fan-out:  Per-thermal-source (PROCHOT, EMTTM, DTS) × per-tile.
+
+  TC instances:
+    PCT-SCENARIO-003 / silicon / PROCHOT-inject / CBB0
+    PCT-SCENARIO-003 / silicon / EMTTM-inject / CBB0
+    PCT-SCENARIO-003 / silicon / PROCHOT-inject / CBB1
+
+
+[Layer 3] PCT-SCENARIO-004
+─────────────────────────────────────────────────────────────────────────────────
+Title:    "DQ Rules: HP core disqualification promotes next-best core"
+Sentence: When an HP core is disqualified (DQ'd via HWP or thermal event),
+          PCode reassigns CLOS[0] to the next-highest-performance core from
+          the favored-core ranking. The DQ'd core drops to LP clip.
+§5 Bar:   Post-DQ: count(CLOS[0] cores) unchanged; new HP core frequency ≥
+          {manifest.hp_trl} × 0.95; DQ'd core frequency ≤
+          {manifest.lp_clip_ratio} × 1.05.
+Applicable: Parts where PCT-FUSE-001 == PASS; backends: silicon.
+Suspect:  PCode DQ reassignment logic / fuse-rank interpretation at runtime.
+Gate:     PCT-FUSE-001 (fuse-derived ranking is the ground truth for promotion
+          order — if fuses are wrong, DQ promotes the wrong core).
+Fan-out:  Per-DQ-cause (thermal, HWP limit) × per-tile.
+
+  TC instances:
+    PCT-SCENARIO-004 / silicon / thermal-DQ / CBB0
+    PCT-SCENARIO-004 / silicon / HWP-DQ / CBB0
+    PCT-SCENARIO-004 / silicon / thermal-DQ / CBB1
+
+
+================================================================================
+LAYER 4 — SOAK (race hunting, long-duration stress)
+================================================================================
+
+[Layer 4] PCT-SOAK-001
+─────────────────────────────────────────────────────────────────────────────────
+Title:    "PCT coherence under simultaneous RAPL + C-state + thermal stress"
+Sentence: Under 72+ hours of randomized: partition-count changes, C-state
+          cycling on HP/LP cores, RAPL PL1 excursions, thermal injection,
+          and workload bursts — no hangs, no stuck CLOS assignments, no
+          frequency inversions (LP > HP), no residency counter stalls.
+§5 Bar:   Zero hangs; zero frequency inversions (sampled every 100ms);
+          CLOS assignment integrity check passes every 60s;
+          no MCA/IERR events.
+Applicable: Parts where all Layer-3 TCDs == PASS; backends: silicon only.
+Suspect:  PCode race conditions in CLOS/throttle/C-state interaction.
+Gate:     All PCT-SCENARIO-* PASS.
+Fan-out:  Per-unit × per-temp-corner (ambient, hot chamber).
+
+  TC instances:
+    PCT-SOAK-001 / silicon / unit-A / 25°C / 72h
+    PCT-SOAK-001 / silicon / unit-A / 85°C-chamber / 72h
+    PCT-SOAK-001 / silicon / unit-B / 25°C / 72h
+
+
+================================================================================
+ENABLEMENT LADDER (execution order)
+================================================================================
+
+Position │ TCD              │ Gate (blocked if red)
+─────────┼──────────────────┼──────────────────────────────────
+   1     │ PCT-FUSE-001     │ (none — always first)
+   2     │ PCT-ENUM-001     │ PCT-FUSE-001
+   3     │ PCT-CONTRACT-001 │ PCT-ENUM-001
+   4     │ PCT-CONTRACT-002 │ PCT-CONTRACT-001
+   5     │ PCT-CONTRACT-003 │ PCT-ENUM-001
+   6     │ PCT-OBS-001      │ PCT-CONTRACT-001
+   7     │ PCT-OBS-002      │ PCT-CONTRACT-001
+   8     │ PCT-SCENARIO-001 │ PCT-OBS-001
+   9     │ PCT-SCENARIO-002 │ PCT-OBS-001
+  10     │ PCT-SCENARIO-003 │ PCT-OBS-001
+  11     │ PCT-SCENARIO-004 │ PCT-FUSE-001 (fuse-derived ranking is DQ ground truth)
+  12     │ PCT-SOAK-001     │ All SCENARIO-* PASS
+
+
+================================================================================
+COVERAGE MATRIX (Layer × Content)
+================================================================================
+
+          │ -1 (Fuse) │ 0 (Enum) │ 1 (Contract) │ 2 (Observe) │ 3 (Scenario) │ 4 (Soak)
+──────────┼───────────┼──────────┼──────────────┼─────────────┼──────────────┼──────────
+Fuse/SKU  │ FUSE-001  │          │              │             │              │
+Enum      │           │ ENUM-001 │              │             │              │
+BIOS      │           │          │ CONTRACT-001 │             │              │
+Toggle    │           │          │ CONTRACT-002 │             │              │
+Negative  │           │          │ CONTRACT-003 │             │              │
+Freq obs  │           │          │              │ OBS-001     │              │
+HP select │           │          │              │ OBS-002     │              │
+C6 interact│          │          │              │             │ SCENARIO-001 │
+RAPL order│           │          │              │             │ SCENARIO-002 │
+Thermal   │           │          │              │             │ SCENARIO-003 │
+DQ rules  │           │          │              │             │ SCENARIO-004 │
+Cross-soak│           │          │              │             │              │ SOAK-001
+
+
+================================================================================
+SKU MANIFEST REFERENCES (constants outsourced from TCDs)
+================================================================================
+
+All {manifest.*} symbols resolve from the per-program SKU manifest file.
+For NWP initial silicon:
+
+  manifest.pct_capable          = true
+  manifest.hp_trl               = 44  (ratio, ×100 MHz = 4.4 GHz)
+  manifest.lp_clip_ratio        = 23  (ratio, ×100 MHz = 2.3 GHz)
+  manifest.hp_core_count        = 8
+  manifest.tile_count           = 2
+  manifest.partition_counts     = [1, 2, 4]
+  manifest.pl1_ordered_throttle_test_watts = <TDP × 0.7>
+  manifest.pct_toggle_latency_us = 100
+  manifest.obs_window_sec       = 10
+  manifest.ratio_tolerance      = 1  (ratio units)
+
+
+================================================================================
+MAPPING FROM CURRENT TCDs → NEW STRUCTURE
+================================================================================
+
+Current TCD (as-is)                          │ Maps to
+─────────────────────────────────────────────┼─────────────────────────────────
+22022420855 — PCT - BIOS Enabling            │ PCT-CONTRACT-001 (Layer 1)
+22022420858 — PCT - Functionality            │ PCT-OBS-001 + PCT-OBS-002 (Layer 2)
+16031169297 — PCT - TPMI Runtime Control     │ PCT-CONTRACT-002 (Layer 1)
+16031169298 — PCT - DQ Rules                 │ PCT-SCENARIO-004 (Layer 3)
+16031169308 — PCT - Negative / Boundary      │ PCT-CONTRACT-003 (Layer 1)
+16031169309 — PCT × C-states (HP C6)         │ PCT-SCENARIO-001 (Layer 3)
+16031169310 — PCT - Error Injection          │ Absorbed into PCT-CONTRACT-003 + PCT-SOAK-001
+16031169376 — PCT × Thermal                  │ PCT-SCENARIO-003 (Layer 3)
+16031169419 — PCT × RAPL × C × thermal      │ PCT-SOAK-001 (Layer 4)
+16031169214 — PCT - PV Discovery             │ PCT-ENUM-001 TC instance (PV backend)
+16031169217 — PCT - PV BIOS Disable          │ PCT-CONTRACT-002 TC instance (PV backend)
+22022420862 — PCT - PV BIOS Configuration    │ PCT-CONTRACT-001 TC instances (PV backend)
+(MISSING — no current TCD)                   │ PCT-FUSE-001 (Layer -1) — NEW
+(MISSING — no current TCD)                   │ PCT-ENUM-001 (Layer 0) — NEW
+(MISSING — no current TCD)                   │ PCT-SCENARIO-002 ordered throttle — NEW
+
+
+================================================================================
+FAN-OUT SUMMARY
+================================================================================
+
+  12 TCDs → 44 TC instances (ratio 1:3.7)
+  
+  Axes of fan-out:
+    Backend:         silicon / simics / PV       (3 levels)
+    Tile:            CBB0 / CBB1                 (2 levels)
+    Partition count: 1 / 2 / 4                   (3 levels)
+    Corner:          25°C / 85°C                 (2 levels)
+    Scenario variant: per-TCD specific           (varies)
+
+
+================================================================================
+VERDICT PROPAGATION EXAMPLE
+================================================================================
+
+Scenario: PCT-FUSE-001 fails on CBB1 (fuse mismatch).
+
+  PCT-FUSE-001 / CBB0 = PASS
+  PCT-FUSE-001 / CBB1 = FAIL  ← root cause (1 red)
+
+  PCT-ENUM-001 / CBB0 scope = proceed (FUSE-001/CBB0 passed)
+  PCT-ENUM-001 / CBB1 scope = BLOCKED  ← (grey, not red)
+
+  All downstream CBB1 TCs = BLOCKED (grey)
+  All downstream CBB0 TCs = proceed normally
+
+  Roll-up dashboard shows:
+    1 FAIL (PCT-FUSE-001/CBB1) — root cause
+    N BLOCKED (all CBB1 descendants) — not counted as coverage gaps
+    CBB0 ladder proceeds independently
+
+  Escalation: fuse mismatch → Intel with part serial number.
+  (If PCT-ENUM-001 had failed with FUSE-001 passing → BIOS team.)
+
+

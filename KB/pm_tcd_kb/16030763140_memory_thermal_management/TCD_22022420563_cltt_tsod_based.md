@@ -8,8 +8,10 @@
 | **Parent TP** | [16030763140 -- NWP PM Memory Thermal Management](https://hsdes.intel.com/appstore/article-one/#/16030763140) |
 | **Feature** | Memory Thermal -- CLTT TSOD |
 | **Sub-Feature** | TSOD (Thermal Sensor On DIMM) via SPD Controller |
-| **NWP Disposition** | Runnable_On_N-1 (3 active TCs; 5 rejected) |
-| **KB last updated** | 2026-06-25 |
+| **NWP Disposition** | ⚠️ **ZBB_N/A** — TSOD not POR for NWP LPDDR6/SOCAMM (was: Runnable_On_N-1) |
+| **KB last updated** | 2026-07-19 |
+| **Co-Design T2 action** | ⚠️ REMOVE / mark ZBB_N/A — NWP PAS confirms TSOD not planned for LP6/SOCAMM CLTT/system usage. See `codesign_T2_ingest_thermal_mgmt.md` §4. |
+| **Spec refs (T2)** | NWP PAS (nwppas.html): TSOD not available for CLTT/system usage on LPDDR6/SOCAMM |
 
 ## Section 1: Architecture / Micro-architecture and Functionality
 

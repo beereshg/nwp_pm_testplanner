@@ -14,6 +14,11 @@
 
 ---
 
+
+## Test Case Intent
+
+Validates the VCCCFCMEM (memory fabric) ITD compensation scenario defined in [TCD 16031170074 — Memory/CFC Rail ITD](https://hsdes.intel.com/appstore/article-one/#/16031170074) §5. Environment: NWP post-silicon, FV.
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

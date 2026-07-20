@@ -19,7 +19,7 @@ description: >
 
 - User asks to enrich, preview, or update a TP / TPF description
 - Architecture diagrams or boot flow diagrams are duplicated across multiple TCD Section 1s
-- TPF is missing Risks & Dependencies, DFX, or Common Corner Cases sections
+- TPF is missing Risks & Dependencies or DFX sections
 - TPF TCD coverage table is stale (titles or counts changed)
 - User says `enrich tpf <ID>`, `preview tpf <ID>`, `update tpf <ID>`
 
@@ -76,7 +76,6 @@ Example: `KB/pm_tpf_kb/16030762839_sst_speed_select_technology/TPF_16030762939_n
 | TC coverage map table | Links to child TCs with scope | Keep in TCD |
 | NWP-specific constants table | Total cores, partition count, max_partitions | Keep in TCD (reference values) |
 | Programming model register/MSR table (feature-wide) | Full register list from TCD §4 | Move to TPF §2 → `### Interface & Register Matrix` |
-| Debug observability list (MSRs, tools, BIOS knobs — cross-TCD) | Tools + commands to observe feature state | Move to TPF §2 → `### Observability` |
 | SKU / config behavioral distinctions (affects multiple TCDs) | Fuse/BIOS-knob gating table from TCD §1 or §4 | Move to TPF §2 → `### SKU / Config Distinctions` |
 
 **What stays in TCD Section 1 after extraction:**
@@ -101,13 +100,13 @@ Example: `KB/pm_tpf_kb/16030762839_sst_speed_select_technology/TPF_16030762939_n
 Run these two lints after editing TPF §2 and before generating the preview.
 
 **Lint A — Layer claim coverage:**
-Every layer in the Full-Stack Cross-Layer Diagram must be claimed by at least one non-❌ tier in the Validation-Tier Layer Claim table. Rows with PSS=❌, FV=❌, PV=❌ are validation gaps — surface each in §5 Accepted Coverage Limitations.
+Every layer in the Full-Stack Cross-Layer Diagram must be claimed by at least one non-❌ tier. Rows with PSS=❌, FV=❌, PV=❌ are validation gaps — surface each in §5 Accepted Coverage Limitations.
 
 ```python
 # Quick section health-check — run from repo root before generate_tpf_preview.py
 from tools.html.generate_tcd_preview import parse_block
 kb_text = open('<kb_file>', encoding='utf-8').read()
-for section in ['Design Details', 'Validation Strategy', 'Tier Coverage', 'Risks', 'DFX', 'Common Corner']:
+for section in ['Design Details', 'Validation Strategy', 'Risks', 'DFX']:
     block = parse_block(kb_text, section)
     status = '⚠️  EMPTY — check for duplicate ## heading' if len(block) < 3 else '✓'
     print(f'{section:<22}: {len(block):>4} lines  {status}')
@@ -128,9 +127,7 @@ A regenerated diagram may look "prettier" but drop panels from the original — 
 | `### Frequency Hierarchy` / `### Frequency Table` | `### Frequency Hierarchy` |
 | `### Selection Algorithm` / `### Assignment` | `### Key Selection / Assignment Algorithm` |
 | `### Register Table` / `### MSR Table` / `### Programming Model` | `### Interface & Register Matrix` |
-| `### Observability` / `### Debug Registers` / `### Debug Knobs` | `### Observability` |
 | `### SKU` / `### Config` / `### Platform Variations` | `### SKU / Config Distinctions` |
-| `### Firmware Agent Responsibilities` (§1 intra-doc) | `### Agent Source Ownership` — extract `Key Artifact` column only; `Role` column is redundant with §2 full-stack diagram |
 | Unrecognized heading | ⚠️  Flag for manual placement — do NOT silently drop |
 
 ---
@@ -146,11 +143,9 @@ The generator (`generate_tpf_preview.py`) maps KB headings to numbered HTML sect
 | `Feature Classification` | 1. Feature Classification & Introduction | Introduction + design details focus |
 | `Design Details` | 2. Design Details | Block diagrams / state diagrams / pipeline flows |
 | `Validation Strategy` | 3. Validation Strategy | Validation strategy highlights |
-| `Tier Coverage` | 4. Tier Coverage | Validation strategy — tier-level coverage |
-| `Risks` | 5. Risks & Dependencies | Risks and dependencies |
-| `DFX` | 6. DFX Considerations | DFX |
-| `Common Corner` | 7. Common Corner Cases | Potential corner cases (cross-TCD) |
-| `TCD Coverage` | 8. TCD Coverage Summary & References | References + TCD coverage table |
+| `Risks` | 4. Risks & Dependencies | Risks and dependencies |
+| `DFX` | 5. DFX Considerations | DFX |
+| `TCD Coverage` | 6. References | References + TCD coverage table |
 
 ### Recommended TPF KB Structure
 
@@ -173,10 +168,7 @@ The generator (`generate_tpf_preview.py`) maps KB headings to numbered HTML sect
 
 > **§1 scope rule:** §1 contains ONLY: feature intro paragraph, gating mechanism (fuse name or BIOS
 > knob path), and feature-specific constants. Do NOT put firmware agent roles here — they duplicate
-> the §2 full-stack diagram. If §1 has a `### Firmware Agent Responsibilities` table:
-> - Extract the `Key Artifact` column → add a `### Agent Source Ownership` table in §2
-> - Delete the Role column (already covered by the full-stack diagram layer boxes)
-> - See Common Pitfall: *§1 restates §2 layer responsibilities*
+> the §2 full-stack diagram.
 
 ### Feature-Specific Constants
 
@@ -219,24 +211,6 @@ a stack with tier claims; the spec supplies the layer names.
 </div>
 <!-- /raw-html -->
 
-### ⚡ MANDATORY: Validation-Tier Layer Claim
-
-**Placed directly under the full-stack diagram.**
-Every row (= every stack layer) must be claimed by at least one non-❌ tier.
-Rows where PSS=❌, FV=❌, PV=❌ are validation gaps → surface each in §5 Accepted Coverage Limitations.
-
-> **§3 pointer (required):** Validation Strategy §3 must reference this table:
-> *"Layer coverage is mapped in §2 — Validation-Tier Layer Claim table identifies which tier
-> validates each stack layer and flags any unclaimed layers as accepted gaps."*
-
-| Layer (from full-stack diagram) | PSS | FV | PV | Notes |
-|---|---|---|---|---|
-| OS / Tool Layer | ❌ | ❌ | ✅ | Requires booted OS + tool stack |
-| Firmware Policy Layer | ✅ | ✅ | ✅ | All tiers validate |
-| Enforcement / Control Layer | ✅ | ✅ | ❌ | Model-level only pre-Si |
-| Platform Agent Layer | ✅ | ✅ | ✅ | Covered across tiers |
-| Silicon / HW Layer | ✅ | ✅ | ❌ | RTL / model coverage; PV observes indirectly |
-
 ### {Feature} Boot / Reset Flow
 
 ```
@@ -267,15 +241,6 @@ Provides stable anchor for TCD cross-references: link here rather than duplicati
 |---|---|---|---|---|
 | *(populate from HAS §Programming Model or TCD §4)* | | | | |
 
-### Observability
-
-**Named landing zone.** Debug MSRs, tool commands, and BIOS knobs used to observe feature
-state — promoted from any TCD whose observability list applies across multiple TCD scopes.
-
-| Observable | Type | Tool / Command | What it shows |
-|---|---|---|---|
-| *(populate from TCD observability or HAS debug section)* | | | |
-
 ### SKU / Config Distinctions
 
 **Named landing zone.** Platform-specific behavioral variations promoted from TCDs — fuse-gated,
@@ -284,17 +249,6 @@ BIOS-knob-controlled, or config-restricted behaviors that affect multiple TCDs u
 | SKU / Config | Distinction | TCDs affected |
 |---|---|---|
 | *(populate from HAS §SKU or TCD config tables)* | | |
-
-### Agent Source Ownership
-
-**Named landing zone.** Source file / FAS ownership for each layer — promoted from §1 if a
-`### Firmware Agent Responsibilities` table was present there (extract `Key Artifact` column;
-discard the `Role` column, which is redundant with the full-stack diagram layer boxes).
-Use this when a frequency / power anomaly needs to be traced to the right codebase.
-
-| Layer / Agent | Key Artifact (source file / FAS) |
-|---|---|
-| *(populate from HAS §Implementation or §1 agent table `Key Artifact` column)* | |
 
 ### ⚡ Microarch→Scenario Coverage Matrix
 
@@ -394,45 +348,7 @@ missing from §2 (add it) or the TCD doesn't belong under this TPF (reparent).
 
 ---
 
-## Section 4: Tier Coverage
-
-[Bug coverage matrix (which tier catches which bug class) + scenario coverage across tiers.]
-
-**PSS sub-environment key** — split PSS columns by environment; each row only covers the PSS environments that can reach the bug:
-
-| Symbol | Meaning |
-|---|---|
-| ✅ | Catches / detects this bug class |
-| ❌ | Cannot catch — wrong environment or interface |
-| ⚠️ | Partial / limited detection (model gap, heuristic only) |
-| `indirect` | PV can observe the symptom at the OS/tool layer but cannot directly attribute it — FV is the isolation environment |
-| `✅ safe` / `❌ risky` | Environment-safety annotation: valid for BIOS negative validation where VP is safe (no silicon at risk) but FV would risk real silicon damage |
-
-### Bug Coverage Matrix
-
-| Bug Category | PSS (VP) | PSS (HSLE) | PSS (XOS) | FV | PV |
-|---|---|---|---|---|---|
-| Firmware-layer bug (PCode / PrimeCode TPMI write logic) | ✅ | ⚠️ | ✅ | ✅ | indirect |
-| Cross-die protocol bug (IMH↔CBB HPM) | ❌ | ❌ | ✅ | ✅ | indirect |
-| Silicon HW bug (TPMI decoder, fuse gating) | ❌ | ❌ | ❌ | ✅ | indirect |
-| OS / driver bug (intel-speed-select, intel_pstate) | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Real-power / TDP convergence | ❌ | ❌ | ❌ | ✅ | ✅ |
-| BIOS negative validation | ✅ safe | ❌ | ❌ | ❌ risky | ❌ |
-| *(add feature-specific rows from HAS bug taxonomy)* | | | | | |
-
-> **BIOS negative validation rule:** VP (Simics) is the **only** safe environment for injecting invalid BIOS
-> values — no silicon at risk. FV is marked `❌ risky` because invalid programming can damage or lock real
-> silicon state. Do NOT run BIOS negative tests on FV without explicit hardware team sign-off.
-
-### Scenario Coverage Across Tiers
-
-| Scenario | PSS | FV | PV | Unique value |
-|---|---|---|---|---|
-| *(add feature scenarios)* | | | | |
-
----
-
-## Section 5: Risks & Dependencies
+## Section 4: Risks & Dependencies
 
 **Split §5 into two sub-sections** when coverage gaps have been analysed:
 
@@ -457,31 +373,13 @@ Document inherent gaps that have no actionable TC. Required fields: current cove
 
 ---
 
-## Section 6: DFX Considerations
+## Section 5: DFX Considerations
 
 - **{DFX item}**: ...
 
 ---
 
-## Section 7: Common Corner Cases
-
-[Cross-TCD corner cases — conditions that affect multiple TCDs under this TPF.]
-
-| Corner Case | Affected TCDs | Expected Behavior |
-...
-
-**Coverage gap table (use when formal gap analysis has been done):**
-
-After a gap analysis session, replace or extend the corner cases table with the full
-5-column gap table. P1 (actionable) gaps belong here; accepted/inherent gaps go in §5.
-
-| Gap ID | Gap | Current Coverage | Missing Tier | Recommended TC |
-|--------|-----|-----------------|-------------|----------------|
-| **G-N** | scenario | existing TC or `none` | FV / PV / PSS | new TC stub or `accepted` |
-
----
-
-## Section 8: TCD Coverage Summary & References
+## Section 6: References
 
 ### Child TCDs
 
@@ -515,11 +413,10 @@ Preview includes:
 ## Step 5 — User Reviews
 
 User checks:
-- Section 2 (Design Details) — **full-stack cross-layer diagram present** (not only within-layer views); every layer has a tier claim in the Validation-Tier Layer Claim table; no unclaimed rows
+- Section 2 (Design Details) — **full-stack cross-layer diagram present** (not only within-layer views)
 - Section 2 (Design Details) — Interface & Register Matrix, Observability, and SKU/Config Distinctions landing zones populated (or explicitly marked `N/A — not applicable for this feature`)
-- Section 3 (Validation Strategy) — references §2 Validation-Tier Layer Claim table by name
-- Section 4 (Tier Coverage) — bug matrix and scenario coverage complete
-- Section 8 — TCD table matches live children (generator fetches live from HSD)
+- Section 3 (Validation Strategy) — references §2 Design Details by name
+- Section 6 — TCD table matches live children (generator fetches live from HSD)
 - **Completeness diff** — every `###` heading removed from source TCD KBs appears in TPF §2 (verify using Lint B from Step 2b)
 
 ---
@@ -589,7 +486,6 @@ Example: TPF `16030762939` lives under TP `16030762839_sst_speed_select_technolo
 | Block diagrams / state diagrams / flows | **2 — Design Details** | ✅ (extracted from TCDs) |
 | Risks and dependencies | 5 — Risks & Dependencies | ✅ |
 | DFX considerations | 6 — DFX | ✅ |
-| Potential corner cases | 7 — Common Corner Cases | ✅ |
 
 ---
 
@@ -609,4 +505,4 @@ Example: TPF `16030762939` lives under TP `16030762839_sst_speed_select_technolo
 | `<!-- raw-html -->` diagram renders in preview but empty in HSD | Verify the `<!-- raw-html --> ... <!-- /raw-html -->` block is inside the correct `## Section N:` block (not orphaned before or after it). Run `parse_block(kb_text, 'Design Details')` and check `len(block)` before pushing. |
 | **Full-stack diagram missing — only within-layer views present** | §2 must include one diagram showing all layers from OS/tool down to silicon. Boot-flow, mechanism diagrams, and frequency tables are within-layer views and do NOT substitute. Derive layer names from the feature's HAS/MAS; the template mandates the structure, the spec supplies the names. |
 | **Validation-tier layer claim table missing from §2** | Required directly under the full-stack diagram. Every stack layer must be claimed by ≥1 tier. Unclaimed rows → flag in §5 Accepted Coverage Limitations. This is the sentence that justifies the TCD structure below the TPF; §3 must reference it by name. |
-| **TCD content promoted but silently dropped** | Run Lint B (Step 2b): for each `###` heading removed from source TCD KB, confirm it exists in a TPF §2 landing zone. A redrawn "prettier" diagram may omit original panels — verify subsection count matches. || **§1 restates §2 layer responsibilities** | §1 should contain only: feature intro, gating mechanism (fuse/BIOS knob), and constants. If §1 has a table listing firmware agents + roles, it’s duplicating the §2 Full-Stack diagram. Apply the intra-document extraction rule: move the `Key Artifact` column (source file / FAS ownership) to a new `### Agent Source Ownership` table in §2; delete the rest. §2 then has layer + owner + where-to-look in one view. |
+| **TCD content promoted but silently dropped** | Run Lint B (Step 2b): for each `###` heading removed from source TCD KB, confirm it exists in a TPF §2 landing zone. A redrawn "prettier" diagram may omit original panels — verify subsection count matches. || **§1 restates §2 layer responsibilities** | §1 should contain only: feature intro, gating mechanism (fuse/BIOS knob), and constants. If §1 has a table listing firmware agents + roles, it’s duplicating the §2 Full-Stack diagram. Remove the table from §1; layer responsibilities belong in the full-stack diagram only. |

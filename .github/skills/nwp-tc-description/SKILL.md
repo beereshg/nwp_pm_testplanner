@@ -36,6 +36,71 @@ description: >
 
 ---
 
+## TC Title Convention (Layered Model)
+
+Every TC title follows the format: `{TCD-ID} / {backend} / {variant}`
+
+### Format
+
+```
+{FEATURE}-{LAYER}-{NNN} / {backend} / {variant-axes}
+```
+
+### Components
+
+| Component | Values | Examples |
+|-----------|--------|----------|
+| `{TCD-ID}` | Parent TCD's layered ID | `PCT-SCENARIO-004` |
+| `{backend}` | `FV` (silicon), `PSS` (Simics/VP), `PV` (platform) | `FV` |
+| `{variant-axes}` | Tile, corner, DQ-cause, partition-count, tool | `thermal-DQ / CBB0` |
+
+### Examples
+
+```
+PCT-CONTRACT-001 / FV / partition=2 / CBB0
+PCT-CONTRACT-001 / PSS / DQ-Rule Register Check (FlexconPM)
+PCT-SCENARIO-004 / FV / thermal-DQ / CBB0
+PCT-SCENARIO-004 / FV / HWP-DQ / CBB1
+PCT-SOAK-001 / FV / 25C / unit-A / 72h
+```
+
+### Rules
+
+- TC title must start with its parent TCD's layered ID
+- Slash-separated segments after backend are the fan-out axes
+- Never restate the TCD's invariant in the TC title — it's inherited
+- A TC that validates register configuration (e.g., FlexconPM) belongs under
+  a CONTRACT-layer TCD, not a SCENARIO-layer TCD
+
+### TC Reorganization Trigger
+
+When reorganizing TCs under a retitled TCD, apply these checks:
+
+| Check | Action |
+|-------|--------|
+| TC validates **register state** (post-boot checks, FlexconPM) | Move to `CONTRACT-*` TCD |
+| TC validates **runtime behavior** (inject event → observe response) | Keep under `SCENARIO-*` TCD |
+| TC validates **meter accuracy** (counters vs reference) | Move to `OBS-*` TCD |
+| TC is rejected/ZBB | Leave in place (don't move rejected TCs) |
+| TC duplicates intent of sibling under different backend | Same TCD, different title suffix |
+
+### Fan-Out Axes (TC instantiation)
+
+One TCD fans out across these axes at TC level:
+
+| Axis | Typical Values | When to fan |
+|------|---------------|-------------|
+| Backend | FV / PSS / PV | Always (minimum 1 per applicable backend) |
+| Tile | CBB0 / CBB1 | Per-tile when TCD mentions "per tile" |
+| Corner | 25°C / 85°C / Vmin / Vmax | Layer 4 (soak) only, unless TCD specifies |
+| Partition count | 1 / 2 / 4 | PCT-specific: sweep configs |
+| Scenario variant | thermal-DQ / HWP-DQ / core-offline | Per-TCD specific |
+| Unit | unit-A / unit-B | Layer 4 (soak) — minimum 2 samples |
+
+Healthy ratio: **1 TCD → 3 to ~20 TCs.** If ratio ≈ 1:1, TCDs are secretly procedures.
+
+---
+
 ## When to Use
 
 - User asks to write, enrich, or update a TC description

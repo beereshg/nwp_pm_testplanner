@@ -1,0 +1,93 @@
+<div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.15em;font-weight:bold;border-left:4px solid #0071c5;">1. Validation Scope</div>
+<div style="padding:20px;">
+<p>Validates the PCT cross-product interaction invariants defined in <a href="https://hsdes.intel.com/appstore/article-one/#/16031169419">TCD 16031169419</a> &sect;5: ordered throttle under RAPL PL1 (LP cores first), C-state topology stability (CLOS unchanged through C6), PROCHOT thermal override (all cores clamped), and EMTTM interaction (min of ordered and thermal limits).</p>
+<p><strong>Environment:</strong> NWP-IMH post-silicon FV. Requires PythonSV for TPMI register access and DTS thermal injection capability.</p>
+</div></div>
+
+<div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.15em;font-weight:bold;border-left:4px solid #0071c5;">2. Preconditions</div>
+<div style="padding:20px;">
+<table style="border-collapse:collapse;width:100%;">
+<tr style="background:#f0f5fa;"><th style="border:1px solid #d0d7de;padding:8px;text-align:left;">Requirement</th><th style="border:1px solid #d0d7de;padding:8px;text-align:left;">Detail</th></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;">Platform</td><td style="border:1px solid #d0d7de;padding:8px;">NWP-IMH system, 2 CBBs, PCT-capable QDF</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;">BIOS knobs</td><td style="border:1px solid #d0d7de;padding:8px;">PCT Partition Count = 4; SST-TF = Enabled; <code>SST_CP_PRIORITY_TYPE</code> = 1 (Ordered Throttling)</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;">OS / Driver</td><td style="border:1px solid #d0d7de;padding:8px;">Ubuntu Linux; <code>intel-speed-select</code> installed; PythonSV for TPMI/DTS access; <code>stress-ng</code> or equivalent all-core workload</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;">Feature state</td><td style="border:1px solid #d0d7de;padding:8px;">PCT active: 8 HP cores (CLOS[0]) across 4 partitions; 88 LP cores (CLOS[3])</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;">RAPL</td><td style="border:1px solid #d0d7de;padding:8px;">TPMI <code>SOCKET_RAPL_PL1_CONTROL.PWR_LIM_EN</code> = 1; baseline PL1 = TDP</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;">Thermal injection</td><td style="border:1px solid #d0d7de;padding:8px;">PythonSV DTS override capable (for PROCHOT injection in Phase C); or hardware thermal chamber</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;">Starting state</td><td style="border:1px solid #d0d7de;padding:8px;">System at idle; <code>SST_CP_STATUS.EXCURSION_TO_MIN</code> = 0x0; no thermal events active</td></tr>
+</table>
+</div></div>
+
+<div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.15em;font-weight:bold;border-left:4px solid #0071c5;">3. Automation</div>
+<div style="padding:20px;">
+<p><strong>Command line:</strong> <code>python scripts/pm/sst/pct_cross_product_test.py --scenario all</code></p>
+<p><strong>Script:</strong> <code>pct_cross_product_test.py</code> (PythonSV-based cross-product validation)</p>
+<p><strong>Estimated runtime:</strong> ~15 minutes (3 phases: RAPL throttle, C-state cycling, thermal override)</p>
+<p><strong>Note:</strong> Phase C (PROCHOT injection) requires DTS override via PythonSV. If unavailable, log skip for PROCHOT steps and run EMTTM-only path.</p>
+</div></div>
+
+<div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.15em;font-weight:bold;border-left:4px solid #0071c5;">4. Test Steps</div>
+<div style="padding:20px;">
+<p><strong>Phase A &mdash; RAPL Ordered Throttle</strong></p>
+<table style="border-collapse:collapse;width:100%;">
+<tr style="background:#f0f5fa;"><th style="border:1px solid #d0d7de;padding:8px;width:30px;">#</th><th style="border:1px solid #d0d7de;padding:8px;">Action</th><th style="border:1px solid #d0d7de;padding:8px;">Expected Result</th></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;text-align:center;">1</td><td style="border:1px solid #d0d7de;padding:8px;"><strong>Record baseline frequencies.</strong> For all 96 cores, read <code>/sys/bus/cpu/devices/cpuN/cpufreq/scaling_cur_freq</code>. Identify HP cores (CLOS[0]) and LP cores (CLOS[3]).</td><td style="border:1px solid #d0d7de;padding:8px;">HP cores at PCT TRL (~4.4 GHz); LP cores at LP clip (~P1). HP &gt; LP for all core pairs.</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;text-align:center;">2</td><td style="border:1px solid #d0d7de;padding:8px;"><strong>Start all-core stress workload.</strong> Launch <code>stress-ng --cpu 96 --timeout 60s</code>.</td><td style="border:1px solid #d0d7de;padding:8px;">All cores loaded. Baseline power near TDP.</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;text-align:center;">3</td><td style="border:1px solid #d0d7de;padding:8px;"><strong>Reduce PL1 to 70% TDP.</strong> Write <code>SOCKET_RAPL_PL1_CONTROL.PWR_LIM</code> = 0.7 &times; TDP via PythonSV.</td><td style="border:1px solid #d0d7de;padding:8px;">RAPL PID loop begins throttling. Power converges toward PL1 target.</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;text-align:center;">4</td><td style="border:1px solid #d0d7de;padding:8px;"><strong>Sample frequencies for 10 seconds.</strong> Poll <code>scaling_cur_freq</code> at 100 ms intervals for all cores. Compute HP-mean and LP-mean per sample.</td><td style="border:1px solid #d0d7de;padding:8px;">LP-mean &lt; HP-mean for &ge; 90% of samples (ordered throttle: LP first).</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;text-align:center;">5</td><td style="border:1px solid #d0d7de;padding:8px;"><strong>Check EXCURSION_TO_MIN.</strong> Read <code>SST_CP_STATUS</code> bits 11:8.</td><td style="border:1px solid #d0d7de;padding:8px;"><code>EXCURSION_TO_MIN[3]</code> = 1 (LP CLOS hit floor). <code>EXCURSION_TO_MIN[0]</code> may = 0 (HP maintained).</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;text-align:center;">6</td><td style="border:1px solid #d0d7de;padding:8px;"><strong>Restore PL1 to TDP.</strong> Write original PL1 value back. Stop stress workload.</td><td style="border:1px solid #d0d7de;padding:8px;">Frequencies recover. Clear <code>EXCURSION_TO_MIN</code> via <code>RESET_EXCURSION_TO_MIN</code>.</td></tr>
+</table>
+
+<p style="margin-top:20px;"><strong>Phase B &mdash; C-State Topology Stability</strong></p>
+<table style="border-collapse:collapse;width:100%;">
+<tr style="background:#f0f5fa;"><th style="border:1px solid #d0d7de;padding:8px;width:30px;">#</th><th style="border:1px solid #d0d7de;padding:8px;">Action</th><th style="border:1px solid #d0d7de;padding:8px;">Expected Result</th></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;text-align:center;">7</td><td style="border:1px solid #d0d7de;padding:8px;"><strong>Record PCT topology baseline.</strong> Run <code>intel-speed-select perf-profile info -l 0</code>. Save HP module count, APIC IDs.</td><td style="border:1px solid #d0d7de;padding:8px;">8 HP modules across both CBBs.</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;text-align:center;">8</td><td style="border:1px solid #d0d7de;padding:8px;"><strong>Cycle HP cores through C6 1000 times.</strong> For each HP core, force idle (drop workload) &rarr; wait for C6 entry (poll <code>cpuidle/state3/usage</code>) &rarr; wake with short burst. Repeat 1000 cycles.</td><td style="border:1px solid #d0d7de;padding:8px;">C6 usage counter increments. No hangs, no MCEs.</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;text-align:center;">9</td><td style="border:1px solid #d0d7de;padding:8px;"><strong>Verify topology unchanged.</strong> Re-run <code>intel-speed-select perf-profile info -l 0</code>. Compare against Step 7 baseline.</td><td style="border:1px solid #d0d7de;padding:8px;">HP module count and APIC IDs identical to baseline. No CLOS reassignment.</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;text-align:center;">10</td><td style="border:1px solid #d0d7de;padding:8px;"><strong>Verify HP frequency on wake.</strong> After last C6 exit, immediately read HP core <code>scaling_cur_freq</code>.</td><td style="border:1px solid #d0d7de;padding:8px;">HP core frequency &ge; LP_CLIP + 100 MHz within 10 ms of wake (not clipped to LP level).</td></tr>
+</table>
+
+<p style="margin-top:20px;"><strong>Phase C &mdash; Thermal Override</strong></p>
+<table style="border-collapse:collapse;width:100%;">
+<tr style="background:#f0f5fa;"><th style="border:1px solid #d0d7de;padding:8px;width:30px;">#</th><th style="border:1px solid #d0d7de;padding:8px;">Action</th><th style="border:1px solid #d0d7de;padding:8px;">Expected Result</th></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;text-align:center;">11</td><td style="border:1px solid #d0d7de;padding:8px;"><strong>Start all-core stress + reduce PL1 to 70% TDP.</strong> Same as Steps 2&ndash;3 to establish ordered throttle baseline.</td><td style="border:1px solid #d0d7de;padding:8px;">LP throttled first; HP maintained. Ordered throttle active.</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;text-align:center;">12</td><td style="border:1px solid #d0d7de;padding:8px;"><strong>Inject PROCHOT.</strong> Via PythonSV DTS override, assert PROCHOT on socket 0. Record timestamp.</td><td style="border:1px solid #d0d7de;padding:8px;">All cores clamped to PROCHOT response frequency. HP and LP both at same low frequency.</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;text-align:center;">13</td><td style="border:1px solid #d0d7de;padding:8px;"><strong>Verify PROCHOT override.</strong> Read <code>scaling_cur_freq</code> for all cores during PROCHOT.</td><td style="border:1px solid #d0d7de;padding:8px;">All cores &le; PROCHOT response ratio. No core exceeds thermal ceiling.</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;text-align:center;">14</td><td style="border:1px solid #d0d7de;padding:8px;"><strong>De-assert PROCHOT.</strong> Clear DTS override. Record timestamp.</td><td style="border:1px solid #d0d7de;padding:8px;">PCT frequency hierarchy resumes: HP &gt; LP within 100 ms of de-assert.</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;text-align:center;">15</td><td style="border:1px solid #d0d7de;padding:8px;"><strong>Restore PL1 and stop stress.</strong> Write original PL1. Kill workload.</td><td style="border:1px solid #d0d7de;padding:8px;">System returns to idle. No dmesg errors.</td></tr>
+<tr><td style="border:1px solid #d0d7de;padding:8px;text-align:center;">16</td><td style="border:1px solid #d0d7de;padding:8px;"><strong>Final state check.</strong> Read <code>SST_CP_STATUS</code>, <code>IA32_THERM_STATUS</code>, <code>dmesg</code>.</td><td style="border:1px solid #d0d7de;padding:8px;">No residual thermal events. <code>EXCURSION_TO_MIN</code> = 0x0 after clear. No MCEs or SST errors in dmesg.</td></tr>
+</table>
+</div></div>
+
+<div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.15em;font-weight:bold;border-left:4px solid #0071c5;">5. Pass/Fail Measurement Method</div>
+<div style="padding:20px;">
+<p><strong>Bar:</strong> Per <a href="https://hsdes.intel.com/appstore/article-one/#/16031169419">TCD 16031169419</a> &sect;5 Pass/Fail Bar.</p>
+<p><strong>Measurement procedure (this TC):</strong></p>
+<ol>
+<li><strong>Ordered throttle LP-first:</strong> LP-mean <code>scaling_cur_freq</code> &lt; HP-mean for &ge; 90% of 100-sample window under PL1 = 70% TDP.</li>
+<li><strong>EXCURSION_TO_MIN:</strong> <code>SST_CP_STATUS[11:8]</code> bit 3 = 1 under PL1 stress (LP CLOS at floor).</li>
+<li><strong>C-state topology stable:</strong> <code>intel-speed-select perf-profile info</code> HP module count identical before/after 1000 C6 cycles.</li>
+<li><strong>HP wake frequency:</strong> HP core <code>scaling_cur_freq</code> &ge; LP_CLIP + 100 MHz within 10 ms of C6 exit.</li>
+<li><strong>PROCHOT override:</strong> All cores &le; PROCHOT response ratio during assert.</li>
+<li><strong>PROCHOT recovery:</strong> HP <code>scaling_cur_freq</code> &gt; LP <code>scaling_cur_freq</code> within 100 ms of de-assert.</li>
+<li><strong>Execution assertions:</strong> No MCEs, no SST/thermal dmesg errors. Test completes &lt; 15 minutes.</li>
+</ol>
+<p><strong>FAIL</strong> if any numbered criterion fails. PROCHOT steps may be skipped if DTS injection unavailable (log skip reason).</p>
+</div></div>
+
+<div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;">
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.15em;font-weight:bold;border-left:4px solid #0071c5;">6. HAS Reference</div>
+<div style="padding:20px;">
+<ul>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/server/Wave3_common/SST/Intel_SST.html">Intel SST HAS</a> &mdash; SST_CP_CONTROL.SST_CP_PRIORITY_TYPE, ordered throttling, EXCURSION_TO_MIN</li>
+<li><a href="https://docs.intel.com/documents/pm_doc/src/server/arch_common/PCT/PCT.html">PCT HAS</a> &mdash; CLOS assignment, frequency hierarchy, C-state interaction</li>
+<li><a href="https://docs.intel.com/documents/custom-xeon/newport-docs/mas/pm/nwp_imh_soc_pm_mas.html">NWP PM MAS &mdash; PCT</a></li>
+<li>Parent TCD: <a href="https://hsdes.intel.com/appstore/article-one/#/16031169419">16031169419 &mdash; PCT &times; RAPL &times; C-states &times; thermal</a></li>
+</ul>
+</div></div>

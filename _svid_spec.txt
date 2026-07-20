@@ -1,0 +1,149 @@
+Here is a detailed explanation of the NWP Newport SVID feature, including architecture, protocol, command types, voltage domains, register interface, BIOS/DFX controls, NWP/DMR differences, and risks:
+
+---
+
+## 1. SVID Bus Architecture and Protocol (SVID 2.0/3.0)
+
+- **Physical Layer:**  
+  - SVID is a 3-wire, open-drain, synchronous serial bus: SVIDCLK (clock), SVIDDATA (data), SVIDALERT_N (alert).
+  - Supports multiple VRs per bus (up to 8 per interface, 16 total), with 4-bit addressing (one reserved for broadcast).
+  - Clock is source-synchronous from the CPU (16.67–25 MHz), data rate 12.5–25 MT/s.
+  - SVIDALERT_N is driven by VRs to signal status changes or errors.
+  - NWP typically implements two SVID buses (SVID0, SVID1); mapping of voltage rails to buses is platform-specific.
+
+- **Protocol:**  
+  - SVID 2.0/3.0 compatible.
+  - Supports point-to-point and broadcast transactions.
+  - Data and clock lines are bi-directional, open-drain with pull-ups at the farthest VR.
+
+---
+
+## 2. VR (Voltage Regulator) Communication
+
+- **Primary (CPU/FIVR) initiates all transactions** to secondary (VR) devices.
+- Each VR has a unique 4-bit address.
+- VRs respond to commands, provide telemetry, and assert SVIDALERT_N for status or error conditions.
+
+---
+
+## 3. SVID Command Types
+
+| Command      | Code | Description                                                                 |
+|--------------|------|-----------------------------------------------------------------------------|
+| SetVID-fast  | 0x01 | Set VID with maximum slope (quick transitions, e.g., C6 exit)               |
+| SetVID-slow  | 0x02 | Set VID with slow slope (normal transitions)                                |
+| SetVID-decay | 0x03 | Output voltage decays with load current (C6 entry, energy saving)           |
+| SetPS        | 0x04 | Set power state for VR efficiency at light load                             |
+| SetRegADR    | 0x05 | Set register address pointer in VR                                          |
+| SetRegDAT    | 0x06 | Write data to VR register                                                   |
+| GetReg       | 0x07 | Read data from VR register                                                  |
+| TestMode     | 0x08 | Vendor-specific test mode                                                   |
+| SetWP        | 0x09 | Execute a workpoint from VR’s table (voltage + power state)                 |
+
+---
+
+## 4. Voltage Domains Managed via SVID on NWP
+
+- ** NWP:**  
+  - Single VCCIN domain (unlike DMR-AP, which has dual VCCIN).
+  - SVID manages MBVRs for VCCIN and possibly other rails (e.g., VCCCAB, VCCC2CDIG).
+  - FIVR (Fully Integrated Voltage Regulator) on die receives VCCIN from MBVR, then generates internal rails.
+
+---
+
+## 5. FIVR-to-VR SVID Interface
+
+- **FIVR acts as SVID master** for VCCIN MBVR.
+- PCode/PrimeCode issues SVID commands to MBVR via SVID interface.
+- SVID interface is implemented in GPIO; staging flops are used to hide Punit-to-GPIO delay.
+
+---
+
+## 6. PCode/Firmware SVID Sequencing During Boot and Reset
+
+- **Boot:**
+  - PCode/PrimeCode initializes SVID bus, enumerates VRs, and configures initial voltages/power states.
+  - SVID SetVID and SetPS commands are used to ramp up VCCIN and other rails as needed.
+  - VR configuration (e.g., IccMax, OVP/UVP, switching frequency) may be programmed via SetReg commands.
+- **Reset:**
+  - On reset, SVID bus is re-initialized and VRs are reconfigured as needed.
+  - SVIDALERT_N is monitored for VR errors or status changes.
+
+---
+
+## 7. SVID Telemetry Registers
+
+- **SVID_COMMAND:**  
+  - PCode interface to issue SVID transactions (fields: RUN_BUSY, ERROR, ADDRESS, COMMAND, PAYLOAD, IFC_SELECT, etc.).
+- **SVID_STATUS / VR_STATUS:**  
+  - `svid_vr_status[15:0]`: Holds latest STATUS1 register from each VR.
+  - `svid_vr_error_status`: Vector of VRs with 3-strike errors (transaction retries exceeded).
+  - `svid_datain`: Data read from VR by GetReg.
+  - Additional error/status registers for AllCall errors, over-voltage, over-current, VR hot, etc.
+
+---
+
+## 8. BIOS Knob Controls for SVID
+
+- BIOS can:
+  - Enable/disable SVID interface.
+  - Configure VR addresses and bus mapping.
+  - Adjust SVID bus speed and pull-up strength.
+  - Set VR configuration parameters (IccMax, OVP/UVP, switching frequency) via SVID commands at boot.
+  - Control SVIDALERT_N handling (e.g., mask/unmask, error response policy).
+
+---
+
+## 9. NWP-Specific Deltas from DMR
+
+- **Single VCCIN on NIO:**  
+  - NWP has only one VCCIN domain and SVID bus for VCCIN MBVR.
+  - DMR-AP has dual VCCIN domains, each with its own SVID bus and MBVR.
+- **Rail Mapping:**  
+  - NWP may have additional FIVR domains (e.g., VCCCAB, VCCC2CDIG) managed via SVID.
+- **SVID bus topology and VR address mapping** may differ due to platform layout.
+
+---
+
+## 10. DFX Observability for SVID Transactions
+
+- **Registers:**  
+  - All SVID transactions, errors, and VR status are observable via SVID_COMMAND, SVID_STATUS, svid_vr_status, svid_vr_error_status, and related registers.
+- **GPIO:**  
+  - SVIDCLK, SVIDDATA, SVIDALERT_N can be probed for signal integrity and protocol debug.
+- **DFX features:**  
+  - 3-strike error counters, AllCall error logs, and VR hot/OVP/UVP event logs.
+- **Arbiter FSM state** and alert monitoring are available for debug.
+
+---
+
+## 11. Corner Cases and Risks
+
+- **Bus contention or open-drain failures** can cause loss of VR communication.
+- **VR address misconfiguration** may prevent proper voltage rail control.
+- **SVIDALERT_N flooding** (e.g., repeated VR errors) can stall PCode/PrimeCode.
+- **Outstanding voltage requests:**  
+  - If STATUS1 is read while a voltage request is pending, the VR may never indicate “settled,” causing firmware hangs.
+- **AllCall errors** (broadcast commands) may be hard to attribute to a specific VR.
+- **Platform-specific rail mapping** must be validated to avoid powering up with incorrect voltages.
+
+---
+
+## 12. Summary Table
+
+| Aspect                | NWP Newport (NIO) Details                       |
+|-----------------------|-------------------------------------------------|
+| SVID Bus              | 2 buses, 3-wire (CLK, DATA, ALERT), 16 VRs max  |
+| Protocol              | SVID 2.0/3.0 compatible, 4-bit VR addressing    |
+| Command Types         | SetVID-fast/slow/decay, SetPS, SetReg, GetReg   |
+| Voltage Domains       | Single VCCIN (MBVR), possibly others (FIVR)     |
+| FIVR Interface        | FIVR is SVID master for MBVR                    |
+| Register Interface    | SVID_COMMAND, svid_vr_status, svid_vr_error_status, svid_datain, etc. |
+| BIOS Controls         | Enable/disable, VR config, bus speed, error policy |
+| NWP vs DMR            | Single VCCIN, different rail mapping            |
+| DFX Observability     | Full register and signal monitoring, error logs  |
+| Risks                 | Bus errors, VR misconfig, alert storms, pending requests |
+
+---
+
+**If you need register bitfields, protocol timing diagrams, or more on VR configuration, let me know!**

@@ -54,6 +54,107 @@ after any KB edit or regeneration.
 
 ---
 
+## TCD Title Convention (Layered Model)
+
+Every TCD title follows the format: `{FEATURE}-{LAYER}-{NNN} - {Descriptive Title}`
+
+### Layer Prefixes
+
+| Prefix | Layer | Trust Level |
+|--------|-------|-------------|
+| `FUSE` | −1 | Fuse audit — SKU manifest vs shadow, per tile |
+| `ENUM` | 0 | Enumeration — CPUID/TPMI/BIOS/OS consistency |
+| `CONTRACT` | 1 | Contract — register encode/decode, lock, toggle, error paths |
+| `OBS` | 2 | Observability — are the meters honest? |
+| `SCENARIO` | 3 | Scenarios — coordination invariants, interactions |
+| `SOAK` | 4 | Soak — race hunting, long-duration stress |
+
+### Examples
+
+```
+PCT-FUSE-001 - Fuse Shadow vs SKU Manifest
+PCT-ENUM-001 - Enumeration Consistency
+PCT-CONTRACT-001 - BIOS CLOS Programming
+PCT-OBS-001 - HP/LP Frequency Enforcement
+PCT-SCENARIO-001 - LP Clip Holds During HP Idle
+PCT-SOAK-001 - Multi-Feature CLOS Integrity
+```
+
+### Rules
+
+- The `{FEATURE}` prefix is the short feature name (PCT, CST, HWP, RAPL, etc.)
+- The `{NNN}` is sequential within feature×layer (001, 002, ...)
+- Title after ` - ` is the TCD's invariant phrased as a noun phrase (not a verb/command)
+- Never include tool names, register addresses, or stepping/program names in the title
+
+---
+
+## TCD Definition Block (prepended to description)
+
+Every TCD description starts with a structured "TCD Definition (Layered Model)" block
+containing exactly 7 fields:
+
+| Field | Content | Example |
+|-------|---------|---------|
+| **Layer** | Layer number + name | `3 (Scenario)` |
+| **Sentence** | The invariant in one sentence — the TCD's testable claim | `LP cores remain frequency-clipped when all HP cores enter C6.` |
+| **Gate** | Prerequisite TCD that must PASS before this runs | `PCT-OBS-001 (Frequency Enforcement)` |
+| **Suspect** | What is indicted on failure — the escalation target | `PCode CLOS recalculation logic` |
+| **Setup** | Observable preconditions (no tool names) | `PCT enabled, HP/LP confirmed. All HP cores idle.` |
+| **Check** | What is measured/observed | `Simultaneously measure HP C6 residency and LP frequency.` |
+| **Invariant** | The pass/fail bar using manifest references | `LP freq <= manifest.lp_clip_ratio × 1.05; CLOS unchanged.` |
+
+### Rendering Format (HTML)
+
+```html
+<div style="background:#f0f7ff;border:2px solid #0071c5;border-radius:8px;padding:18px 22px;margin-bottom:20px;">
+<div style="font-size:1.1em;font-weight:bold;color:#0071c5;margin-bottom:10px;">TCD Definition (Layered Model)</div>
+<table style="width:100%;border-collapse:collapse;font-size:0.92em;">
+<tr><td style="...">Layer:</td><td>...</td></tr>
+<!-- ... 7 rows ... -->
+</table></div>
+```
+
+This block is prepended ABOVE the existing 8-section description content.
+The `generate_tcd_preview.py` generator preserves it as-is (passthrough).
+
+### Manifest References in Invariant
+
+Use `{manifest.field}` syntax for any program-specific constant:
+- `{manifest.hp_trl}` — HP turbo ratio
+- `{manifest.lp_clip_ratio}` — LP clip ratio
+- `{manifest.hp_core_count}` — HP cores per partition
+- `{manifest.pct_toggle_latency_us}` — max transition time
+
+Never hardcode frequencies (4.4 GHz), core counts (96), or power limits in the invariant.
+
+---
+
+## Enablement Ladder (Gate Dependencies)
+
+Each TCD's **Gate** field defines what must PASS before it runs. A failure in a gate
+marks all downstream TCs as **blocked** (grey), not **failed** (red).
+
+The ladder runs top-to-bottom:
+1. FUSE-* (no gate — always first)
+2. ENUM-* (gate: FUSE-*)
+3. CONTRACT-* (gate: ENUM-* or prior CONTRACT)
+4. OBS-* (gate: CONTRACT-*)
+5. SCENARIO-* (gate: OBS-* or FUSE-* depending on the invariant)
+6. SOAK-* (gate: all SCENARIO-* PASS)
+
+### Verdict Taxonomy
+
+| Verdict | Meaning | Counts as coverage gap? |
+|---------|---------|------------------------|
+| pass | Invariant holds | No |
+| fail | Invariant violated | Yes |
+| blocked | Gate prerequisite is red | **No** — not counted |
+| N-A-for-config | Fuse audit says feature absent on this SKU | **No** |
+| waived | Known bug, owner + expiry required | Tracked separately |
+
+---
+
 ## Step 1 — Resolve State
 
 Given a TCD ID:
@@ -103,7 +204,7 @@ Rename-Item 'KB/pm_tcd_kb/.../TCD_{id}_old_slug.md' 'TCD_STALE_old_slug_ref.md'
 - **Preserve** human-authored enrichment content in other sections
 - Run lint gate; fix failures before proceeding
 
-### Lint Gate (L1–L7)
+### Lint Gate (L1–L9)
 
 | ID | Check | Block? |
 |----|-------|--------|
@@ -111,9 +212,11 @@ Rename-Item 'KB/pm_tcd_kb/.../TCD_{id}_old_slug.md' 'TCD_STALE_old_slug_ref.md'
 | L2 | No architecture diagrams in §1 (moved to TPF §2) | Block |
 | L3 | No numbered test steps / tool command lines in §1–§4 (those → TC) | Block |
 | L4 | §5 contains at least one measurable threshold (quantity / register value / %) | Block |
-| L5 | §5 bar is not identical to a sibling TCD’s bar (uniqueness check) | Warning |
+| L5 | §5 bar is not identical to a sibling TCD's bar (uniqueness check) | Warning |
 | L6 | §6 corner cases use 4-column verdict table, not bullet list | Warning |
 | L7 | Parent TPF link present in §1 | Warning |
+| L8 | Title matches `{FEATURE}-{LAYER}-{NNN} - {Title}` convention | Block |
+| L9 | Definition block present with all 7 fields (Layer, Sentence, Gate, Suspect, Setup, Check, Invariant) | Block |
 
 On any **Block** failure: fix the KB file, re-lint, then continue to Step 2.7.
 

@@ -14,6 +14,11 @@
 
 ---
 
+
+## Test Case Intent
+
+Validates the IMH PROCHOT entry and exit flow with fabric freq clamp/recovery scenario defined in [TCD 22022420609 -- Prochot Flow](https://hsdes.intel.com/appstore/article-one/#/22022420609) S5. Environment: NWP post-silicon, FV.
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

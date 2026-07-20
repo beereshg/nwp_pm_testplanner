@@ -13,6 +13,11 @@
 
 ---
 
+
+## Test Case Intent
+
+Validates the GPIO bump thermal fuse enable/disable checkout scenario defined in [TCD 22022420589 -- GPIO Interface](https://hsdes.intel.com/appstore/article-one/#/22022420589) S5. Environment: NWP post-silicon, FV.
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

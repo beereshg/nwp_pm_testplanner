@@ -13,6 +13,11 @@
 
 ---
 
+
+## Test Case Intent
+
+Validates the VR_THERM_ALERT_DISABLE register suppresses VR Hot response scenario defined in [TCD 22022420628 -- VR Hot](https://hsdes.intel.com/appstore/article-one/#/22022420628) S5. Environment: NWP post-silicon, FV.
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

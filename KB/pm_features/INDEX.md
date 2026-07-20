@@ -43,6 +43,7 @@
 | [NWP NIO SCF Architecture](nwp_architecture/nwp_nio_scf_overview.md) | NIO die SCF topology (I/O Mesh, Mem Mesh, CAB), 423 SubIPs, 435 SBEPs, clocks, MCA bank IDs |
 | [NWP PAS Reference](nwp_architecture/nwp_pas_reference.md) | Platform Architecture Spec — VR table (13 MBVRs/SVID addresses), power states, reset/boot, RAS |
 | [NWP PM FV Impact Analysis](nwp_architecture/nwp_has_impact_on_pm_fv.md) | Full TC-level impact of NWP HAS on PM FV test plan: REJECT/UPDATE/NEW classification for all 442 TCs |
+| [Voltage Regulation Architecture](nwp_architecture/voltage_regulation_architecture.md) | Cross-generational FIVR/DLVR/MBVR reference (GNR→DMR→NWP): per-core vs shared domains, FIVR inventory, platform VR table, validation implications |
 
 ## Cross-Cutting Infrastructure
 

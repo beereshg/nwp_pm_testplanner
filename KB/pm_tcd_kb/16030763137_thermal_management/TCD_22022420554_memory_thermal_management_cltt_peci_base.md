@@ -8,8 +8,10 @@
 | **Parent TP** | [16030763137 -- NWP PM Thermal Management](https://hsdes.intel.com/appstore/article-one/#/16030763137) |
 | **Feature** | Memory Thermal |
 | **Sub-Feature** | PECI-based CLTT — BMC writes DIMM temp via TPMI into MC registers |
-| **NWP Disposition** | Runnable_On_N-1 |
-| **KB last updated** | 2026-06-25 |
+| **NWP Disposition** | ⚠️ **ZBB_N/A** — PECI-based CLTT not POR for NWP LPDDR6 (was: Runnable_On_N-1) |
+| **KB last updated** | 2026-07-19 |
+| **Co-Design finding** | PECI-based CLTT is DDR5/DDR4 with TSOD only. NWP uses MR4 exclusively for CLTT. No BIOS knob `thermalthrottlingsupport = PECI` exists for LPDDR6. TSOD polling must be disabled on NWP (periodic_poll_command_enable = 0). |
+| **Spec refs** | NWP IMH2 HAS/MAS: MR4 is primary CLTT mechanism for LPDDR6; PECI/TSOD paths not applicable |
 
 ## Section 1: Architecture / Micro-architecture and Functionality
 

@@ -1,0 +1,7 @@
+{
+  "id": "22022458470",
+  "title": "[ITD] Verify VCCFCFCAB ITD",
+  "description": "<h4>This a placeholder for&nbsp;ITD on new digital domain [VCCFCFCAB]</h4>\n<h4>Configuration *</h4>\nNo particular requirements for configuration identified.<br />\n<br />\n<h4>Pass/Fail criteria *</h4>\nThe voltage offset calculated by Acode is congruent with the expected value, calculated as described in the ITD HAS.<br />\n<br />\n<h4>Intent Verification Strategy *</h4>Simics.<br />\n<br />\n<h4>HW Requirements</h4>\nN/A<br />\n<br />\n<h4>SW Requirements</h4>\nAcode, Pcode, Patch23.<br />\n<br />\n<h4>Coverage</h4>\nN/A<br />\n<br />\n<h4>Component Interactions</h4>\nN/A<br />\n<br />",
+  "parent_id": "16031170073",
+  "status": "open"
+}

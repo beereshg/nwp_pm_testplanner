@@ -13,6 +13,11 @@
 
 ---
 
+
+## Test Case Intent
+
+Validates the PROCHOT_N input pin assertion -> External_PROCHOT set -> TCC active scenario defined in [TCD 16031170069 -- PROCHOT_N Interface](https://hsdes.intel.com/appstore/article-one/#/16031170069) S5. Environment: NWP post-silicon, FV.
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

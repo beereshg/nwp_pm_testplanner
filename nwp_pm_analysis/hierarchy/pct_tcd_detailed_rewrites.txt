@@ -1,0 +1,640 @@
+# PCT — Detailed TCD Rewrites (Existing TCDs → Layered Model)
+# ==============================================================
+# For each of the 12 existing HSD TCDs under TPF 16030762939,
+# this document provides the rewritten TCD in the new model.
+#
+# Each TCD answers exactly three questions:
+#   1. What do I set up? (observable terms)
+#   2. What do I check? (the observable)
+#   3. What must be true? (the invariant)
+#
+# Nothing else. No tools, no MSR hex, no tile numbers, no temperatures.
+# ======================================================================
+
+
+################################################################################
+# TCD 1 of 12
+# Current HSD: 22022420855 — "PCT - BIOS Enabling"
+# New ID:      PCT-CONTRACT-001
+# Layer:       1 (Contract)
+################################################################################
+
+Title (sentence):
+  "PCT BIOS knob produces correct TPMI SRAM state per partition configuration"
+
+Setup (what do I set up?):
+  System at POST with PCT-capable fusing confirmed (Layer -1 gate passed).
+  BIOS PCT Partition Count knob set to each valid value (1, 2, 4) in sequence.
+  System boots to OS after each configuration.
+
+Check (what do I check?):
+  After boot, read TPMI SST registers:
+  - SST_CLOS_CONFIG[0].max (HP ceiling)
+  - SST_CLOS_CONFIG[3].max (LP clip)
+  - SST_CP_CONTROL.priority_type
+  - SST_CLOS_ASSOC per-core CLOS mapping
+  - NVRAM state reflecting the knob value
+
+Invariant (what must be true?):
+  For every valid partition count N:
+  - SST_CLOS_CONFIG[0].max == {manifest.hp_trl}
+  - SST_CLOS_CONFIG[3].max == {manifest.lp_clip_ratio}
+  - SST_CP_CONTROL.priority_type == 1 (ordered)
+  - count(cores mapped to CLOS[0]) == {manifest.hp_core_count} for partition N
+  - Remaining cores mapped to CLOS[3]
+  - NVRAM partition_count == N
+  All conditions per tile.
+
+Layer:          1 (Contract — register encode/decode after enablement)
+Rung:           BIOS programming path
+Gate:           PCT-ENUM-001 must be PASS
+Suspect:        BIOS CPL3 SST programming logic
+Applicable:     Parts where PCT-ENUM-001 == PASS
+                Backends: silicon, simics, PV
+
+Fan-out axes (TC level):
+  - Partition count: {1, 2, 4}
+  - Tile: {CBB0, CBB1}
+  - Backend: {silicon/OS, simics/scripted, PV/OS}
+  Expected TC count: ~12
+
+Manifest references:
+  {manifest.hp_trl}           — HP turbo ratio (NWP: 44 = 4.4 GHz)
+  {manifest.lp_clip_ratio}    — LP clip ratio (NWP: 23 = 2.3 GHz)
+  {manifest.hp_core_count}    — HP cores per partition config
+  {manifest.partition_counts} — valid partition values [1, 2, 4]
+
+
+################################################################################
+# TCD 2 of 12
+# Current HSD: 22022420858 — "PCT - Functionality"
+# New ID:      PCT-OBS-001
+# Layer:       2 (Observability)
+################################################################################
+
+Title (sentence):
+  "HP/LP frequency differentiation is observable and matches TRL ceilings
+   under simultaneous all-core load"
+
+Setup (what do I set up?):
+  PCT enabled with a valid partition count. All cores (HP and LP) loaded with
+  a deterministic compute workload that sustains 100% utilization. System in
+  thermal steady-state (no throttling active). RAPL limits set above TDP
+  (non-constraining).
+
+Check (what do I check?):
+  Measure effective frequency on every core via architectural frequency
+  reporting (APERF/MPERF ratio) over a sustained observation window.
+  Simultaneously sample HP and LP core groups.
+
+Invariant (what must be true?):
+  - Every HP core (CLOS[0]): effective frequency ≥ {manifest.hp_trl} × 0.95
+  - Every LP core (CLOS[3]): effective frequency ≤ {manifest.lp_clip_ratio} × 1.05
+  - HP group mean > LP group mean (strict inequality, no overlap)
+  - Sustained for ≥ {manifest.obs_window_sec} seconds continuously
+  All conditions per tile.
+
+Layer:          2 (Observability — are the meters honest?)
+Rung:           Frequency enforcement verification
+Gate:           PCT-CONTRACT-001 must be PASS (registers programmed correctly)
+Suspect:        PCode frequency delivery logic / FIVR voltage-frequency curve
+Applicable:     Parts where PCT-CONTRACT-001 == PASS on ≥1 partition
+                Backends: silicon (requires real frequency measurement)
+
+Fan-out axes (TC level):
+  - Partition count: {2, 4} (representative configs)
+  - Tile: {CBB0, CBB1}
+  - Measurement tool: {turbostat, perf, APERF/MPERF direct}
+  Expected TC count: ~6
+
+Manifest references:
+  {manifest.hp_trl}            — HP ceiling ratio
+  {manifest.lp_clip_ratio}     — LP clip ratio
+  {manifest.obs_window_sec}    — measurement window (NWP: 10s)
+
+
+################################################################################
+# TCD 3 of 12 (split from 22022420858)
+# Current HSD: 22022420858 — "PCT - Functionality" (HP selection aspect)
+# New ID:      PCT-OBS-002
+# Layer:       2 (Observability)
+################################################################################
+
+Title (sentence):
+  "Default HP core selection matches favored-core ranking from HWP capabilities"
+
+Setup (what do I set up?):
+  PCT enabled with default partition configuration (no manual core override).
+  System booted normally. All cores online (no hotplug, no offline cores).
+
+Check (what do I check?):
+  Read the set of cores assigned to CLOS[0] (HP group).
+  Read IA32_HWP_CAPABILITIES.highest_perf for every core.
+  Rank all cores by highest_perf descending, per tile.
+
+Invariant (what must be true?):
+  - set(CLOS[0] cores on tile T) == set(top-N cores by highest_perf on tile T)
+    where N = {manifest.hp_core_count} / {manifest.tile_count}
+  - No core with lower highest_perf is assigned HP while a core with higher
+    highest_perf is assigned LP (strict ranking, no inversions)
+  Per tile independently.
+
+Layer:          2 (Observability — is the HP selection correct?)
+Rung:           Core selection verification
+Gate:           PCT-CONTRACT-001 must be PASS
+Suspect:        BIOS HP core selection algorithm / favored-core fuse interpretation
+Applicable:     Parts where PCT-CONTRACT-001 == PASS
+                Backends: silicon, simics (if favored-core model present)
+
+Fan-out axes (TC level):
+  - Tile: {CBB0, CBB1}
+  - Backend: {silicon, simics}
+  Expected TC count: ~4
+
+Manifest references:
+  {manifest.hp_core_count} — total HP cores
+  {manifest.tile_count}    — tiles (NWP: 2)
+
+
+################################################################################
+# TCD 4 of 12
+# Current HSD: 16031169297 — "PCT - TPMI Runtime Control"
+# New ID:      PCT-CONTRACT-002
+# Layer:       1 (Contract)
+################################################################################
+
+Title (sentence):
+  "Runtime PCT toggle via SST_PP_CONTROL.feature_state produces correct
+   frequency transitions in both directions"
+
+Setup (what do I set up?):
+  PCT previously enabled and confirmed functional (OBS-001 passed). All cores
+  loaded. System in steady state with HP/LP differentiation active.
+
+Check (what do I check?):
+  1. Disable PCT (write feature_state[1] = 0). Observe frequency convergence.
+  2. Re-enable PCT (write feature_state[1] = 1). Observe frequency divergence.
+  Measure effective frequency on HP and LP cores before/after each transition.
+
+Invariant (what must be true?):
+  Post-disable:
+  - All cores converge to uniform frequency (no HP/LP split)
+  - No core exceeds base ratio + {manifest.ratio_tolerance}
+  - Transition completes within {manifest.pct_toggle_latency_us}
+
+  Post-re-enable:
+  - HP cores return to ≥ {manifest.hp_trl} × 0.95
+  - LP cores return to ≤ {manifest.lp_clip_ratio} × 1.05
+  - Transition completes within {manifest.pct_toggle_latency_us}
+
+  No frequency inversion at any sample point during transition.
+
+Layer:          1 (Contract — runtime interface lifecycle)
+Rung:           Toggle path
+Gate:           PCT-CONTRACT-001 must be PASS
+Suspect:        PCode SST-TF toggle flow / CLOS re-evaluation logic
+Applicable:     Parts where PCT-CONTRACT-001 == PASS
+                Backends: silicon, simics
+
+Fan-out axes (TC level):
+  - Direction: {enable→disable, disable→enable, rapid-toggle-sequence}
+  - Backend: {silicon/OS-isst, silicon/TPMI-direct, simics/scripted}
+  - PV variant: {PV/isst-disable-only}
+  Expected TC count: ~8
+
+Manifest references:
+  {manifest.hp_trl}                  — HP ratio target
+  {manifest.lp_clip_ratio}           — LP clip target
+  {manifest.pct_toggle_latency_us}   — max allowed transition time
+  {manifest.ratio_tolerance}         — ratio unit tolerance
+
+
+################################################################################
+# TCD 5 of 12
+# Current HSD: 16031169298 — "PCT - DQ Rules"
+# New ID:      PCT-SCENARIO-004
+# Layer:       3 (Scenarios)
+################################################################################
+
+Title (sentence):
+  "HP core disqualification promotes next-best core from favored-core ranking
+   without losing HP slot count"
+
+Setup (what do I set up?):
+  PCT enabled, favored-core ranking confirmed correct (FUSE-001 gate passed —
+  the fuse-derived ranking is the ground truth for which core gets promoted).
+  All HP cores loaded and confirmed at HP TRL. One HP core subjected to a DQ
+  trigger (thermal limit reached, or HWP autonomous frequency reduction making
+  it unable to sustain HP TRL).
+
+Check (what do I check?):
+  After DQ event:
+  - Read CLOS assignments (which cores are now in CLOS[0] vs CLOS[3])
+  - Measure frequency on the promoted core and the DQ'd core
+  - Verify total HP slot count
+  - Verify promoted core identity matches fuse-derived ranking
+
+Invariant (what must be true?):
+  - count(CLOS[0] cores) == {manifest.hp_core_count} (unchanged)
+  - The DQ'd core moves to CLOS[3] with frequency ≤ {manifest.lp_clip_ratio} × 1.05
+  - The promoted core == next core in fuse-derived favored-core ranking
+    (deterministic from fuse shadow, not runtime heuristic)
+  - Promoted core achieves frequency ≥ {manifest.hp_trl} × 0.95 within
+    {manifest.pct_toggle_latency_us}
+  - No other core's CLOS assignment changes
+  - Promotion is deterministic: always selects highest-ranked non-HP core
+    per the fuse-shadow ranking established at Layer -1
+
+Layer:          3 (Scenario — coordination invariant)
+Rung:           DQ reassignment
+Gate:           PCT-FUSE-001 must be PASS (fuse-derived ranking is the ground
+                truth for promotion order — if fuses are wrong, DQ promotes
+                the wrong core and the test is meaningless)
+Suspect:        PCode DQ detection + CLOS reassignment logic / fuse-rank
+                interpretation during runtime reassignment
+Applicable:     Parts where PCT-FUSE-001 == PASS
+                Backends: silicon (requires real DQ trigger)
+
+Fan-out axes (TC level):
+  - DQ cause: {thermal-injection, HWP-limit-write, core-offline}
+  - Tile: {CBB0, CBB1}
+  - Which HP core DQ'd: {highest-ranked, lowest-ranked-HP}
+  Expected TC count: ~8
+
+Manifest references:
+  {manifest.hp_core_count}         — expected HP count (invariant)
+  {manifest.hp_trl}                — promoted core must reach this
+  {manifest.lp_clip_ratio}         — DQ'd core must drop to this
+  {manifest.pct_toggle_latency_us} — max reassignment time
+
+
+################################################################################
+# TCD 6 of 12
+# Current HSD: 16031169308 — "PCT - Negative / Boundary Validation"
+# New ID:      PCT-CONTRACT-003
+# Layer:       1 (Contract)
+################################################################################
+
+Title (sentence):
+  "Invalid PCT configurations are rejected without corrupting live CLOS state"
+
+Setup (what do I set up?):
+  PCT enabled and confirmed functional (CONTRACT-001 passed). CLOS state
+  snapshot captured as baseline. Then inject invalid inputs one at a time:
+  - Partition count = 0
+  - Partition count > 4
+  - Partition count = 3 (non-power-of-2)
+  - Write to reserved SST_CLOS_CONFIG fields
+  - Direct TPMI SRAM write bypassing PCode flow
+  - CLOS assignment pointing core to non-existent CLOS index
+
+Check (what do I check?):
+  After each invalid input:
+  - Re-read full CLOS state (CONFIG, ASSOC, CP_CONTROL)
+  - Compare bitwise against pre-injection baseline
+  - Check for error status / fault indication (if interface provides one)
+
+Invariant (what must be true?):
+  - Post-injection CLOS state == pre-injection baseline (bitwise identical)
+  - No silent state corruption (no partial writes visible)
+  - If error reporting exists: error status set appropriately
+  - System remains functional (no hang, no MCA)
+  - Valid PCT operation resumes without requiring re-enable
+
+Layer:          1 (Contract — error path verification)
+Rung:           Negative/boundary
+Gate:           PCT-ENUM-001 must be PASS (tests error path, not happy path)
+Suspect:        PCode input validation / TPMI access control logic
+Applicable:     Parts where PCT-ENUM-001 == PASS
+                Backends: silicon (TPMI bypass requires direct HW access)
+
+Fan-out axes (TC level):
+  - Invalid input class: {out-of-range, non-power-of-2, reserved-field,
+    TPMI-bypass, invalid-CLOS-index}
+  - Backend: {silicon/TPMI-direct, silicon/BIOS-knob-reject}
+  Expected TC count: ~6
+
+Manifest references:
+  {manifest.partition_counts} — valid set (everything else is invalid)
+
+
+################################################################################
+# TCD 7 of 12
+# Current HSD: 16031169309 — "PCT × C-states (HP C6 mixed workload)"
+# New ID:      PCT-SCENARIO-001
+# Layer:       3 (Scenarios)
+################################################################################
+
+Title (sentence):
+  "LP cores remain frequency-clipped when all HP cores enter C6, regardless
+   of HP idle duration"
+
+Setup (what do I set up?):
+  PCT enabled, HP/LP differentiation confirmed (OBS-001 passed). LP cores
+  loaded with sustained compute workload. All HP cores made idle (no work
+  scheduled, C6 entry expected). Hold this asymmetric state for a sustained
+  observation period.
+
+Check (what do I check?):
+  Simultaneously measure:
+  - HP core C6 residency (via residency counters)
+  - LP core effective frequency (via APERF/MPERF)
+  Over the full observation period.
+
+Invariant (what must be true?):
+  - HP core C6 residency > 90% (confirming they actually entered C6)
+  - LP core effective frequency ≤ {manifest.lp_clip_ratio} × 1.05
+    (LP does NOT inherit HP turbo budget)
+  - No frequency inversion event (LP > {manifest.lp_clip_ratio} × 1.10)
+    at any sample point
+  - CLOS assignment unchanged (static, not recalculated on C-state entry)
+  Sustained for ≥ 30 seconds.
+
+Layer:          3 (Scenario — coordination invariant under C-state interaction)
+Rung:           C-state × PCT interaction
+Gate:           PCT-OBS-001 must be PASS
+Suspect:        PCode CLOS recalculation logic — must NOT recalculate bucket
+                on HP core idle entry. If LP gains HP budget, PCode is
+                incorrectly redistributing TRL quota.
+Applicable:     Parts where PCT-OBS-001 == PASS
+                Backends: silicon, simics-with-cstate-model
+
+Fan-out axes (TC level):
+  - Tile: {CBB0, CBB1}
+  - Backend: {silicon/workload-harness, simics/injected-C6}
+  - Duration: {30s baseline, 300s extended-idle}
+  Expected TC count: ~6
+
+Manifest references:
+  {manifest.lp_clip_ratio} — LP ceiling must hold even with HP idle
+
+
+################################################################################
+# TCD 8 of 12
+# Current HSD: 16031169310 — "PCT - Error Injection / Recovery"
+# New ID:      PCT-CONTRACT-004
+# Layer:       1 (Contract — recovery path)
+################################################################################
+
+Title (sentence):
+  "PCT recovers to correct CLOS state after transient error without
+   manual re-enable"
+
+Setup (what do I set up?):
+  PCT enabled and confirmed functional. Inject a transient disruption that
+  forces PCT state recovery:
+  - PCode warm reset (without full platform reset)
+  - SST_CP_CONTROL corruption followed by PCode re-read
+  - Feature_state toggle race (rapid enable/disable within single PCode cycle)
+
+Check (what do I check?):
+  After each disruption + recovery period:
+  - Read CLOS state (CONFIG, ASSOC, CP_CONTROL)
+  - Measure HP/LP frequency differentiation
+  - Verify system did not require manual PCT re-enable
+
+Invariant (what must be true?):
+  - Post-recovery CLOS state matches pre-disruption state
+  - HP/LP frequency differentiation restored within
+    {manifest.pct_toggle_latency_us} × 10 (recovery budget)
+  - No manual intervention required (feature_state remains = 1)
+  - No MCA or IERR during recovery
+
+Layer:          1 (Contract — recovery/resilience path)
+Rung:           Error recovery
+Gate:           PCT-CONTRACT-002 must be PASS (toggle works in happy path)
+Suspect:        PCode SST state machine recovery logic
+Applicable:     Parts where PCT-CONTRACT-002 == PASS
+                Backends: silicon (requires real error injection)
+
+Fan-out axes (TC level):
+  - Disruption type: {pcode-warm-reset, register-corruption, toggle-race}
+  - Backend: {silicon}
+  Expected TC count: ~3
+
+Manifest references:
+  {manifest.pct_toggle_latency_us} — base latency (recovery budget = 10×)
+
+
+################################################################################
+# TCD 9 of 12
+# Current HSD: 16031169376 — "PCT × Thermal (throttle escalation)"
+# New ID:      PCT-SCENARIO-003
+# Layer:       3 (Scenarios)
+################################################################################
+
+Title (sentence):
+  "Under thermal throttle, LP cores are frequency-reduced before HP cores
+   (ordered throttle priority respected during thermal events)"
+
+Setup (what do I set up?):
+  PCT enabled, HP/LP differentiation confirmed (OBS-001 passed). All cores
+  loaded. Thermal event injected (PROCHOT assertion, EMTTM activation, or
+  DTS temperature forced above throttle threshold). Thermal severity
+  sufficient to require frequency reduction but not catastrophic (not
+  THERMTRIP).
+
+Check (what do I check?):
+  During active thermal throttle:
+  - Measure HP core effective frequency
+  - Measure LP core effective frequency
+  - Observe throttle ordering (which group reduces first)
+
+Invariant (what must be true?):
+  During thermal event at moderate severity:
+  - LP frequency < {manifest.lp_clip_ratio} × 0.80
+    (LP throttled significantly below clip)
+  - HP frequency ≥ {manifest.hp_trl} × 0.85
+    (HP protected, reduced minimally)
+  - LP throttle precedes HP throttle in time (ordering observable)
+
+  At extreme severity (approaching THERMTRIP):
+  - Both groups reduce, but HP reaches minimum later than LP
+
+  Post-thermal-clear:
+  - HP returns to ≥ {manifest.hp_trl} × 0.95
+  - LP returns to ≤ {manifest.lp_clip_ratio} × 1.05
+  - Recovery within {manifest.thermal_recovery_sec}
+
+Layer:          3 (Scenario — thermal × PCT priority interaction)
+Rung:           Thermal escalation
+Gate:           PCT-OBS-001 must be PASS
+Suspect:        PCode thermal × ordered-throttle priority logic
+Applicable:     Parts where PCT-OBS-001 == PASS
+                Backends: silicon only (requires real thermal injection or
+                          PROCHOT pin assertion)
+
+Fan-out axes (TC level):
+  - Thermal source: {PROCHOT, EMTTM, DTS-forced}
+  - Severity: {moderate (1 notch), severe (near-THERMTRIP)}
+  - Tile: {CBB0, CBB1}
+  Expected TC count: ~8
+
+Manifest references:
+  {manifest.hp_trl}               — HP floor during moderate thermal
+  {manifest.lp_clip_ratio}        — LP must drop below this
+  {manifest.thermal_recovery_sec} — max recovery time after clear
+
+
+################################################################################
+# TCD 10 of 12
+# Current HSD: 16031169419 — "PCT × RAPL × C-states × thermal"
+# New ID:      PCT-SOAK-001
+# Layer:       4 (Soak)
+################################################################################
+
+Title (sentence):
+  "PCT maintains CLOS integrity and frequency ordering under sustained
+   multi-feature stress with no hangs, inversions, or stuck states"
+
+Setup (what do I set up?):
+  PCT enabled with representative partition count. System subjected to
+  simultaneous randomized stimuli over extended duration (≥72 hours):
+  - RAPL PL1 excursions (random walk between manifest.tdp × 0.5 and × 1.2)
+  - C-state cycling on HP cores (randomized idle injection, 1Hz–1kHz)
+  - C-state cycling on LP cores (independent pattern)
+  - Thermal injection pulses (random PROCHOT bursts, 100ms–10s)
+  - Partition count changes (if runtime-switchable)
+  - Workload bursts (idle→100%→idle transitions, random timing)
+
+Check (what do I check?):
+  Continuous monitoring (sampled every 100ms throughout soak):
+  - Per-core effective frequency
+  - CLOS assignment register state (every 60s integrity check)
+  - System health (no hang, no MCA, no IERR)
+  - Residency counters incrementing (not stuck)
+
+Invariant (what must be true?):
+  Over the entire soak duration:
+  - Zero hangs (system responds to probe at every 60s checkpoint)
+  - Zero frequency inversions (no sample where LP core > HP core + tolerance)
+  - CLOS assignment integrity: every 60s check shows expected HP/LP mapping
+  - Zero MCA/IERR events
+  - Zero stuck residency counters (every core's C0 counter increments between
+    consecutive 60s probes unless core is offline)
+  - After soak completes: clean PCT disable/re-enable produces normal behavior
+
+Layer:          4 (Soak — race hunting, long-duration stress)
+Rung:           Cross-product exhaustion
+Gate:           ALL Layer-3 PCT-SCENARIO-* must be PASS
+Suspect:        PCode race conditions — CLOS/throttle/C-state state machine
+                interactions that only manifest under timing coincidence.
+Applicable:     Parts where all PCT-SCENARIO-* == PASS
+                Backends: silicon only
+
+Fan-out axes (TC level):
+  - Unit: {unit-A, unit-B} (minimum 2 physical samples)
+  - Temperature: {ambient/25°C, hot-chamber/85°C}
+  - Duration: {72h standard, 168h extended-if-margin-needed}
+  Expected TC count: ~4
+
+Manifest references:
+  {manifest.tdp}          — baseline for PL1 random walk range
+  {manifest.hp_trl}       — inversion detection threshold
+  {manifest.lp_clip_ratio} — inversion detection threshold
+
+
+################################################################################
+# TCD 11 of 12
+# Current HSD: 16031169214 — "PCT - PV Discovery"
+# New ID:      (Absorbed into PCT-ENUM-001 as PV backend TC instances)
+# Layer:       0 (Enumeration)
+################################################################################
+
+Title (sentence) — this is NOT a separate TCD; it becomes TC instances of PCT-ENUM-001:
+  "PCT enumeration sources are mutually consistent per socket"
+  (Same sentence as PCT-ENUM-001 — the PV context is a TC binding, not new intent)
+
+Rationale for absorption:
+  The original TCD "PV Discovery" tests the exact same invariant as enumeration:
+  "Does the OS see PCT correctly after BIOS configures it?" The fact that it
+  runs on a PV platform vs an FV bench is a TC-level binding (backend = PV),
+  not a new definition.
+
+TC instances created:
+  PCT-ENUM-001 / PV / OS-isst-harness / production-BIOS
+  PCT-ENUM-001 / PV / OS-isst-harness / debug-BIOS
+
+What changes from FV instance:
+  - BIOS is production (no debug knobs)
+  - Platform may have BMC/ME active (discovery must still work)
+  - Tool = production intel-speed-select (not lab-internal variant)
+
+Fan-out note:
+  PV TCs carry additional config stamps at Level 5 (Result):
+  board-rev, BMC version, production BIOS version.
+
+
+################################################################################
+# TCD 12 of 12
+# Current HSD: 16031169217 — "PCT - PV BIOS Disable"
+# New ID:      (Absorbed into PCT-CONTRACT-002 as PV backend TC instances)
+# Layer:       1 (Contract)
+################################################################################
+
+Title (sentence) — this is NOT a separate TCD; it becomes TC instances of PCT-CONTRACT-002:
+  "Runtime PCT toggle via SST_PP_CONTROL.feature_state produces correct
+   frequency transitions in both directions"
+  (Same sentence as PCT-CONTRACT-002 — PV disable is the disable→stay-disabled case)
+
+Rationale for absorption:
+  "PV BIOS Disable" validates that disabling PCT via BIOS produces the expected
+  state — this is the BIOS-path variant of the toggle contract. The invariant
+  is identical: post-disable, all cores at uniform frequency, no HP/LP split.
+  PV context (production platform, customer-facing BIOS menu) is a TC binding.
+
+TC instances created:
+  PCT-CONTRACT-002 / PV / BIOS-disable-path / production-BIOS
+  PCT-CONTRACT-002 / PV / BIOS-disable-reboot-confirm / production-BIOS
+
+What changes from FV instance:
+  - Disable via BIOS Setup menu (not TPMI runtime write)
+  - Requires reboot to take effect (BIOS path vs runtime path)
+  - Validation that NVRAM persists disable across power cycles
+
+
+################################################################################
+# BONUS: Current HSD 22022420862 — "PCT - PV BIOS Configuration"
+# New ID:      (Absorbed into PCT-CONTRACT-001 as PV backend TC instances)
+# Layer:       1 (Contract)
+################################################################################
+
+Title (sentence) — absorbed into PCT-CONTRACT-001:
+  "PCT BIOS knob produces correct TPMI SRAM state per partition configuration"
+  (Same sentence — PV configuration sweep is a TC binding of CONTRACT-001)
+
+TC instances created:
+  PCT-CONTRACT-001 / PV / partition=1 / production-BIOS
+  PCT-CONTRACT-001 / PV / partition=4 / production-BIOS
+  PCT-CONTRACT-001 / PV / partition=custom / production-BIOS
+
+What changes from FV instance:
+  - Production BIOS menu navigation (not debug knob injection)
+  - May have restricted partition count options in production BIOS
+  - Board-level validation (BMC telemetry confirms PCT state)
+
+
+################################################################################
+# SUMMARY: 12 existing TCDs → 10 true TCDs + 2 absorbed as TC instances
+################################################################################
+
+| # | New TCD ID        | Layer | Current HSD Source          | Disposition      |
+|---|-------------------|-------|-----------------------------|------------------|
+| 1 | PCT-FUSE-001      | -1    | (NEW — no current TCD)      | Created new      |
+| 2 | PCT-ENUM-001      |  0    | 16031169214 absorbed as TCs | Created new      |
+| 3 | PCT-CONTRACT-001  |  1    | 22022420855 + 22022420862   | Rewritten        |
+| 4 | PCT-CONTRACT-002  |  1    | 16031169297 + 16031169217   | Rewritten        |
+| 5 | PCT-CONTRACT-003  |  1    | 16031169308                 | Rewritten        |
+| 6 | PCT-CONTRACT-004  |  1    | 16031169310                 | Rewritten        |
+| 7 | PCT-OBS-001       |  2    | 22022420858 (freq aspect)   | Split + rewritten|
+| 8 | PCT-OBS-002       |  2    | 22022420858 (selection asp) | Split + rewritten|
+| 9 | PCT-SCENARIO-001  |  3    | 16031169309                 | Rewritten        |
+|10 | PCT-SCENARIO-002  |  3    | (NEW — ordered throttle)    | Created new      |
+|11 | PCT-SCENARIO-003  |  3    | 16031169376                 | Rewritten        |
+|12 | PCT-SCENARIO-004  |  3    | 16031169298                 | Rewritten        |
+|13 | PCT-SOAK-001      |  4    | 16031169419                 | Rewritten        |
+
+Net: 13 TCDs (was 12, but 2 absorbed + 3 new = +1 net)
+     PV TCDs eliminated as independent definitions (became TC instances)
+     Every TCD is now a testable sentence with manifest-referenced bar
+

@@ -9,7 +9,9 @@
 | **Feature** | SoC Thermal |
 | **Sub-Feature** | SoC Thermal |
 | **NWP Disposition** | Runnable_On_N-1 |
-| **KB last updated** | 2026-06-25 |
+| **KB last updated** | 2026-07-19 |
+| **Co-Design T2 action** | ⚠️ SPLIT into 4 TCDs: Core/Ring Rail ITD, Fabric/IO Rail ITD, Memory/CFC Rail ITD, ITD Common Controls. PkgC6 TCs → ZBB on NWP. See `codesign_T2_ingest_thermal_mgmt.md` §3B. |
+| **Spec refs (T2)** | DMR thermal flows / ITD compensation; NWP CCRD spec (ITD-capable domains); NWP PM MAS + DMR CBB ITD HAS |
 
 ## Section 1: Architecture / Micro-architecture and Functionality
 

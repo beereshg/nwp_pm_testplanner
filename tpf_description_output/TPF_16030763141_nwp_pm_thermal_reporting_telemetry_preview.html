@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>TPF Preview: [NWP PM] Thermal Reporting/Telemetry</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad:true,theme:'default',themeVariables:{primaryColor:'#e8eef7',primaryBorderColor:'#0f4c81'}});</script>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f4f9;font-size:13px;color:#1f2937;}
+    .hdr{background:#0f4c81;color:#fff;padding:14px 24px;}
+    .hdr h1{font-size:17px;font-weight:600;}
+    .hdr .sub{font-size:11px;opacity:.82;margin-top:4px;}
+    .hdr a{color:#90caf9;}
+    .badge{background:rgba(255,255,255,.2);border-radius:12px;padding:2px 10px;font-size:11px;margin-left:8px;}
+    .wrap{max-width:960px;margin:18px auto;padding:0 16px 40px;}
+    .desc-box{}
+  </style>
+</head>
+<body>
+<div class="hdr">
+  <h1>TPF Preview: [NWP PM] Thermal Reporting/Telemetry <span class="badge">KB-SOURCED</span></h1>
+  <div class="sub">
+    <a href="https://hsdes.intel.com/appstore/article-one/#/16030763141" target="_blank">16030763141</a>
+    &nbsp;|&nbsp; Parent TP: <a href="https://hsdes.intel.com/appstore/article-one/#/16030763137" target="_blank" style="color:#90caf9;">16030763137</a>
+    &nbsp;|&nbsp; Status: open &nbsp;|&nbsp; Owner: bg3
+    &nbsp;|&nbsp; Generated: 2026-07-19 12:31 &nbsp;|&nbsp; Source: KB\pm_tpf_kb\16030763137_thermal_management\TPF_16030763141_thermal_reporting_telemetry.md
+  </div>
+</div>
+<div class="wrap">
+  <div class="desc-box">
+    <div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">1. Feature Classification &amp; Introduction</div><div style="padding:25px;"><p style="margin:6px 0 10px;line-height:1.6;"><strong>This TPF has been split</strong> into 2 more focused TPFs during the Thermal Management T2 restructuring (2026-07-19). The split separates sensor/measurement infrastructure from architectural reporting interfaces.</p><p style="margin:6px 0 10px;line-height:1.6;"><strong>Do not add new TCDs to this TPF.</strong> Use the target TPFs below.</p><h3 style="color:rgb(0,113,197);border-bottom:2px solid rgb(0,113,197);padding-bottom:8px;margin-top:20px;">Successor TPFs</h3><table style="width:100%;border-collapse:collapse;font-size:0.9em;margin:10px 0;"><thead><tr><th style="background:rgb(0,113,197);color:white;padding:7px 10px;text-align:left;">TPF ID</th><th style="background:rgb(0,113,197);color:white;padding:7px 10px;text-align:left;">Title</th><th style="background:rgb(0,113,197);color:white;padding:7px 10px;text-align:left;">Scope</th><th style="background:rgb(0,113,197);color:white;padding:7px 10px;text-align:left;">TCDs</th></tr></thead><tbody><tr style="background:rgb(248,249,250);"><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;"><a href="https://hsdes.intel.com/appstore/article-one/#/16031170067" target="_blank">16031170067</a></td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">Thermal Sensors &amp; DTS Telemetry</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">DTS sensor inventory, readings, dielet telemetry (CBB + IMH)</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">2 (CBB DTS, IMH DTS)</td></tr><tr ><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;"><a href="https://hsdes.intel.com/appstore/article-one/#/16031170068" target="_blank">16031170068</a></td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">Thermal Status / Reporting Interfaces</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">Thermal status, interrupts, TPMI/PMT reporting, MCAs</td><td style="padding:7px 10px;border-bottom:1px solid #e5e7eb;">4 (Thermal Reporting, Interrupts, MCAs, TPMI Migration)</td></tr></tbody></table><p style="margin:6px 0 10px;line-height:1.6;">---</p></div></div><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">2. Design Details</div><div style="padding:25px;"><p style="margin:6px 0 10px;line-height:1.6;">See successor TPFs for architecture diagrams and full-stack cross-layer views.</p><p style="margin:6px 0 10px;line-height:1.6;">---</p></div></div><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">3. Validation Strategy</div><div style="padding:25px;"><p style="margin:6px 0 10px;line-height:1.6;">Validation is now distributed across the 2 successor TPFs. This TPF retains no active validation scope.</p><p style="margin:6px 0 10px;line-height:1.6;">---</p></div></div><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">4. Tier Coverage</div><div style="padding:25px;"><div style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:15px;margin:15px 0;"><p style="color:#666;font-style:italic;margin:0;">Not documented.</p></div></div></div><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">5. Risks &amp; Dependencies</div><div style="padding:25px;"><div style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:15px;margin:15px 0;"><p style="color:#666;font-style:italic;margin:0;">Not documented.</p></div></div></div><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">6. DFX Considerations</div><div style="padding:25px;"><div style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:15px;margin:15px 0;"><p style="color:#666;font-style:italic;margin:0;">Not documented.</p></div></div></div><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">7. Common Corner Cases</div><div style="padding:25px;"><div style="background:rgb(248,249,250);border-left:4px solid rgb(0,113,197);padding:15px;margin:15px 0;"><p style="color:#666;font-style:italic;margin:0;">Not documented.</p></div></div></div><div style="background:white;margin-bottom:25px;border-radius:10px;box-shadow:rgba(0,0,0,0.08) 0px 2px 10px;overflow:hidden;"><div style="background:rgb(0,113,197);color:white;padding:15px 25px;font-size:1.3em;font-weight:bold;">8. TCD Coverage Summary &amp; References</div><div style="padding:25px;"><p style="margin:6px 0 10px;line-height:1.6;">All TCDs have been reparented to successor TPFs. No active children remain.</p></div></div>
+  </div>
+</div>
+</body>
+</html>

@@ -7,7 +7,7 @@
 | **Parent TP** | [16030762839 — [NWP PM] SST (Speed Select Technology)](https://hsdes.intel.com/appstore/article-one/#/16030762839) |
 | **Status** | open |
 | **Owner** | bg3 |
-| **KB last updated** | 2026-07-18 |
+| **KB last updated** | 2026-07-20 |
 
 ---
 
@@ -108,30 +108,6 @@
 </div>
 <!-- /raw-html -->
 
-### Validation-Tier Layer Claim
-
-| Layer (from full-stack diagram) | PSS | FV | PV | Notes |
-|---|---|---|---|---|
-| OS / Tool Layer (`intel-speed-select`, `cpufreq`, sysfs) | ❌ | ❌ | ✅ | Requires booted Ubuntu; TCDs: 16031169214, 16030717717/18 |
-| PCT Policy Layer (BIOS partition count / `SST_CLOS_ASSOC` programming) | ❌ | ❌ | ✅ | BIOS programs CLOS assignments; all PCT PV TCDs |
-| SST-TF Enforcement Layer (PCode WP4 broadcast, ordered throttle) | ✅ | ✅ | ✅ | PSS/FV: register-level; PV: indirectly via `cpuinfo_max_freq` |
-| Acode / Microcode Layer (per-core frequency ceiling application) | ✅ | ✅ | ✅ | PSS model; FV functional; PV observes `cpuinfo_max_freq` |
-| HW Enforcement Layer (FIVR, PLL, silicon frequency gates, fuse cap) | ✅ | ✅ | ❌ | RTL/model coverage; PV has no direct HW layer observability → §5 G-4 |
-
-> **§3 pointer:** PCT Validation Strategy §3 maps to this table — PSS + FV own Enforcement/Acode/HW layers;
-> PV owns OS/Tool + Policy layers; all three tiers share the SST-TF Enforcement layer.
-
-### Agent Source Ownership
-
-*Where to look when a frequency anomaly traces to a specific layer.*
-
-| Layer / Agent | Key Artifact |
-|---|---|
-| PCT Policy Layer — BIOS (CPL3) | CPUPM FAS; BIOS PCT knob path (`EDKII → Socket Config → Advanced PM Config → PCT Configuration`) |
-| SST-TF Enforcement — PCode (CBB) | `sst_manager.cpp`, `trl_manager.cpp` (CBB SST Manager FAS) |
-| SST-TF Init — PrimeCode (IMH-P, Phase 5) | `sst_tpmi_general.cpp::sstTfInfoInit()` |
-| Acode / Microcode Layer | RTL / Acode — no SW interface; debug via WP4 broadcast values in PCode NLog |
-
 ### PCT Reset / Boot to OS Flow
 
 ```
@@ -183,6 +159,32 @@ Per-cycle resolution (PCode RAPL PID, 1ms loop):
   Broadcast: WP4_HP + WP4_LP + MASK_HIGH/LOW via PMSB sideband → Acode
 ```
 
+### WP4 Broadcast Protocol (from CCP HAS / CCP PM MAS)
+
+The WP4 broadcast is a **two-phase multicast** protocol executed by PCode every RAPL PID iteration (1 ms):
+
+```
+Phase 1 — Mask write (multicast):
+  PCode writes WP4_MASK register for all cores in the target priority group.
+  WP4_MASK[i] = 1 → core[i] will accept the subsequent WP4 update.
+  WP4_MASK[i] = 0 → core[i] ignores the WP4 write (frequency unchanged).
+
+Phase 2 — WP4 value write + GO command (multicast):
+  PCode writes the resolved frequency target:
+    HP cores: WP4_HP = MAX(TRL, FACT) per license for current CDYN bucket
+    LP cores: WP4_LP = MIN(FACT, TRL) per license for current CDYN bucket
+  Only cores with WP4_MASK[i] = 1 latch the new WP4 value.
+  Accompanied by GO_INC or GO_DEC command — core/IP does NOT apply WP4
+  until the corresponding GO command is received.
+
+Ordering guarantee:
+  Mask → WP4 → GO is strictly ordered by PMSB sideband protocol.
+  GO_INC: frequency may increase (core will ramp up).
+  GO_DEC: frequency must decrease (core will ramp down).
+```
+
+**Validation implication:** A race between WP4_MASK write and WP4 value write would cause a core to latch a stale frequency target. The PMSB strict ordering prevents this — but test the boundary: what happens if PCode issues GO before WP4 write completes? (Corner case for TCD 16031169376 — Ordered Throttle Priority.)
+
 ### Frequency Hierarchy (NWP Values)
 
 | Level | Approx Freq | Who gets it | Condition |
@@ -222,18 +224,6 @@ Custom config override (BIOS knob "PCT HP Module Select"):
 | `SST_PP_CONTROL` (TPMI, RW by BIOS) | `feature_state[1]` | 0 | 1 = SST-TF / PCT active | PSS, FV, PV |
 | MSR `0x1AD` | HP TRL ratio | 0 | OS-visible HP turbo ratio limit written by BIOS | PV |
 
-### Observability
-
-| Observable | Type | Tool / Command | What it shows |
-|---|---|---|---|
-| `cpuinfo_max_freq` (per-core sysfs) | PV runtime | `cat /sys/devices/system/cpu/cpu*/cpufreq/cpuinfo_max_freq` | HP vs LP frequency ceiling visible to OS |
-| `intel-speed-select perf-profile info` | PV runtime | `intel-speed-select -d perf-profile info` | HP module list, partition count, feature enabled flag |
-| `isst` HP count | PV runtime | `isst -d perf-profile info \| grep 'hp-count'` | Expected HP core count per config |
-| TPMI `SST_TF_INFO_0/2` | FV / PSS | PythonSV: `sv.socket0.getbypath('imh0.sst_tf_info_0').read()` | Fuse-loaded LP clip / HP TRL ratios |
-| TPMI `SST_CLOS_CONFIG[0/3].max` | FV / PSS | PythonSV TPMI read | BIOS-programmed HP/LP frequency ceilings |
-| WP4_HP / WP4_LP broadcast value | PSS / FV | RAPL NLog / WP4 trace or PythonSV PMSB | Runtime ordered throttle targets per 1 ms RAPL PID loop |
-| BIOS F2 debug serial log | PV | BIOS serial log | CLOS assignment + PCT knob readback at boot |
-
 ### SKU / Config Distinctions
 
 | SKU / Config | Distinction | TCDs affected |
@@ -244,13 +234,51 @@ Custom config override (BIOS knob "PCT HP Module Select"):
 | SST-BF conflict | SST-BF is ZBB on NWP — mutually exclusive with PCT; if both configured, SST-BF takes precedence over PCT | All PCT TCDs |
 | FV (post-silicon, no OS boot) | PythonSV direct TPMI register access; no `intel-speed-select`; no sysfs; ordered throttle validated via WP4 trace | TCD 22022420858 (Functionality) |
 
+### Microarch→Scenario Coverage Matrix
+
+| # | Element (from §2) | Category | Implied WHAT | Realized as TCD | Tier | Status |
+|---|---|---|---|---|---|---|
+| 1 | SST_TF_INFO_0.LP_CLIP_RATIO fuse load (Phase 5) | Register field (R/O) | LP clip value correctly loaded from fuse at reset | 22022420855 | FV, PSS | ✓ |
+| 2 | SST_TF_INFO_2.TRL_RATIO fuse load (Phase 5) | Register field (R/O) | HP TRL value correctly loaded from fuse at reset | 22022420855 | FV, PSS | ✓ |
+| 3 | SST_CLOS_CONFIG[0].max = HP TRL | Register field (RW) | BIOS write accepted; HP ceiling = TRL | 22022420855 | FV, PSS | ✓ |
+| 4 | SST_CLOS_CONFIG[3].max = LP_CLIP | Register field (RW) | BIOS write accepted; LP ceiling = LP clip | 22022420855 | FV, PSS | ✓ |
+| 5 | SST_CLOS_ASSOC[core] HP/LP assignment | Register field (RW) | Correct APIC-ID → CLOS[0/3] mapping | 22022420855, 22022420862 | FV, PV | ✓ |
+| 6 | SST_CP_CONTROL.priority_type = 1 (Ordered Throttle) | Register field (RW) | Ordered throttle mode activates; LP throttled first | 16031169376 | FV, PSS | ✓ |
+| 7 | SST_PP_CONTROL.feature_state[1] = 1 (enable) | Register field (RW) | PCT feature activation; frequency differentiation observed | 16031169297 | FV, PSS | ✓ |
+| 8 | SST_PP_CONTROL.feature_state[1] = 0 (disable) | Register field (RW) | PCT disable → uniform P0n; no HP/LP differentiation | 16031169217 | PSS, PV | ✓ |
+| 9 | WP4_MASK multicast → WP4 value → GO command | Cross-die interface | Strict PMSB ordering: mask then value then GO | 16031169376 | FV, PSS | ✓ |
+| 10 | WP4_HP = MAX(TRL, FACT) per CDYN bucket | Algorithm | HP frequency target resolved correctly per active HP count | 22022420858 | FV, PSS | ✓ |
+| 11 | WP4_LP = MIN(FACT, TRL) per CDYN bucket | Algorithm | LP frequency target correctly capped | 22022420858 | FV, PSS | ✓ |
+| 12 | Ordered throttle Phase A: LP ↓ first | FSM state transition | Under PL1 pressure, LP frequency decreases before HP | 16031169376 | FV, PSS | ✓ |
+| 13 | Ordered throttle Phase B: HP maintained | FSM state transition | HP frequency stable while LP > Pn floor | 16031169376 | FV, PSS | ✓ |
+| 14 | Ordered throttle Phase C: HP ↓ last | FSM state transition | HP throttled only after LP hits Pn floor | 22022420858 | FV | ⚠️ PARTIAL |
+| 15 | HP cores C6 → LP clip maintained | Cross-product (C-state) | LP_CLIP ratio unchanged when all HP idle | 16031169309 | FV, PSS | ✓ |
+| 16 | HP bucket ratchet-up on partial HP C6 | Counter/algorithm | Fewer active HP → higher per-core TRL | 16031169309 | FV, PSS | ⚠️ PARTIAL |
+| 17 | PCT_Module_Mask fuse gate (DLCP) | Fuse gate | PCT disabled when fuse = 0; enabled when = 1 | 16031169298 | FV | ✓ |
+| 18 | SST-BF mutual exclusion (DQ rule) | Fuse gate | SST-BF ZBB takes precedence; PCT inactive if both set | 16031169298 | FV, PSS | ✓ |
+| 19 | BIOS Partition Count knob (N=1..4) | BIOS knob | Valid range accepted; topology divided correctly | 22022420862 | PV | ✓ |
+| 20 | BIOS Partition Count > max rejection | BIOS knob (boundary) | Invalid partition count rejected by BIOS | 16031169308 | FV, PSS | ✓ |
+| 21 | Invalid SST_CLOS_CONFIG write (out-of-range ratio) | Error condition | Write rejected or clamped; no HW damage | 16031169308 | FV, PSS | ✓ |
+| 22 | SST_CP_STATUS.EXCURSION_TO_MIN | Error condition | Excursion bit set when LP at floor and HP still throttled | 16031169310 | FV, PSS | ✓ |
+| 23 | PCT × RAPL PL1 interaction (full spectrum) | Cross-product (RAPL) | PL1/PL2/PL4 all interact with ordered throttle correctly | 16031169419 | FV, PSS | ✓ |
+| 24 | PCT × thermal throttle escalation | Cross-product (thermal) | Thermal overrides PCT priority ordering | 16031169376 | FV, PSS | ✓ |
+| 25 | Enable → disable → re-enable lifecycle (stale CLOS) | FSM state transition | Stale CLOS_ASSOC after disable; re-enable from stale state | 16031169297 | FV, PSS | ⚠️ PARTIAL |
+| 26 | `intel-speed-select` topology discovery | OS interface | OS tool discovers correct HP count, partition count, APIC IDs | 16031169214 | PV | ✓ |
+| 27 | `cpuinfo_max_freq` per-core sysfs | OS interface | HP cores show P0max; LP cores show LP_CLIP in sysfs | 22022420862 | PV | ✓ |
+| 28 | MSR 0x1AD HP TRL visibility | Register field (RW) | OS reads correct HP TRL from legacy MSR | 16031169214 | PV | ✓ |
+| 29 | VMM HP/LP core assignment across VMs | Cross-product (virt) | SoC-wide PCT affects all VMs; VMM HP assignment correct | GAP | — | ⚠️ GAP |
+| 30 | Core hotplug while PCT active | Cross-product (topology) | Online/offline HP/LP core; partition rebalancing | GAP | — | ⚠️ GAP |
+| 31 | GO_INC/GO_DEC race (WP4 write before GO) | Cross-die interface (error) | Stale frequency target not latched; ordering enforced | GAP | — | ⚠️ GAP |
+
+**Status summary:** 28/31 elements covered (✓ or PARTIAL); 3 gaps (G-14 VMM, hotplug, WP4 race — see §5).
+
 ---
 
 ## Section 3: Validation Strategy
 
 PCT validation requires **three complementary tiers**. Same feature ≠ same validation. Feature overlap across tiers = expected. Validation overlap = false assumption.
 
-> **Layer coverage:** Stack-to-tier mapping is in §2 — Validation-Tier Layer Claim table. That table identifies which tier validates each PCT stack layer. Unclaimed layers (OS/Tool and PCT Policy = PV-only; HW Enforcement = no PV coverage) are captured as accepted gaps in §5 (G-4, G-5).
+> **Layer coverage:** The Microarch→Scenario Coverage Matrix in §2 maps each architectural element to its covering TCD(s) and tier. Unclaimed layers (OS/Tool and PCT Policy = PV-only; HW Enforcement = no PV coverage) are captured as accepted gaps in §5 (G-4, G-5).
 
 ### Tier Definitions
 
@@ -292,21 +320,6 @@ PCT validation requires **three complementary tiers**. Same feature ≠ same val
 | NWP 2-CBB topology in driver | ❌ | ❌ | ❌ | ❌ | ✅ |
 | TDP convergence (real power) | ❌ | ❌ | ❌ | ✅ | ✅ |
 | BIOS negative validation | ✅ safe | ❌ | ❌ | ❌ risky | ❌ |
-
-### Scenario Coverage Across Tiers
-
-| Test Scenario | PSS | FV | PV | Unique value |
-|--------------|-----|----|----|-------------|
-| Discovery / TPMI capability check | ✅ | ✅ | ✅ | All 3 required — model / silicon HW / OS driver are independent paths |
-| Default HP core selection | ✅ | ✅ | ✅ | 3-layer: RTL model / silicon TPMI / OS sysfs |
-| All HP cores in C6, LP still clipped | ✅ | ✅ | — | HW-level; HSLE XOS validates PCode+Acode+HPM pre-silicon |
-| Enable / Disable | ✅ | ✅ | ✅ | Model disable / HW register / OS driver enforcement — 3 distinct bug classes |
-| Partition count sweep | — | — | ✅ | Driver stress — requires full intel-speed-select; not pre-silicon |
-| Turbo frequency check | ✅ | ✅ | — | PSS: PCode TRL table application; FV: real silicon freq/power |
-| TDP convergence (RAPL PL1) | — | ✅ | — | FV-unique — requires real silicon power measurement |
-| Phase C HP throttle (severe PL1) | — | ✅ | — | FV-unique — LP at floor, HP must also throttle |
-| DQ Rules / Fuse (FlexconPM) | ✅ | ✅ | — | PSS: safe fuse override injection; FV: confirms on real fuses |
-| BIOS negative validation | ✅ | — | — | PSS-unique — invalid BIOS values tested safely on emulation |
 
 ---
 
@@ -356,43 +369,24 @@ PCT validation requires **three complementary tiers**. Same feature ≠ same val
 
 ---
 
-## Section 7: Common Corner Cases
+## Section 7: References
 
-Corner cases that span multiple TCDs under this TPF:
-
-| Corner Case | Affected TCDs | Expected Behavior |
-|-------------|--------------|-------------------|
-| **LP clip when all HP in C6** | 22022420858 (Functionality), PSS 16030715676 | `CLOS_CONFIG[3].max` is HW-enforced; HP C6 does NOT release LP clip. LP cores still clipped. Critical invariant — verified at both FV and PSS level. |
-| **Ordered throttle Phase C — HP throttle** | 22022420858 | When PL1 < (LP_floor × 96 cores), HP must throttle too. TC 22022422117 covers Phase A/B only. Phase C has no TC — coverage gap. |
-| **CAPID4.bit29 not used on NWP** | 22022420855 (Enabling), 22022420858 | Unlike GNR, NWP never reads CAPID4.bit29 for PCT enable. BIOS Partition Count knob = 0 is the default-disabled state. TC 16030715684 verifies this. |
-| **SST-BF ZBB passively satisfied** | All TCDs | SST-BF and PCT are architecturally mutually exclusive (DQ rule). On NWP, SST-BF is ZBB — mutual exclusion never exercised. DQ validation (TC 22022422118) confirms no interference. |
-| **TPMI stale state on PCT disable** | 22022420858, 22022420862 | On runtime disable (`SST_PP_CONTROL.feature_state[1]=0`), `CLOS_ASSOC` entries persist in TPMI but `SST_CP_ENABLE` goes to 0. OS tools must report no HP/LP differentiation. |
-| **Max partition count boundary** | 22022420862 | BIOS must reject partition count > `SST_TF_INFO_8.NUM_CORE_0 / MAX_LPIDS`. TC 16030717718 sweeps valid range only — max+1 rejection is a gap. |
-| **PCT × C-states: HP C6 mixed workload** | 22022420858 | HP cores entering C6 under mixed workload should trigger HP bucket ratchet-up (fewer active HP = higher per-core TRL). No TC validates HP bucket transition on partial HP C6. *(Co-Design T1, 2026-07-18; spec: Core C-states HAS, DMR Turbo HAS)* |
-| **PCT × RAPL: all limit interactions** | 22022420858 | TC 22022422117 covers Phase A/B only. Full RAPL interaction includes: PL2 burst with PCT, PL4 clamp with PCT, RAPL enable/disable toggle while PCT active. No TC beyond Phase A/B. *(Co-Design T1, 2026-07-18; spec: RAPL HAS, SST HAS Cross Products)* |
-| **PCT × Thermal: throttle escalation** | *(no TCD)* | Thermal events (EMTTM, DTS, TCC) interacting with PCT ordered throttle — does thermal override PCT priority ordering? Spec says yes but no TC validates. *(Co-Design T1, 2026-07-18; spec: DMR Turbo HAS: Thermal, SST HAS Cross Products)* |
-| **State transition lifecycle** | 16031169297 | Enable → disable → re-enable lifecycle: stale CLOS_ASSOC after disable, re-enable from stale state. Gaps tracked in TCD 16031169297 §6 but no TC authored. *(Co-Design T1, 2026-07-18; spec: SST HAS Dynamic SST-PP, DMR Turbo HAS TPMI Watcher Control)* |
-| **Virtualization: VMM HP/LP assignment** | *(no TCD)* | PCT is SoC-wide; all non-HP cores are LP-clipped regardless of VM. VMM should assign HP cores to frequency-sensitive VMs. No TC validates this. *(Co-Design T1, 2026-07-18; spec: PCT HAS Virtualization)* |
-| **Hotplug / online-offline core** | *(no TCD)* | Onlining/offlining HP or LP cores at runtime while PCT active may break partition balance or CLOS assignment. No TC. *(Co-Design T1, 2026-07-18; spec: DMR Turbo HAS Hotplug)* |
-| **Driver/tool robustness** | 22022420862, 16031169214 | Wrong `intel-speed-select` version, missing capability flag in driver, scaling_driver != intel_pstate — silent false-pass risk. No negative driver TC. *(Co-Design T1, 2026-07-18; spec: SST HAS Discovery/Control, PCT HAS OS/driver interface)* |
-| **Topology corners** | 22022420862 | All-HP partition, all-LP partition, single-core partition, max partitions at boundary. TC 16030717718 sweeps but doesn't cover degenerate/extreme topologies. *(Co-Design T1, 2026-07-18; spec: PCT HAS Topology, CPUID/MADT)* |
-
----
-
-## Section 8: TCD Coverage Summary & References
-
-### Child TCDs (post-reorg, verified 2026-07-18)
+### Child TCDs (verified 2026-07-20)
 
 | TCD ID | Title | Segment | Scope |
 |--------|-------|---------|-------|
-| [22022420855](https://hsdes.intel.com/appstore/article-one/#/22022420855) | PCT - BIOS Enabling | FV + PSS | BIOS knob visibility, defaults, enable/disable HW state |
-| [22022420858](https://hsdes.intel.com/appstore/article-one/#/22022420858) | PCT - Functionality | FV + PSS | Runtime frequency enforcement: HP/LP CLOS, LP clip invariant, ordered throttle |
-| [16031169297](https://hsdes.intel.com/appstore/article-one/#/16031169297) | PCT - TPMI Runtime Control | FV + PSS | Runtime toggle via SST_PP_CONTROL, state transitions |
-| [16031169298](https://hsdes.intel.com/appstore/article-one/#/16031169298) | PCT - DQ Rules & Negative Validation | FV + PSS | FlexconPM DQ compliance, fuse mutexes (SST-BF, FCT) |
-| [16031169308](https://hsdes.intel.com/appstore/article-one/#/16031169308) | PCT - Negative / Boundary Validation | FV + PSS | Invalid BIOS configs, invalid TPMI writes, error rejection |
-| [22022420862](https://hsdes.intel.com/appstore/article-one/#/22022420862) | PCT - PV BIOS Configuration | PV | Ubuntu E2E: partition config, sweep, HP/LP cpufreq |
-| [16031169214](https://hsdes.intel.com/appstore/article-one/#/16031169214) | PCT - PV Discovery | PV | OS-level intel-speed-select discovery, APIC ID reporting |
-| [16031169217](https://hsdes.intel.com/appstore/article-one/#/16031169217) | PCT - PV BIOS Disable | PV + PSS | PCT disable produces uniform conventional turbo |
+| [22022420855](https://hsdes.intel.com/appstore/article-one/#/22022420855) | PCT-CONTRACT-001 - BIOS CLOS Programming | FV + PSS | BIOS knob visibility, defaults, enable/disable HW state |
+| [22022420858](https://hsdes.intel.com/appstore/article-one/#/22022420858) | PCT-OBS-001 - HP/LP Frequency Enforcement | FV + PSS | Runtime frequency enforcement: HP/LP CLOS, LP clip invariant, ordered throttle |
+| [16031169297](https://hsdes.intel.com/appstore/article-one/#/16031169297) | PCT-CONTRACT-002 - Runtime Toggle | FV + PSS | Runtime toggle via SST_PP_CONTROL, state transitions |
+| [16031169298](https://hsdes.intel.com/appstore/article-one/#/16031169298) | PCT-SCENARIO-004 - HP Core DQ Promotion | FV + PSS | FlexconPM DQ compliance, fuse mutexes (SST-BF, FCT) |
+| [16031169308](https://hsdes.intel.com/appstore/article-one/#/16031169308) | PCT-CONTRACT-003 - Invalid Configuration Rejection | FV + PSS | Invalid BIOS configs, invalid TPMI writes, error rejection |
+| [16031169309](https://hsdes.intel.com/appstore/article-one/#/16031169309) | PCT-SCENARIO-001 - LP Clip Holds During HP Idle | FV + PSS | HP C6 mixed workload: LP clip maintained when all HP idle |
+| [16031169310](https://hsdes.intel.com/appstore/article-one/#/16031169310) | PCT-CONTRACT-004 - Error Status and CLOS Recovery | FV + PSS | Error injection, EXCURSION_TO_MIN, SST-CP error status |
+| [16031169376](https://hsdes.intel.com/appstore/article-one/#/16031169376) | PCT-SCENARIO-003 - Ordered Throttle Priority | FV + PSS | Under thermal throttle, LP frequency-reduced before HP |
+| [16031169419](https://hsdes.intel.com/appstore/article-one/#/16031169419) | PCT-SOAK-001 - Multi-Feature CLOS Integrity | FV + PSS | Cross-product: simultaneous RAPL PL1, C-state, thermal |
+| [22022420862](https://hsdes.intel.com/appstore/article-one/#/22022420862) | PCT-CONTRACT-006 - Partition Sweep (PV) | PV | Ubuntu E2E: partition config, sweep, HP/LP cpufreq |
+| [16031169214](https://hsdes.intel.com/appstore/article-one/#/16031169214) | PCT-ENUM-001 - Enumeration Consistency | PV | OS-level intel-speed-select discovery, APIC ID reporting |
+| [16031169217](https://hsdes.intel.com/appstore/article-one/#/16031169217) | PCT-CONTRACT-005 - Disable State | PV + PSS | PCT disable produces uniform conventional turbo |
 
 ### References
 

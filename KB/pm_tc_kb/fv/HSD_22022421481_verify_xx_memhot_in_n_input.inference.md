@@ -13,6 +13,11 @@
 
 ---
 
+
+## Test Case Intent
+
+Validates the MEMHOT_IN_N input pin assertion -> MC throttle within 100us scenario defined in [TCD 16031170070 -- MEMHOT IN/OUT Interface](https://hsdes.intel.com/appstore/article-one/#/16031170070) S5. Environment: NWP post-silicon, FV.
+
 ## Section A: NWP Disposition & Justification
 
 **Disposition: Runnable_On_N-1**

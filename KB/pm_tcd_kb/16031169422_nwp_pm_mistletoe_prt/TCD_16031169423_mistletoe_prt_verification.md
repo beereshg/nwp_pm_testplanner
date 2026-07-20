@@ -8,7 +8,7 @@
 | **Owner** | bg3 |
 | **Parent TPF** | [16031169422 -- NWP PM Mistletoe PRT](https://hsdes.intel.com/appstore/article-one/#/16031169422) |
 | **Parent TP** | [16030765561 -- NWP PM Interfaces](https://hsdes.intel.com/appstore/article-one/#/16030765561) |
-| **KB last updated** | 2026-07-18 |
+| **KB last updated** | 2026-07-20 |
 | **Feature** | PM Interfaces -- Mistletoe PRT (Platform Runtime Test) |
 | **Created from** | Co-Design T2 audit -- moved from Socket RAPL TCD 22022420821 (cross-feature scope) |
 
@@ -31,15 +31,16 @@ PRT is supported on NWP. OOB access uses the NIO die OOBMSM path. NWP-specific: 
 
 ### TC Coverage Map
 
-| TC | Scope | Key Validation |
-|----|-------|----------------|
-| [16030715734 -- [PSS] Verify Mistletoe PRT](https://hsdes.intel.com/appstore/article-one/#/16030715734) | PRT path verification (PSS) | PRT request reaches PrimeCode; PRT completes; OOB path functional |
+| TC | Scope | Key Validation | Status |
+|----|-------|----------------|--------|
+| [16030715734 -- [PSS] Verify Mistletoe PRT](https://hsdes.intel.com/appstore/article-one/#/16030715734) | PRT path verification (PSS) | PRT request reaches PrimeCode; PRT completes; OOB path functional | rejected |
+| [22022421995 -- RAPL X Security (Mistletoe PRT) - Verification of Energy Fuzzing](https://hsdes.intel.com/appstore/article-one/#/22022421995) | PRT security -- energy fuzzing verification | Validates PRT path under energy fuzzing security scenario | open |
 
 ### Coverage Gaps
 
 | Gap | Recommended TC | Priority |
 |-----|---------------|----------|
-| FV PRT verification (post-silicon) | *(TC TBD)* -- PRT on real silicon via BMC | M |
+| FV PRT verification (post-silicon, non-security) | *(TC TBD)* -- Basic PRT on real silicon via BMC (non-fuzzing) | H |
 | PRT under active PM feature load (RAPL throttling, C-state transitions) | *(TC TBD)* -- PRT while PM features actively changing state | L |
 
 ---
