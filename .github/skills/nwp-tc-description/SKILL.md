@@ -101,6 +101,113 @@ Healthy ratio: **1 TCD → 3 to ~20 TCs.** If ratio ≈ 1:1, TCDs are secretly p
 
 ---
 
+## Reorganize a TPF — Full Workflow
+
+Use this procedure when applying the layered model to an existing TPF. Triggers:
+- User says `reorganize tpf <ID>`, `retitle <TPF>`, `apply layers to <TPF>`
+- A new TPF has unstructured TCD titles
+
+### Step 1 — Inventory
+
+Fetch TPF details and all child TCDs:
+```python
+tpf = get_article(TPF_ID, fields='id,title,description')
+tcds = get_children(TPF_ID, 'test_case_definition', fields='id,title,status,description')
+```
+
+### Step 2 — Classify Each TCD by Layer
+
+For each TCD, read its description and apply the classification rubric:
+
+| If TCD validates... | Assign Layer |
+|--------------------|-------------|
+| Fuse shadows match manifest, per-tile/per-socket | FUSE (−1) |
+| Enumeration sources (CPUID, TPMI, BIOS, OS) agree | ENUM (0) |
+| Register read/write/lock/deprecated behavior | CONTRACT (1) |
+| Transport path correctness (HPM, sideband) | CONTRACT (1) |
+| Reset/boot register state (sticky, non-sticky, LOCK) | CONTRACT (1) |
+| Error path / negative / boundary rejection | CONTRACT (1) |
+| Recovery after disruption | CONTRACT (1) |
+| Telemetry/counter accuracy vs external reference | OBS (2) |
+| Reporting counters consistent with enforcement | OBS (2) |
+| Algorithm convergence / enforcement under load | SCENARIO (3) |
+| Coordination invariant (feature × feature interaction) | SCENARIO (3) |
+| Boundary value / edge-case behavior | SCENARIO (3) |
+| Cross-product interaction with other features | SCENARIO (3) |
+| Long-duration randomized stress (72h+) | SOAK (4) |
+
+### Step 3 — Assign IDs and Build Ladder
+
+1. Assign `{FEATURE}-{LAYER}-{NNN}` IDs sequentially per layer
+2. Determine gate dependencies (what must pass before each runs)
+3. Document the enablement ladder
+
+### Step 4 — Write Definition Sentences
+
+For each TCD, write the 7-field definition block:
+- **Sentence**: One testable invariant (observable → condition → threshold)
+- **Gate**: Which prerequisite TCD
+- **Suspect**: What is indicted on failure
+- **Setup/Check/Invariant**: Three questions (setup, observable, must-be-true)
+
+Rules for the sentence:
+- Must be backend-agnostic (would read the same for GNR or DMR)
+- Must reference `{manifest.*}` for any program-specific constant
+- Must not name tools, scripts, register hex addresses, or tile numbers
+
+### Step 5 — Apply to HSD
+
+```python
+from hsd_utils.operations import set_field
+# Title update
+set_field(tcd_id, 'test_case_definition', 'title', new_title, session)
+# Description prepend (definition block + existing content)
+new_desc = make_def_block(defn) + existing_desc
+body = {'subject': 'test_case_definition', 'tenant': TENANT,
+        'fieldValues': [{'description': new_desc}, {'send_mail': 'false'}]}
+session.put(BASE + '/article/' + tcd_id, json=body)
+```
+
+### Step 6 — Audit TC Alignment
+
+For each TCD, fetch child TCs and apply the **TC Reorganization Trigger** table:
+
+| TC validates | Correct parent layer |
+|-------------|---------------------|
+| Register state / post-boot configuration check | CONTRACT |
+| Runtime behavior / inject event → observe response | SCENARIO |
+| Meter accuracy / telemetry vs reference | OBS |
+| Write-path / interface access correctness | CONTRACT |
+| Long-duration stress / race hunting | SOAK |
+
+**Move misaligned TCs:**
+```python
+set_field(tc_id, 'test_case', 'parent_id', correct_tcd_id, session)
+set_field(tc_id, 'test_case', 'title', new_tc_title, session)
+```
+
+### Step 7 — Identify Gaps
+
+After reorganization, check for missing layers:
+
+| Gap Type | Indicator | Action |
+|----------|-----------|--------|
+| No FUSE TCD | Feature has fuse-gated behavior but no manifest check | Create FUSE-001 |
+| No ENUM TCD | Feature has multiple discovery paths but no consistency check | Create ENUM-001 |
+| No SOAK TCD | Feature has race-prone interactions but no long-duration stress | Create SOAK-001 |
+| TCD:TC ratio ≈ 1:1 | TCD has only 1 TC | Fan out by backend/tile/corner |
+| SCENARIO with 0 active TCs | All TCs moved out or rejected | Author new scenario TCs |
+
+### Worked Examples
+
+**PCT (TPF 16030762939):** 12 TCDs → 13 retitled, 2 PV TCDs absorbed as TC instances,
+FlexconPM TCs moved from SCENARIO-004 to CONTRACT-001. Result: `nwp_pm_analysis/hierarchy/pct_layered_mock_structure.txt`
+
+**Socket RAPL (TPF 15019477653):** 10 TCDs retitled, write-path TC moved from SCENARIO-001
+to CONTRACT-001 (register interface check ≠ PID convergence test).
+
+---
+
 ## When to Use
 
 - User asks to write, enrich, or update a TC description

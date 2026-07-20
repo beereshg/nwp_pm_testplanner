@@ -144,7 +144,7 @@ def build_tpf_desc_from_kb(kb_text: str) -> str:
     html = ""
     for num, label, key in SECTIONS:
         block = parse_block(kb_text, key)
-        if num == "8":
+        if num == "6":
             # Section 6 (References): render ref bullet links + any other content
             ref_lines = [l for l in block if re.match(r"-\s+\[", l.strip())]
             body = refs_html(ref_lines) if ref_lines else render_block(block)
