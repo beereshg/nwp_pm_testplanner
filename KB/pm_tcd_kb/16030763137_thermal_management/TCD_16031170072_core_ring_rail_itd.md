@@ -1,24 +1,34 @@
-# TCD: [ITD] Core/Ring Rail ITD
+# TCD: ITD-CONTRACT-002 - Core/Ring Domain Compensation
 
 | Field | Value |
 |-------|-------|
 | **TCD ID** | [16031170072](https://hsdes.intel.com/appstore/article-one/#/16031170072) |
-| **Title** | [ITD] Core/Ring Rail ITD |
-| **Status** | draft |
+| **Title** | ITD-CONTRACT-002 - Core/Ring Domain Compensation |
+| **Status** | open |
 | **Parent TPF** | [16031170066 — ITD Compensation](https://hsdes.intel.com/appstore/article-one/#/16031170066) |
-| **Split from** | [22022420603 — ITD](https://hsdes.intel.com/appstore/article-one/#/22022420603) |
 | **Feature** | ITD Compensation |
 | **Sub-Feature** | Core/Ring Rail (VccCore + VccRing) |
 | **NWP Disposition** | Runnable_On_N-1 |
-| **KB last updated** | 2026-07-19 |
-| **Co-Design T2 ref** | Ingest tracker §3B row S4 |
-| **Spec refs** | DMR thermal / ITD: VccCore + VccRing domains |
+| **KB last updated** | 2026-07-21 |
+| **Spec refs** | DMR CBB HAS ITD: VccCore + VccRing domains, Wave3_common Socket Thermal Mgmt HAS |
+
+---
+
+## Definition Block
+
+- **Layer:** 1 (Contract)
+- **Sentence:** VccCore ITD (Acode autonomous) and VccRing ITD (CBB PCode) apply fuse-slope × (temp - cutoff) voltage compensation that tracks DTS temperature within spec'd tolerance.
+- **Gate:** ITD-FUSE-001 (Coefficient Fuse Checkout)
+- **Suspect:** Acode WP recalculation (VccCore); PCode CCF GV slow-loop (VccRing)
+- **Setup:** ITD enabled, fuse checkout passed. Core and CCF domains active with stable temperature.
+- **Check:** Inject temperature change → read VID for VccCore and VccRing; compare against ITD algorithm output.
+- **Invariant:** VID delta matches {manifest.itd_slope} × (T - {manifest.itd_cutoff_tj}) within spec'd tolerance per domain. Dual-slope: correct slope selected based on uncompensated voltage vs cutoff.
 
 ---
 
 ## Section 1: Architecture / Micro-architecture and Functionality
 
-**Core/Ring Rail ITD** validates VccCore and VccRing temperature-dependent voltage compensation. VccCore ITD is **Acode autonomous** — each core's Acode periodically reads its DTS temperature and adjusts voltage via WP recalculation. VccRing ITD is **CBB PCode driven** — PCode computes per-FIVR domain using min/max temperature across CCF FIVR domains.
+**Core/Ring Domain Compensation** validates VccCore and VccRing temperature-dependent voltage compensation. VccCore ITD is **Acode autonomous** — each core's Acode periodically reads its DTS temperature and adjusts voltage via WP recalculation. VccRing ITD is **CBB PCode driven** — PCode computes per-FIVR domain using min/max temperature across CCF FIVR domains.
 
 > **Architecture overview:** See TPF — ITD Compensation §Design Details for full ITD compensation architecture across all domains.
 
@@ -27,7 +37,9 @@
 - **VccCore (ACP):** Acode autonomous; periodic temp readout → voltage correction in WP recalculation
 - **VccRing (CCF):** CBB PCode; min/max temp of CCF FIVR domains → slope-based compensation
 - Both use fuse-programmed `ITD_SLOPE`, `ITD_CUTOFF_TJ` coefficients
+- Dual-slope support: `ITD_SLOPE_2`, `ITD_CUTOFF_V_2`, `ITD_CUTOFF_V_X` for voltage-dependent slope selection
 - Compensation visible via VID readback and TPMI/PMSB status
+- `TRUE_TD_ENABLE`: Above cutoff voltage, True TD (inverse ITD) may apply for core/mesh domains
 
 ---
 
@@ -75,9 +87,12 @@
 
 | Scenario | TC ID | Env | Verdict |
 |---|---|---|---|
-| VccCore ITD at min operating temp | TBD | FV, HSLE | |
-| VccCore ITD at max operating temp | TBD | FV, HSLE | |
-| VccRing ITD: all CCF FIVRs same temp | TBD | FV, HSLE | |
+| VccCore (ACP) ITD verification | [22022421522](https://hsdes.intel.com/appstore/article-one/#/22022421522) | FV, HSLE | |
+| VccRing (CCF) ITD verification | [22022421524](https://hsdes.intel.com/appstore/article-one/#/22022421524) | FV, HSLE | |
+| VccCore ITD at min operating temp | within 22022421522 | FV, HSLE | |
+| VccCore ITD at max operating temp | within 22022421522 | FV, HSLE | |
+| VccRing ITD: all CCF FIVRs same temp | within 22022421524 | FV, HSLE | |
+| VccRing ITD: CCF FIVRs at different temps (min/max calc) | within 22022421524 | FV, HSLE | |
 | VccRing ITD: CCF FIVRs at different temps (min/max spread) | TBD | FV, HSLE | |
 | Fuse slope = 0 (ITD effectively disabled for domain) | TBD | FV | |
 

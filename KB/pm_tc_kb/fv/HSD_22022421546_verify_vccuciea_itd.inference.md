@@ -17,7 +17,7 @@
 
 ## Test Case Intent
 
-Validates the VCCUCIEA (UCIe A-side) ITD compensation scenario defined in [TCD 16031170073 — Fabric/IO Rail ITD](https://hsdes.intel.com/appstore/article-one/#/16031170073) §5. Environment: NWP post-silicon, FV.
+Validates that VCCUCIEA (UCIe PHY Analog) ITD compensation is correctly applied across all 4 directional sub-domains (NW, NE, SW, SE). For each sub-domain: reads the current DTS temperature from the dedicated UCIe thermal topology sensor, reads the actual FIVR voltage from the resource controller workpoint, independently calculates the expected ITD offset using the dual-slope algorithm with per-domain fuse coefficients, and verifies that actual voltage matches expected (base + offset) within the 26 mV guardband.
 
 ## Section A: NWP Disposition & Justification
 
@@ -36,33 +36,39 @@ VCCUCIEA is a **fixed-frequency FIVR** for the UCIe PHY Analog. Like VCCFIXDIG, 
 ## Section B: NWP-Specific Test Procedure
 
 ### Pre-Conditions
-- NWP silicon with UCIe PHY Analog active (D2D links trained)
-- VCCUCIEA ITD fuse: `ITD_SLOPE = 0` expected (fused at Vhot)
-- PythonSv access to `sv.socket0.imh0.punit.*`
+- NWP silicon with UCIe PHY links trained (D2D connectivity active)
+- ITD fuses non-zero for VCCUCIEA domains (verified by TC 22022421521)
+- PythonSv access to `sv.socket0.imh0.*`
+- Test command: `python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3`
 
-### Adapted Test Steps
+### Adapted Test Steps (from itd_pmx.py mainTest — RC class, rc_cfcmem_ew)
 
-| Step | Action | NWP Adaptation |
-|------|--------|----------------|
-| 1 | Run ITD thermal test | `python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3` |
-| 2 | Verify VCCUCIEA ITD slope fuse = 0 for each domain (NW, SW, SE variants) | Read slope fuses; expect 0 for each VCCUCIEA domain |
-| 3 | `itd.print_itd_info(0, 0)` shows VCCUCIEA domains with 0 compensation | Verify all VCCUCIEA_* show 0V offset |
-| 4 | Read VCCUCIEA DTS: `dts_ucie_b` at RC_CFCMEM | `rsrc_adapt_dtsucie_b 0x7E00` — NWP UCIe DTS placement |
-| 5 | Verify RC offset = 0 for all VCCUCIEA domains | `imh0.punit.resctrl_cr_vccuciea_{nw|sw|se}_v_offset` |
-| 6 | Capture logs and command-line output | Save to test log |
+| Step | Action | Expected Result (PASS) | Failure Indication |
+|------|--------|----------------------|-------------------|
+| 1 | Load IMH fuse RAM and read shared ITD fuses: `itd_cutoff_tj`, `itd_min_override_temp`, `min_accurate_temp` | All three shared fuses readable and non-zero | Access fault or zero value in any shared fuse |
+| 2 | For each VCCUCIEA sub-domain (NW, NE, SW, SE): read per-domain ITD fuses — slope, slope_2, cutoff_v, cutoff_v_2, cutoff_v_x | Per-domain slope and cutoff_v are non-zero; dual-slope fuses present if domain supports it | Zero slope or cutoff_v indicates unprogrammed fuse |
+| 3 | Read each sub-domain's temperature from its thermal topology register (simple_domain_instances 8/9/10/11) | Temperature within valid operating range (−10°C to +110°C) | Temperature out of range or read failure |
+| 4 | Read each sub-domain's actual voltage from the resource controller workpoint register (× 0.0025 V) | Voltage > 0 and within expected FIVR operating range (0.4–1.2 V) | Zero voltage or out-of-range value |
+| 5 | Read fused base voltage for each sub-domain (non-GV fixed-frequency — no ratio lookup needed) | Base voltage matches fused `active_voltage` value | Mismatch or zero base voltage |
+| 6 | Apply MIN_ACCURATE_TEMP guard: if temperature < min_accurate_temp, substitute min_override_temp | Guard correctly applied — effective temp used in calculation is ≥ min_accurate_temp | Guard not applied when temperature is below threshold |
+| 7 | Calculate expected ITD offset using dual-slope algorithm: select slope based on voltage vs cutoff_v_x crossover; compute offset = slope × (cutoff_v − base_voltage) × (cutoff_tj − temperature) | Offset is non-negative when in ITD zone (temp < cutoff_tj and voltage < cutoff_v) | Negative offset in ITD zone or non-zero offset outside ITD zone |
+| 8 | Compute expected voltage = base voltage + ITD offset | Expected voltage is within valid FIVR range | Expected voltage outside operating bounds |
+| 9 | Compare expected vs actual voltage per sub-domain | Delta ≤ 26 mV for all 4 sub-domains (NW, NE, SW, SE) | Delta > 26 mV on any sub-domain — ITD compensation mismatch |
+| 10 | Log per-sub-domain results table with columns: domain, IMH path, DTS, temperature, base volt, slope, offset, guardband, delta, expected, actual, PASS/FAIL | All rows show PASS | Any row shows FAIL |
 
-### VCCUCIEA DTS Source (from test steps)
+### VCCUCIEA Domain Mapping (from itd_pmx.py)
 
-| DTS Name | Resource Adapter | RC Offset | RC Location | Index |
-|----------|------------------|-----------|-------------|-------|
-| `dts_ucie_b` | `rsrc_adapt_dtsucie_b` | `0x7E00` | `RC_CFCMEM` | 0,1,2 |
-
-NWP: Confirm VCCUCIEA_NW/SW/SE domain count based on NWP UCIe PHY placement.
+| Sub-Domain | RC Name | Thermal Register | DTS Index |
+|---|---|---|---|
+| VCCUCIEA_NW | `vccuciea_nw` | `simple_domain_instances_9.min_temperature` | 59 |
+| VCCUCIEA_NE | `vccuciea_ne` | `simple_domain_instances_8.min_temperature` | 58 |
+| VCCUCIEA_SW | `vccuciea_sw` | `simple_domain_instances_11.min_temperature` | 61 |
+| VCCUCIEA_SE | `vccuciea_se` | `simple_domain_instances_10.min_temperature` | 60 |
 
 ### NWP Pass Criteria
-- All VCCUCIEA domains: ITD_SLOPE fuse = 0
-- RC voltage offset = 0 (no ITD compensation applied)
-- `itd.print_itd_info` confirms 0V for all VCCUCIEA domains
+- All 4 VCCUCIEA sub-domains: actual voltage matches expected (base + ITD offset) within 26 mV
+- Per-domain ITD fuses are non-zero (slope, cutoff_v) — if zero, flag as fuse programming issue
+- Temperature telemetry from dedicated UCIe DTS reflects realistic thermal conditions
 
 ---
 

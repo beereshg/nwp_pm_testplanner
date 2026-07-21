@@ -40,15 +40,21 @@ ACP (VccCore) ITD is controlled **autonomously by Acode** (per-core). Each core 
 - ITD fuses non-zero (verified by TC 22022421521)
 - PythonSv access to `sv.socket0.cbb0.*` and `sv.socket0.cbb1.*`
 
-### Adapted Test Steps
+### Adapted Test Steps (from itd_pmx.py mainTest — Core class)
 
 | Step | Action | NWP Adaptation |
 |------|--------|----------------|
-| 1 | Run ITD thermal test with NWP config | `python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3` |
-| 2 | Verify periodic ITD: read core DTS, calculate expected compensation, compare to FIVR output | NWP: 2 CBBs, 48 cores each; read `cbb0.module[0-7].compute[0-3]` DTS per core |
-| 3 | Verify interrupt-based ITD: stress a core to trigger DTS DTD threshold crossing (±3°C) | Same mechanism; verify `CORE_PMA_CR_DTS_DDT_STICKY` non-sticky bits 0,1 |
-| 4 | Verify ITD voltage compensation: `itd.print_itd_info(SockNum, 0)` shows non-zero offset | Same Python API; socket 0 |
-| 5 | Verify MLC SSA FIVR uses same ITD fuses as core (see TC 22022421525) | Same architecture on NWP |
+| 1 | Initialize ITD test framework: load fuse RAM for CBB base, IMH, and compute banks; build core data objects for every socket/CBB/compute/module | `python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3` — NWP: 2 CBBs × 4 computes × modules |
+| 2 | Enable operating point reporting on each PMA so voltage/ratio reads reflect real-time state | Write 1 to `pma{N}.pmsb.pm_control.op_point_reporting_en` per module |
+| 3 | Read per-core ITD fuse coefficients from compute fuse bank: slope, slope2, cutoff_v, cutoff_v2, cutoff_tj, floor_v, min_override_temp, slope_above_cutoff_tj, min_accurate_temp | Fuse paths: `compute{N}.fuses.core{M}_fuse.core_fuse_core_fuse_acode_ia_itd_{fuse}` |
+| 4 | Read current core temperature from PMA thermal telemetry | `pma{N}.pmsb.io_temperature_core['fid_1'].min_t` → convert: value/2 − 64 = °C |
+| 5 | Read current core voltage from operating point register | `module{N}.core0.ucode_cr_core_operating_point.core_voltage` × 0.0025 V |
+| 6 | Read current core ratio | `pma{N}.pmsb.io_core_operating_point.core_ratio_16p67` ÷ 6 |
+| 7 | Read ICCP grant level and resolve VF curve index for cdyn delta voltage lookup | `pma{N}.pmsb.gvctrl_status4.iccp_grant_level` → fuse index |
+| 8 | Calculate base voltage: interpolate base VF curve at current ratio, add cdyn delta VF at ICCP index, add aging delta VF | Three VF curve lookups summed |
+| 9 | Calculate expected ITD offset using dual-slope algorithm: select slope based on min/max rule for core domains; apply temperature × voltage compensation factor | Uses fuse slope, cutoff_v, cutoff_tj, and current temperature |
+| 10 | Compare expected voltage (base + ITD offset) against actual core voltage | Delta must be ≤ 26 mV guardband |
+| 11 | Repeat steps 4–10 for every core module across all CBBs | Produces per-module PASS/FAIL table |
 
 ### NWP-Specific Topology Notes
 - NWP: 2 CBBs (`cbb0`, `cbb1`), 48 cores each, single-threaded (no SMT)
