@@ -106,23 +106,26 @@ For each HSD:
    - Use the feature→KB path mapping from `.github/skills/nwp-tc-description/SKILL.md` Part 6
    - Extract any sections the MCP response did not cover (topology diagrams, KPI & Timing, NWP Delta details)
    - MCP content takes precedence; KB fills where MCP is silent or incomplete
-4. Generate sections and write: `cache/HSD_{id}_{slug}.inference.md`
+4. Generate sections and write: `KB/pm_tc_kb/fv/TC_{id}_{slug}.inference.md`
 
 See `.github/skills/nwp-tc-description/SKILL.md` Part 5 for Section B swimlane format,
 disposition decision tree, and enrichment section labels.
 
 ### Step 4 — Pipeline 3 (Present): Generate HTML
 
-Use the unified generator only:
+Use the TC description generator (Jinja2 template):
 ```powershell
 cd c:/github/nwp_testplan
-python tools/html/generate_unified_html.py --segment fv --hsd <ID> --force
-python tools/html/generate_unified_html.py --segment pss --hsd <ID> --force
-python tools/html/generate_unified_html.py --segment all --force
-python tools/html/generate_unified_html.py --status
+# Single TC
+python tools/html/generate_tc_description.py --hsd <ID> --force
+# Output: tc_description_output/TC_{id}_{slug}_tc_desc.html
 ```
 
+Output is the same inline-styled HTML that gets pushed to HSD — no analysis tabs,
+no JavaScript. Uses `KB/templates/tc_hsd_description.html.j2` Jinja2 template.
+
 > **NEVER write HTML directly.** Always call the generation script.
+> **NEVER use `generate_unified_html.py` for TC output** — that script is for batch analysis reports only.
 
 ### Step 5 (TCD) — TCD Description Preview & Update
 
@@ -165,7 +168,8 @@ Read this before re-fetching — delta updates only.
 | `tools/hsd/hsd_fetch.py` | Fetch HSD article data | See script `--help` |
 | `tools/html/generate_tcd_preview.py` | Generate TCD preview HTML from KB cache | `python tools/html/generate_tcd_preview.py --tcd <ID> --force` |
 | `tools/html/generate_tpf_preview.py` | Generate TPF preview HTML from KB cache | `python tools/html/generate_tpf_preview.py --tpf <ID> --force` |
-| `tools/html/generate_unified_html.py` | Generate FV/PSS pipeline HTML | `python tools/html/generate_unified_html.py --segment fv --hsd <ID> --force` |
+| `tools/html/generate_tc_description.py` | Generate TC description HTML (Jinja2) | `python tools/html/generate_tc_description.py --hsd <ID> --force` |
+| `tools/html/push_tc_description.py` | Push TC description to HSD | `python tools/html/push_tc_description.py --hsd <ID> --push` |
 
 > **NEVER generate temp `.py` push scripts.** Always use `tools/hsd/push_preview.py`.
 > Auto-detects HSD ID and subject from filename prefix (`TPF_` → `test_plan`, `TCD_` → `test_case_definition`, `TC_` → `test_case`).
