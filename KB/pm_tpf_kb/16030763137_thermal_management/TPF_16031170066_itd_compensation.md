@@ -44,7 +44,13 @@
 | [16031170072](https://hsdes.intel.com/appstore/article-one/#/16031170072) | [ITD] Core/Ring Rail ITD | 22022421522, 22022421524 | Split from 22022420603 |
 | [16031170073](https://hsdes.intel.com/appstore/article-one/#/16031170073) | [ITD] Fabric/IO Rail ITD | 22022421535, 22022421536, 22022421546, 22022421538, 22022421542, 22022458470 | Split from 22022420603 |
 | [16031170074](https://hsdes.intel.com/appstore/article-one/#/16031170074) | [ITD] Memory/CFC Rail ITD | 22022421525, 22022421540 | Split from 22022420603 |
-| [16031170075](https://hsdes.intel.com/appstore/article-one/#/16031170075) | [ITD] ITD Common Controls | 22022421521, 22022421528, 22022421534 | Split from 22022420603 |
+| ~~[16031170075](https://hsdes.intel.com/appstore/article-one/#/16031170075)~~ | ~~[ITD] ITD Common Controls~~ | — | **DECOMPOSED** — see splits below (Co-Design T2 ingest 2026-07-21) |
+| [16031185178](https://hsdes.intel.com/appstore/article-one/#/16031185178) | ITD-CONTRACT-005 - VCCUCIEA Runtime DVFS Handshake Protocol | *(TC TBD)* | **NEW** — D2D VCCIO ITD handshake protocol |
+| [16031185179](https://hsdes.intel.com/appstore/article-one/#/16031185179) | ITD-SCENARIO-002 - RA Disabled-D2D Ack Collection | *(TC TBD)* | **NEW** — RA skips ack from disabled D2Ds |
+| [16031185180](https://hsdes.intel.com/appstore/article-one/#/16031185180) | ITD-SCENARIO-003 - Pre-Training VCCUCIEA ITD Sequencing | 22022421534 (re-homed) + *(TC TBD)* | **Split-from 16031170075** — full pre-training 3-phase sequence |
+| [16031185181](https://hsdes.intel.com/appstore/article-one/#/16031185181) | ITD-SCENARIO-004 - No VCCUCIEA Change During MB Training | *(TC TBD)* | **NEW** — negative validation: absence of change during MB training |
+| TCD-TBD-5 | [ITD] ITD Fuse Configuration Validity | 22022421521 (re-homed) | **Split-from 16031170075** — fuse field correctness (pending HSD creation) |
+| TCD-TBD-6 | [ITD] ITD Disable/Re-Enable Control | 22022421528 (re-homed) | **Split-from 16031170075** — disable→0 / re-enable→restore (pending HSD creation) |
 
 ---
 
@@ -175,6 +181,10 @@
 | 15 | VCCC2CDIG (NWP new domain) | Layer 3c | NWP-specific new domain compensation | 16031170073 | GAP | FV | ⚠️ GAP |
 | 16 | ITD re-enable after disable | Layer 3 | Voltage returns to compensated value | 16031170075 | GAP (within 22022421528?) | FV, HSLE | ⚠️ PARTIAL |
 | 17 | Rapid temp change during loop | Layer 3 | No stale voltage; updates per loop rate | ALL | GAP | FV | ⚠️ GAP |
+| 18 | VCCUCIEA runtime DVFS handshake with Phy | Layer 3c + HW | Phy receives change_req before FIVR transition; ack returned within 240-480ns; no voltage change before protocol point | 16031185178 | *(TC TBD)* | FV, HSLE XOS | ⚠️ GAP |
+| 19 | RA enabled/disabled-D2D ack collection | Layer 3c | With disabled D2Ds, RA completes without waiting for disabled Phy ack; enabled D2Ds still acked | 16031185179 | *(TC TBD)* | FV, HSLE | ⚠️ GAP |
+| 20 | Pre-training VCCUCIEA ITD sequencing (3-phase) | Layer 2 | Training start = base + real-time ITD; training complete = worst-case ITD; reset complete = base + real-time ITD | 16031185180 | 22022421534 (partial) + *(TC TBD)* | FV, HSLE XOS, VP | ⚠️ GAP |
+| 21 | No VCCUCIEA change during MB training / surprise-reset | Layer 2 | Negative: no ITD voltage change during training window; post-reset-exit returns to boot defaults | 16031185181 | *(TC TBD)* | FV, HSLE XOS | ⚠️ GAP |
 
 ---
 
@@ -221,6 +231,8 @@ ITD validation requires temperature injection (DTS override or thermal stimulus)
 - **Temperature injection fidelity varies by environment** — Simics DTS override is model-limited; HSLE is RTL-accurate; FV uses real DTS
 - **VCCC2CDIG has no TC yet** — gap identified in coverage matrix (row 15)
 - **Cross-die HPM temp delivery (VccInf)** — only testable in XOS env; no XOS TCs exist yet
+- **VCCUCIEA DVFS handshake (rows 18-21)** — 4 new behaviors identified via Co-Design T2; no TCs exist. Runtime handshake requires cross-die observability (HSLE XOS or FV). Pre-training sequencing spans both die boots. Surprise-reset is negative validation.
+- **RA disabled-D2D masking (row 19)** — requires platform config with intentionally disabled D2Ds to exercise masking path
 
 ### Accepted Coverage Limitations
 
@@ -256,9 +268,22 @@ ITD validation requires temperature injection (DTS override or thermal stimulus)
 | [16031170072](https://hsdes.intel.com/appstore/article-one/#/16031170072) | [ITD] Core/Ring Rail ITD | draft | 2 | 22022421522, 22022421524 |
 | [16031170073](https://hsdes.intel.com/appstore/article-one/#/16031170073) | [ITD] Fabric/IO Rail ITD | draft | 6 | 22022421535, 22022421536, 22022421546, 22022421538, 22022421542, 22022458470 |
 | [16031170074](https://hsdes.intel.com/appstore/article-one/#/16031170074) | [ITD] Memory/CFC Rail ITD | draft | 2 | 22022421525, 22022421540 |
-| [16031170075](https://hsdes.intel.com/appstore/article-one/#/16031170075) | [ITD] ITD Common Controls | draft | 3 | 22022421521, 22022421528, 22022421534 |
+| ~~16031170075~~ | ~~[ITD] ITD Common Controls~~ | **DECOMPOSED** | 0 | TCs re-homed to 16031185180/TBD-5/TBD-6 |
+| [16031185178](https://hsdes.intel.com/appstore/article-one/#/16031185178) | ITD-CONTRACT-005 - VCCUCIEA Runtime DVFS Handshake Protocol | open | 0 | *(TC TBD)* |
+| [16031185179](https://hsdes.intel.com/appstore/article-one/#/16031185179) | ITD-SCENARIO-002 - RA Disabled-D2D Ack Collection | open | 0 | *(TC TBD)* |
+| [16031185180](https://hsdes.intel.com/appstore/article-one/#/16031185180) | ITD-SCENARIO-003 - Pre-Training VCCUCIEA ITD Sequencing | open | 1 | 22022421534 (re-homed) |
+| [16031185181](https://hsdes.intel.com/appstore/article-one/#/16031185181) | ITD-SCENARIO-004 - No VCCUCIEA Change During MB Training | open | 0 | *(TC TBD)* |
+| TCD-TBD-5 | [ITD] ITD Fuse Configuration Validity | proposed | 1 | 22022421521 (re-homed) |
+| TCD-TBD-6 | [ITD] ITD Disable/Re-Enable Control | proposed | 1 | 22022421528 (re-homed) |
+
+**Total: 9 TCDs (3 existing + 6 proposed), 13 existing TCs + new TCs TBD**
 
 **Total: 4 TCDs, 13 TCs (all FV), 0 PSS TCs (planned)**
+
+> ⚠️ **Co-Design T2 ingest (2026-07-21):** TCD 16031170075 decomposed into 3 new TCDs
+> (TCD-TBD-3/5/6). 4 additional new TCDs proposed (TCD-TBD-1/2/4). Pending HSD creation
+> and human confirmation before any writes. Source: Co-Design T2 response citing D2D PM HAS,
+> RA MAS, UCIe Phy HAS, DMR Thermal HAS.
 
 ### Original TCD (superseded)
 
@@ -272,14 +297,24 @@ ITD validation requires temperature injection (DTS override or thermal stimulus)
 - [DMR CBB ITD HAS](https://docs.intel.com/documents/pm_doc/src/DMR_CBB/HAS/Thermal/ITD/ITD.html)
 - [DMR Thermal HAS](https://docs.intel.com/documents/pm_doc/src/server/dmr/pm_features/thermals/dmr_thermal.html)
 - [D2D PM HAS — UCIe boot-time ITD](https://docs.intel.com/documents/pm_doc/src/server/DMR/IP_PM_Features/D2D_PM/D2D_PM.html)
+- [D2D VCCIO ITD feature (zoom)](https://docs.intel.com/documents/pm_doc/src/server/DMR/IP_PM_Features/D2D_PM/auto/f7.D2D_VCCIO_ITD.8fd81f.zoom.html)
+- [Resource Adapter MAS — voltage workpoint change flow](https://docs.intel.com/documents/arch_datacenter/DMR_MAS/RCF/RA/Resource_Adapter_MAS.html#master-slave-voltage-workpoint-change-flow)
+- [UCIe Phy Gen4 HAS — MB Init](https://docs.intel.com/documents/iparch/ucie/HAS/Gen4/releases/R2304v2/HAS/IPHAS_UCIePhy_Gen4_DMR_3Tx3Rx.html#mbinit)
+- [UCIe Phy Gen4 HAS (2Tx4Rx P9)](https://docs.intel.com/documents/iparch/ucie/has/ucie_dmr_mainline/has/iphas_uciephy_gen4_dmr_2tx4rx_p9.html)
 - [NWP HAS PM Features](https://docs.intel.com/documents/custom-xeon/newport-docs/has/Overview/NWP_HAS.html#pm-features)
 - [Primecode FHAS Index](https://docs.intel.com/documents/primecode/fhas/index.html)
+- [SOC HSD 22016961651 — VCCUCIEA ITD runtime handshake](https://hsdes.intel.com/appstore/article/#/22016961651)
+- [SOC HSD 22018755448 — VCCUCIEA ITD pre-training support](https://hsdes.intel.com/appstore/article/#/22018755448)
 
 ### Coverage Gaps (from Microarch→Scenario Matrix)
 
 | # | Gap | Priority | Recommended Action |
 |---|---|---|---|
 | 15 | VCCC2CDIG (NWP new domain) — no TC | High | Create TC under TCD 16031170073; NWP-new domain has no N-1 baseline |
-| 14 | MIN_ACCURATE_TEMP guard — partial (within fuse checkout TC) | Medium | Verify 22022421521 explicitly tests below-threshold scenario; else split TC |
-| 16 | ITD re-enable after disable — partial (within disable TC) | Low | Verify 22022421528 covers re-enable transition; else add scenario |
+| 18 | VCCUCIEA runtime DVFS handshake — no TC | High | Create TCD-TBD-1 + TC; requires FV or HSLE XOS (cross-die handshake). Spec: D2D PM HAS §VCCIO ITD, RA MAS §master-slave-voltage-workpoint-change-flow |
+| 20 | Pre-training 3-phase VCCUCIEA ITD — partial | High | Create TCD-TBD-3; existing TC 22022421534 covers worst-case but not full 3-phase. Spec: SOC HSD 22018755448, DMR Thermal HAS §ITD |
+| 21 | No VCCUCIEA change during MB training — no TC | High | Create TCD-TBD-4; negative validation. Spec: D2D PM HAS "during MB training primecode must not change VCCUCIEA" |
+| 19 | RA disabled-D2D masking — no TC | Medium | Create TCD-TBD-2 + TC; RA skips disabled PHY acks. Spec: RA MAS §master-slave, SOC HSD 22016961651 |
+| 14 | MIN_ACCURATE_TEMP guard — partial (within fuse checkout TC) | Medium | Verify 22022421521 explicitly tests below-threshold scenario; else add TC under TCD-TBD-5 |
+| 16 | ITD re-enable after disable — partial (within disable TC) | Low | Verify 22022421528 covers re-enable transition; else add TC under TCD-TBD-6 |
 | 17 | Rapid temp change during loop — no TC | Low | Consider soak/stress TC injection scenario |
