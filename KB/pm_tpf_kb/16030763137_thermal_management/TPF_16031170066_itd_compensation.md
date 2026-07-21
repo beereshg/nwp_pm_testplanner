@@ -49,8 +49,8 @@
 | [16031185179](https://hsdes.intel.com/appstore/article-one/#/16031185179) | ITD-SCENARIO-002 - RA Disabled-D2D Ack Collection | *(TC TBD)* | **NEW** — RA skips ack from disabled D2Ds |
 | [16031185180](https://hsdes.intel.com/appstore/article-one/#/16031185180) | ITD-SCENARIO-003 - Pre-Training VCCUCIEA ITD Sequencing | 22022421534 (re-homed) + *(TC TBD)* | **Split-from 16031170075** — full pre-training 3-phase sequence |
 | [16031185181](https://hsdes.intel.com/appstore/article-one/#/16031185181) | ITD-SCENARIO-004 - No VCCUCIEA Change During MB Training | *(TC TBD)* | **NEW** — negative validation: absence of change during MB training |
-| TCD-TBD-5 | [ITD] ITD Fuse Configuration Validity | 22022421521 (re-homed) | **Split-from 16031170075** — fuse field correctness (pending HSD creation) |
-| TCD-TBD-6 | [ITD] ITD Disable/Re-Enable Control | 22022421528 (re-homed) | **Split-from 16031170075** — disable→0 / re-enable→restore (pending HSD creation) |
+| [16031185219](https://hsdes.intel.com/appstore/article-one/#/16031185219) | ITD-FUSE-001 - ITD Coefficient Fuse Configuration Validity | 22022421521 (re-homed) | **Split-from 16031170075** — fuse field correctness |
+| [16031185220](https://hsdes.intel.com/appstore/article-one/#/16031185220) | ITD-CONTRACT-001b - ITD Disable/Re-Enable Control | 22022421528 (re-homed) | **Split-from 16031170075** — disable→0 / re-enable→restore |
 
 ---
 
@@ -268,13 +268,13 @@ ITD validation requires temperature injection (DTS override or thermal stimulus)
 | [16031170072](https://hsdes.intel.com/appstore/article-one/#/16031170072) | [ITD] Core/Ring Rail ITD | draft | 2 | 22022421522, 22022421524 |
 | [16031170073](https://hsdes.intel.com/appstore/article-one/#/16031170073) | [ITD] Fabric/IO Rail ITD | draft | 6 | 22022421535, 22022421536, 22022421546, 22022421538, 22022421542, 22022458470 |
 | [16031170074](https://hsdes.intel.com/appstore/article-one/#/16031170074) | [ITD] Memory/CFC Rail ITD | draft | 2 | 22022421525, 22022421540 |
-| ~~16031170075~~ | ~~[ITD] ITD Common Controls~~ | **DECOMPOSED** | 0 | TCs re-homed to 16031185180/TBD-5/TBD-6 |
+| ~~16031170075~~ | ~~[ITD] ITD Common Controls~~ | **DECOMPOSED** | 0 | TCs re-homed to 16031185180/16031185219/16031185220 |
 | [16031185178](https://hsdes.intel.com/appstore/article-one/#/16031185178) | ITD-CONTRACT-005 - VCCUCIEA Runtime DVFS Handshake Protocol | open | 0 | *(TC TBD)* |
 | [16031185179](https://hsdes.intel.com/appstore/article-one/#/16031185179) | ITD-SCENARIO-002 - RA Disabled-D2D Ack Collection | open | 0 | *(TC TBD)* |
 | [16031185180](https://hsdes.intel.com/appstore/article-one/#/16031185180) | ITD-SCENARIO-003 - Pre-Training VCCUCIEA ITD Sequencing | open | 1 | 22022421534 (re-homed) |
 | [16031185181](https://hsdes.intel.com/appstore/article-one/#/16031185181) | ITD-SCENARIO-004 - No VCCUCIEA Change During MB Training | open | 0 | *(TC TBD)* |
-| TCD-TBD-5 | [ITD] ITD Fuse Configuration Validity | proposed | 1 | 22022421521 (re-homed) |
-| TCD-TBD-6 | [ITD] ITD Disable/Re-Enable Control | proposed | 1 | 22022421528 (re-homed) |
+| [16031185219](https://hsdes.intel.com/appstore/article-one/#/16031185219) | ITD-FUSE-001 - ITD Coefficient Fuse Configuration Validity | open | 1 | 22022421521 (re-homed) |
+| [16031185220](https://hsdes.intel.com/appstore/article-one/#/16031185220) | ITD-CONTRACT-001b - ITD Disable/Re-Enable Control | open | 1 | 22022421528 (re-homed) |
 
 **Total: 9 TCDs (3 existing + 6 proposed), 13 existing TCs + new TCs TBD**
 
@@ -315,6 +315,6 @@ ITD validation requires temperature injection (DTS override or thermal stimulus)
 | 20 | Pre-training 3-phase VCCUCIEA ITD — partial | High | Create TCD-TBD-3; existing TC 22022421534 covers worst-case but not full 3-phase. Spec: SOC HSD 22018755448, DMR Thermal HAS §ITD |
 | 21 | No VCCUCIEA change during MB training — no TC | High | Create TCD-TBD-4; negative validation. Spec: D2D PM HAS "during MB training primecode must not change VCCUCIEA" |
 | 19 | RA disabled-D2D masking — no TC | Medium | Create TCD-TBD-2 + TC; RA skips disabled PHY acks. Spec: RA MAS §master-slave, SOC HSD 22016961651 |
-| 14 | MIN_ACCURATE_TEMP guard — partial (within fuse checkout TC) | Medium | Verify 22022421521 explicitly tests below-threshold scenario; else add TC under TCD-TBD-5 |
+| 14 | MIN_ACCURATE_TEMP guard — partial (within fuse checkout TC) | Medium | Verify 22022421521 explicitly tests below-threshold scenario; else add TC under 16031185219 |
 | 16 | ITD re-enable after disable — partial (within disable TC) | Low | Verify 22022421528 covers re-enable transition; else add TC under TCD-TBD-6 |
 | 17 | Rapid temp change during loop — no TC | Low | Consider soak/stress TC injection scenario |

@@ -1,14 +1,21 @@
-# TCD: ITD-FUSE-001 - ITD Coefficient Fuse Checkout
+# TCD: ~~ITD-FUSE-001 - ITD Coefficient Fuse Checkout~~ [DECOMPOSED]
+
+> **⚠️ DECOMPOSED (2026-07-21):** This TCD has been split into 3 focused TCDs:
+> - [16031185219](https://hsdes.intel.com/appstore/article-one/#/16031185219) — ITD-FUSE-001 - ITD Coefficient Fuse Configuration Validity (TC 22022421521)
+> - [16031185220](https://hsdes.intel.com/appstore/article-one/#/16031185220) — ITD-CONTRACT-001b - ITD Disable/Re-Enable Control (TC 22022421528)
+> - [16031185180](https://hsdes.intel.com/appstore/article-one/#/16031185180) — ITD-SCENARIO-003 - Pre-Training VCCUCIEA ITD Sequencing (TC 22022421534)
+>
+> All TCs have been re-homed. This TCD should be closed in HSD.
 
 | Field | Value |
 |-------|-------|
 | **TCD ID** | [16031170075](https://hsdes.intel.com/appstore/article-one/#/16031170075) |
-| **Title** | ITD-FUSE-001 - ITD Coefficient Fuse Checkout |
-| **Status** | open |
+| **Title** | ~~ITD-FUSE-001 - ITD Coefficient Fuse Checkout~~ |
+| **Status** | **DECOMPOSED** — close in HSD |
 | **Parent TPF** | [16031170066 — ITD Compensation](https://hsdes.intel.com/appstore/article-one/#/16031170066) |
 | **Feature** | ITD Compensation |
 | **Sub-Feature** | Fuse Coefficient Checkout |
-| **NWP Disposition** | Runnable_On_N-1 |
+| **NWP Disposition** | Superseded |
 | **KB last updated** | 2026-07-21 |
 | **Spec refs** | DMR CBB HAS ITD fuse definitions, NWP IMH SoC PM MAS |
 
