@@ -17,7 +17,7 @@
 
 ## Test Case Intent
 
-Validates the VccInf (Primecode) ITD compensation scenario defined in [TCD 16031170073 — Fabric/IO Rail ITD](https://hsdes.intel.com/appstore/article-one/#/16031170073) §5. Environment: NWP post-silicon, FV.
+Validates that VccInf ITD compensation is correctly applied. VccInf is a non-GV domain (fixed base voltage from fuse) with temperature sourced from the coldest DTS across the IMH. Reads base voltage from fused active_vid, reads temperature from thermal topology simple_domain_instances_7, computes expected ITD offset using per-domain slope/cutoff fuses, and verifies actual voltage matches expected within 26 mV guardband.
 
 ## Section A: NWP Disposition & Justification
 

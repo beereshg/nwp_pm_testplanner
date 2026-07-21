@@ -17,7 +17,7 @@
 
 ## Test Case Intent
 
-Validates the UCIe VCCC2IA ITD compensation including boot-time one-time correction scenario defined in [TCD 16031170073 — Fabric/IO Rail ITD](https://hsdes.intel.com/appstore/article-one/#/16031170073) §5. Environment: NWP post-silicon, FV.
+Validates that VCCC2IA (UCIe D2D core-side) ITD compensation is correctly applied. This CBB-level domain is driven by PCode with temperature from the UCIe min/max thermal telemetry. Reads fused base voltage (single workpoint, no VF curve), reads actual voltage from PCode vars, computes expected ITD offset using the dual-slope algorithm, and verifies actual voltage matches expected within 100 mV guardband.
 
 ## Section A: NWP Disposition & Justification
 

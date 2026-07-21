@@ -17,7 +17,7 @@
 
 ## Test Case Intent
 
-Validates the VccRing (CCF/PCode) temperature-dependent voltage compensation scenario defined in [TCD 16031170072 — Core/Ring Rail ITD](https://hsdes.intel.com/appstore/article-one/#/16031170072) §5. Environment: NWP post-silicon, FV.
+Validates that VccRing (CCF) ITD compensation is correctly applied per FIVR slice. For each of the 8 CCF slices per CBB: reads min/max DTS temperature from per-slice thermal telemetry, injects temperature via DFX thermal puller override (on SVOS), reads actual ring voltage from PCode vars, calculates base voltage from 4-point ring VF curve interpolation at current ratio, computes expected ITD offset using per-slice fuse coefficients with slope-selection logic, and verifies actual voltage matches expected within 100 mV guardband.
 
 ## Section A: NWP Disposition & Justification
 

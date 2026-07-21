@@ -17,7 +17,7 @@
 
 ## Test Case Intent
 
-Validates the VCCCFCIO (IO fabric) ITD compensation scenario defined in [TCD 16031170073 — Fabric/IO Rail ITD](https://hsdes.intel.com/appstore/article-one/#/16031170073) §5. Environment: NWP post-silicon, FV.
+Validates that VCCCFCIO (IO fabric) ITD compensation is correctly applied. This is a GV domain under the rc_cfcio resource controller with 9 DTS sensors contributing to its thermal domain aggregate. Reads temperature from thermal topology simple_domain_instances_0, reads actual voltage from resctrl workpoint, reads ratio from PTPCFSMS UFS status, interpolates base voltage from 5-point VF curve, computes expected ITD offset, and verifies actual voltage matches expected within 26 mV guardband.
 
 ## Section A: NWP Disposition & Justification
 

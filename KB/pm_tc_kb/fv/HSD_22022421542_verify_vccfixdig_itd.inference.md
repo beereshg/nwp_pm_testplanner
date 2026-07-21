@@ -17,7 +17,7 @@
 
 ## Test Case Intent
 
-Validates the VCCFIXDIG (fixed digital) ITD compensation scenario defined in [TCD 16031170073 — Fabric/IO Rail ITD](https://hsdes.intel.com/appstore/article-one/#/16031170073) §5. Environment: NWP post-silicon, FV.
+Validates that VCCFIXDIG (MIO fixed-digital) ITD compensation is correctly applied across all 3 MIO sub-domains (MIO_1, MIO_3, MIO_4). For each sub-domain: reads temperature from its dedicated thermal topology register (simple_domain_instances 3/4/5), reads actual voltage from rc_mio_ew resctrl workpoint, reads fused base voltage, computes expected ITD offset, and verifies actual voltage matches expected within 26 mV guardband.
 
 ## Section A: NWP Disposition & Justification
 

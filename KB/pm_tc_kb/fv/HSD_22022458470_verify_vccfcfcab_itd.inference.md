@@ -17,7 +17,7 @@
 
 ## Test Case Intent
 
-Validates the VCCFCFCAB (NWP-native CAB domain) ITD compensation scenario defined in [TCD 16031170073 — Fabric/IO Rail ITD](https://hsdes.intel.com/appstore/article-one/#/16031170073) §5. Environment: NWP post-silicon, FV.
+Validates that VCCFCFCAB (NWP-native CAB domain) ITD compensation is correctly applied. This is a new NWP domain with no DMR N-1 baseline. Reads temperature from thermal topology, reads actual voltage from rc_cfcmem_ew resctrl workpoint, reads fused base voltage, computes expected ITD offset using NWP-specific fuse coefficients, and verifies actual voltage matches expected within 26 mV guardband.
 
 ## Section A: NWP Disposition & Justification
 

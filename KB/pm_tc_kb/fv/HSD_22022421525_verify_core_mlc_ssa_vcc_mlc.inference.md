@@ -17,7 +17,7 @@
 
 ## Test Case Intent
 
-Validates the Core MLC SSA voltage domain ITD compensation scenario defined in [TCD 16031170074 — Memory/CFC Rail ITD](https://hsdes.intel.com/appstore/article-one/#/16031170074) §5. Environment: NWP post-silicon, FV.
+Validates that MLC SSA ITD compensation is correctly applied. For each CBB: determines the worst-case MLC base voltage across all modules (max of base VF + highest cdyn delta), reads MLC temperature from dedicated MLC DTS, reads actual MLC voltage from PMA workpoint, computes expected ITD offset using MLC-specific fuse coefficients (from acode spare words 6/7), and verifies actual MLC voltage matches expected within 26 mV guardband.
 
 ## Section A: NWP Disposition & Justification
 

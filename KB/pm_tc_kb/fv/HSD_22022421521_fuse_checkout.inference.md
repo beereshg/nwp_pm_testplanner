@@ -16,7 +16,7 @@
 
 ## Test Case Intent
 
-Validates the ITD fuse coefficient checkout across all domains scenario defined in [TCD 16031170075 — ITD Common Controls](https://hsdes.intel.com/appstore/article-one/#/16031170075) §5. Environment: NWP post-silicon, FV.
+Validates that all ITD fuse coefficients are correctly programmed and accessible across every voltage domain (CBB: ring/core/UCIe; IMH: cfcio/cfcmem/mio/ucie/vinf). For each domain: loads fuse RAM, reads per-domain slope, slope_2, cutoff_v, cutoff_v_2, cutoff_v_x, ITD_CUTOFF_TJ, MIN_ACCURATE_TEMP, and TRUE_TD_ENABLE fuses, and verifies no mandatory fuse field is zero (which would indicate unprogrammed or corrupted fuse state). This is the foundational gate — all downstream ITD compensation tests are invalid if fuses are wrong.
 
 ## Section A: NWP Disposition & Justification
 

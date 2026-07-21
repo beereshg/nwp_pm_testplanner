@@ -17,7 +17,7 @@
 
 ## Test Case Intent
 
-Validates the VCCCFCMEM (memory fabric) ITD compensation scenario defined in [TCD 16031170074 — Memory/CFC Rail ITD](https://hsdes.intel.com/appstore/article-one/#/16031170074) §5. Environment: NWP post-silicon, FV.
+Validates that VCCCFCMEM (memory fabric east/west) ITD compensation is correctly applied across all 4 DIMM channel workpoints per direction. For each rc_mem_e and rc_mem_w workpoint: reads per-channel ratio and voltage, skips channels with ratio=0 (unpopulated), reads base voltage from fused active_voltage, computes expected ITD offset per active channel, and verifies actual voltage matches expected within 26 mV guardband.
 
 ## Section A: NWP Disposition & Justification
 

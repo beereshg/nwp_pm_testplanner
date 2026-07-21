@@ -17,7 +17,7 @@
 
 ## Test Case Intent
 
-Validates the ITD global disable path — compensation zeroed across all domains scenario defined in [TCD 16031170075 — ITD Common Controls](https://hsdes.intel.com/appstore/article-one/#/16031170075) §5. Environment: NWP post-silicon, FV.
+Validates that disabling ITD zeroes compensation across all domains and that re-enabling restores it. Collects baseline voltages with ITD active, writes all IMH pcudata slope registers to zero (global disable), waits for FW update cycle, verifies all domains return to base-only voltage (no ITD offset) within guardband, then restores original slopes and confirms compensation resumes.
 
 ## Section A: NWP Disposition & Justification
 
@@ -39,20 +39,21 @@ ITD for any domain can be **disabled** by setting its `ITD_SLOPE` and `ITD_SLOPE
 - NWP silicon or VP with ITD active (non-zero slope fuses)
 - PythonSv access to `sv.socket0.imh0.punit.*` and CBB punit
 - `pm.focus.itd` module available
+- Test command: `python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3`
 
 ### Adapted Test Steps (from itd_pmx.py mainTest — disable loop via set_itdSlope)
 
-| Step | Action | NWP Adaptation |
-|------|--------|----------------|
-| 1 | Run baseline ITD verification: for all domains (CCF slices, cores, IMH RCs, UCIe, VccInf), collect current voltage, temperature, ratio, and fuse coefficients | `python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3` |
-| 2 | Record baseline voltages with ITD active — confirm non-zero ITD offset is being applied to at least one domain | Establishes reference for comparison after disable |
-| 3 | Disable ITD: search all IMH pcudata slope registers and write each to zero; save original values in a dictionary for restoration | `set_itdSlope(setZero=True)` — iterates `imh.pcudata.search("slope_")` and zeroes each |
-| 4 | Wait for FW thermal update cycle to process the slope change | Sleep/cycle delay for FW to recalculate compensation with zeroed slopes |
-| 5 | For each domain: re-read actual voltage; calculate expected voltage as base VF curve voltage only (no ITD offset since all slopes are zero) | Same mainTest loop but with zero-slope fuse inputs → expected offset = 0 |
-| 6 | Compare expected (base-only) voltage against actual voltage for each domain | Delta must be ≤ guardband (26 mV for IMH/core, 100 mV for CCF/UCIe) |
-| 7 | Re-enable ITD: restore original slope values from saved dictionary | `set_itdSlope(setZero=False, setToPrev=True)` |
-| 8 | Wait for FW to resume compensation; re-read voltages across all domains | Verify compensation has resumed — voltage should now include ITD offset again |
-| 9 | Log results in tabulated per-domain table with columns: IP, base volt, slope, offset, guardband, delta, expected, actual, result | Script outputs formatted grid table per IP class |
+| Step | Action | Expected Result (PASS) | Failure Indication |
+|------|--------|----------------------|-------------------|
+| 1 | Collect baseline: for all domains, read current voltage, temperature, ratio, and fuse coefficients | All domains have readable non-zero ITD compensation active | No active compensation before test starts |
+| 2 | Record baseline voltages with ITD active — confirm non-zero offset on at least one domain | At least one domain shows voltage > base VF (ITD offset present) | All domains at base VF — ITD may not be active |
+| 3 | Disable ITD: write all IMH pcudata slope registers to zero; save originals for restoration | All slope registers written to 0 successfully | Write failure on any slope register |
+| 4 | Wait for FW thermal update cycle to process the slope change | FW recalculates within one thermal loop iteration | Timeout waiting for voltage update |
+| 5 | For each domain: re-read voltage; calculate expected as base VF only (no offset since slopes=0) | Expected voltage = base VF curve value (no ITD component) | Calculation error or read failure |
+| 6 | Compare expected (base-only) against actual voltage per domain | Delta ≤ guardband (26 mV IMH/core, 100 mV CCF/UCIe) | Delta > guardband — residual compensation after disable |
+| 7 | Re-enable ITD: restore original slope values from saved dictionary | All slopes restored to pre-test values | Restore failure |
+| 8 | Wait for FW to resume; re-read voltages to confirm compensation resumed | Voltage includes ITD offset again (matches pre-disable baseline) | Compensation does not resume after re-enable |
+| 9 | Log per-domain results table: IP, base volt, slope, offset, guardband, delta, expected, actual, PASS/FAIL | All rows show PASS | Any row shows FAIL |
 
 ### ITD Disable Methods on NWP
 
