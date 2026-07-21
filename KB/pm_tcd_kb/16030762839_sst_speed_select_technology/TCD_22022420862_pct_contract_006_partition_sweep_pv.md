@@ -1,21 +1,21 @@
-# TCD 22022420862 — PCT - PV BIOS Configuration
+# TCD 22022420862 — PCT-CONTRACT-006 - Partition Sweep (PV)
 
 | Field | Value |
 |-------|-------|
 | **TCD ID** | [22022420862](https://hsdes.intel.com/appstore/article-one/#/22022420862) |
-| **Title** | PCT - PV BIOS Configuration |
+| **Title** | PCT-CONTRACT-006 - Partition Sweep (PV) |
 | **Status** | open |
 | **Owner** | bg3 |
 | **Parent TPF** | [16030762939 — NWP PM PCT (Priority Core Turbo)](https://hsdes.intel.com/appstore/article-one/#/16030762939) |
 | **Siblings** | [22022420855 — PCT Enabling & Discovery](https://hsdes.intel.com/appstore/article-one/#/22022420855) · [22022420858 — PCT Functionality](https://hsdes.intel.com/appstore/article-one/#/22022420858) · [16031169214 — PCT - PV Discovery](https://hsdes.intel.com/appstore/article-one/#/16031169214) · [16031169217 — PCT - PV BIOS Disable](https://hsdes.intel.com/appstore/article-one/#/16031169217) |
-| **Feature** | Power / SST — PCT PV: BIOS partition count knob → HP/LP CLOS register programming → OS-visible configuration (custom positions, sweep) |
+| **Feature** | Power / SST — PCT Contract: BIOS partition count knob → HP/LP CLOS register programming → OS-visible configuration (custom positions, sweep) |
 | **KB last updated** | 2026-07-18 |
 
 ---
 
 ## Section 1: Architecture / Micro-architecture and Functionality
 
-**PCT - PV BIOS Configuration** validates that the PCT BIOS Partition Count knob correctly drives HP/LP CLOS register programming as observed from Ubuntu Linux via `intel-speed-select` and `cpufreq`. Scope is limited to positive-path partition configuration: custom HP module positions and full partition count sweep. The disable scenario (partition count = 0) is in sibling TCD [16031169217 — PCT - PV BIOS Disable](https://hsdes.intel.com/appstore/article-one/#/16031169217).
+**PCT-CONTRACT-006 - Partition Sweep (PV)** validates that the PCT BIOS Partition Count knob correctly drives HP/LP CLOS register programming as observed from Ubuntu Linux via `intel-speed-select` and `cpufreq`. Scope is limited to positive-path partition configuration: custom HP module positions and full partition count sweep. The disable scenario (partition count = 0) is in sibling TCD [16031169217 — PCT - PV BIOS Disable](https://hsdes.intel.com/appstore/article-one/#/16031169217).
 
 > **Architecture overview:** See [TPF 16030762939 — NWP PM PCT](https://hsdes.intel.com/appstore/article-one/#/16030762939) §2 Design Details for the full-stack architecture diagram (PCT policy → SST-TF enforcement → Acode → HW), boot flow, CLOS mechanism, and frequency hierarchy.
 
@@ -129,15 +129,15 @@ When PCT Partition Count = 0, the following conditions must hold:
 
 ---
 
-## Section 5: Operational Behavior
+## Section 5: Operational Behavior & Pass/Fail Bar
 
-| Scenario | Expected Behavior | TC |
-|----------|-------------------|----|
-| Custom HP module selection | BIOS programs CLOS[0] for user-specified positions; OS cpuinfo_max_freq reflects HP TRL on those cores | 16030717717 |
-| Default HP (first-per-partition) | HP = lowest APIC-ID core per partition; `intel-speed-select` reports correct HP module list | 16030717717 (default path) |
-| Partition sweep (1 → max) | HP count = partition_count × 2; uniform distribution; LP clip on all non-HP cores | 16030717718 |
-| Partition count = 0 | No HP/LP split; all cores at conventional turbo; cpuinfo_max_freq uniform | 16030717719 |
-| Prior-enabled → disable | Frequency differentiation removed cleanly; no stale CLOS visible from OS | 16030717719 |
+| Scenario | Pass/Fail Bar | TC |
+|----------|--------------|-----|
+| Custom HP module selection | HP cores: `cpuinfo_max_freq == {manifest.hp_trl} × 100 MHz` (exact); LP cores: `cpuinfo_max_freq == {manifest.lp_clip_ratio} × 100 MHz` (exact); `SST_CLOS_ASSOC[hp_core] == 0` for each user-specified position | 16030717717 |
+| Default HP (first-per-partition) | HP core = lowest APIC-ID per partition; `intel-speed-select` HP module list matches APIC sort order; `SST_CLOS_ASSOC` agrees with sysfs | 16030717717 (default path) |
+| Partition sweep (1 → max) | For each N in [1..{manifest.max_partitions}]: HP count == N × {manifest.hp_per_partition}; all HP cores at `{manifest.hp_trl} × 100 MHz`; all LP cores at `{manifest.lp_clip_ratio} × 100 MHz`; no core unassigned | 16030717718 |
+| Partition count = 0 | *(Sibling TCD [16031169217])* — No HP/LP split; all cores at conventional turbo; `cpuinfo_max_freq` uniform across 96 cores | [sibling] 16030717719 |
+| Prior-enabled → disable | *(Sibling TCD [16031169217])* — `SST_PP_CONTROL.feature_state[1] == 0`; all `SST_CLOS_ASSOC` unset; frequency differentiation removed | [sibling] 16030717719 |
 
 ---
 
@@ -147,7 +147,7 @@ When PCT Partition Count = 0, the following conditions must hold:
 |-------------|-------------|-----------------|-----------------|
 | **Max partition count boundary** | Partition count above `SST_TF_INFO_8.NUM_CORE_0 / MAX_LPIDS` must be rejected by BIOS; default preserved | [16030717718](https://hsdes.intel.com/appstore/article-one/#/16030717718) sweeps valid range 1→max only — max+1 rejection path **not tested** | Extend TC 16030717718 to include a max+1 step, or file dedicated negative TC |
 | **cpuinfo_max_freq vs HWP_CAP alignment** | `cpuinfo_max_freq` (sysfs) and `IA32_HWP_CAPABILITIES.highest_performance` (MSR 0x771) must agree per core; discrepancy = BIOS or `intel_pstate` driver bug | Not a standalone TC — this is a verification criterion that every positive-path TC should apply as a dual-read check | No new TC needed; add as explicit pass criterion in TC descriptions for 16030717717 and 16030717718 |
-| **Stale CLOS on disable** | After PCT disabled (partition = 0), `CLOS_ASSOC` entries persist in TPMI but `SST_CP_ENABLE` = 0; OS tools must report no HP/LP differentiation | **Covered** — [16030717719](https://hsdes.intel.com/appstore/article-one/#/16030717719) explicitly starts from prior-enabled state then disables | No gap |
+| **Stale CLOS on disable** | After PCT disabled (partition = 0), `CLOS_ASSOC` entries persist in TPMI but `SST_CP_ENABLE` = 0; OS tools must report no HP/LP differentiation | **Covered in sibling** — [16030717719](https://hsdes.intel.com/appstore/article-one/#/16030717719) under TCD [16031169217](https://hsdes.intel.com/appstore/article-one/#/16031169217) | No gap (sibling scope) |
 | **Driver prerequisite failure** | If `intel_pstate` not loaded or in passive mode, `cpuinfo_max_freq` reflects BIOS P-state table, not HWP — creates false-pass risk | Infrastructure/precondition check only — a setup failure, not a feature corner case | No new TC; add as precondition guard in kayak test setup |
 | **Custom config — out-of-range HP position** | BIOS knob selects an HP module position beyond the valid range for the partition; BIOS must reject or clamp | **Not covered** — [16030717717](https://hsdes.intel.com/appstore/article-one/#/16030717717) tests positive custom config only; no negative-boundary path exists | **New TC needed** — negative custom config validation (analogous to [16030715680](https://hsdes.intel.com/appstore/article-one/#/16030715680) BIOS negative in TCD 22022420858) |
 | **Single-core partition** | Partition count = 1 HP core per partition; validate CLOS assignment, HWP_CAP, frequency with minimum HP count. Spec: `SST_TF_INFO_8.NUM_CORE_*` supported HP-core bucket counts | **Not covered** — TC 16030717718 sweeps 1→max but single-core-per-partition is not an explicit scenario | *(TC TBD — Co-Design finding #12)* |

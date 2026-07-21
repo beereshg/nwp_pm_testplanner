@@ -1,24 +1,34 @@
-# TCD: [ITD] Fabric/IO Rail ITD
+# TCD: ITD-CONTRACT-003 - Fabric/IO Domain Compensation
 
 | Field | Value |
 |-------|-------|
 | **TCD ID** | [16031170073](https://hsdes.intel.com/appstore/article-one/#/16031170073) |
-| **Title** | [ITD] Fabric/IO Rail ITD |
-| **Status** | draft |
+| **Title** | ITD-CONTRACT-003 - Fabric/IO Domain Compensation |
+| **Status** | open |
 | **Parent TPF** | [16031170066 — ITD Compensation](https://hsdes.intel.com/appstore/article-one/#/16031170066) |
-| **Split from** | [22022420603 — ITD](https://hsdes.intel.com/appstore/article-one/#/22022420603) |
 | **Feature** | ITD Compensation |
 | **Sub-Feature** | Fabric/IO Rail |
 | **NWP Disposition** | Runnable_On_N-1 (NWP new domains: VCCCAB, VCCC2CDIG) |
-| **KB last updated** | 2026-07-19 |
-| **Co-Design T2 ref** | Ingest tracker §3B row S5 |
-| **Spec refs** | DMR thermal / ITD: Fabric/IO domains + NWP CCRD spec (new domains) |
+| **KB last updated** | 2026-07-21 |
+| **Spec refs** | DMR CBB HAS ITD: Fabric/IO domains, NWP IMH SoC PM MAS (new domains) |
+
+---
+
+## Definition Block
+
+- **Layer:** 1 (Contract)
+- **Sentence:** Fabric/IO domain ITD (VccInf, VccCFCIO, VccFIXDIG, VccUCIEA, VccC2IA, VccFCFCAB, VccCAB, VccC2CDIG) applies fuse-slope × (temp - cutoff) voltage compensation per domain via IMH Primecode.
+- **Gate:** ITD-FUSE-001 (Coefficient Fuse Checkout)
+- **Suspect:** IMH Primecode ITD compensation loop per fabric/IO domain
+- **Setup:** ITD enabled, fuse checkout passed. Fabric/IO domains active.
+- **Check:** Inject temperature change → read VID for each fabric/IO domain; compare against ITD algorithm output.
+- **Invariant:** VID delta matches {manifest.itd_slope} × (T - {manifest.itd_cutoff_tj}) within spec'd tolerance per domain. NWP new domains (VccCAB, VccC2CDIG) compensate correctly with NWP-specific fuse coefficients.
 
 ---
 
 ## Section 1: Architecture / Micro-architecture and Functionality
 
-**Fabric/IO Rail ITD** validates temperature-dependent voltage compensation for VccInf, VccCFCIO, VccFIXDIG, VccUCIEA, VccC2IA, and VccFCFCAB/VccCAB domains. These are **Primecode-driven** ITD domains spanning the IO and fabric voltage rails. NWP adds two new ITD-capable domains vs DMR: **VCCCAB** and **VCCC2CDIG**.
+**Fabric/IO Domain Compensation** validates temperature-dependent voltage compensation for VccInf, VccCFCIO, VccFIXDIG, VccUCIEA, VccC2IA, and VccFCFCAB/VccCAB domains. These are **Primecode-driven** ITD domains spanning the IO and fabric voltage rails. NWP adds two new ITD-capable domains vs DMR: **VCCCAB** and **VCCC2CDIG**.
 
 > **Architecture overview:** See TPF — ITD Compensation §Design Details.
 
@@ -26,6 +36,7 @@
 
 - **New domains:** `VCCCAB` and `VCCC2CDIG` added on NWP — no DMR N-1 baseline, require fresh validation
 - FW owner for all fabric/IO domains: IMH Primecode
+- UCIe boot-time one-time ITD correction (VccUCIEA) — verify interaction with VccC2IA
 
 ---
 
@@ -53,18 +64,22 @@
 
 | Scenario | TC ID | Env | Verdict |
 |---|---|---|---|
-| VccInf ITD at operating range extremes | TBD | FV, HSLE | |
-| VccCFCIO ITD compensation | TBD | FV, HSLE | |
-| VccFIXDIG ITD compensation | TBD | FV, HSLE | |
-| VccUCIEA ITD — UCIe boot-time one-time correction | TBD | FV, HSLE | |
-| VccC2IA ITD compensation | TBD | FV, HSLE | |
-| VCCCAB (NWP new) ITD at extreme temp | TBD | FV | |
-| VCCC2CDIG (NWP new) ITD compensation | TBD | FV | |
+| VccInf (Inf) ITD verification | [22022421535](https://hsdes.intel.com/appstore/article-one/#/22022421535) | FV, HSLE | |
+| VCCC2IA (UCIe) ITD verification | [22022421536](https://hsdes.intel.com/appstore/article-one/#/22022421536) | FV, HSLE | |
+| VCCUCIEA ITD verification | [22022421546](https://hsdes.intel.com/appstore/article-one/#/22022421546) | FV, HSLE | |
+| VCCCFCIO ITD verification | [22022421538](https://hsdes.intel.com/appstore/article-one/#/22022421538) | FV, HSLE | |
+| VCCFIXDIG ITD verification | [22022421542](https://hsdes.intel.com/appstore/article-one/#/22022421542) | FV, HSLE | |
+| VCCFCFCAB / VCCCAB (NWP new) ITD verification | [22022458470](https://hsdes.intel.com/appstore/article-one/#/22022458470) | FV | |
+| VCCC2CDIG (NWP new) ITD compensation | **GAP — no TC** | FV | ⚠️ |
+| VccInf ITD at operating range extremes | within 22022421535 | FV, HSLE | |
+| VccUCIEA — UCIe boot-time one-time correction | within 22022421546 | FV, HSLE | |
+| VCCCAB at extreme temp (NWP new, no N-1) | within 22022458470 | FV | |
 
 ---
 
 ## Section 8: Open Items
 
-- Map existing TCs from parent ITD TCD (22022420603) to this split
+- ~~Map existing TCs from parent ITD TCD (22022420603) to this split~~ — **DONE** (6 TCs mapped)
+- **GAP:** Create TC for VCCC2CDIG (NWP new domain) — no existing TC
 - Confirm NWP VCCCAB / VCCC2CDIG fuse coefficient expected values
 - Verify UCIe boot-time ITD (VccUCIEA) interaction with VccC2IA

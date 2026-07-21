@@ -1,37 +1,54 @@
-# TCD: [ITD] Common Controls
+# TCD: ITD-FUSE-001 - ITD Coefficient Fuse Checkout
 
 | Field | Value |
 |-------|-------|
 | **TCD ID** | [16031170075](https://hsdes.intel.com/appstore/article-one/#/16031170075) |
-| **Title** | [ITD] Common Controls |
-| **Status** | draft |
+| **Title** | ITD-FUSE-001 - ITD Coefficient Fuse Checkout |
+| **Status** | open |
 | **Parent TPF** | [16031170066 — ITD Compensation](https://hsdes.intel.com/appstore/article-one/#/16031170066) |
-| **Split from** | [22022420603 — ITD](https://hsdes.intel.com/appstore/article-one/#/22022420603) |
 | **Feature** | ITD Compensation |
-| **Sub-Feature** | Common Controls (fuse checkout, enable/disable, reset-time, MIN_ACCURATE_TEMP) |
-| **NWP Disposition** | Needs_Adaptation (PkgC6 TCs → ZBB on NWP) |
-| **KB last updated** | 2026-07-19 |
-| **Co-Design T2 ref** | Ingest tracker §3B row S7 |
-| **Spec refs** | DMR thermal / ITD: Common control + reset-time behavior |
+| **Sub-Feature** | Fuse Coefficient Checkout |
+| **NWP Disposition** | Runnable_On_N-1 |
+| **KB last updated** | 2026-07-21 |
+| **Spec refs** | DMR CBB HAS ITD fuse definitions, NWP IMH SoC PM MAS |
+
+---
+
+## Definition Block
+
+- **Layer:** -1 (Fuse)
+- **Sentence:** All ITD fuse coefficients (`*_ITD_SLOPE`, `*_ITD_SLOPE_2`, `*_ITD_CUTOFF_V`, `*_ITD_CUTOFF_V_2`, `ITD_CUTOFF_TJ`, `*_ITD_TEMP_OFFSET`, `MIN_ACCURATE_TEMP`, `TRUE_TD_ENABLE`) are readable and match platform-expected values per domain.
+- **Gate:** None (FUSE layer — always first)
+- **Suspect:** Fuse programming / shadow register load
+- **Setup:** Platform booted; fuse shadow registers accessible.
+- **Check:** Read all ITD fuse fields across all voltage domains; compare against expected platform coefficients.
+- **Invariant:** Every ITD fuse field readable; value matches {manifest.itd_fuse_expected} per domain. No fuse reads as all-zero or all-one unless spec'd default.
 
 ---
 
 ## Section 1: Architecture / Micro-architecture and Functionality
 
-**ITD Common Controls** validates the cross-domain ITD control mechanisms: fuse coefficient checkout, global ITD enable/disable path, reset-time behavior (worst-case ITD during MB training), and the MIN_ACCURATE_TEMP guard condition. These are the shared control/safety mechanisms that apply across ALL ITD-capable domains.
+**ITD Coefficient Fuse Checkout** validates that all ITD fuse coefficients are correctly programmed and accessible across all voltage domains. This is the foundational gate for all ITD validation — if fuses are wrong, all downstream compensation checks are invalid.
 
 > **Architecture overview:** See TPF — ITD Compensation §Design Details.
 
-### Key Behavioral Facts
+### Fuse Fields Per Domain
 
-- **Fuse checkout:** `IMH_DOMAIN_ITD_SLOPE`, `ITD_CUTOFF_TJ`, `TRUE_TD_ENABLE`, `MIN_ACCURATE_TEMP` readable and match expected values
-- **Disable path:** ITD disable → compensation zeroed across all domains
-- **Reset-time behavior:** Before MB training = worst-case/safe ITD; during training = real-time ITD; after training = safe again until reset complete
-- **MIN_ACCURATE_TEMP:** Guard — ITD compensation not applied below this temperature (unreliable DTS readings)
+| Fuse | Controls |
+|---|---|
+| `*_ITD_SLOPE` | Slope for voltage vs temperature (main/low voltage range) |
+| `*_ITD_SLOPE_2` | Slope for high voltage range (dual-slope domains) |
+| `*_ITD_CUTOFF_V` | Cutoff voltage below which SLOPE applies |
+| `*_ITD_CUTOFF_V_2` | Cutoff voltage for second slope (dual-slope) |
+| `*_ITD_CUTOFF_V_X` | Crossover/inflection voltage between SLOPE and SLOPE_2 |
+| `*_ITD_TEMP_OFFSET` | Offset to min DTS temperature for cold spot compensation |
+| `ITD_CUTOFF_TJ` | Reference temperature — above this, ITD not applied (True TD region) |
+| `MIN_ACCURATE_TEMP` | Min reliable DTS temperature; below → use `ITD_MIN_OVERRIDE_TEMP` |
+| `TRUE_TD_ENABLE` | Enables True TD (inverse ITD) for core/mesh above cutoff voltage |
 
-### NWP Delta — ZBB Items
+### ITD-Capable Domains on NWP
 
-- **PkgC6 interaction:** NWP has no PkgC6 (ZBB) — all PkgC6-related ITD TCs must be removed or marked ZBB_N/A
+VccCore (ACP), VccRing (CCF), VccInf, VccCFCIO, VccFIXDIG, VccUCIEA, VccC2IA (UCIe), VccCFCMEM, MLC SSA, VccFCFCAB/VccCAB, **VccC2CDIG** (NWP new)
 
 ---
 
@@ -39,12 +56,12 @@
 
 | FR ID | Requirement | Spec ref |
 |---|---|---|
-| FR1 | Fuse coefficients readable and match expected values | DMR thermal / ITD fuse |
-| FR2 | ITD disable → compensation zeroed across all domains | DMR thermal / ITD |
-| FR3 | Reset-time: worst-case ITD before MB training | DMR thermal / ITD reset behavior |
-| FR4 | Reset-time: real-time ITD during MB training | DMR thermal / ITD reset behavior |
-| FR5 | MIN_ACCURATE_TEMP guard: no compensation below threshold | DMR thermal / ITD |
-| FR6 | PkgC6 interaction | **ZBB on NWP — not applicable** |
+| FR1 | All per-domain ITD fuse coefficients readable | DMR CBB HAS ITD fuse |
+| FR2 | Fuse values match platform-expected coefficients per domain | DMR CBB HAS ITD fuse |
+| FR3 | `ITD_CUTOFF_TJ` global reference temperature readable and correct | DMR CBB HAS ITD |
+| FR4 | `MIN_ACCURATE_TEMP` readable and correct | DMR CBB HAS ITD |
+| FR5 | `TRUE_TD_ENABLE` readable and correct per domain | DMR CBB HAS ITD |
+| FR6 | NWP new domain fuses (VccCAB, VccC2CDIG) present and correct | NWP IMH SoC PM MAS |
 
 ---
 
@@ -52,10 +69,10 @@
 
 | Bar | Measurable criterion | Spec ref |
 |---|---|---|
-| Fuse checkout | All ITD fuse fields readable; values match platform-expected coefficients | DMR thermal / ITD fuse |
-| Disable path | ITD disabled → no voltage compensation on any domain (VID at baseline) | DMR thermal / ITD |
-| Reset-time worst-case | During boot before MB training: ITD at worst-case/safe values (not real-time) | DMR thermal / ITD |
-| MIN_ACCURATE_TEMP | Below MIN_ACCURATE_TEMP: ITD compensation not applied; above: normal operation | DMR thermal / ITD |
+| Fuse readability | All ITD fuse fields readable across all domains; no access faults | DMR CBB HAS ITD fuse |
+| Fuse correctness | Every fuse value matches {manifest.itd_fuse_expected} per domain | DMR CBB HAS ITD fuse |
+| Dual-slope fuses | Domains with dual-slope: `*_ITD_SLOPE_2`, `*_ITD_CUTOFF_V_2`, `*_ITD_CUTOFF_V_X` present and non-zero | DMR CBB HAS ITD |
+| NWP new domains | VccCAB and VccC2CDIG fuse fields present and match expected | NWP IMH SoC PM MAS |
 
 ---
 
@@ -63,17 +80,18 @@
 
 | Scenario | TC ID | Env | Verdict |
 |---|---|---|---|
-| Fuse coefficient checkout (all domains) | TBD | FV, HSLE, VP | |
-| ITD global disable → re-enable | TBD | FV, HSLE | |
-| Reset-time: worst-case ITD during early boot | TBD | FV, HSLE, VP | |
-| Reset-time: MB training exit → real-time ITD | TBD | FV, HSLE | |
-| MIN_ACCURATE_TEMP boundary (at/below/above) | TBD | FV, HSLE | |
-| ~~PkgC6 → ITD interaction~~ | ~~N/A~~ | ~~ZBB~~ | **ZBB on NWP** |
+| Fuse coefficient checkout (all domains) | [22022421521](https://hsdes.intel.com/appstore/article-one/#/22022421521) | FV, HSLE, VP | |
+| Per-domain slope/cutoff fuse verification | within 22022421521 | FV, HSLE | |
+| Dual-slope fuse fields present for applicable domains | within 22022421521 | FV, HSLE | |
+| NWP new domain fuses (VccCAB, VccC2CDIG) | within 22022421521 | FV | |
+| MIN_ACCURATE_TEMP fuse value check | within 22022421521 | FV, HSLE | |
+| TRUE_TD_ENABLE per-domain check | within 22022421521 | FV, HSLE | |
 
 ---
 
 ## Section 8: Open Items
 
-- Map existing TCs from parent ITD TCD (22022420603) to this split
-- Identify and tag PkgC6-related TCs for ZBB removal
-- Confirm MIN_ACCURATE_TEMP threshold value for NWP
+- Confirm NWP VccCAB / VccC2CDIG expected fuse coefficient values
+- Verify ITD_CUTOFF_TJ expected value for NWP (may differ from DMR)
+- **Verify:** Does TC 22022421528 cover re-enable after disable? If not, split scenario
+- **Verify:** Does TC 22022421521 explicitly test MIN_ACCURATE_TEMP boundary? If not, add scenario

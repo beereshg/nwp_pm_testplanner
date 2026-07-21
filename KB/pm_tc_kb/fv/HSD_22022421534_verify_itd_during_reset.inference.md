@@ -42,16 +42,20 @@ The sub_feature `To_be_ported` indicates this test needs porting from DMR to NWP
 - PythonSv access to `sv.socket0.imh0.punit.*`
 - `pm.Active_pm.Thermal_Management.CPU_thermals.itd` module available for NWP
 
-### Adapted Test Steps
+### Adapted Test Steps (from itd_pmx.py --itd_reset option)
 
 | Step | Action | NWP Adaptation |
 |------|--------|----------------|
-| 1 | Using `itd.py`, calculate worst-case ITD compensation | `from pm.focus import itd; itd.calc_worst_case_itd(0, 0)` |
-| 2 | Trigger reset | NWP reset mechanism (same as DMR hardware reset flow) |
-| 3 | Using bootscript or equivalent, **halt before Phase 4** | NWP bootscript with `HALT_AT_PHASE=4` or equivalent |
-| 4 | Verify voltage at halt = baseline + worst-case ITD offset | Read `RESCTRL_CR_VOLTAGE_OFFSET.OFFSET` or equivalent RC register on NWP |
-| 5 | Resume boot past Phase 4 | Bootscript continue |
-| 6 | Verify dynamic ITD now active: voltage tracks temperature | Compare to pre-reset ITD state; should match active-state MoW |
+| 1 | Select reference IP (first CCF slice) and record its ITD fuse coefficients including `MIN_OVERRIDE_TEMP` | Same fuse paths on NWP; 2 CBBs instead of 4 |
+| 2 | Calculate expected worst-case ITD offset using `MIN_OVERRIDE_TEMP` as the temperature input instead of real DTS — this is the safe/conservative voltage FW applies before memory training | `calc_itd_offset(min_temp=MIN_OVERRIDE_TEMP, ...)` — uses worst-case cold scenario |
+| 3 | Set reset-phase breakpoint by writing the target phase index (0x14) to `imh.pcodeio_map.io_reset_stalls[0]` and `cbb.base.punit_regs.punit_gpsb.gpsb_infst_io_regs.pcode_reset_generic_0` | Stalls both IMH and CBB FW at the specified reset phase |
+| 4 | Trigger warm reset via CF9h write (value 0xE for warm reset) | SVOS: `m outb 0xcf9 0xe`; Simics: S3M model CF9 write |
+| 5 | Poll `imh.pcodeio_map.io_pmsb_scratchpad` (lower byte) until it matches the breakpoint value — confirms FW has reached the target reset phase | Polling loop with sleep between reads |
+| 6 | At the breakpoint: read the reference CCF slice's actual voltage and current ratio | `pcode.vars.ring.fivrs.at{slice}._voltage.val` and `tpmi.ufs_status.current_ratio` |
+| 7 | Calculate base voltage from VF curve at the current ratio (4-point interpolation) | Same ring VF lookup as mainTest |
+| 8 | Compute actual ITD offset as (actual voltage − base voltage) | This should match the worst-case offset from step 2 |
+| 9 | Release breakpoint immediately by clearing both stall registers to zero — prevents hard hang | `io_reset_stalls[0]=0` and `pcode_reset_generic_0=0` |
+| 10 | Compare actual offset vs expected worst-case offset | Must match within 10% tolerance |
 
 ### Worst-Case ITD During Reset
 
