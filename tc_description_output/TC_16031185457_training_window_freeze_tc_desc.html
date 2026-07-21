@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+  body{font-family:"Segoe UI",Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;max-width:900px;margin:20px auto;padding:0 20px;}
+</style></head><body>
+<div class="desc-box">
+
+
+
+
+<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
+<br/><p style="margin:10px 0 16px 0;">Validates two critical negative-validation invariants: (1) VCCUCIEA voltage does NOT change during the UCIe mainband training window, even when temperature changes occur; (2) if a surprise reset occurs during training, VCCUCIEA is NOT reverted during the training window, and post-reset-exit returns to HWRS boot defaults. 1. NWP silicon platform with UCIe D2D links capable of warm-reset retraining 2. ITD enabled with valid fuse coefficients (ITD-FUSE-001 passed) 3. Pre-training VCCUCIEA ITD sequencing working (ITD-SCENARIO-003 — TC 22022421534 passed) 4. PythonSV access to VCCUCIEA VID registers, reset control, and DTS override 5. Ability to trigger warm reset and observe VCCUCIEA during reset sequence 6. DTS override capability to inject temperature change during training window 7. Training window breakpoint or timing marker available (to confirm &quot;in training&quot; state) <strong>PASS:</strong></p>
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Preconditions</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;padding:8px;">Trigger warm reset to initiate UCIe mainband retraining sequence</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;padding:8px;">Set breakpoint/marker at MB training start; record VCCUCIEA VID at training entry</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;padding:8px;">During MB training window (~2ms): inject DTS temperature change of +5°C via override</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;padding:8px;">Read VCCUCIEA VID during training (within the 2ms window)</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">5</td><td style="text-align:left;padding:8px;">Wait for training completion; read VCCUCIEA VID after training</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">6</td><td style="text-align:left;padding:8px;">Verify freeze duration covers full training window</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">7</td><td style="text-align:left;padding:8px;">(Surprise reset scenario) Trigger a second warm reset</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">8</td><td style="text-align:left;padding:8px;">During MB training of the second reset: inject reset entry (surprise reset)</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">9</td><td style="text-align:left;padding:8px;">Observe VCCUCIEA during surprise-reset-in-training</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">10</td><td style="text-align:left;padding:8px;">After surprise reset exit: read VCCUCIEA VID</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">11</td><td style="text-align:left;padding:8px;">Verify next boot performs normal pre-training ITD sequence</td></tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Test Steps</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 8px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">#</th>
+  <th style="text-align:left;padding:8px;">Action</th>
+  <th style="text-align:left;padding:8px;">Expected Result (PASS)</th>
+  <th style="text-align:left;padding:8px;">Failure Indication</th>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Trigger warm reset to initiate UCIe mainband retraining sequence</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Reset sequence starts; observe pre-training ITD applied to VCCUCIEA</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Reset does not trigger retraining</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Set breakpoint/marker at MB training start; record VCCUCIEA VID at training entry</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">VID captured as V_training_start (= base + real-time ITD)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Cannot capture training-start VID</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">During MB training window (~2ms): inject DTS temperature change of +5°C via override</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">DTS readback confirms +5°C change; verify Primecode ITD kernel detects it</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">DTS override not reflected</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read VCCUCIEA VID during training (within the 2ms window)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">VID unchanged from V_training_start — FROZEN despite temp change</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">VID changed during training (FAIL — spec violation)</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Wait for training completion; read VCCUCIEA VID after training</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">VID = worst-case ITD (safe work-point) per ITD-SCENARIO-003</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">VID still at training-start value or incorrect post-training</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify freeze duration covers full training window</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">No VCCUCIEA VID change for entire ~2ms training period</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">VID changes before training complete</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">(Surprise reset scenario) Trigger a second warm reset</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Reset sequence starts again</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">—</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">8</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">During MB training of the second reset: inject reset entry (surprise reset)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Surprise reset initiated while training is active</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Unable to inject reset during training window</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">9</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Observe VCCUCIEA during surprise-reset-in-training</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">VID does NOT change (no ITD reversal during training)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">VID reverted or changed during surprise reset window</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">10</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">After surprise reset exit: read VCCUCIEA VID</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">VID = HWRS boot default (not the in-training ITD value)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">VID at in-training value or unexpected voltage</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">11</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify next boot performs normal pre-training ITD sequence</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Normal 3-phase ITD behavior resumes on subsequent boot</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Pre-training ITD sequence broken after surprise reset</td>
+</tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Pass / Fail Criteria</div>
+<br/>
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
+  <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
+  <p style="margin:0;font-size:0.9em;">**</p>
+</div>
+
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
+  <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
+  <p style="margin:0;font-size:0.9em;">**</p>
+</div>
+
+
+
+
+
+<h3>NOTEs</h3>
+<div style="font-size:0.85em;color:#555;margin-left:12px;padding:10px;background:#f8f9fa;border-left:3px solid #999;border-radius:3px;">
+
+<p style="margin:6px 0;">Injecting reset during the 2ms training window requires precise timing — Use PythonSV breakpoint at training-start + timed reset injection; alternatively use HSLE XOS with controllable clock</p>
+
+<p style="margin:6px 0;">Confirming "in training" state from outside the Phy is non-trivial — Use Primecode debug trace markers or VISA sideband capture to confirm training active</p>
+
+<p style="margin:6px 0;">Post-reset HWRS boot default VID value must be known for comparison — Determine from HWRS register spec or capture from a clean boot baseline</p>
+
+<p style="margin:6px 0;">Temperature injection during training may not be reflected until next ITD cycle — Acceptable — test validates that even if detected, no action is taken</p>
+
+</div>
+
+
+
+
+<h3>OPENs</h3>
+<div style="font-size:0.85em;color:#c62828;margin-left:12px;padding:10px;background:#fff3f3;border-left:3px solid #c62828;border-radius:3px;">
+<ul style="margin:4px 0;padding-left:20px;">
+
+<li style="margin:4px 0;">Injecting reset during the 2ms training window requires precise timing → Use PythonSV breakpoint at training-start + timed reset injection; alternatively use HSLE XOS with controllable clock</li>
+
+<li style="margin:4px 0;">Confirming "in training" state from outside the Phy is non-trivial → Use Primecode debug trace markers or VISA sideband capture to confirm training active</li>
+
+<li style="margin:4px 0;">Post-reset HWRS boot default VID value must be known for comparison → Determine from HWRS register spec or capture from a clean boot baseline</li>
+
+</ul>
+</div>
+
+
+<br/>
+
+
+
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
+<br/><p style="margin:10px 0;">N/A — FV automated comparison.</p>
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">References</div>
+<br/>
+
+<ul>
+
+
+<li><a href="https://hsdes.intel.com/appstore/article-one/#/16031185181">HSD 16031185181</a> — TCD 16031185181 — ITD-SCENARIO-004</li>
+
+<li><a href="https://hsdes.intel.com/appstore/article-one/#/22018755448">HSD 22018755448</a> — SOC HSD 22018755448 — VCCUCIEA ITD before mainband training</li>
+
+
+
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/server/DMR/IP_PM_Features/D2D_PM/D2D_PM.html">D2D PM HAS — "during MB training Primecode must not change VCCUCIEA"</a></li>
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/server/DMR/PM%20Features/Thermals/DMR_Thermal.html#itd">DMR Thermal HAS §ITD</a></li>
+
+
+</ul>
+
+
+</div>
+</div>
+</body></html>

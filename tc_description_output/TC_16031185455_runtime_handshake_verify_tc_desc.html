@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<style>
+  body{font-family:"Segoe UI",Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;max-width:900px;margin:20px auto;padding:0 20px;}
+</style></head><body>
+<div class="desc-box">
+
+
+
+
+<div style="font-family:'Segoe UI',Arial,sans-serif;font-size:13px;color:#333;line-height:1.6;">
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Validation Scope</div>
+<br/><p style="margin:10px 0 16px 0;">Validates that the VCCUCIEA ITD runtime DVFS handshake protocol executes correctly: before every ITD-triggered voltage change on VCCUCIEA, a change_req is asserted to the UCIe Phy via the Resource Adapter, the Phy returns change_ack, and only then does the FIVR transition to the new voltage. Verifies protocol compliance during normal runtime temperature drift. 1. NWP silicon platform with UCIe D2D links trained (mainband operational) 2. ITD enabled with valid fuse coefficients (ITD-FUSE-001 passed) 3. VCCUCIEA steady-state ITD compensation active (ITD-CONTRACT-003 passed — offset within 26 mV) 4. SB Phy out of reset (Phy can honor handshake) 5. At least one enabled D2D stack per VCCUCIEA FIVR 6. PythonSV access to <code>sv.socket0.imh0.punit.*</code> and RA status registers 7. Test command: <code>python runPmx.py -x nwp.xml -p itd_thermal -tM 9 -M 3 --dvfs_handshake</code> <strong>PASS:</strong></p>
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Preconditions</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 16px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;"><th style="text-align:left;padding:8px;">Item</th><th style="text-align:left;padding:8px;">Requirement</th></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">1</td><td style="text-align:left;padding:8px;">Read current VCCUCIEA voltage and temperature for all 4 sub-domains (NW, NE, SW, SE)</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">2</td><td style="text-align:left;padding:8px;">Inject temperature change of ≥5°C on UCIe DTS (via thermal injection or workload) to trigger ITD recalculation</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">3</td><td style="text-align:left;padding:8px;">Monitor RA voltage change_req assertion for VCCUCIEA domain</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">4</td><td style="text-align:left;padding:8px;">Verify VCCUCIEA FIVR VID has NOT changed before change_ack is received</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">5</td><td style="text-align:left;padding:8px;">Monitor Phy change_ack return</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">6</td><td style="text-align:left;padding:8px;">After ack: verify VCCUCIEA FIVR transitions to new ITD target voltage</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">7</td><td style="text-align:left;padding:8px;">Verify final voltage matches ITD dual-slope algorithm output within 26 mV guardband</td></tr>
+
+<tr><td style="text-align:left;vertical-align:top;padding:8px;">8</td><td style="text-align:left;padding:8px;">Repeat steps 2-7 for a cooling temperature change (opposite direction)</td></tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Test Steps</div>
+<br/><table style="width:100%;border-collapse:collapse;margin:10px 0 8px 0;font-size:0.9em;" border="1" cellpadding="6" cellspacing="0">
+<tr style="background:#e8f0fe;">
+  <th style="text-align:left;padding:8px;">#</th>
+  <th style="text-align:left;padding:8px;">Action</th>
+  <th style="text-align:left;padding:8px;">Expected Result (PASS)</th>
+  <th style="text-align:left;padding:8px;">Failure Indication</th>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">1</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Read current VCCUCIEA voltage and temperature for all 4 sub-domains (NW, NE, SW, SE)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Baseline voltage and temp captured</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Unable to read voltage/temp registers</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">2</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Inject temperature change of ≥5°C on UCIe DTS (via thermal injection or workload) to trigger ITD recalculation</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Temperature change detected by Primecode ITD kernel</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">DTS injection not reflected in readback</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">3</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Monitor RA voltage change_req assertion for VCCUCIEA domain</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">change_req asserted within one FW update cycle (~1ms) of temp change</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">No change_req observed after temperature change</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">4</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify VCCUCIEA FIVR VID has NOT changed before change_ack is received</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">VID remains at pre-change value while awaiting ack</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">VID changes before ack — protocol violation</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">5</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Monitor Phy change_ack return</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">change_ack received within expected latency (≤480 ns from req)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Ack timeout or no ack observed</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">6</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">After ack: verify VCCUCIEA FIVR transitions to new ITD target voltage</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">New VID = base + computed ITD offset for new temperature</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">VID does not update after ack, or incorrect voltage</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">7</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Verify final voltage matches ITD dual-slope algorithm output within 26 mV guardband</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Actual voltage within ±26 mV of computed expected</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Voltage outside guardband</td>
+</tr>
+
+<tr>
+  <td style="text-align:left;vertical-align:top;padding:8px;">8</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Repeat steps 2-7 for a cooling temperature change (opposite direction)</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Same protocol observed for voltage decrease</td>
+  <td style="text-align:left;vertical-align:top;padding:8px;">Protocol skipped for downward voltage change</td>
+</tr>
+
+</table>
+
+
+<br/>
+
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Pass / Fail Criteria</div>
+<br/>
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:0 4px 4px 0;padding:10px 14px;margin:6px 0 4px;">
+  <span style="min-width:46px;font-weight:bold;color:#2e7d32;background:#c8e6c9;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">PASS</span>
+  <p style="margin:0;font-size:0.9em;">**</p>
+</div>
+
+
+<div style="display:flex;align-items:flex-start;gap:10px;background:#fff3f3;border-left:4px solid #c62828;border-radius:0 4px 4px 0;padding:10px 14px;margin:4px 0 12px;">
+  <span style="min-width:46px;font-weight:bold;color:#b71c1c;background:#ffcdd2;border-radius:4px;padding:2px 8px;font-size:0.85em;text-align:center;">FAIL</span>
+  <p style="margin:0;font-size:0.9em;">**</p>
+</div>
+
+
+
+
+
+<h3>NOTEs</h3>
+<div style="font-size:0.85em;color:#555;margin-left:12px;padding:10px;background:#f8f9fa;border-left:3px solid #999;border-radius:3px;">
+
+<p style="margin:6px 0;">RA req/ack signals may not be directly observable via PythonSV — Verify RA status register exposes req/ack state; alternative: use ITH VISA trace on RA sideband</p>
+
+<p style="margin:6px 0;">Temperature injection magnitude may not trigger ITD in all domains — Use DTS override register for deterministic injection</p>
+
+<p style="margin:6px 0;">Handshake timing (240-480 ns) difficult to capture without cycle-accurate observation — Use HSLE XOS for timing verification; FV validates protocol ordering only</p>
+
+</div>
+
+
+
+
+<h3>OPENs</h3>
+<div style="font-size:0.85em;color:#c62828;margin-left:12px;padding:10px;background:#fff3f3;border-left:3px solid #c62828;border-radius:3px;">
+<ul style="margin:4px 0;padding-left:20px;">
+
+<li style="margin:4px 0;">RA req/ack signals may not be directly observable via PythonSV → Verify RA status register exposes req/ack state; alternative: use ITH VISA trace on RA sideband</li>
+
+<li style="margin:4px 0;">Temperature injection magnitude may not trigger ITD in all domains → Use DTS override register for deterministic injection</li>
+
+<li style="margin:4px 0;">Handshake timing (240-480 ns) difficult to capture without cycle-accurate observation → Use HSLE XOS for timing verification; FV validates protocol ordering only</li>
+
+</ul>
+</div>
+
+
+<br/>
+
+
+
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">Post-Process</div>
+<br/><p style="margin:10px 0;">N/A — FV automated comparison.</p>
+
+<br/>
+
+
+<div style="background:#cce4f7;color:#004a80;padding:12px 20px;font-size:1.2em;font-weight:bold;border-left:4px solid #0071c5;border-radius:0 6px 6px 0;">References</div>
+<br/>
+
+<ul>
+
+
+<li><a href="https://hsdes.intel.com/appstore/article-one/#/16031185178">HSD 16031185178</a> — TCD 16031185178 — ITD-CONTRACT-005</li>
+
+<li><a href="https://hsdes.intel.com/appstore/article-one/#/22016961651">HSD 22016961651</a> — SOC HSD 22016961651 — VCCUCIEA ITD runtime handshake</li>
+
+
+
+
+<li><a href="https://docs.intel.com/documents/arch_datacenter/DMR_MAS/RCF/RA/Resource_Adapter_MAS.html#master-slave-voltage-workpoint-change-flow">RA MAS §master-slave-voltage-workpoint-change-flow</a></li>
+
+<li><a href="https://docs.intel.com/documents/pm_doc/src/server/DMR/IP_PM_Features/D2D_PM/auto/f7.D2D_VCCIO_ITD.8fd81f.zoom.html">D2D PM HAS §VCCIO ITD</a></li>
+
+
+</ul>
+
+
+</div>
+</div>
+</body></html>
