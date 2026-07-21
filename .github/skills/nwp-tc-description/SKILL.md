@@ -3,8 +3,9 @@ name: nwp-tc-description
 description: >
   Unified NWP PM TC skill covering TC description authoring (HOW content)
   plus pipeline infrastructure (KB flywheel, NWP architecture constants,
-  HSD API patterns, enrichment sections A-F, KB article enrichment,
-  cache file format, Phoenix hierarchy). TCD owns WHAT; TC describes HOW.
+  HSD API patterns, KB article enrichment, cache file format, Phoenix
+  hierarchy). TCD owns WHAT; TC describes HOW. Output is a single
+  inline-styled HTML matching HSD rendering (no analysis tabs).
 ---
 
 # NWP TC Description Skill
@@ -361,15 +362,47 @@ inference.md, extracts sections via `generate_tc_description.py` extractors, ren
 through the Jinja2 template `KB/templates/tc_hsd_description.html.j2`, backs up the
 existing HSD description as a comment, then PUTs the rendered HTML.
 
+### TC Pipeline — Single Format
+
+The TC pipeline produces ONE output format: the inline-styled HTML that HSD renders.
+No analysis tabs, no JavaScript, no multi-panel wrappers.
+
+**Output format** (sections rendered by Jinja2 template):
+- Validation Scope — paragraph
+- Preconditions — numbered table
+- Test Steps — action / expected result / failure indication table
+- Pass / Fail Criteria — PASS/FAIL badges
+- NOTEs — risk items (from Section E)
+- OPENs — high/medium severity items
+- Health Check — register/log table (if present)
+- Post-Process — N/A or action
+- References — HSD + spec links
+
+### File Naming Convention
+
+| Artifact | Naming | Example |
+|----------|--------|---------|
+| KB cache | `KB/pm_tc_kb/{fv\|pss}/TC_{id}_{slug}.inference.md` | `TC_22022421546_verify_vccuciea_itd.inference.md` |
+| HTML preview | `tc_description_output/TC_{id}_{slug}_tc_desc.html` | `TC_22022421546_verify_vccuciea_itd_tc_desc.html` |
+
+> **Prefix rules:** TC files use `TC_` prefix (HSD subject = `test_case`).
+> TCD files use `TCD_` prefix (HSD subject = `test_case_definition`).
+> Never use `HSD_` prefix — it is ambiguous.
+
+### Commands
+
 ```bash
-# Dry-run (preview only, no writes)
-python tools/html/push_tc_description.py --hsd 22022421978
+# Generate HTML preview (local file for review)
+python tools/html/generate_tc_description.py --hsd 22022421546 --force
+
+# Dry-run push (preview only, no HSD writes)
+python tools/html/push_tc_description.py --hsd 22022421546
 
 # Push one TC (prompts for confirmation)
-python tools/html/push_tc_description.py --hsd 22022421978 --push
+python tools/html/push_tc_description.py --hsd 22022421546 --push
 
 # Push without per-TC prompt
-python tools/html/push_tc_description.py --hsd 22022421978 --push --yes
+python tools/html/push_tc_description.py --hsd 22022421546 --push --yes
 
 # Push all TCs with KB inference.md
 python tools/html/push_tc_description.py --all --push --yes
@@ -378,16 +411,14 @@ python tools/html/push_tc_description.py --all --push --yes
 python tools/html/push_tc_description.py --all --segment fv --push --yes
 ```
 
-> **NEVER extract raw HTML from `generate_unified_html.py` output** for HSD push.
-> That script generates a multi-tab analysis page with `<style>` blocks, JavaScript,
-> and wrapper chrome that HSDES strips. The Jinja2 template produces inline-styled
-> HTML that HSDES renders correctly.
-
 ### Jinja2 Pipeline Flow
 
 ```
-inference.md  →  generate_tc_description.py extractors  →  Jinja2 render  →  HSD PUT
-                 (section headings → structured dict)       (tc_hsd_description.html.j2)
+TC_{id}_{slug}.inference.md
+  → generate_tc_description.py extractors (section headings → structured dict)
+  → Jinja2 render (tc_hsd_description.html.j2)
+  → TC_{id}_{slug}_tc_desc.html (local preview)
+  → push_tc_description.py (→ HSD PUT)
 ```
 
 ### Required Section Headings in inference.md
@@ -403,12 +434,20 @@ The extractors in `generate_tc_description.py` search for these headings (first 
 | `tc.health_checks` | `### Health Checks`, `## Health Check` |
 | `tc.notes` | `## Section E: Risk Assessment`, `### Notes`, `## User Notes` |
 | `tc.opens` | `## Section E: Risk Assessment` (filters severity=high/medium) |
-| `tc.post_process` | `## Post-Process`, `### Post-Process`, `#### Post-Process` |
-| `config.fr_hsd` / `config.specs` | `## Section D: Spec Refs`, `## KB References`, `### Reference Documents`, `### References`, `## References` |
+| `tc.post_process` | `### Post-Process` (use `###` level — see depth rule below) |
+| `config.fr_hsd` / `config.specs` | `## References` (use `##` level — see depth rule below) |
+
+> **Depth rule for Post-Process + References:** The `## Post-Process` extractor
+> (depth 2) will match `### Post-Process` in the file but then won't stop at
+> `### References` (depth 3 > 2). To avoid content bleed, use `### Post-Process`
+> (depth 3) followed by `## References` (depth 2). The `##` heading acts as a
+> natural boundary for all `###`-level sections above it.
 
 ### Inference.md Section Format for Jinja2 Compatibility
 
-The cache file **must** use these heading names for the push pipeline to extract content:
+The cache file **must** use these heading names for the push pipeline to extract content.
+
+**File naming:** `KB/pm_tc_kb/{fv|pss}/TC_{id}_{slug}.inference.md`
 
 ```markdown
 ## Test Case Intent
@@ -434,15 +473,22 @@ The cache file **must** use these heading names for the push pipeline to extract
 |----------------|--------|--------------------|
 | ... | ... | ... |
 
+## Section E: Risk Assessment & Open Items
+| # | Risk/Open Item | Severity | Notes |
+|---|---|---|---|
+| 1 | ... | Low | ... |
+
 ### Post-Process
 N/A
 
-### References
+## References
 - [TCD 16031169418](https://hsdes.intel.com/appstore/article-one/#/16031169418)
 - [Wave 3 HAS](https://docs.intel.com/...)
 ```
 
 > **Subject**: `test_case` (not `test_case_definition` — that is TCD)
+> **Prefix**: `TC_` (not `HSD_` or `TCD_`)
+> **Post-Process → References boundary**: `### Post-Process` (depth 3) then `## References` (depth 2)
 
 ---
 
@@ -549,8 +595,12 @@ N/A
 - FV content: `nwp_pm_fv/data/nwp_pm_fv_content.json` (442 FV + PV TCs)
 - FV cache: `nwp_pm_fv_cache.json` (844 total TCs from full TP walk)
 - PSS master: `nwp_pm_pss/data/nwp_master_test_plan.csv`
-- Unified HTML out: `tc_description_output/` (all generated files)
+- TC description output: `tc_description_output/TC_{id}_{slug}_tc_desc.html`
+- TCD preview output: `tcd_description_output/TCD_{id}_{slug}_preview.html`
 - Hierarchy HTML: `nwp_pm_hierarchy.html` (full interactive view)
+- Jinja2 template: `KB/templates/tc_hsd_description.html.j2`
+- TC generator: `tools/html/generate_tc_description.py`
+- TC push script: `tools/html/push_tc_description.py`
 
 ### Graded TPs (TC grading comments posted to HSD)
 
@@ -568,7 +618,7 @@ N/A
 3. **Mandatory section policy**: fill all required TC/TCD sections or explicitly mark `N/A`/`Not Applicable`.
 4. **No-email write policy**: all automation is silent (no watcher notification).
 5. **Payload compatibility**: attempt write with `{"send_mail": "false"}` in `fieldValues`; if HTTP 400, retry without `send_mail`, then read-back verify.
-6. **Rendering boundary**: generate/update `cache/*.inference.md` first; render HTML only via official scripts — never hand-write HTML. To push a TC description to HSD, always use `push_tc_description.py` (see Part 4).
+6. **Rendering boundary**: generate/update `KB/pm_tc_kb/{fv|pss}/TC_{id}_{slug}.inference.md` first; render HTML only via `generate_tc_description.py` — never hand-write HTML. To push a TC description to HSD, always use `push_tc_description.py`. Do NOT use `generate_unified_html.py` for TC output (that script is for batch analysis reports only).
 7. **TC content discipline**: remove instructional/template boilerplate from final TC output; mandatory sections must be filled.
 8. **Toolkit-first execution**: prefer `hsd_utils` reusable modules for fetch/traverse/compare/update operations; do not create new one-off root scripts for repeat jobs.
 9. **ID validation before write**: treat TP/TPF/TCD/TC IDs in this file as examples; always read-back and confirm parent chain before any mutation.
